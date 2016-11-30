@@ -1,0 +1,118 @@
+NAME := MICROHAL
+VERSION := 0.1.0
+
+SRC := itoa.cpp \
+       diagnostic/diagnostic.cpp \
+	   diagnostic/diagnostic_base.cpp \
+	   interfaces/serialPort_interface.cpp \
+	   ioDeviceNull/IODeviceNull.cpp \
+	   signalSlot/signalSlot.cpp \
+	   crc/crc16.cpp \
+	   I2CDevice/I2CDevice.cpp \
+	   SPIDevice/SPIDevice.cpp
+	   
+
+INC_DIR := . buffers diagnostic interfaces ioDeviceNull signalSlot utils os ports ports/common ports/Nordic/NRF52/i2c I2CDevice SPIDevice
+
+DEF := __USES_CXX \
+       __MICROHAL
+
+
+# Include OS/RTOS port
+ifdef MICROHAL_OS
+	ifeq ($(MICROHAL_OS),windows)
+	
+	endif
+	ifeq ($(MICROHAL_OS),freertos)
+		SRC := $(SRC) \
+		       os/FreeRTOS_port/freeRTOS_port.cpp \
+		       os/FreeRTOS_port/osHelper.cpp \
+		       os/FreeRTOS_port/c++11/condition_variable.cc \
+		       os/FreeRTOS_port/c++11/mutex.cc \
+		       os/FreeRTOS_port/c++11/thread.cc     
+		DEF := $(DEF) HAL_RTOS_FreeRTOS
+	endif
+else
+	# no OS - use empty port
+	SRC := $(SRC) os/noRTOSport/empty_port.cpp
+	DEF := $(DEF) HAL_RTOS_None
+endif
+
+ifneq (, $(findstring stm32f4,$(__MAKAO_DEVICE__)))
+SRC := $(SRC) \
+       ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/core_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/dma_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/externalInterrupt_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/gpio_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/i2c_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/serialPort_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/syscalls.c \
+	   ports/STMicroelectronics/STM32F4xx/i2c/i2c_dma_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/i2c/i2c_interrupt_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/i2c/i2c_polling_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/serialPort/serialPort_interrupt_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/serialPort/serialPort_polling_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/spi/spi_dma_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/spi/spi_interrupt_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/spi/spi_polling_stm32f4xx.cpp \
+	   ports/STMicroelectronics/STM32F4xx/startup/startup.S \
+	   ports/STMicroelectronics/STM32F4xx/startup/vectors.c \
+	   ports/STMicroelectronics/STM32F4xx/startup/STM32F4xxxG_rom.ld
+	   
+	   
+INC_DIR := $(INC_DIR) \
+       ports/STMicroelectronics \
+	   ports/STMicroelectronics/STM32F4xx \
+	   ports/STMicroelectronics/STM32F4xx/hdr \
+	   ports/STMicroelectronics/STM32F4xx/i2c \
+	   ports/STMicroelectronics/STM32F4xx/serialPort \
+	   ports/STMicroelectronics/STM32F4xx/spi \
+	   ports/common/CMSIS/Include
+	   
+DEF := VENDOR_STMICROELECTRONICS \
+       MCU_TYPE_STM32F4XX \
+       STM32F40_41xxx
+
+endif
+
+ifneq (, $(findstring x86,$(__MAKAO_DEVICE__)))
+SRC := $(SRC) \
+       ports/Windows/General/consoleIODevice.cpp \
+       ports/Windows/General/serialPort_windows.cpp
+	   
+	   
+INC_DIR := $(INC_DIR) \
+       os/Windows \
+       ports/Windows/General \
+	   
+DEF := $(DEF) WINDOWS_PORT
+
+endif
+
+ifneq (, $(findstring nrf52,$(__MAKAO_DEVICE__)))
+
+SRC := $(SRC) \
+       ports/Nordic/NRF52/startup/startup.c \
+       ports/Nordic/NRF52/startup/vectors.c \
+       ports/Nordic/NRF52/core_nrf52.cpp \
+       ports/Nordic/NRF52/gpio_nrf52.cpp \
+       ports/Nordic/NRF52/i2c_twim_nrf52.cpp \
+       ports/Nordic/NRF52/itmIoDevice.cpp \
+       ports/Nordic/NRF52/serialPort_nrf52.cpp \
+       ports/Nordic/NRF52/spi_spim_nrf52.cpp \
+       ports/Nordic/NRF52/i2c/i2c_twim_dma_nrf52.cpp \
+       ports/Nordic/NRF52/i2c/i2c_twim_polling_nrf52.cpp \
+       ports/Nordic/NRF52/i2c/i2c_twis_dma_nrf52.cpp \
+       ports/Nordic/NRF52/serialPort/serialPort_interrupt_nrf52.cpp \
+       ports/Nordic/NRF52/serialPort/serialPort_polling_nrf52.cpp \
+       ports/Nordic/NRF52/spi/spi_spim_dma_nrf52.cpp \
+       ports/Nordic/NRF52/spi/spi_spim_polling_nrf52.cpp \
+       ports/Nordic/NRF52/externalInterrupt_nrf52.cpp \
+	   ports/Nordic/NRF52/adc_nrf52.cpp
+
+DEF := $(DEF) \
+       VENDOR_NORDIC \
+       MCU_TYPE_NRF52
+       
+endif

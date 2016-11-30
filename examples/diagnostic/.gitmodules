@@ -1,0 +1,21 @@
+[submodule "microhal/ports/stm32f4xx"]
+	path = microhal/ports/stm32f4xx
+	url = https://github.com/microHAL/port-stm32f4xx
+[submodule "microhal/gsl"]
+	path = microhal/gsl
+	url = https://github.com/Microsoft/GSL
+[submodule "microhal/ports/cmsis"]
+	path = microhal/ports/cmsis
+	url = https://github.com/microHAL/port-CMSIS
+[submodule "microhal/ports/manager"]
+	path = microhal/ports/manager
+	url = https://github.com/microHAL/port-manager
+[submodule "microhal/core"]
+	path = microhal/core
+	url = https://github.com/microHAL/core
+[submodule "microhal/ports/linux"]
+	path = microhal/ports/linux
+	url = https://github.com/microHAL/port-linux
+[submodule "microhal/os"]
+	path = microhal/os
+	url = https://github.com/microHAL/os

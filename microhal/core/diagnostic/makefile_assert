@@ -1,0 +1,13 @@
+#=============================================================================#
+# assert of makefile parameter
+#=============================================================================#
+# line information visible ("ENABLE", "DISABLE")
+LOG_LINE_VISIBLE = ENABLE
+# log level name visible ("ENABLE", "DISABLE")
+LOG_NAME_VISIBLE = ENABLE
+# log level name visible ("ENABLE", "DISABLE")
+LOG_CODE_VISIBLE = ENABLE
+# log level name visible ("ENABLE", "DISABLE")
+LOG_TEXT_VISIBLE = ENABLE
+# set this option when LOG_TEXT_VISIBLE is ENABLED
+LOG_LEVEL = WARNING

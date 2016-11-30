@@ -1,0 +1,15 @@
+eclipse.preferences.version=1
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MICROIDE_MINGW_HOME/delimiter=;
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MICROIDE_MINGW_HOME/operation=append
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MICROIDE_MINGW_HOME/value=C\:\\microIDE\\toolchains\\mingw-w64\\5.3.0
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MICROIDE_MSYS_HOME/delimiter=;
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MICROIDE_MSYS_HOME/operation=append
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MICROIDE_MSYS_HOME/value=C\:\\microIDE\\tools\\msys
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MINGW_HOME/delimiter=;
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MINGW_HOME/operation=replace
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MINGW_HOME/value=${MICROIDE_MINGW_HOME}
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MSYS_HOME/delimiter=;
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MSYS_HOME/operation=replace
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/MSYS_HOME/value=${MICROIDE_MSYS_HOME}
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/append=true
+environment/project/ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343/appendContributed=true

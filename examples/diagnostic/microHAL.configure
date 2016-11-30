@@ -1,0 +1,33 @@
+#=============================================================================#
+# project configuration
+#=============================================================================#
+COMPONENTS = SerialPort Diagnostic
+
+#VENDOR = STMICROELECTRONICS
+#MCU_TYPE = STM32F4XX
+
+#PROGRAMMER = BOARD_EMBEDED
+
+#DEVICES = 
+#BSP_BOARD = STM32F4-DISCOVERY
+#MICRO_HAL_OS = 
+
+#=============================================================================#
+# diagnostics configuration
+#=============================================================================#
+# timestamp visible ("ENABLE", "DISABLE")
+LOG_TIMESTAMP_VISIBLE = ENABLE
+# line information visible ("ENABLE", "DISABLE")
+LOG_LINE_VISIBLE = ENABLE
+# log level name visible ("ENABLE", "DISABLE")
+LOG_NAME_VISIBLE = ENABLE
+# log level name visible ("ENABLE", "DISABLE")
+LOG_CODE_VISIBLE = ENABLE
+# log level name visible ("ENABLE", "DISABLE")
+LOG_TEXT_VISIBLE = ENABLE
+# set this option when LOG_TEXT_VISIBLE is ENABLED
+LOG_LEVEL = Debug
+
+DIAGNOSTICS_LOG_OPTIONS = LOG_TIMESTAMP_VISIBLE_$(LOG_TIMESTAMP_VISIBLE) LOG_LINE_VISIBLE_$(LOG_LINE_VISIBLE) \
+							LOG_NAME_VISIBLE_$(LOG_NAME_VISIBLE) LOG_CODE_VISIBLE_$(LOG_CODE_VISIBLE) \
+							LOG_TEXT_VISIBLE_$(LOG_TEXT_VISIBLE) LOG_LEVEL=$(LOG_LEVEL)
