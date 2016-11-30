@@ -1,0 +1,9 @@
+[submodule "microhal/gsl"]
+	path = microhal/gsl
+	url = https://github.com/Microsoft/GSL
+[submodule "microhal/FreeRTOS"]
+	path = microhal/FreeRTOS
+	url = https://github.com/microHAL/FreeRTOS
+[submodule "microhal/ports/common/cmsis"]
+	path = microhal/ports/common/cmsis
+	url = https://github.com/microHAL/port-CMSIS
