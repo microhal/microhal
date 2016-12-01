@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>mag3110</name>
+	<name>lis2dh12</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -26,9 +26,19 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>microHAL</name>
+			<name>gsl</name>
 			<type>2</type>
-			<locationURI>$%7BmicroHAL_new_I2C_API_DIR%7D</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/third-party/gsl</locationURI>
+		</link>
+		<link>
+			<name>lis2dh12</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/driver</locationURI>
+		</link>
+		<link>
+			<name>microhal</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

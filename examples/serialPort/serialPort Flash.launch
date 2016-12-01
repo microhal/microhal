@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.cdt.launch.applicationLaunchType">
+<intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="0"/>
+<stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_ARGUMENTS" value="-f board/stm32f4discovery.cfg&#10;-c init&#10;-c targets&#10;-c &quot;reset halt&quot;&#10;-c &quot;sleep 100&quot;&#10;-c &quot;flash write_image erase Debug/serialPort.elf&quot;&#10;-c &quot;verify_image Debug/serialPort.elf&quot;&#10;-c &quot;reset run&quot;&#10;-c shutdown"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${eclipse_home}utils\openocd-0.8.0\bin\openocd-0.8.0.exe"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="serialPort"/>
+<booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
+<booleanAttribute key="org.eclipse.cdt.launch.use_terminal" value="true"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/serialPort"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
+</launchConfiguration>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>example_diagnostic</name>
+	<name>uCAM-II</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -24,4 +24,21 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>driver</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/driver</locationURI>
+		</link>
+		<link>
+			<name>gsl</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/third-party/gsl</locationURI>
+		</link>
+		<link>
+			<name>microhal</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/microhal</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

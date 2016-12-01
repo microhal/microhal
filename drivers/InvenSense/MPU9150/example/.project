@@ -26,9 +26,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>microHAL</name>
+			<name>microhal</name>
 			<type>2</type>
-			<locationURI>microHAL_DIR</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

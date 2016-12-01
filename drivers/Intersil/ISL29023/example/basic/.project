@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>example_isl29023</name>
+	<name>isl29023</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -26,9 +26,19 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>microHAL</name>
+			<name>gsl</name>
 			<type>2</type>
-			<locationURI>microHAL_DIR</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>
+		</link>
+		<link>
+			<name>isl29023</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/driver</locationURI>
+		</link>
+		<link>
+			<name>microhal</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

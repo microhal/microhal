@@ -13,6 +13,7 @@
 #include "semphr.h"
 
 namespace microhal {
+namespace os {
 
 class Semaphore {
  public:
@@ -39,6 +40,7 @@ class Semaphore {
     SemaphoreHandle_t ackSemaphore;
 };
 
-} /* namespace microhal */
+}  // namespace os
+}  // namespace microhal
 
 #endif /* SEMAPHORE_H_ */

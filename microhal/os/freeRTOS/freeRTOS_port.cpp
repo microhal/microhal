@@ -35,7 +35,7 @@ namespace microhal {
 namespace os {
 
 void set_system_clock_time(const std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration> &actual_time) noexcept {
-    diagChannel << lock << DEBUG << "Setting time to: "
+    diagChannel << lock << MICROHAL_DEBUG << "Setting time to: "
                 << static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(actual_time.time_since_epoch()).count()) << unlock;
     auto delta = actual_time - std::chrono::system_clock::now();
 
@@ -43,7 +43,7 @@ void set_system_clock_time(const std::chrono::time_point<std::chrono::system_clo
     usec_correction += std::chrono::duration_cast<std::chrono::microseconds>(delta).count() -
                        std::chrono::duration_cast<std::chrono::seconds>(delta).count() * 1000000;
 
-    diagChannel << lock << DEBUG << "Actual time: "
+    diagChannel << lock << MICROHAL_DEBUG << "Actual time: "
                 << static_cast<uint64_t>(
                        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
                 << unlock;
