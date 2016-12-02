@@ -53,10 +53,10 @@ int main(void) {
     float temp, humidity;
     while (1) {
         if (sht.getTemperature(temp) == false) {
-        	diagChannel << lock << ERROR << "Error in reading temperature\n\r" << unlock;
+        	diagChannel << lock << MICROHAL_ERROR << "Error in reading temperature\n\r" << unlock;
         }
         if (sht.getHumidity(humidity) == false) {
-        	diagChannel << lock << ERROR << "Error in reading humidity\n\r" << unlock;
+        	diagChannel << lock << MICROHAL_ERROR << "Error in reading humidity\n\r" << unlock;
         }
 
         sprintf(buffer, "Temperature: %f, Humidity: %f\n\r", temp, humidity);

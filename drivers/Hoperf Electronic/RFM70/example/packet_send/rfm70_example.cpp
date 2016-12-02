@@ -27,7 +27,7 @@
  *//* ========================================================================================================================== */
  
 #include "microhal.h"
-#include "radio/RFM70.h"
+#include "rfm70.h"
 #include "microhal_bsp.h"
 
 using namespace microhal;
@@ -56,28 +56,28 @@ void rfmInt(RFM70 &rfm) {
 }
 
 int main(void) {
-    SerialPort &port = debugPort;
+    SerialPort &port = bsp::debugPort;
     port.clear();
 
-    port.setDataBits(SerialPort::DATA8);
-    port.setStopBits(SerialPort::ONE_STOP);
-    port.setParity(SerialPort::NO_PARITY);
+    port.setDataBits(SerialPort::Data8);
+    port.setStopBits(SerialPort::OneStop);
+    port.setParity(SerialPort::NoParity);
     port.open(SerialPort::ReadWrite);
-    port.setBaudRate(SerialPort::BAUD115200, SerialPort::ALL_DIRECTIONS);
+    port.setBaudRate(SerialPort::Baud115200);
 
     port.write("\n\r------------------- RMF70 Demo -------------------------\n\r");
 
     diagChannel.setOutputDevice(port);
 
     //lis302dl ce pin only discovery f4 board
-    GPIO lisCE(GPIO::Port::PortA, 3, GPIO::OUTPUT);
+    GPIO lisCE(bsp::lis_ce, GPIO::Direction::Output);
     lisCE.set();
     //end of lis
 
-    GPIO led(GPIO::Port::PortD, 15, GPIO::OUTPUT);
-    GPIO button(GPIO::Port::PortA, 0, GPIO::INPUT);
+    GPIO led(bsp::Led3, GPIO::Direction::Output);
+    GPIO button(bsp::Sw1, GPIO::Direction::Input);
 
-    RFM70 rfm(rfm70spi, GPIO::Port::PortA, (GPIO::Pin) 3, GPIO::Port::PortA, (GPIO::Pin) 2);
+    RFM70 rfm(bsp::rfm70::spi, bsp::rfm70::csn, bsp::rfm70::ce);
 
     //initialize rfm device
     if (rfm.init() == false) {
@@ -89,7 +89,7 @@ int main(void) {
 
     ExternalInterrupt::init();
 
-    rfm.connectIRQ(rfmInt, GPIO::Port::PortA, (uint8_t) 1);
+//    rfm.connectIRQ(rfmInt, GPIO::Port::PortA, (uint8_t) 1);
     rfm.enableIRQ();
     std::chrono::milliseconds duration(1000);
     while (1) {

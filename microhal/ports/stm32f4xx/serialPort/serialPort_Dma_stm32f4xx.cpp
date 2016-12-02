@@ -181,7 +181,7 @@ SerialPort_Dma::SerialPort_Dma(USART_TypeDef &usart, char * const rxData, char *
     dma.enableInterrupt(rxStream, 6);
 }
 
-bool SerialPort_Dma::open(OpenMode mode) {
+bool SerialPort_Dma::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
     usart.CR1 |= (mode << 2) | USART_CR1_UE;// | USART_CR1_RXNEIE;
     usart.CR3 |= USART_CR3_DMAT | USART_CR3_DMAR;

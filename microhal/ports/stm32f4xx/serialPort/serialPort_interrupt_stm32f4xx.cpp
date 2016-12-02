@@ -82,7 +82,7 @@ SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char * const rx
 	enableInterrupt(0);
 }
 
-bool SerialPort_interrupt::open(OpenMode mode) {
+bool SerialPort_interrupt::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
     usart.CR1 |= (mode << 2) | USART_CR1_UE | USART_CR1_RXNEIE;
     return true;

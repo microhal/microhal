@@ -67,7 +67,7 @@ public:
 	 *  	 which is testing console input for any character - it is stored in buffer.
 	 *  	 All reads are performed throught that buffer.
 	 */
-	bool open(OpenMode mode) override final;
+	bool open(OpenMode mode) noexcept final;
 
 	/**
 	 *  \brief Close console
@@ -75,14 +75,14 @@ public:
 	 *  \details Function close console in all opened directions.
 	 *  		If input direction was choose at opening, it also stops reading thread and flushes buffer.
 	 */
-	void close() override final;
+	void close() noexcept final;
 
 	/**
 	 *  \brief Checks if console is open
 	 *  
 	 *  \return true if console is opened at least one direction, false otherwise
 	 */
-	bool isOpen() override final;
+	bool isOpen() const noexcept final;
 
 	/**
 	 *  \brief Read from console
@@ -96,7 +96,7 @@ public:
 	 *  		specified by @ref length.
 	 *  
 	 */
-	size_t read(char *buffer, size_t length) override final;
+	size_t read(char *buffer, size_t length) noexcept final;
 
 	/**
 	 *  \brief Get number of characters in input buffer
@@ -104,7 +104,7 @@ public:
 	 *  \return Number of characters avaliable to read
 	 *  
 	 */
-	size_t getAvailableBytes(void) override final {
+	size_t availableBytes(void) const noexcept final {
 		return inputBuffer.getLength();
 	}
 
@@ -121,7 +121,7 @@ public:
 	 *  		If both 0x10 and 0x13 exsist in sequence, function will read characters as line and remove first of symbol from buffer.
 	 *  		Next call of readLine will then return 0 and second symbol will be removed.
 	 */
-	size_t readLine(char *buffer, size_t maxLength) override final;
+//	size_t readLine(char *buffer, size_t maxLength) noexcept final;
 
 	/**
 	 *  \brief Read char from console
@@ -129,7 +129,7 @@ public:
 	 *  \param [in] c reference to place where read character will be stored.
 	 *  \return ture if read was successful, false otherwise
 	 */
-	bool getChar(char &c) override final {
+	bool getChar(char &c) noexcept final {
 		if(1 == read(&c, 1)) {
 			return true;
 		}
@@ -142,7 +142,7 @@ public:
 	 *  \param [in] c character to write
 	 *  \return ture if write was successful, false otherwise
 	 */
-	bool putChar(char c) override final {
+	bool putChar(char c) noexcept final {
 		if(1 == write(&c, 1)) {
 			return true;
 		}
@@ -156,7 +156,7 @@ public:
 	 *  \param [in] length number of characters to write
 	 *  \return number of characters successfully written
 	 */
-	size_t write(const char *data, size_t length) override final;
+	size_t write(const char *data, size_t length) noexcept final;
 
 	/**
 	 *  \brief Clear input buffer

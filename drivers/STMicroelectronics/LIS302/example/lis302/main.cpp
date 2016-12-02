@@ -42,29 +42,29 @@ int main(void) {
 
     do {
         if (!lis302.init()) {
-            diagChannel << lock << ERROR <<
+            diagChannel << lock << MICROHAL_ERROR <<
                     "Error while initializing" << endl << unlock;
             break;
         }
 
         if (!lis302.enableAxis(LIS302DL::Axis::XYZ)) {
-            diagChannel << lock << ERROR <<
+            diagChannel << lock << MICROHAL_ERROR <<
                     "Error while setting axis" << endl << unlock;
             break;
         }
         if (!lis302.setODR(LIS302DL::Odr::ODR_100Hz)) {
-            diagChannel << lock << ERROR <<
+            diagChannel << lock << MICROHAL_ERROR <<
                     "Error while setting ODR" << endl << unlock;
             break;
         }
         if (!lis302.setRange(LIS302DL::Range::Range_2g)) {
-            diagChannel << lock << ERROR <<
+            diagChannel << lock << MICROHAL_ERROR <<
                     "Error while setting range" << endl << unlock;
             break;
         }
 
         if (!lis302.setMode(LIS302DL::Mode::Active)) {
-            diagChannel << lock << ERROR <<
+            diagChannel << lock << MICROHAL_ERROR <<
                     "Error while setting mode" << endl << unlock;
             break;
         }
@@ -73,7 +73,7 @@ int main(void) {
         while (1) {
             std::this_thread::sleep_for(std::chrono::milliseconds {250});
             if (lis302.getAcceleration(&acc)) {
-                diagChannel << lock << DEBUG <<
+                diagChannel << lock << MICROHAL_DEBUG <<
                          "X: " << acc[0] <<
                          ", Y: " << acc[1] <<
                          ", Z: " << acc[2] <<

@@ -16,14 +16,14 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOMenager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOMenager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    stm32f4xx::IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
+    stm32f4xx::IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
 
-    IOMenager::routeSPI<Spi1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    IOMenager::routeSPI<Spi1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    IOMenager::routeSPI<Spi1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    stm32f4xx::IOManager::routeSPI<Spi1, SCK, stm32f4xx::GPIO::PortA, 5>();
+    stm32f4xx::IOManager::routeSPI<Spi1, MISO, stm32f4xx::GPIO::PortA, 6>();
+    stm32f4xx::IOManager::routeSPI<Spi1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::MODE3, stm32f4xx::SPI::PRESCALER_16);
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_16);
     stm32f4xx::SPI::spi1.enable();
 
     SysTick_Config(168000000/1000);

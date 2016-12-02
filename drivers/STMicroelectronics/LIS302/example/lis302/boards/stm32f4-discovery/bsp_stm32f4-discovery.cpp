@@ -54,7 +54,7 @@ void hardwareConfig(void) {
     stm32f4xx::SerialPort::Serial1.setDataBits(stm32f4xx::SerialPort::Data8);
 	stm32f4xx::SerialPort::Serial1.setStopBits(stm32f4xx::SerialPort::OneStop);
 	stm32f4xx::SerialPort::Serial1.setParity(stm32f4xx::SerialPort::NoParity);
-	stm32f4xx::SerialPort::Serial1.setBaudRate(stm32f4xx::SerialPort::Baud115200, stm32f4xx::SerialPort::Direction::AllDirections);
+	stm32f4xx::SerialPort::Serial1.setBaudRate(stm32f4xx::SerialPort::Baud115200);
 	stm32f4xx::SerialPort::Serial1.open(stm32f4xx::SerialPort::ReadWrite);
 
 

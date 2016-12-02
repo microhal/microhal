@@ -5,7 +5,7 @@
  *      Author: Pawel
  */
 
-#include <consoleIODevice.h>
+#include "consoleIODevice.h"
 #include <Windows.h>
 #include <stdio.h>
 #include <conio.h>
@@ -27,7 +27,7 @@ console_IODevice::~console_IODevice() {
 	stopReadingThread();
 }
 
-bool console_IODevice::open(OpenMode mode) {
+bool console_IODevice::open(OpenMode mode) noexcept {
 
 	if (isOpen()) { // should be first properly close
 		return false;
@@ -86,7 +86,7 @@ bool console_IODevice::open(OpenMode mode) {
 	return true;
 }
 
-void console_IODevice::close() {
+void console_IODevice::close() noexcept {
 	inputBuffer.flush();
 	stopReadingThread();
 	inputConsole = nullptr;
@@ -95,14 +95,14 @@ void console_IODevice::close() {
 	FreeConsole();
 }
 
-bool console_IODevice::isOpen() {
+bool console_IODevice::isOpen() const noexcept {
 	if (nullptr != inputConsole || nullptr != outputConsole) {
 		return true;
 	}
 	return false;
 }
 
-size_t console_IODevice::read(char *buffer, size_t length) {
+size_t console_IODevice::read(char *buffer, size_t length) noexcept {
 	size_t readDataLength = inputBuffer.getLength();
 	if (readDataLength > length) {
 		readDataLength = length;
@@ -119,26 +119,26 @@ size_t console_IODevice::read(char *buffer, size_t length) {
 	return i;
 }
 
-size_t console_IODevice::readLine(char *buffer, size_t maxLength) {
-	size_t count = 0;
-	char single;
+//size_t console_IODevice::readLine(char *buffer, size_t maxLength) noexcept {
+//	size_t count = 0;
+//	char single;
+//
+//	while (count < maxLength) {
+//		if (!getChar(single)) {
+//			return count;
+//		}
+//
+//		if (single == 10 || single == 13) {
+//			return count;
+//		}
+//		buffer[count] = single;
+//		count++;
+//	}
+//
+//	return count;
+//}
 
-	while (count < maxLength) {
-		if (!getChar(single)) {
-			return count;
-		}
-
-		if (single == 10 || single == 13) {
-			return count;
-		}
-		buffer[count] = single;
-		count++;
-	}
-
-	return count;
-}
-
-size_t console_IODevice::write(const char *data, size_t length) {
+size_t console_IODevice::write(const char *data, size_t length) noexcept {
 
 	DWORD bytesWritten = 0;
 	if (nullptr != outputConsole) {

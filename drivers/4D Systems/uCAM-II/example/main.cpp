@@ -35,7 +35,7 @@
 #include "microhal.h"
 #include "microhal_bsp.h"
 
-#include "uCAM-II/uCamII.h"
+#include "uCamII.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;

@@ -45,7 +45,7 @@
 #elif defined(LINUX_PORT)
 	#include "ports/linux/General/serialPort_linux.h"
 #elif defined(WINDOWS_PORT)
-	#include "Windows/General/serialPort_windows.h"
+	#include "ports/windows/General/serialPort_windows.h"
 #else
 	#error "Microcontroller vendor undefined."
 #endif

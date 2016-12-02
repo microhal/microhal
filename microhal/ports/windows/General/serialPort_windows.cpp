@@ -35,7 +35,7 @@ namespace windows {
 /* ************************************************************************************************
  * FUNCTIONS
  */
-bool SerialPort::setBaudRate(uint32_t baudRate, SerialPort::Direction dir) {
+bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
 	dcbSerialParams.BaudRate=baudRate;
 
 	if(isOpen()) {
@@ -44,11 +44,11 @@ bool SerialPort::setBaudRate(uint32_t baudRate, SerialPort::Direction dir) {
     return true;
 }
 
-uint32_t SerialPort::getBaudRate(SerialPort::Direction dir) {
+uint32_t SerialPort::getBaudRate() const noexcept {
     return dcbSerialParams.BaudRate;
 }
 
-bool SerialPort::setParity(SerialPort::Parity parity) {
+bool SerialPort::setParity(SerialPort::Parity parity) noexcept {
     switch (parity) {
     case SerialPort::NoParity:
         dcbSerialParams.Parity = NOPARITY;
@@ -68,7 +68,7 @@ bool SerialPort::setParity(SerialPort::Parity parity) {
     return false;
 }
 
-bool SerialPort::setStopBits(SerialPort::StopBits stopBits) {
+bool SerialPort::setStopBits(SerialPort::StopBits stopBits) noexcept {
     switch (stopBits) {
     case SerialPort::OneStop:
     	dcbSerialParams.StopBits = ONESTOPBIT;
@@ -85,7 +85,7 @@ bool SerialPort::setStopBits(SerialPort::StopBits stopBits) {
     return false;
 }
 
-bool SerialPort::setDataBits(SerialPort::DataBits dataBits) {
+bool SerialPort::setDataBits(SerialPort::DataBits dataBits) noexcept {
     //apply new settings
     switch (dataBits) {
     case Data5:

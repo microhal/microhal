@@ -49,7 +49,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return true if everything was OK, false otherwise
      *  
      */
-    bool open(OpenMode mode) override final {
+    bool open(OpenMode mode) noexcept final {
     	bool result = false;
     	do {
     		if(true == isOpen()) {
@@ -99,7 +99,7 @@ class SerialPort: public microhal::SerialPort {
      * @retval true if port is open
      * @retval false if port is close
      */
-    bool isOpen(void) override final {
+    bool isOpen() const noexcept final {
         if(hSerial != INVALID_HANDLE_VALUE) {
     		return true;
     	}
@@ -108,7 +108,7 @@ class SerialPort: public microhal::SerialPort {
     /**
      * @brief This function close serial port
      */
-    void close() override final {
+    void close() noexcept final {
         if(hSerial != INVALID_HANDLE_VALUE) {
         	CloseHandle(hSerial);
         }
@@ -122,7 +122,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return true if everything was OK, false otherwise
      *  
      */
-    bool getChar(char &c) override final {
+    bool getChar(char &c) noexcept final {
     	bool result = false;
     	do {
     		if(!isOpen()) {
@@ -150,7 +150,7 @@ class SerialPort: public microhal::SerialPort {
      *  
      *  \details Details
      */
-    bool putChar(char c) override final {
+    bool putChar(char c) noexcept final {
     	bool result = false;
     	do {
     		if(!isOpen()) {
@@ -177,7 +177,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return number of bytes correctly writen
      *  
      */
-    inline size_t write(const char *data, size_t length) override final;
+    inline size_t write(const char *data, size_t length) noexcept final;
 	
     	/**
      *  \brief Read sequence of bytes from serial port
@@ -187,7 +187,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return number of bytes correctly read
      *  
      */
-    inline size_t read(char *buffer, size_t length) override final;
+    inline size_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept final;
 
     /**
      *  \brief Get number of avaliable bytes to read
@@ -195,7 +195,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return number of avaliable bytes to read
      *  
      */
-    inline size_t getAvailableBytes(void);
+    inline size_t availableBytes(void) const noexcept final;
 
     	/**
      *  \brief Set speed of serial port
@@ -205,7 +205,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return true if everything was OK, false otherwise
      *  
      */
-    bool setBaudRate(uint32_t baudRate, SerialPort::Direction dir = AllDirections);
+    bool setBaudRate(uint32_t baudRate) noexcept;
 	
     /**
      *  \brief Get speed of serial port 
@@ -214,7 +214,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return Baudrate
      *  
      */
-    uint32_t getBaudRate(SerialPort::Direction dir);
+    uint32_t getBaudRate() const noexcept;
 
     /**
      *  \brief Set parity
@@ -223,7 +223,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return true if everything was OK, false otherwise
      *  
      */
-    bool setParity(SerialPort::Parity parity);
+    bool setParity(SerialPort::Parity parity) noexcept final;
     /**
      *  \brief Set number of stop bits
      *  
@@ -231,7 +231,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return true if everything was OK, false otherwise
      *  
      */	
-    bool setStopBits(SerialPort::StopBits stopBits);
+    bool setStopBits(SerialPort::StopBits stopBits) noexcept final;
     /**
      *  \brief Set number of data bytes in single transfer 
      *  
@@ -239,7 +239,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return true if everything was OK, false otherwise
      *  
      */
-    bool setDataBits(SerialPort::DataBits dataBits);
+    bool setDataBits(SerialPort::DataBits dataBits) noexcept final;
 
     	/**
      *  \brief Get size of input buffer
@@ -247,7 +247,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return size of input buffer
      *  
      */
-    size_t getInputQueueSize() const {
+    size_t inputQueueSize() const noexcept final {
     	COMMPROP commProp;
 
         if(hSerial != INVALID_HANDLE_VALUE) {
@@ -268,7 +268,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return size of output buffer
      *  
      */
-    size_t getOutputQueueSize() const {
+    size_t outputQueueSize() const noexcept final {
     	COMMPROP commProp;
 
         if(hSerial != INVALID_HANDLE_VALUE) {
@@ -284,8 +284,8 @@ class SerialPort: public microhal::SerialPort {
         return 0xffffffff;
     }
 
-    bool waitForBytesWritten(int msec) { // not used in Nonoverlapped mode
-    	return true;
+    bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final { // not used in Nonoverlapped mode
+       	return true;
     }
 
     bool waitForReadyRead(int msecs) { // not used in Nonoverlapped mode
@@ -310,7 +310,7 @@ class SerialPort: public microhal::SerialPort {
      *  \return true if everything was OK, false otherwise
      *  
      */
-    bool clear(SerialPort::Direction dir = AllDirections){
+    bool clear(SerialPort::Direction dir = AllDirections) noexcept {
 		DWORD clearFlag = 0;
 
 		switch (dir) {
@@ -373,7 +373,7 @@ private:
  * INLINE FUNCTIONS
  */
 
-size_t SerialPort::getAvailableBytes(void) {
+size_t SerialPort::availableBytes(void) const noexcept {
 	//COMMPROP commProp;
 	COMSTAT status;
 	DWORD errors;
@@ -389,7 +389,7 @@ size_t SerialPort::getAvailableBytes(void) {
     return 0;
 }
 
-size_t SerialPort::write(const char *data, size_t length) {
+size_t SerialPort::write(const char *data, size_t length) noexcept {
     size_t dwBytesRead = 0;
     if(hSerial != INVALID_HANDLE_VALUE) {
     	WriteFile(hSerial, data, length, (LPDWORD)&dwBytesRead, NULL);
@@ -397,7 +397,7 @@ size_t SerialPort::write(const char *data, size_t length) {
 	return dwBytesRead;
 }
 
-size_t SerialPort::read(char *buffer, size_t length) {
+size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept {
     size_t dwBytesRead = 0;
 
     if(hSerial != INVALID_HANDLE_VALUE) {

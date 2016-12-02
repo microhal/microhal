@@ -54,26 +54,26 @@ int main(void) {
 
     //read manufacturer id
     id = tmp.getManufacturerID();
-    diagChannel << DEBUG << "Manufacturer ID = " << toHex(id);
+    diagChannel << MICROHAL_DEBUG << "Manufacturer ID = " << toHex(id);
 
     //read device id
     id = tmp.getDeviceID();
-    diagChannel << DEBUG << "Device ID = " << toHex(id);
+    diagChannel << MICROHAL_DEBUG << "Device ID = " << toHex(id);
 
     //setting to active mode
-    diagChannel << DEBUG << "setting active mode... ";
+    diagChannel << MICROHAL_DEBUG << "setting active mode... ";
     if (tmp.setMode(TMP006::ModeActive) == true) {
     	diagChannel << Debug << "OK";
     } else {
-    	diagChannel << ERROR << "Unable to set mode.";
+    	diagChannel << MICROHAL_ERROR << "Unable to set mode.";
     }
 
     //setting sampling frequency
-    diagChannel << DEBUG << "setting conversion rate to 4Hz... ";
+    diagChannel << MICROHAL_DEBUG << "setting conversion rate to 4Hz... ";
     if (tmp.setConversionRate(TMP006::ConversionRate_4Hz) == true) {
     	diagChannel << Debug << "OK" << endl;
     } else {
-    	diagChannel << ERROR << "Unable to set conversion rate." << endl;
+    	diagChannel << MICROHAL_ERROR << "Unable to set conversion rate." << endl;
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds {1000});

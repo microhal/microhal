@@ -135,7 +135,7 @@ SerialPort_RxInterruptTxDma::SerialPort_RxInterruptTxDma(USART_TypeDef &usart, c
     dma.enableInterrupt(txStream, 6);
 }
 
-bool SerialPort_RxInterruptTxDma::open(OpenMode mode) {
+bool SerialPort_RxInterruptTxDma::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
     usart.CR1 |= (mode << 2) | USART_CR1_UE | USART_CR1_RXNEIE;
     usart.CR3 |= USART_CR3_DMAT;

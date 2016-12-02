@@ -168,15 +168,15 @@ public:
 
     inline bool connectIRQ(void (*func)(RFM70 &rfm), const microhal::GPIO::IOPin pin) __attribute__ ((always_inline)) {
         //interrupt.setVectorNumber(hal::GPIO::PortA, pin);
-        return interrupt.connect((void (*)(void*))func, this, microhal::ExternalInterrupt::Trigger::OnFallingEdge, pin);
+       // return interrupt.connect((void (*)(void*))func, this, microhal::ExternalInterrupt::Trigger::OnFallingEdge, pin);
     }
 
     void enableIRQ() {
-        interrupt.enable();
+        //interrupt.enable();
     }
 
     void disableIRQ() {
-        interrupt.disable();
+        //interrupt.disable();
     }
 
     bool clearInterruptFlag(Interrupts interrupt) {
@@ -193,7 +193,7 @@ public:
     void debug();
 private:
     microhal::GPIO cePin;
-    microhal::ExternalInterrupt interrupt;
+    //microhal::ExternalInterrupt interrupt;
 
     static const uint8_t Bank0_Reg[][2];
     static const uint8_t Bank1_Registers_0x00_to_0x05[][4];
