@@ -236,6 +236,6 @@ void MRF89XA::IRQ1_func() {
 			}
 		}
 	} else {
-		log << ERROR << "ERROR: unexpected mode." << endl;
+		log << MICROHAL_ERROR << "ERROR: unexpected mode." << endl;
 	}
 }

@@ -56,36 +56,36 @@ int main(void) {
     lsm.registerDump(diagChannel);
     gyro.registerDump(diagChannel);
 
-    diagChannel << DEBUG << "Initializing device...";
+    diagChannel << MICROHAL_DEBUG << "Initializing device...";
     if(lsm.init(false, lsm330::Accelerometer::ODR_400Hz,
     		lsm330::Accelerometer::Axis::X | lsm330::Accelerometer::Axis::Y | lsm330::Accelerometer::Axis::Z)){
     	diagChannel << Debug << "OK";
     } else {
     	diagChannel << Debug << "Failed.";
-    	diagChannel << ERROR << "Unable to initialize LSM330 device.";
+    	diagChannel << MICROHAL_ERROR << "Unable to initialize LSM330 device.";
     }
 
-    diagChannel << DEBUG << "Setting accelerometer full scale range...";
+    diagChannel << MICROHAL_DEBUG << "Setting accelerometer full scale range...";
     if(lsm.setFullScaleRange(lsm330::Accelerometer::FSR_16g)){
     	diagChannel << Debug << "OK";
     } else {
     	diagChannel << Debug << "Failed.";
-    	diagChannel << ERROR << "Unable to set LSM330 accelerometer full scale range.";
+    	diagChannel << MICROHAL_ERROR << "Unable to set LSM330 accelerometer full scale range.";
     }
 
-    diagChannel << DEBUG << "Initializing LSM330 gyroscope...";
+    diagChannel << MICROHAL_DEBUG << "Initializing LSM330 gyroscope...";
     if(gyro.init(lsm330::Gyroscope::Mode::NormalOrSleep, lsm330::Gyroscope::ODR_400Hz_cutoff_50Hz,
     		lsm330::Gyroscope::Axis::X | lsm330::Gyroscope::Axis::Y | lsm330::Gyroscope::Axis::Z)){
 		diagChannel << Debug << "OK";
 	} else {
-		diagChannel << ERROR << "Unable to initialize LSM330 device.";
+		diagChannel << MICROHAL_ERROR << "Unable to initialize LSM330 device.";
 	}
 
-    diagChannel << DEBUG << "Setting gyroscope full scale range...";
+    diagChannel << MICROHAL_DEBUG << "Setting gyroscope full scale range...";
     if(gyro.setFullScaleRange(lsm330::Gyroscope::FSR_2000dps)){
     	diagChannel << Debug << "OK";
     } else {
-    	diagChannel << ERROR << "Unable to set LSM330 gyroscope full scale range.";
+    	diagChannel << MICROHAL_ERROR << "Unable to set LSM330 gyroscope full scale range.";
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds {4000});
@@ -96,11 +96,11 @@ int main(void) {
 		   if(lsm.readSamples(x, y, z) == true){
 			   diagChannel << Debug << "X acceleration: " << x << endl << "Y acceleration: " << y << endl << "Z acceleration: " << z << endl;
 		   } else {
-			   diagChannel << ERROR << "Can't read sample.";
+			   diagChannel << MICROHAL_ERROR << "Can't read sample.";
 			   lsm.registerDump(diagChannel);
 		   }
 		} else {
-			diagChannel << ERROR << "No new data.";
+			diagChannel << MICROHAL_ERROR << "No new data.";
 			lsm.registerDump(diagChannel);
 		}
 
@@ -108,7 +108,7 @@ int main(void) {
 		   if(gyro.readSamples(x, y, z)){
 			   diagChannel << Debug << "X gyro: " << x << endl << "Y gyro: " << y << endl << "Z gyro: " << z << endl;
 			} else {
-				diagChannel << ERROR << "Can't read sample.";
+				diagChannel << MICROHAL_ERROR << "Can't read sample.";
 				gyro.registerDump(diagChannel);
 			}
 		} else {

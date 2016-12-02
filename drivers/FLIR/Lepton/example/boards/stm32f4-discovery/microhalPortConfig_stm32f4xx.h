@@ -36,7 +36,7 @@
 //***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-//#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
+#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
 													//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
 													//						 MICROHAL_USE_SERIAL_PORTx_DMA
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024

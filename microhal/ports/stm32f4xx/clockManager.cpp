@@ -5,7 +5,7 @@
  *      Author: pawel
  */
 
-#include <ports/stm32f4xx/clockManager.h>
+#include "ports/stm32f4xx/clockManager.h"
 
 namespace microhal {
 namespace stm32f4xx {

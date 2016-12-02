@@ -29,7 +29,7 @@ void hardwareConfig(void) {
     stm32f4xx::SerialPort::Serial3.setDataBits(stm32f4xx::SerialPort::Data8);
 	stm32f4xx::SerialPort::Serial3.setStopBits(stm32f4xx::SerialPort::OneStop);
 	stm32f4xx::SerialPort::Serial3.setParity(stm32f4xx::SerialPort::NoParity);
-	stm32f4xx::SerialPort::Serial3.setBaudRate(stm32f4xx::SerialPort::Baud115200, stm32f4xx::SerialPort::Direction::AllDirections);
+	stm32f4xx::SerialPort::Serial3.setBaudRate(stm32f4xx::SerialPort::Baud115200);
 	stm32f4xx::SerialPort::Serial3.open(stm32f4xx::SerialPort::ReadWrite);
 
     stm32f4xx::I2C::i2c1.init();

@@ -31,7 +31,7 @@
 			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
-			<name>lsm330</name>
+			<name>lsm330dl</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/driver</locationURI>
 		</link>

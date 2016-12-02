@@ -53,23 +53,23 @@ int main(void) {
 
    // isl.reset();
 
-    diagChannel << lock << DEBUG << "Setting mode...";
+    diagChannel << lock << MICROHAL_DEBUG << "Setting mode...";
     if (isl.setMode(ISL29023::Mode_AlsContinuous) == false) {
-        diagChannel << ERROR << "unable to set mode." << unlock;
+        diagChannel << MICROHAL_ERROR << "unable to set mode." << unlock;
     } else {
         diagChannel << Debug << "OK" << endl << unlock;
     }
 
-    diagChannel << lock << DEBUG << "Setting range...";
+    diagChannel << lock << MICROHAL_DEBUG << "Setting range...";
     if (isl.setRange(ISL29023::Range2) == false) {
-    	diagChannel << ERROR << "unable to set range." << unlock;
+    	diagChannel << MICROHAL_ERROR << "unable to set range." << unlock;
     } else {
     	diagChannel << Debug << "OK" << endl << unlock;
     }
 
-    diagChannel << lock << DEBUG <<"Setting resolution...";
+    diagChannel << lock << MICROHAL_DEBUG <<"Setting resolution...";
     if (isl.setResolution(ISL29023::Resolution_8bit) == false) {
-    	diagChannel << ERROR << "unable to set resolution." << unlock;
+    	diagChannel << MICROHAL_ERROR << "unable to set resolution." << unlock;
     } else {
     	diagChannel << Debug << "OK" << endl << unlock;
     }
@@ -80,7 +80,7 @@ int main(void) {
         if (isl.getLux(lux) == true) {
         	diagChannel << lock << Debug << "lux = " << lux << endl << unlock;
         } else {
-        	diagChannel << ERROR << "unable to read light intensity." << unlock;
+        	diagChannel << MICROHAL_ERROR << "unable to read light intensity." << unlock;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds {1000});

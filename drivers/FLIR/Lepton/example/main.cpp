@@ -35,7 +35,7 @@
 #include "hostComm/hostComm.h"
 
 #include "picturePacket.h"
-#include "lepton/lepton.h"
+#include "lepton.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;
@@ -52,7 +52,7 @@ int main(void) {
 
     diagChannel.setOutputDevice(debugPort);
     // lets check if diagChannal is working
-    diagChannel << lock << EMERGENCY << "Information from diagnostic channel." << unlock;
+    diagChannel << lock << MICROHAL_EMERGENCY << "Information from diagnostic channel." << unlock;
 
     static Lepton lepton(leptonSPI, leptonI2C, leptonCS, leptonPower, leptonReset);
 

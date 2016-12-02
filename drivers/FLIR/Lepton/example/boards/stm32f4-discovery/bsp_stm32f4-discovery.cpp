@@ -60,9 +60,9 @@ void hardwareConfig(void) {
     SysTick_Config(168000000/1000);
 }
 
-uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
-}
+//uint64_t SysTick_time = 0;
+//
+//extern "C" void SysTick_Handler(void)
+//{
+//	SysTick_time++;
+//}

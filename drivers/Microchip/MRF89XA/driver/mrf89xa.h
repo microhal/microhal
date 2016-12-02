@@ -898,7 +898,7 @@ private:
 	microhal::SPIDevice data;
 	microhal::ExternalInterrupt IRQ1interrupt;
 	microhal::diagnostic::Diagnostic<microhal::diagnostic::LogLevel::Debug> &log;
-	microhal::Semaphore semaphoreSend;
+	microhal::os::Semaphore semaphoreSend;
 	std::chrono::milliseconds maxPacktetSendTime {10000}; // fixme add calculation of max transmission time to setBaudrate function
 	microhal::Slot_0<MRF89XA, &MRF89XA::IRQ1_func> irq1_slot;
 

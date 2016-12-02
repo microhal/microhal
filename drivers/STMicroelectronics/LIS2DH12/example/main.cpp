@@ -27,7 +27,7 @@
 
 #include "microhal.h"
 #include "diagnostic/diagnostic.h"
-#include "lis2dh12/lis2dh12.h"
+#include "lis2dh12.h"
 #include "microhal_bsp.h"
 
 
