@@ -53,7 +53,7 @@
 							</builder>
 							<tool commandLinePattern="${COMMAND} ${cross_toolchain_flags} $(MICROHAL_CONFIGURATION_DEFINES) ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1577405701" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1859339985" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.530470336" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" useByScannerDiscovery="false" valueType="includePath"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.530470336" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" useByScannerDiscovery="false"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1757706737" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
@@ -161,7 +161,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microhal/gsl/tests|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|microhal/core/os/Windows|microhal/core/os/linux|microhal/core/os/FreeRTOS_port|microhal/core/os/FreeRTOS|microhal/core/buffers/tests|boards/Linux|microHAL/ports/SiliconLabs|microHAL/ports/Raspberry_Pi|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/ports/Windows|boards/windows|microHAL/buffers/tests|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/usb|microHAL/units|microHAL/SPIDevice|microHAL/os|microHAL/nano|microHAL/math|microHAL/info|microHAL/I2CDevice|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/os/noRTOS|microhal/ports/stm32f4xx|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microhal/gsl/tests|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|microhal/core/os/Windows|microhal/core/os/linux|microhal/core/os/FreeRTOS_port|microhal/core/os/FreeRTOS|microhal/core/buffers/tests|boards/Linux|microHAL/ports/SiliconLabs|microHAL/ports/Raspberry_Pi|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/ports/Windows|boards/windows|microHAL/buffers/tests|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/usb|microHAL/units|microHAL/SPIDevice|microHAL/os|microHAL/nano|microHAL/math|microHAL/info|microHAL/I2CDevice|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -184,25 +184,18 @@
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1372956037" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
 							<builder buildPath="${workspace_loc:/signalSlot_demo}/windows PC" id="cdt.managedbuild.tool.gnu.builder.mingw.base.1848374489" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.916772097" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
-								<option id="gnu.both.asm.option.include.paths.1680504803" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/os}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/boards/windows}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/ports/Windows/General}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/gsl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/core}&quot;"/>
-								</option>
+								<option id="gnu.both.asm.option.include.paths.1680504803" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1613352904" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.56386827" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1166336151" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
 								<option id="gnu.cpp.compiler.option.include.paths.819962184" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/boards/windows}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/ports/Windows/General}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/gsl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/os}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/ports/windows/General}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.402748032" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="WINDOWS_PORT"/>
@@ -215,12 +208,12 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.2056775824" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
 								<option id="gnu.c.compiler.option.include.paths.2095932322" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/boards/windows}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/ports/Windows/General}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/gsl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/os}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/ports/windows/General}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1671351386" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="WINDOWS_PORT"/>
@@ -241,7 +234,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="gsl/tests|microhal/gsl/tests|microhal/core/buffers/tests|boards/Linux|microHAL/ports/SiliconLabs|microHAL/ports/Windows/General/tests|microHAL/ports/Raspberry_Pi|microHAL/buffers/tests|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/common|microHAL/ports/Atmel|microHAL/usb|microHAL/units|microHAL/SPIDevice|microHAL/os|microHAL/nano|microHAL/math|microHAL/info|microHAL/I2CDevice|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost|boards/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/core/SPIDevice|microhal/core/I2CDevice|microhal/core/button|microhal/os/noRTOS|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows/General/tests|microhal/ports/stm32f4xx|microhal/ports/linux|gsl/tests|microhal/gsl/tests|microhal/core/buffers/tests|boards/Linux|microHAL/ports/SiliconLabs|microHAL/ports/Windows/General/tests|microHAL/ports/Raspberry_Pi|microHAL/buffers/tests|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/common|microHAL/ports/Atmel|microHAL/usb|microHAL/units|microHAL/SPIDevice|microHAL/os|microHAL/nano|microHAL/math|microHAL/info|microHAL/I2CDevice|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost|boards/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

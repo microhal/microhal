@@ -26,6 +26,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>FreeRTOS</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/third-party/FreeRTOS/FreeRTOS/Source</locationURI>
+		</link>
+		<link>
 			<name>gsl</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>

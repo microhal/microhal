@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,13 +24,15 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ========================================================================================================================== */
 
-#include "serialPort_windows.h"
 #include "consoleIODevice.h"
+#include "serialPort_windows.h"
 
 using namespace microhal;
 
-windows::SerialPort serialPort_win("\\\\.\\COM20");
+windows::SerialPort serialPort_win1("\\\\.\\COM20");
+windows::SerialPort serialPort_win2("\\\\.\\COM21");
 
-microhal::SerialPort &serialPort = serialPort_win;
+microhal::SerialPort &serialPortA = serialPort_win1;
+microhal::SerialPort &serialPortB = serialPort_win2;

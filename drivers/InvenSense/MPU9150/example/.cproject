@@ -127,7 +127,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microHAL/buffers/tests|microHAL/hostComm/tests|microHAL/os/thread.cc|microHAL/os/Windows|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/usb|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows|microhal/ports/linux|microHAL/buffers/tests|microHAL/hostComm/tests|microHAL/os/thread.cc|microHAL/os/Windows|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/usb|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
