@@ -25,16 +25,14 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
 #include "diagnostic/diagnostic.h"
 #include "lis2dh12.h"
+#include "microhal.h"
 #include "microhal_bsp.h"
-
 
 using namespace microhal;
 using namespace diagnostic;
 
-// MAG3110 object
 LIS2DH12 lis2dh12(sensorI2C, LIS2DH12::I2C_ADDRESS_0);
 
 int main(void) {
@@ -43,7 +41,7 @@ int main(void) {
 
     do {
         if (!lis2dh12.present()) {
-            diagChannel << lock << ERROR << "Can not find LIS2DH12 device." << endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Can not find LIS2DH12 device." << endl << unlock;
             break;
         }
         lis2dh12.enableAxis(LIS2DH12::XYZ);
@@ -51,19 +49,21 @@ int main(void) {
         lis2dh12.setODR(LIS2DH12::ODR_100Hz);
 
         if (!lis2dh12.setMode(LIS2DH12::Mode::Normal)) {
-            diagChannel<< lock << ERROR << "Cannot set operation mode."<< endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Cannot set operation mode." << endl << unlock;
             break;
         }
         LIS2DH12::Acceleration acceleration;
         Temperature temperature;
         while (1) {
-            std::this_thread::sleep_for(std::chrono::milliseconds {250});
+            std::this_thread::sleep_for(std::chrono::milliseconds{250});
             if (lis2dh12.readAcceleration(acceleration)) {
-                diagChannel << lock << DEBUG << "X[g]: " << acceleration[0] << ", Y[g]: " << acceleration[1] << ", Z[g]: " << acceleration[2] << endl << unlock;
+                diagChannel << lock << MICROHAL_DEBUG << "X[g]: " << acceleration[0] << ", Y[g]: " << acceleration[1] << ", Z[g]: " << acceleration[2]
+                            << endl
+                            << unlock;
             }
-//            if (lis2dh12.readTemperature(temperature)) {
-//                diagChannel << lock << DEBUG << "Temperature " << temperature.getCelsius() << endl << unlock;
-//            }
+            //            if (lis2dh12.readTemperature(temperature)) {
+            //                diagChannel << lock << DEBUG << "Temperature " << temperature.getCelsius() << endl << unlock;
+            //            }
         }
     } while (0);
 
