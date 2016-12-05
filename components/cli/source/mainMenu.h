@@ -46,9 +46,9 @@
 #define MAINMENU_H_
 
 #include <stdint.h>
-#include "../serialPort.h"
-#include "string.h"
 #include "menuItem.h"
+#include "serialPort.h"
+#include "string.h"
 #include "subMenu.h"
 
 #include <list>
@@ -61,66 +61,59 @@ class CLI;
  *        menu tree, executing commands, command completion, and others.
  */
 class MainMenu : public SubMenu {
-  friend SubMenu;
-  friend CLI;
+    friend SubMenu;
+    friend CLI;
+
  private:
-  /**
-   * @brief Console port.
-   */
-  IODevice& port;
-  /**
-   * @brief List indicating current position in folder tree.
-   */
-  std::list<SubMenu*> activeMenu;
+    /**
+     * @brief Console port.
+     */
+    IODevice& port;
+    /**
+     * @brief List indicating current position in folder tree.
+     */
+    std::list<SubMenu*> activeMenu;
 
-  /**
-   * @brief Explores the tree of catalogs. Go into sub-folders, executes commands. Puts
-   *        text on screen as a result of its work.
-   * @param words - list of words to process (order matters of course).
-   */
-  void processCommand(std::list<char*>& words);
+    /**
+     * @brief Explores the tree of catalogs. Go into sub-folders, executes commands. Puts
+     *        text on screen as a result of its work.
+     * @param words - list of words to process (order matters of course).
+     */
+    void processCommand(std::list<char*>& words);
 
-  /**
-   * @brief Goes count steps back to root folder. Safe.
-   * @param count
-   */
-  void goBack(int count);
-  /**
-   * @brief Draws a prompt accordingly to current path.
-   */
-  void drawPrompt();
+    /**
+     * @brief Goes count steps back to root folder. Safe.
+     * @param count
+     */
+    void goBack(int count);
+    /**
+     * @brief Draws a prompt accordingly to current path.
+     */
+    void drawPrompt();
 
-  /**
-   * @brief Function for showing sub-folder content. Additionally word completion is done.
-   * @param words - list of given words.
-   * @param maxAppend - count of letters that could be added (without null termination).
-   * @return  Returns:
-   *          - number of appended letters (if there was just one command conforming given name)
-   *          - -1 if there is no given sub-folder or there was more conforming items
-   */
-  int showCommands(std::list<char*>& words, int maxAppend);
+    /**
+     * @brief Function for showing sub-folder content. Additionally word completion is done.
+     * @param words - list of given words.
+     * @param maxAppend - count of letters that could be added (without null termination).
+     * @return  Returns:
+     *          - number of appended letters (if there was just one command conforming given name)
+     *          - -1 if there is no given sub-folder or there was more conforming items
+     */
+    int showCommands(std::list<char*>& words, int maxAppend);
+
  public:
-  /**
-   * @brief Creates a menu.
-   * @param port - IODevice console port.
-   */
-  MainMenu(IODevice& port)
-      : SubMenu((const char*) 0, (const char*) 0),
-        port(port) {
-    activeMenu.push_back(this);
-  }
+    /**
+     * @brief Creates a menu.
+     * @param port - IODevice console port.
+     */
+    MainMenu(IODevice& port) : SubMenu((const char*)0, (const char*)0), port(port) { activeMenu.push_back(this); }
 
-  /**
-   * @brief Creates a menu.
-   * @param port - IODevice console port.
-   * @param helpText - default help text.
-   */
-  MainMenu(IODevice& port, const char* helpText)
-      : SubMenu((char*) 0, helpText),
-        port(port) {
-    activeMenu.push_back(this);
-  }
-
+    /**
+     * @brief Creates a menu.
+     * @param port - IODevice console port.
+     * @param helpText - default help text.
+     */
+    MainMenu(IODevice& port, const char* helpText) : SubMenu((char*)0, helpText), port(port) { activeMenu.push_back(this); }
 };
 
 } /* namespace hal */
@@ -141,4 +134,3 @@ class MainMenu : public SubMenu {
  * components
  * @}
  */
-
