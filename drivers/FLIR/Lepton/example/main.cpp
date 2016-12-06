@@ -29,13 +29,13 @@
 
 #include <cstring>
 
+#include "diagnostic/diagnostic.h"
+#include "hostComm.h"
 #include "microhal.h"
 #include "microhal_bsp.h"
-#include "diagnostic/diagnostic.h"
-#include "hostComm/hostComm.h"
 
-#include "picturePacket.h"
 #include "lepton.h"
+#include "picturePacket.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;
@@ -43,9 +43,7 @@ using namespace std::literals::chrono_literals;
 
 HostComm hostComm(cameraPort, debugPort);
 
-void proceedPacket(HostCommPacket &packet) {
-
-}
+void proceedPacket(HostCommPacket &packet) {}
 
 int main(void) {
     debugPort.write("\n\r------------------- FLIR Lepton example -------------------------\n\r");
@@ -56,32 +54,32 @@ int main(void) {
 
     static Lepton lepton(leptonSPI, leptonI2C, leptonCS, leptonPower, leptonReset);
 
-    //connect function that will be called when new packet will be received
+    // connect function that will be called when new packet will be received
     hostComm.incommingPacket.connect(proceedPacket);
 
-	//create and run hostComm proc task
-	std::thread hostCommThread([](){
-		while(1){
-			std::this_thread::sleep_for(1ms);
-			hostComm.timeProc();
-		}
-	});
+    // create and run hostComm proc task
+    std::thread hostCommThread([]() {
+        while (1) {
+            std::this_thread::sleep_for(1ms);
+            hostComm.timeProc();
+        }
+    });
 
-	lepton.startup();
+    lepton.startup();
     static PicturePacket picturePacket;
     Picture &picture = picturePacket.payload();
 
     while (1) {
-    	if (lepton.isNewPictureAvailable()) {
-    		//memcpy(picture.data, lepton.getPicture(), lepton.getPictureSize()/2);
-    		for (size_t i = 0; i < 60*80; i++) {
-    			picture.data[i] = lepton.getPicture()[i*2 + 1];
-    		}
+        if (lepton.isNewPictureAvailable()) {
+            // memcpy(picture.data, lepton.getPicture(), lepton.getPictureSize()/2);
+            for (size_t i = 0; i < 60 * 80; i++) {
+                picture.data[i] = lepton.getPicture()[i * 2 + 1];
+            }
 
-    		hostComm.send(picturePacket);
-    		std::this_thread::sleep_for(std::chrono::milliseconds {2000});
-    	}
-    	lepton.timeProc();
+            hostComm.send(picturePacket);
+            std::this_thread::sleep_for(std::chrono::milliseconds{2000});
+        }
+        lepton.timeProc();
     }
 
     return 0;
