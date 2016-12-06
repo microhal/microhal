@@ -25,13 +25,13 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                             */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */
 
 #ifndef HOSTCOMM_H_
 #define HOSTCOMM_H_
 
-#include "../diagnostic/diagnostic.h"
 #include "IODevice.h"
+#include "diagnostic/diagnostic.h"
 #include "hostCommPacket.h"
 #include "hostCommPacketACK.h"
 #include "hostCommPacketDevInfo.h"
@@ -84,7 +84,7 @@ class HostComm {
     void stopHostCommThread(void);
 
  private:
-    Semaphore ackSemaphore;
+    os::Semaphore ackSemaphore;
 
     std::mutex sendMutex;
     std::chrono::milliseconds ackTimeout = {std::chrono::milliseconds{1000}};

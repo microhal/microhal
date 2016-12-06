@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,10 +24,11 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                           */
 
+#include "hostComm.h"
 #include "microhal.h"
-#include "hostComm/hostComm.h"
 #include "microhal_bsp.h"
 
 #include "testPacket.h"
@@ -42,61 +43,61 @@ HostComm hostComm(communicationPort, debugPort);
 volatile bool getTestRequest = false;
 
 void proceedPacket(HostCommPacket &packet) {
-	if (packet.getType() == testPacket::Request) {
-		diagChannel << Debug << "Got testPacket request. Sending testPacket ...";
+    if (packet.getType() == testPacket::Request) {
+        diagChannel << Debug << "Got testPacket request. Sending testPacket ...";
 
-		getTestRequest = true;
-	}
+        getTestRequest = true;
+    }
 
-	if (packet.getType() == testPacket::PacketType) {
-		diagChannel << Debug << "Got testPacket.";
-		testPacket &packetC = static_cast<testPacket&>(packet);
+    if (packet.getType() == testPacket::PacketType) {
+        diagChannel << Debug << "Got testPacket.";
+        testPacket &packetC = static_cast<testPacket &>(packet);
 
-		packetC.payload().log();
-	}
+        packetC.payload().log();
+    }
 }
 
-int main(){
-	debugPort.open(IODevice::WriteOnly);
+int main() {
+    debugPort.open(IODevice::WriteOnly);
 
-	communicationPort.setDataBits(SerialPort::Data8);
-	communicationPort.setStopBits(SerialPort::OneStop);
-	communicationPort.setParity(SerialPort::NoParity);
-	communicationPort.setBaudRate(SerialPort::Baud115200, SerialPort::AllDirections);
-	communicationPort.open(SerialPort::ReadWrite);
+    communicationPort.setDataBits(SerialPort::Data8);
+    communicationPort.setStopBits(SerialPort::OneStop);
+    communicationPort.setParity(SerialPort::NoParity);
+    communicationPort.setBaudRate(SerialPort::Baud115200);
+    communicationPort.open(SerialPort::ReadWrite);
 
-	debugPort.write("\n\r------------------- HostComm example -------------------------\n\r");
+    debugPort.write("\n\r------------------- HostComm example -------------------------\n\r");
 
-	diagChannel.setOutputDevice(debugPort);
+    diagChannel.setOutputDevice(debugPort);
 
-	//connect function that will be called when new packet will be received
-	hostComm.incommingPacket.connect(proceedPacket);
+    // connect function that will be called when new packet will be received
+    hostComm.incommingPacket.connect(proceedPacket);
 
-	//create and run hostComm proc task
-	std::thread hostCommThread([](){
-		while(1){
-			std::this_thread::sleep_for(1ms);
-			hostComm.timeProc();
-		}
-	});
+    // create and run hostComm proc task
+    std::thread hostCommThread([]() {
+        while (1) {
+            std::this_thread::sleep_for(1ms);
+            hostComm.timeProc();
+        }
+    });
 
-	testPacket packet;
+    testPacket packet;
 
-	HostCommPacket testRequest(testPacket::Request, false);
-	//hostComm.send(testRequest);
+    HostCommPacket testRequest(testPacket::Request, false);
+    // hostComm.send(testRequest);
 
-	diagChannel << Debug << "starting main loop." << endl;
-	while(1){
-		std::this_thread::sleep_for(5s);
-		//hostComm.ping(true);
+    diagChannel << Debug << "starting main loop." << endl;
+    while (1) {
+        std::this_thread::sleep_for(5s);
+        // hostComm.ping(true);
 
-		if(getTestRequest){
-			getTestRequest = false;
-			diagChannel << Debug << "Sending test packet." << endl;
-			packet.payload().setCounter(5);
-			hostComm.send(packet);
-		}
-	}
+        if (getTestRequest) {
+            getTestRequest = false;
+            diagChannel << Debug << "Sending test packet." << endl;
+            packet.payload().setCounter(5);
+            hostComm.send(packet);
+        }
+    }
 
-	return 0;
+    return 0;
 }

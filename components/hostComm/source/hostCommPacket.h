@@ -39,15 +39,20 @@
 #include "diagnostic/diagnostic.h"
 #include "utils/packed.h"
 
+#ifndef MICROHAL_HOSTCOMM_MAXPACKETSIZE
+#define MICROHAL_HOSTCOMM_MAXPACKETSIZE 2000
+#endif
+
 namespace microhal {
 
+// template <uint32_t maxPacketData = 10000>
 class HostCommPacket {
  public:
     enum PacketOptions { MAX_PACKET_SIZE = 128 };
     enum PacketType { ACK = 0x00, DEVICE_INFO = 0xFC, DEVICE_INFO_REQUEST = 0xFD, PING = 0xFE, PONG = 0xFF };
     enum PacketMode { NO_ACK = 0x00, NO_CRC = 0x00, ACK_REQUEST = 0x80, CRC_CALCULATE = 0x40 };
 
-    static constexpr uint32_t maxPacketDataSize = 2000;
+    static constexpr uint32_t maxPacketDataSize = MICROHAL_HOSTCOMM_MAXPACKETSIZE;
 
     // |--------------------------------------------------------------------------------------------------------------------------------------------|
     // |  Packet information structure                                                                                                              |
@@ -123,7 +128,7 @@ class HostCommPacket {
 
     template <diagnostic::LogLevel level>
     void debug(diagnostic::Diagnostic<level> &log = diagnostic::diagChannel) {
-        log << diagnostic::lock << DEBUG << diagnostic::endl
+        log << diagnostic::lock << MICROHAL_DEBUG << diagnostic::endl
             << "\tpacket type: " << packetInfo.type << diagnostic::endl
             << "\tdata size: " << packetInfo.size << diagnostic::endl
             << "\trequire ACK: " << requireACK() << diagnostic::endl

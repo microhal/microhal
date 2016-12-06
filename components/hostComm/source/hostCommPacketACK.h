@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,39 +24,38 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                         */
 
 #ifndef HOSTCOMMPACKETACK_H_
 #define HOSTCOMMPACKETACK_H_
 
 #include <stdint.h>
 
+#include "diagnostic/diagnostic.h"
 #include "hostCommPacket.h"
-#include "../diagnostic/diagnostic.h"
 
 namespace microhal {
 
-class HostCommPacket_ACK : public HostCommDataPacket < HostCommPacket::PacketInfo, HostCommPacket::ACK> {
-public:
-	void setPacketToACK(HostCommPacket &packet) noexcept {
-		payload() = packet.packetInfo;
-	}
+class HostCommPacket_ACK : public HostCommDataPacket<HostCommPacket::PacketInfo, HostCommPacket::ACK> {
+ public:
+    void setPacketToACK(HostCommPacket &packet) noexcept { payload() = packet.packetInfo; }
 
-	bool isAcknowledged(HostCommPacket &packet) const noexcept {
-		if(packet.packetInfo != payload()) return false;
+    bool isAcknowledged(HostCommPacket &packet) const noexcept {
+        if (packet.packetInfo != payload()) return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	template<diagnostic::LogLevel level>
-	void log(diagnostic::Diagnostic<level> &log = diagnostic::diagChannel) const noexcept {
-		const HostCommPacket::PacketInfo *ACKinfo = payloadPtr();
-		log << diagnostic::Debug << "control: " << ACKinfo->control << diagnostic::endl
-								<< "type: " << ACKinfo->type << diagnostic::endl
-								<< "size: " << ACKinfo->size << diagnostic::endl;
-	}
+    template <diagnostic::LogLevel level>
+    void log(diagnostic::Diagnostic<level> &log = diagnostic::diagChannel) const noexcept {
+        const HostCommPacket::PacketInfo *ACKinfo = payloadPtr();
+        log << diagnostic::Debug << "control: " << ACKinfo->control << diagnostic::endl
+            << "type: " << ACKinfo->type << diagnostic::endl
+            << "size: " << ACKinfo->size << diagnostic::endl;
+    }
 };
 
-} // namespace microhal
+}  // namespace microhal
 
-#endif // HOSTCOMMPACKETACK_H_
+#endif  // HOSTCOMMPACKETACK_H_

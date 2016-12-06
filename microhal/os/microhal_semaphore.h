@@ -10,14 +10,14 @@
 
 #if defined(HAL_RTOS_FreeRTOS)
 #include "freeRTOS/semaphore.h"
-#elif defined (HAL_RTOS_None)
+#elif defined(HAL_RTOS_None)
 #include "noRTOS/semaphore_noRTOS.h"
 #elif defined(LINUX_PORT)
 #include "linux/semaphore_linux.h"
 #elif defined(WINDOWS_PORT)
-#include "sindows/semaphore_windows.h"
+#include "windows/semaphore_windows.h"
 #else
 #error Operating system have to be defined
 #endif
 
-#endif // MICROHAL_SEMAPHORE_H_
+#endif  // MICROHAL_SEMAPHORE_H_
