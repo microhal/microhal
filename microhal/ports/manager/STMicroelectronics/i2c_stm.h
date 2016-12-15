@@ -18,6 +18,11 @@ namespace microhal {
 namespace microhal {
     namespace activePort = stm32f4xx;
 }
+#elif defined(MCU_TYPE_STM32L4XX)
+#include "ports/stm32l4xx/i2c_stm32l4xx.h"
+namespace microhal {
+    namespace activePort = stm32l4xx;
+}
 #else
 #error "MCU type must be specified."
 #endif
