@@ -6,6 +6,11 @@
 namespace microhal {
     namespace activePort = stm32f0xx;
 }
+#elif defined(MCU_TYPE_STM32F3XX)
+//#include "ports/stm32f3xx/dataBus_stm32f3xx.h"
+//namespace microhal {
+//    namespace activePort = stm32f3xx;
+//}
 #elif defined(MCU_TYPE_STM32F4XX)
 #include "ports/stm32f4xx/dataBus_stm32f4xx.h"
 namespace microhal {
