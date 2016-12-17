@@ -35,7 +35,7 @@
 #include <cstdint>
 #include "../i2c.h"
 #include "byteswap.h"
-#include "platform.h"
+#include "ports/manager/hardware.h"
 
 namespace microhal {
 /**
@@ -553,7 +553,7 @@ class I2CDevice {
     template <typename T>
     inline bool writeRegister_impl(uint8_t address, T data, Endianness endianness) {
         // convert endianness if needed
-        if (endianness != DeviceEndianness) {
+        if (endianness != hardware::Device::endianness) {
             // do conversion
             data = byteswap(data);
         }
@@ -565,7 +565,7 @@ class I2CDevice {
     inline bool readRegister_impl(uint8_t address, T &data, Endianness endianness) {
         if (readRegisters(address, reinterpret_cast<uint8_t *>(&data), sizeof(T))) {
             // convert endianness if needed
-            if (endianness != DeviceEndianness) {
+            if (endianness != hardware::Device::endianness) {
                 // do conversion
                 data = byteswap(data);
             }
@@ -590,7 +590,7 @@ class I2CDevice {
     bool readRegisters_impl(uint8_t registerAddress, T *buffer, size_t size, Endianness endianness) {
         if (readRegisters(registerAddress, (uint8_t *)buffer, sizeof(T) * size) == true) {
             // convert endianness if needed
-            if (endianness != DeviceEndianness) {
+            if (endianness != hardware::Device::endianness) {
                 // do conversion
                 for (size_t i = 0; i < size; i++) {
                     buffer[i] = byteswap(buffer[i]);

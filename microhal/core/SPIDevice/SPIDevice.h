@@ -13,9 +13,9 @@
 #include <stdint.h>
 
 #include "ports/manager/spi_port.h"
+#include "ports/manager/hardware.h"
 #include "byteswap.h"
 #include "gpio.h"
-#include "platform.h"
 #include "spi.h"
 
 namespace microhal {

@@ -108,7 +108,7 @@ public:
     bool getTemperature(float &temperature) {
         uint16_t temp;
 
-        if (readRegister(TRIGGER_T_MEASURE_HOLD, temp, microhal::BigEndian) == true) {
+        if (readRegister(TRIGGER_T_MEASURE_HOLD, temp, microhal::Endianness::Big) == true) {
             temperature = (float) temp * 0.002681274;
             temperature -= 46.85;
 
@@ -125,7 +125,7 @@ public:
     bool getHumidity(float &humidity) {
         uint16_t tmp;
 
-        if (readRegister(TRIGGER_RH_MEASURE_HOLD, tmp, microhal::BigEndian) == true) {
+        if (readRegister(TRIGGER_RH_MEASURE_HOLD, tmp, microhal::Endianness::Big) == true) {
             humidity = (float) tmp * 0.001907349;
             humidity -= 6;
 

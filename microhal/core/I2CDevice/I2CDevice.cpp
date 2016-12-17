@@ -28,6 +28,7 @@
  */
 
 #include "I2CDevice.h"
+#include "ports/manager/hardware.h"
 
 namespace microhal {
 /**
@@ -70,7 +71,7 @@ bool I2CDevice::readRegisters(uint8_t registerAddress, uint32_t *buffer, size_t 
  */
 template <typename T>
 bool I2CDevice::setBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endianness endianness) {
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         bitMask = byteswap(bitMask);
     }
 
@@ -112,7 +113,7 @@ bool I2CDevice::setBitsInRegister(uint8_t registerAddress, uint32_t bitMask, End
  */
 template <typename T>
 bool I2CDevice::clearBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endianness endianness) {
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         bitMask = ~byteswap(bitMask);
     }
 
@@ -154,7 +155,7 @@ bool I2CDevice::clearBitsInRegister(uint8_t registerAddress, uint32_t bitMask, E
  */
 template <typename T>
 bool I2CDevice::writeRegisterWithMask_impl(uint8_t address, T data, T mask, Endianness endianness) {
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         mask = byteswap(mask);
         data = byteswap(data);
     }
