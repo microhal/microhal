@@ -1,0 +1,6 @@
+NAME := HOSTCOMM
+VERSION := 0.1.0
+
+SRC := hostComm.cpp hostCommPacket.cpp hostCommPacketDevInfo.cpp
+
+INC_DIR := .
