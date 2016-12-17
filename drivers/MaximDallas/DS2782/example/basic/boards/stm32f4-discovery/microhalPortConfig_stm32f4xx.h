@@ -9,6 +9,13 @@
 #define MICROHALPORTCONFIG_H_
 
 //***********************************************************************************************//
+//                                     Hardware Configuration                                    //
+//***********************************************************************************************//
+static constexpr bool externalClockPresent = true;
+static constexpr uint32_t externalClockFrequency = 8000000; // this is HSE frequency
+static constexpr bool externalLSEPresent = false;
+static constexpr uint32_t externalLSEFrequency = 32768;
+//***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//
 //***********************************************************************************************//
