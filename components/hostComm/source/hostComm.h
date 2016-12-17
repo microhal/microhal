@@ -25,13 +25,13 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              */
 
 #ifndef HOSTCOMM_H_
 #define HOSTCOMM_H_
 
+#include "../diagnostic/diagnostic.h"
 #include "IODevice.h"
-#include "diagnostic/diagnostic.h"
 #include "hostCommPacket.h"
 #include "hostCommPacketACK.h"
 #include "hostCommPacketDevInfo.h"
@@ -56,8 +56,14 @@ class HostComm {
     //			ioDevice(ioDevice), log(log), receivedPacket(packetBuffer, sizeof(packetBuffer)) {
     //	}
 
-    HostComm(IODevice &ioDevice, IODevice &logDevice, const char *logHeader = "HostComm: ")
-        : ioDevice(ioDevice), log(logHeader, logDevice), receivedPacket(packetBuffer, sizeof(packetBuffer)), runThread(false), runningThread() {}
+    HostComm(IODevice &ioDevice, IODevice &logDevice, const char *logHeader = static_cast<const char *>("HostComm: "),
+             std::chrono::milliseconds ackTimeout = std::chrono::milliseconds{1000})
+        : ioDevice(ioDevice),
+          log(logHeader, logDevice),
+          receivedPacket(packetBuffer, sizeof(packetBuffer)),
+          runThread(false),
+          runningThread(),
+          ackTimeout(ackTimeout) {}
     ~HostComm() { stopHostCommThread(); }
     bool send(HostCommPacket &packet);
 
@@ -84,10 +90,13 @@ class HostComm {
     void stopHostCommThread(void);
 
  private:
-    os::Semaphore ackSemaphore;
+    Semaphore ackSemaphore;
+    Semaphore pongSemaphore;
 
     std::mutex sendMutex;
-    std::chrono::milliseconds ackTimeout = {std::chrono::milliseconds{1000}};
+    std::mutex iodeviceSendMutex;
+
+    std::chrono::milliseconds ackTimeout;
     uint8_t sentCounter =
         0;  // this counter contain last number of sent frame. This counter is increased when sending new frame but now when retransmitting frame.
     uint8_t receiveCounter = 0;  // this counter contain last number of received frame, is used to detect receive of retransmitted frame.

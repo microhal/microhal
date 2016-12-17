@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                         */
+                                                                                                                                        */
 
 #ifndef HOSTCOMMPACKETACK_H_
 #define HOSTCOMMPACKETACK_H_

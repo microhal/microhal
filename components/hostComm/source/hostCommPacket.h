@@ -45,7 +45,6 @@
 
 namespace microhal {
 
-// template <uint32_t maxPacketData = 10000>
 class HostCommPacket {
  public:
     enum PacketOptions { MAX_PACKET_SIZE = 128 };
@@ -128,7 +127,7 @@ class HostCommPacket {
 
     template <diagnostic::LogLevel level>
     void debug(diagnostic::Diagnostic<level> &log = diagnostic::diagChannel) {
-        log << diagnostic::lock << MICROHAL_DEBUG << diagnostic::endl
+        log << diagnostic::lock << DEBUG << diagnostic::endl
             << "\tpacket type: " << packetInfo.type << diagnostic::endl
             << "\tdata size: " << packetInfo.size << diagnostic::endl
             << "\trequire ACK: " << requireACK() << diagnostic::endl
