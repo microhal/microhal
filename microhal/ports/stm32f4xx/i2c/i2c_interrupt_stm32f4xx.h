@@ -31,8 +31,7 @@ public:
 #endif
 private:
     typedef enum {
-        RECEIVE_FROM_REGISTER = 0x02, RECEIVE = 0x01, TRANSMIT = 0x04
-
+        WriteRead = 0x02, Receive = 0x01, ReceiveDoubleBuffer, Transmit = 0x04, TransmitDoubleBuffer
     } Mode;
     struct Buffer {
     	uint8_t *ptr;
@@ -42,9 +41,6 @@ private:
         uint8_t deviceAddress;
         Buffer bufferA;
         Buffer bufferB;
-        uint8_t registerAddress;
-        size_t length;
-        uint8_t *buffer_ptr;
         Mode mode;
     } Transfer;
 
@@ -84,12 +80,9 @@ private:
                 size_t write_data_sizeB) noexcept final;
     Error read(uint8_t deviceAddress, uint8_t *data, size_t length) noexcept final;
     Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length);// override final;
-    Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final{};
+    Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
 
-    Error writeRead(DeviceAddress address, const void *write, size_t write_size, void *read_, size_t read_size) noexcept final {
-    	return read(address, *(uint8_t*)write, read_, read_size);
-    }
-
+    Error writeRead(DeviceAddress address, const void *write, size_t write_size, void *read_, size_t read_size) noexcept final;
     static void IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c);
 //------------------------------------------- friends -----------------------------------------
     friend void I2C1_ER_IRQHandler(void);

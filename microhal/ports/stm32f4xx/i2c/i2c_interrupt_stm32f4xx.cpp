@@ -52,13 +52,11 @@ I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size
     transfer.deviceAddress = deviceAddress;
     transfer.bufferA.ptr = const_cast<uint8_t*>(data);
     transfer.bufferA.length = length;
-    transfer.bufferB.length = 0;
+    transfer.mode = Transmit;
 
+//    transfer.buffer_ptr = const_cast<uint8_t*>(&data[1]);
+//    transfer.length = length-1;
 
-    transfer.registerAddress = data[0];
-    transfer.buffer_ptr = const_cast<uint8_t*>(&data[1]);
-    transfer.length = length-1;
-    transfer.mode = TRANSMIT;
 
     ErrorSemaphore = UnknownError;
     // send start
@@ -79,11 +77,11 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const void *write_d
     transfer.bufferA.length = write_data_size;
     transfer.bufferB.ptr = (uint8_t*)const_cast<void*>(write_dataB);
     transfer.bufferB.length = write_data_sizeB;
+    transfer.mode = TransmitDoubleBuffer;
 
-    transfer.registerAddress = *(uint8_t*)write_data;
-    transfer.buffer_ptr = (uint8_t*)const_cast<void*>(write_dataB);
-    transfer.length = write_data_sizeB;
-    transfer.mode = TRANSMIT;
+//    transfer.buffer_ptr = (uint8_t*)const_cast<void*>(write_dataB);
+//    transfer.length = write_data_sizeB;
+
 
     ErrorSemaphore = UnknownError;
     // send start
@@ -101,12 +99,7 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t leng
     transfer.deviceAddress = deviceAddress;
     transfer.bufferA.ptr = data;
     transfer.bufferA.length = length;
-    transfer.bufferB.length = 0;
-
-
-    transfer.buffer_ptr = data;
-    transfer.length = length;
-    transfer.mode = RECEIVE;
+    transfer.mode = Receive;
 
     i2c.CR2 &= ~I2C_CR2_ITBUFEN;
 
@@ -122,16 +115,35 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t leng
     return ErrorSemaphore;
 }
 
-I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) {
+I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
     transfer.deviceAddress = deviceAddress;
-    transfer.bufferA.ptr = static_cast<uint8_t*>(data);
-    transfer.bufferA.length = length;
-    transfer.bufferB.length = 0;
+    transfer.bufferA.ptr = data;
+    transfer.bufferA.length = dataLength;
+    transfer.bufferB.ptr = dataB;
+    transfer.bufferB.length = dataBLength;
+    transfer.mode = ReceiveDoubleBuffer;
 
-    transfer.registerAddress = registerAddress;
-    transfer.buffer_ptr = static_cast<uint8_t *>(data);
-    transfer.length = length;
-    transfer.mode = RECEIVE_FROM_REGISTER;
+    i2c.CR2 &= ~I2C_CR2_ITBUFEN;
+
+    ErrorSemaphore = UnknownError;
+    // send start
+    while (i2c.SR2 & I2C_SR2_BUSY) {
+    }
+    i2c.CR1 |= I2C_CR1_START;
+
+    while (ErrorSemaphore == UnknownError) {
+    }
+
+    return ErrorSemaphore;
+};
+
+I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const void *write, size_t write_size, void *read, size_t read_size) noexcept {
+    transfer.deviceAddress = address;
+    transfer.bufferA.ptr = const_cast<uint8_t*>(static_cast<const uint8_t*>(write));
+    transfer.bufferA.length = write_size;
+    transfer.bufferB.ptr = static_cast<uint8_t*>(read);
+    transfer.bufferB.length = read_size;
+    transfer.mode = WriteRead;
 
     i2c.CR2 &= ~I2C_CR2_ITBUFEN;
     ErrorSemaphore = UnknownError;
@@ -158,61 +170,109 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
     	// address was sent, now we are working in master mode
         __attribute__((unused)) volatile uint16_t tmp = i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
 
-        if (obj.transfer.mode != I2C_interrupt::RECEIVE) i2c->DR = obj.transfer.registerAddress;
+        if (obj.transfer.mode != I2C_interrupt::Receive) {
+        	i2c->DR = *obj.transfer.bufferA.ptr;
+        	obj.transfer.bufferA.ptr++;
+        	obj.transfer.bufferA.length--;
+        }
 
-        if (obj.transfer.mode == I2C_interrupt::RECEIVE_FROM_REGISTER) {
-            obj.transfer.mode = I2C_interrupt::RECEIVE;
+        if (obj.transfer.mode == I2C_interrupt::WriteRead) {
+        	obj.transfer.bufferA = obj.transfer.bufferB;
+            obj.transfer.mode = I2C_interrupt::Receive;
 
-            if (obj.transfer.length == 1) {
+            if (obj.transfer.bufferA.length == 1) {
                 i2c->CR1 = (i2c->CR1 & (~I2C_CR1_ACK & ~I2C_CR1_POS)) | I2C_CR1_START;
                 i2c->CR2 |= I2C_CR2_ITBUFEN;
-            } else if (obj.transfer.length == 2) {
+            } else if (obj.transfer.bufferA.length == 2) {
                 i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS | I2C_CR1_START;
             } else {
                 i2c->CR2 |= I2C_CR2_ITBUFEN;
                 i2c->CR1 |= I2C_CR1_ACK /* | I2C_CR1_POS */ | I2C_CR1_START;
             }
         } else {
-            if (obj.transfer.mode != I2C_interrupt::RECEIVE /*|| obj.transfer.length != 2*/) i2c->CR2 |= I2C_CR2_ITBUFEN;
+            if (obj.transfer.mode != I2C_interrupt::Receive /*|| obj.transfer.length != 2*/) i2c->CR2 |= I2C_CR2_ITBUFEN;
         }
     } else {
-        if (obj.transfer.mode == I2C_interrupt::RECEIVE) {
+        if (obj.transfer.mode == I2C_interrupt::Receive || obj.transfer.mode == I2C_interrupt::ReceiveDoubleBuffer) {
             if (status1 == (I2C_SR1_RXNE | I2C_SR1_BTF)) {
+            	// here we are receiving last two bytes
                 i2c->CR1 |= I2C_CR1_STOP;
 
-                *obj.transfer.buffer_ptr++ = i2c->DR;
-                *obj.transfer.buffer_ptr = i2c->DR;
+                if (obj.transfer.mode == I2C_interrupt::Receive) {
+                	*obj.transfer.bufferA.ptr++ = i2c->DR;
+                	*obj.transfer.bufferA.ptr = i2c->DR;
+                } else {
+                	// we are in double buffer mode
+                	if (obj.transfer.bufferA.length == 0) {
+                		// this means that both bytes have to go to buffer B
+                		*obj.transfer.bufferB.ptr++ = i2c->DR;
+                		*obj.transfer.bufferB.ptr = i2c->DR;
+                	} else {
+                		// first byte have to go to buffer A, and second to buffer B
+                		*obj.transfer.bufferA.ptr = i2c->DR;
+                		*obj.transfer.bufferB.ptr = i2c->DR;
+                	}
+                }
 
                 obj.ErrorSemaphore = I2C_interrupt::NoError;
             } else if (status1 & I2C_SR1_RXNE) {
-            	auto& activeBuffer = obj.transfer.bufferA.length != 0 ? obj.transfer.bufferA : obj.transfer.bufferB;
+            //	auto& activeBuffer = obj.transfer.bufferA.length != 0 ? obj.transfer.bufferA : obj.transfer.bufferB;
 
-                if (activeBuffer.length == 1) {
-                    i2c->CR1 |= I2C_CR1_STOP;
-                    //*obj.transfer.buffer_ptr = i2c->DR;
-                    i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                    obj.ErrorSemaphore = I2C_interrupt::NoError;
-                } else {
-                    activeBuffer.length--;
-                    if (activeBuffer.length == 2) {
-                        i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS;
-                        i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                    }
-                }
-                *activeBuffer.ptr = i2c->DR;
-                activeBuffer.ptr++;
+            	if (obj.transfer.mode == I2C_interrupt::Receive) {
+					if (obj.transfer.bufferA.length == 1) {
+						i2c->CR1 |= I2C_CR1_STOP;
+						//*obj.transfer.buffer_ptr = i2c->DR;
+						i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+						obj.ErrorSemaphore = I2C_interrupt::NoError;
+					} else {
+						obj.transfer.bufferA.length--;
+						if (obj.transfer.bufferA.length == 2) {
+							i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS;
+							i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+						}
+					}
+					*obj.transfer.bufferA.ptr = i2c->DR;
+					obj.transfer.bufferA.ptr++;
+            	} else {
+            		obj.transfer.bufferA.length--;
+            		if (obj.transfer.bufferA.length == 1 && obj.transfer.bufferB.length == 1) {
+            			i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS;
+            			i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+            		} else if (obj.transfer.bufferA.length == 0) {
+            			if (obj.transfer.bufferB.length == 2) {
+            				i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS;
+            				i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+            			}
+            			*obj.transfer.bufferA.ptr = i2c->DR;
+            			//obj.transfer.bufferA.ptr++;
+
+            			obj.transfer.bufferA = obj.transfer.bufferB;
+            			obj.transfer.mode = I2C_interrupt::Receive;
+            			return;
+            		}
+            		*obj.transfer.bufferA.ptr = i2c->DR;
+            		obj.transfer.bufferA.ptr++;
+            	}
             }
         } else {
-            if (status1 == I2C_SR1_TXE) {
-                if (obj.transfer.length) {
-                    i2c->DR = *obj.transfer.buffer_ptr++;
-                    obj.transfer.length--;
-                } else {
-                    i2c->CR1 |= I2C_CR1_STOP;
-                    i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                    obj.ErrorSemaphore = I2C_interrupt::NoError;
-                }
-            }
+        	if (obj.transfer.mode == I2C_interrupt::Transmit) {
+				if (status1 == I2C_SR1_TXE) {
+					if (obj.transfer.bufferA.length) {
+						i2c->DR = *obj.transfer.bufferA.ptr++;
+						obj.transfer.bufferA.length--;
+					} else {
+						i2c->CR1 |= I2C_CR1_STOP;
+						i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+						obj.ErrorSemaphore = I2C_interrupt::NoError;
+					}
+				} else {
+					i2c->DR = *obj.transfer.bufferA.ptr++;
+					obj.transfer.bufferA.length--;
+					if (obj.transfer.bufferA.length == 0) {
+						obj.transfer.bufferA = obj.transfer.bufferB;
+					}
+				}
+        	}
         }
     }
 }
