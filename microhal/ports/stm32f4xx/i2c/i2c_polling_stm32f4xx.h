@@ -5,12 +5,13 @@
  *      Author: pawel
  */
 
-#ifndef I2C_POLLING_STM32F4XX_H_
-#define I2C_POLLING_STM32F4XX_H_
+#ifndef _MICROHAL_I2C_POLLING_STM32F4XX_H_
+#define _MICROHAL_I2C_POLLING_STM32F4XX_H_
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
+#include "../clockManager.h"
 #include "../i2c_stm32f4xx.h"
 #include "../stm32f4xx.h"
 
@@ -21,62 +22,36 @@ namespace stm32f4xx {
  */
 class I2C_polling : public stm32f4xx::I2C {
  public:
-//---------------------------------------- variables
-//----------------------------------------//
+//---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_I2C1_POLLING
-  static I2C_polling i2c1;
+    static I2C_polling i2c1;
 #endif
 #ifdef MICROHAL_USE_I2C2_POLLING
-  static I2C_polling i2c2;
+    static I2C_polling i2c2;
 #endif
 #ifdef MICROHAL_USE_I2C3_POLLING
-  static I2C_polling i2c3;
+    static I2C_polling i2c3;
 #endif
  private:
-  //---------------------------------------- constructors
-  //---------------------------------------
-  I2C_polling(I2C_TypeDef &i2c) : I2C(i2c) {
-    switch (reinterpret_cast<uint32_t>(&i2c)) {
-      case reinterpret_cast<uint32_t>(I2C1):
-        RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
-        break;
-      case reinterpret_cast<uint32_t>(I2C2):
-        RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
-        break;
-      case reinterpret_cast<uint32_t>(I2C3):
-        RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
-        break;
-    }
-  }
-  //---------------------------------------- functions
-  //----------------------------------------//
-  I2C::Error write(uint8_t deviceAddress, uint8_t data) override final;
-  I2C::Error write(uint8_t deviceAddress, uint8_t registerAddress,
-                   uint8_t data) override final;
-  I2C::Error write(uint8_t deviceAddress, uint8_t registerAddress,
-                   const void *data, size_t length) override final;
-  I2C::Error read(uint8_t deviceAddress, uint8_t &data) override final;
-  I2C::Error read(uint8_t deviceAddress, uint8_t registerAddress,
-                  uint8_t &data) override final;
-  I2C::Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data,
-                  size_t length) override final;
+    //---------------------------------------- constructors ---------------------------------------
+    I2C_polling(I2C_TypeDef &i2c) : I2C(i2c) { ClockManager::enable(i2c); }
+    //---------------------------------------- functions ----------------------------------------//
+    Error writeRead(DeviceAddress address, const void *write, size_t write_size, void *read, size_t read_size) noexcept final;
 
-  inline I2C::Error write(uint8_t data) {
-    Error error;
-    uint16_t status;
+    Error write(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size) noexcept final;
 
-    do {
-      status = i2c.SR1;
-      error = errorCheckAndClear(&i2c, status);
-      if (error != NoError) return error;
-    } while (!(status & I2C_SR1_TXE));
-    i2c.DR = data;
+    Error write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+                size_t write_data_sizeB) noexcept final;
 
-    return NoError;
-  }
+    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t data_size) noexcept final;
+    Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final{};
+
+    inline Error write(uint8_t data);
+    Error write_implementation(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+                               size_t write_data_sizeB);
 };
 
 }  // namespace stm32f4xx
 }  // namespace microhal
 
-#endif /* I2C_POLLING_STM32F4XX_H_ */
+#endif  // _MICROHAL_I2C_POLLING_STM32F4XX_H_

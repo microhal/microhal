@@ -48,31 +48,16 @@ I2C_interrupt I2C_interrupt::i2c3(*I2C3);
 I2C &I2C::i2c3 = I2C_interrupt::i2c3;
 #endif
 
-I2C::Error I2C_interrupt::write(uint8_t deviceAddress, uint8_t data) {
+I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size_t length) {
     transfer.deviceAddress = deviceAddress;
-    transfer.registerAddress = data;
-    transfer.length = 0;
-    transfer.mode = TRANSMIT;
+    transfer.bufferA.ptr = const_cast<uint8_t*>(data);
+    transfer.bufferA.length = length;
+    transfer.bufferB.length = 0;
 
-    ErrorSemaphore = UnknownError;
-    while (i2c.SR2 & I2C_SR2_BUSY) {
-    }
-    // send start
-    i2c.CR1 |= I2C_CR1_START;
 
-    while (ErrorSemaphore == UnknownError) {
-    }
-
-    return ErrorSemaphore;
-}
-I2C::Error I2C_interrupt::write(uint8_t deviceAddress, uint8_t registerAddress, uint8_t data) {
-    return write(deviceAddress, registerAddress, &data, 1);
-}
-I2C::Error I2C_interrupt::write(uint8_t deviceAddress, uint8_t registerAddress, const void *data, size_t length) {
-    transfer.deviceAddress = deviceAddress;
-    transfer.registerAddress = registerAddress;
-    transfer.buffer_ptr = const_cast<uint8_t *>(static_cast<const uint8_t *>(data));
-    transfer.length = length;
+    transfer.registerAddress = data[0];
+    transfer.buffer_ptr = const_cast<uint8_t*>(&data[1]);
+    transfer.length = length-1;
     transfer.mode = TRANSMIT;
 
     ErrorSemaphore = UnknownError;
@@ -87,10 +72,40 @@ I2C::Error I2C_interrupt::write(uint8_t deviceAddress, uint8_t registerAddress, 
 
     return ErrorSemaphore;
 }
-I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t &data) {
+I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+               size_t write_data_sizeB) noexcept {
     transfer.deviceAddress = deviceAddress;
-    transfer.buffer_ptr = &data;
-    transfer.length = 1;
+    transfer.bufferA.ptr = (uint8_t*)const_cast<void*>(write_data);
+    transfer.bufferA.length = write_data_size;
+    transfer.bufferB.ptr = (uint8_t*)const_cast<void*>(write_dataB);
+    transfer.bufferB.length = write_data_sizeB;
+
+    transfer.registerAddress = *(uint8_t*)write_data;
+    transfer.buffer_ptr = (uint8_t*)const_cast<void*>(write_dataB);
+    transfer.length = write_data_sizeB;
+    transfer.mode = TRANSMIT;
+
+    ErrorSemaphore = UnknownError;
+    // send start
+    while (i2c.SR2 & I2C_SR2_BUSY) {
+    }
+    i2c.CR2 |= I2C_CR2_ITBUFEN;
+    i2c.CR1 |= I2C_CR1_START;
+
+    while (ErrorSemaphore == UnknownError) {
+    }
+
+    return ErrorSemaphore;
+};
+I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t length) {
+    transfer.deviceAddress = deviceAddress;
+    transfer.bufferA.ptr = data;
+    transfer.bufferA.length = length;
+    transfer.bufferB.length = 0;
+
+
+    transfer.buffer_ptr = data;
+    transfer.length = length;
     transfer.mode = RECEIVE;
 
     i2c.CR2 &= ~I2C_CR2_ITBUFEN;
@@ -106,11 +121,13 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t &data) {
 
     return ErrorSemaphore;
 }
-I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t &data) {
-    return read(deviceAddress, registerAddress, &data, 1);
-}
+
 I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) {
     transfer.deviceAddress = deviceAddress;
+    transfer.bufferA.ptr = static_cast<uint8_t*>(data);
+    transfer.bufferA.length = length;
+    transfer.bufferB.length = 0;
+
     transfer.registerAddress = registerAddress;
     transfer.buffer_ptr = static_cast<uint8_t *>(data);
     transfer.length = length;
@@ -134,9 +151,11 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t registerAddress, v
 void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
     uint16_t status1 = i2c->SR1;
 
-    if (status1 == I2C_SR1_SB) {  // sent start sequence
-        i2c->DR = obj.transfer.deviceAddress | (obj.transfer.mode & 0x01);
-    } else if (status1 & I2C_SR1_ADDR) {                           // adres(MASTER MODE) was sent
+    if (status1 == I2C_SR1_SB) {
+    	// start sequence was sent, now we need to send device address
+        i2c->DR = obj.transfer.deviceAddress | (obj.transfer.mode & 0x01); // set last bit of addres depending on active mode
+    } else if (status1 & I2C_SR1_ADDR) {
+    	// address was sent, now we are working in master mode
         __attribute__((unused)) volatile uint16_t tmp = i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
 
         if (obj.transfer.mode != I2C_interrupt::RECEIVE) i2c->DR = obj.transfer.registerAddress;
@@ -166,21 +185,22 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
 
                 obj.ErrorSemaphore = I2C_interrupt::NoError;
             } else if (status1 & I2C_SR1_RXNE) {
-                if (obj.transfer.length == 1) {
+            	auto& activeBuffer = obj.transfer.bufferA.length != 0 ? obj.transfer.bufferA : obj.transfer.bufferB;
+
+                if (activeBuffer.length == 1) {
                     i2c->CR1 |= I2C_CR1_STOP;
-                    *obj.transfer.buffer_ptr = i2c->DR;
+                    //*obj.transfer.buffer_ptr = i2c->DR;
                     i2c->CR2 &= ~I2C_CR2_ITBUFEN;
                     obj.ErrorSemaphore = I2C_interrupt::NoError;
                 } else {
-                    obj.transfer.length--;
-
-                    if (obj.transfer.length == 2) {
+                    activeBuffer.length--;
+                    if (activeBuffer.length == 2) {
                         i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS;
                         i2c->CR2 &= ~I2C_CR2_ITBUFEN;
                     }
-
-                    *obj.transfer.buffer_ptr++ = i2c->DR;
                 }
+                *activeBuffer.ptr = i2c->DR;
+                activeBuffer.ptr++;
             }
         } else {
             if (status1 == I2C_SR1_TXE) {

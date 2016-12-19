@@ -78,10 +78,10 @@ bool I2CDevice::setBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endia
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.read(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
     if (status == I2C::NoError) {
         tmp |= bitMask;
-        status = i2c.write(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+        status = i2c.write(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
     }
 
     i2c.unlock();
@@ -120,10 +120,10 @@ bool I2CDevice::clearBitsInRegister_impl(uint8_t registerAddress, T bitMask, End
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.read(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
     if (status == I2C::NoError) {
         tmp &= bitMask;
-        status = i2c.write(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+        status = i2c.write(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
     }
 
     i2c.unlock();
@@ -163,13 +163,13 @@ bool I2CDevice::writeRegisterWithMask_impl(uint8_t address, T data, T mask, Endi
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.read(deviceAddress, address, &tmp, sizeof(tmp));
+    I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, &tmp, sizeof(tmp));
     if (status == I2C::NoError) {
         // clear bits
         tmp &= ~mask;
         // set new value
         tmp |= (data & mask);
-        status = i2c.write(deviceAddress, address, &tmp, sizeof(tmp));
+        status = i2c.write(deviceAddress, &address, 1, &tmp, sizeof(tmp));
     }
 
     i2c.unlock();

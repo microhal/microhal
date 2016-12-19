@@ -34,8 +34,14 @@ private:
         RECEIVE_FROM_REGISTER = 0x02, RECEIVE = 0x01, TRANSMIT = 0x04
 
     } Mode;
+    struct Buffer {
+    	uint8_t *ptr;
+    	size_t length;
+    };
     typedef struct {
         uint8_t deviceAddress;
+        Buffer bufferA;
+        Buffer bufferB;
         uint8_t registerAddress;
         size_t length;
         uint8_t *buffer_ptr;
@@ -73,12 +79,16 @@ private:
         }
     }
 //---------------------------------------- functions ----------------------------------------//
-    I2C::Error write(uint8_t deviceAddress, uint8_t data) override final;
-    I2C::Error write(uint8_t deviceAddress, uint8_t registerAddress, uint8_t data) override final;
-    I2C::Error write(uint8_t deviceAddress, uint8_t registerAddress, const void *data, size_t length) override final;
-    I2C::Error read(uint8_t deviceAddress, uint8_t &data) override final;
-    I2C::Error read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t &data) override final;
-    I2C::Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) override final;
+    Error write(uint8_t deviceAddress, const uint8_t *data, size_t length) noexcept final;
+    Error write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+                size_t write_data_sizeB) noexcept final;
+    Error read(uint8_t deviceAddress, uint8_t *data, size_t length) noexcept final;
+    Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length);// override final;
+    Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final{};
+
+    Error writeRead(DeviceAddress address, const void *write, size_t write_size, void *read_, size_t read_size) noexcept final {
+    	return read(address, *(uint8_t*)write, read_, read_size);
+    }
 
     static void IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c);
 //------------------------------------------- friends -----------------------------------------

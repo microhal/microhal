@@ -30,13 +30,16 @@
 #ifndef _MICROHAL_I2C_INTERFACE_H_
 #define _MICROHAL_I2C_INTERFACE_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <mutex>
 
 namespace microhal {
 
 class I2C {
  public:
+	using DeviceAddress = uint8_t;
+	using Speed = uint32_t;
+
     typedef enum { UnknownError = 0x00, NoError = 0x01, Timeout, BusError, AcknowledgeFailure, ArbitrationLost, OverrunError } Error;
 
     enum class Mode : uint_fast8_t {
@@ -46,32 +49,34 @@ class I2C {
         HighSpeed      // 3.4 MHz
     };
 
-    void lock() {
-        if (noLock == false) {
-            mutex.lock();
-        }
+    void lock() noexcept {
+        mutex.lock();
     }
-    void unlock() {
-        if (noLock == false) {
-            mutex.unlock();
-        }
+    void unlock() noexcept {
+        mutex.unlock();
     }
 
-    virtual bool setMode(Mode mode) = 0;
+    virtual bool setMode(Mode mode) noexcept = 0; // todo delete
 
-    virtual Error write(uint8_t deviceAddress, uint8_t data) = 0;
-    virtual Error write(uint8_t deviceAddress, uint8_t registerAddress, uint8_t data) = 0;
-    virtual Error write(uint8_t deviceAddress, uint8_t registerAddress, const void *data, size_t length) = 0;
+    virtual Speed speed(Speed speed) noexcept = 0;
+    virtual Speed speed() noexcept = 0;
+    virtual void busReset() noexcept = 0;
 
-    virtual Error read(uint8_t deviceAddress, uint8_t &data) = 0;
-    virtual Error read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t &data) = 0;
-    virtual Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) = 0;
+    virtual Error write(uint8_t deviceAddress, const uint8_t *data, size_t length) noexcept = 0;
+    virtual Error write(DeviceAddress deviceAddress,
+        		        const void * data, size_t dataLength,
+                        const void * dataB, size_t dataBLength) noexcept = 0;
+    virtual Error read(uint8_t deviceAddress, uint8_t *data, size_t size) noexcept = 0;
+    virtual Error read(uint8_t deviceAddress,
+    		           uint8_t *data, size_t dataLength,
+                       uint8_t *dataB, size_t dataBLength) noexcept = 0;
+    virtual Error writeRead(DeviceAddress deviceAddress,
+    		                const void* writeData, size_t wirteLength,
+							void *data, size_t length) noexcept = 0;
 
     virtual ~I2C() {}
 
  protected:
-    bool noLock = false;
-
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
@@ -87,12 +92,12 @@ class I2C {
          *
          * @return maximum rise time in [ns].
          */
-    uint32_t getMaxRiseTime(Mode mode) const {
+    uint32_t getMaxRiseTime(Mode mode) const noexcept {
         const uint32_t riseTime[] = {1000, 300, 160, 80};
         return riseTime[static_cast<uint_fast8_t>(mode)];
     }
 
-    uint32_t getSCLfreq(Mode mode) const {
+    uint32_t getSCLfreq(Mode mode) const noexcept {
         const uint32_t freq[] = {100000, 400000, 1000000, 3400000};
         return freq[static_cast<uint_fast8_t>(mode)];
     }
