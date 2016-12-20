@@ -1,0 +1,174 @@
+NAME := MICROHAL
+VERSION := 1.0
+
+####################### DEFINITIONS #############################
+
+DEF := __USES_CXX \
+       __MICROHAL  
+
+########################## CORE #################################
+
+SRC := core/itoa.cpp \
+       core/button/Button.cpp \
+       core/crc/crc16.cpp \
+       core/crc/crc7.cpp \
+       core/diagnostic/diagnostic_base.cpp \
+       core/diagnostic/diagnostic.cpp \
+       core/I2CDevice/I2CDevice.cpp \
+       core/interfaces/serialPort_interface.cpp \
+       core/ioDeviceNull/IODeviceNull.cpp \
+       core/signalSlot/signalSlot.cpp \
+       core/SPIDevice/SPIDevice.cpp
+       
+INC_DIR := . \
+           core \
+           core/buffers \
+           core/button \
+           core/crc \
+           core/diagnostic \
+           core/I2CDevice \
+           core/interfaces \
+           core/signalSlot \
+           core/SPIDevice \
+           core/utils \
+           
+#############################  OS  ###############################
+           
+# Include OS/RTOS port
+
+INC_DIR := $(INC_DIR) \
+           os
+
+ifdef MICROHAL_OS
+  ifeq ($(MICROHAL_OS),windows) 
+    INC_DIR := $(INC_DIR) \
+               os/windows
+  endif
+
+  ifeq ($(MICROHAL_OS),linux)  
+    INC_DIR := $(INC_DIR) \
+               os/linux
+  endif
+  
+  ifeq ($(MICROHAL_OS),freertos)
+    SRC := $(SRC) \
+           os/freeRTOS/freeRTOS_port.cpp \
+           os/freeRTOS/osHelper.cpp \
+           os/freeRTOS/c++11/condition_variable.cc \
+           os/freeRTOS/c++11/mutex.cc \
+           os/freeRTOS/c++11/thread.cc \
+           os/freeRTOS/c++11/chrono.cc
+#           os/freeRTOS/c++11/future.cc
+    DEF := $(DEF) HAL_RTOS_FreeRTOS
+    INC_DIR := $(INC_DIR) \
+               os/freeRTOS
+  endif
+  
+else
+  # no OS - use empty port
+  SRC := $(SRC) os/noRTOS/empty_port.cpp
+  INC_DIR := $(INC_DIR) \
+             os/noRTOS
+  DEF := $(DEF) HAL_RTOS_None
+endif
+
+########################## PORTS ################################
+
+INC_DIR := $(INC_DIR) \
+           ports/manager
+
+ifneq (, $(findstring stm32f4,$(__MAKAO_DEVICE__)))
+  SRC := $(SRC) \
+         ports/stm32f4xx/adc_stm32f4xx.cpp \
+         ports/stm32f4xx/clockManager.cpp \
+         ports/stm32f4xx/core_stm32f4xx.cpp \
+         ports/stm32f4xx/dma_stm32f4xx.cpp \
+         ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp \
+         ports/stm32f4xx/gpio_stm32f4xx.cpp \
+         ports/stm32f4xx/i2c_stm32f4xx.cpp \
+         ports/stm32f4xx/serialPort_stm32f4xx.cpp \
+         ports/stm32f4xx/syscalls.c \
+         ports/stm32f4xx/timer_stm32f4xx.cpp \
+         ports/stm32f4xx/usb_stm32f4xx.cpp \
+         ports/stm32f4xx/i2c/i2c_dma_stm32f4xx.cpp \
+         ports/stm32f4xx/i2c/i2c_interrupt_stm32f4xx.cpp \
+         ports/stm32f4xx/i2c/i2c_polling_stm32f4xx.cpp \
+         ports/stm32f4xx/serialPort/serialPort_interrupt_stm32f4xx.cpp \
+         ports/stm32f4xx/serialPort/serialPort_RxInterruptTxDma_stm32f4xx.cpp \
+         ports/stm32f4xx/serialPort/serialPort_polling_stm32f4xx.cpp \
+         ports/stm32f4xx/serialPort/serialPort_Dma_stm32f4xx.cpp \
+         ports/stm32f4xx/spi/spi_dma_stm32f4xx.cpp \
+         ports/stm32f4xx/spi/spi_interrupt_stm32f4xx.cpp \
+         ports/stm32f4xx/spi/spi_polling_stm32f4xx.cpp \
+         ports/stm32f4xx/startup/startup.S \
+         ports/stm32f4xx/startup/vectors.c \
+         ports/stm32f4xx/startup/STM32F4xxxG_rom.ld
+       
+INC_DIR := $(INC_DIR) \
+           ports/common/common/Include \
+           ports/manager
+       
+DEF := VENDOR_STMICROELECTRONICS \
+       MCU_TYPE_STM32F4XX \
+       STM32F40_41xxx
+endif
+
+ifneq (, $(findstring x86,$(__MAKAO_DEVICE__)))
+SRC := $(SRC) \
+       ports/Windows/General/consoleIODevice.cpp \
+       ports/Windows/General/serialPort_windows.cpp
+     
+     
+INC_DIR := $(INC_DIR) \
+       os/Windows \
+       ports/Windows/General \
+     
+DEF := $(DEF) WINDOWS_PORT
+
+endif
+
+ifneq (, $(findstring nrf52,$(__MAKAO_DEVICE__)))
+
+SRC := $(SRC) \
+       ports/nrf52/i2c/i2c_twim_dma_nrf52.cpp \
+       ports/nrf52/i2c/i2c_twim_polling_nrf52.cpp \
+       ports/nrf52/i2c/i2c_twis_dma_nrf52.cpp \
+       ports/nrf52/serialPort/serialPort_interrupt_nrf52.cpp \
+       ports/nrf52/serialPort/serialPort_polling_nrf52.cpp \
+       ports/nrf52/spi/spi_spim_dma_nrf52.cpp \
+       ports/nrf52/spi/spi_spim_polling_nrf52.cpp \
+       ports/nrf52/startup/startup.c \
+       ports/nrf52/startup/vectors.c \
+       ports/nrf52/adc_nrf52.cpp \
+       ports/nrf52/core_nrf52.cpp \
+       ports/nrf52/externalInterrupt_nrf52.cpp \
+       ports/nrf52/gpio_nrf52.cpp \
+       ports/nrf52/i2c_twim_nrf52.cpp \
+       ports/nrf52/itmIoDevice.cpp \
+       ports/nrf52/serialPort_nrf52.cpp \
+       ports/nrf52/spi_spim_nrf52.cpp \
+
+DEF := $(DEF) \
+       VENDOR_NORDIC \
+       MCU_TYPE_NRF52
+       
+INC_DIR := $(INC_DIR) \
+           ports/common/common/Include \
+           ports/manager
+       
+endif
+
+########################## UNITS ################################
+
+INC_DIR := $(INC_DIR) \
+           units
+
+########################### MATH ################################
+
+INC_DIR := $(INC_DIR) \
+           math
+           
+SRC := $(SRC) \
+       math/src/angle.cpp \
+       math/src/quaternion.cpp \
+       math/src/vector3d.cpp
