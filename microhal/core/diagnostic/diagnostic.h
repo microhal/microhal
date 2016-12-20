@@ -172,7 +172,7 @@ class Diagnostic : public Diagnostic_base {
     template <LogLevel compileLogLevel, LogLevel level>
     friend constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<< (Diagnostic<compileLogLevel> &diagnostic, const LogLevels<level>);
 
-    // This operator is called when user write for example "diagChannel << WARNING ..." where WARNING is predefined macro.
+    // This operator is called when user write for example "diagChannel << MICROHAL_WARNING ..." where MICROHAL_WARNING is predefined macro.
     template <LogLevel compileLogLevel, LogLevel level>
     friend constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<<(Diagnostic<compileLogLevel> &diagnostic, const LogLevelHeader<level> &header);
 
@@ -367,7 +367,7 @@ class LogLevelChannel {
     friend constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<< (Diagnostic<compileLogLevel> &diagnostic,
            const LogLevels<level>);
 
-    // This operator is called when user write for example "diagChannel << WARNING ..." where WARNING is predefined macro.
+    // This operator is called when user write for example "diagChannel << MICROHAL_WARNING ..." where MICROHAL_WARNING is predefined macro.
     template <LogLevel compileLogLevel, LogLevel level>
     friend constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<<(Diagnostic<compileLogLevel> &diagnostic,
            const LogLevelHeader<level> &header);
