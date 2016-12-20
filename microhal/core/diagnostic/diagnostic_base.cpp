@@ -29,6 +29,8 @@
 
 #include "diagnostic.h"
 
+#include <ctime>
+
 namespace microhal {
 namespace diagnostic {
 
@@ -43,7 +45,48 @@ void Diagnostic_base::printHeader(const LogLevelHeader_base &logHeader, const Lo
     const char headerEndTxt[] = {':', '\t'};
 
     endl();  // always start header from new line
-    if (headerDisplayMode & EnableTimestamp) {
+    if (headerDisplayMode & (EnableTimestamp | EnableTimestampCalendar)) {
+        time_t time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() / 1000;
+        uint32_t millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() % 1000;
+        struct tm *tmTime = gmtime(&time);
+        write("[");
+        write(static_cast<int32_t>(tmTime->tm_year + 1900), 10);
+        write("-");
+        if (tmTime->tm_mon < 9) {
+            write("0");
+        }
+        write(static_cast<int32_t>(tmTime->tm_mon + 1), 10);
+        write("-");
+        if (tmTime->tm_mday < 10) {
+            write("0");
+        }
+        write(static_cast<int32_t>(tmTime->tm_mday), 10);
+        write(" ");
+        if (tmTime->tm_hour < 10) {
+            write("0");
+        }
+        write(static_cast<int32_t>(tmTime->tm_hour), 10);
+        write(":");
+        if (tmTime->tm_min < 10) {
+            write("0");
+        }
+        write(static_cast<int32_t>(tmTime->tm_min), 10);
+        write(":");
+        if (tmTime->tm_sec < 10) {
+            write("0");
+        }
+        write(static_cast<int32_t>(tmTime->tm_sec), 10);
+        write("_");
+        if (millis < 10) {
+            write("0");
+        }
+        if (millis < 100) {
+            write("0");
+        }
+        write(millis, 10);
+        write("]");
+        if (spaces == false) putChar(' ');
+    } else if (headerDisplayMode & EnableTimestamp) {
         uint64_t milliseconds_since_epoch =
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
         write(milliseconds_since_epoch, 10);

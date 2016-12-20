@@ -52,18 +52,17 @@ enum class LogLevel {
     Debug = 8,          //!< Debug
 };
 
-constexpr bool operator >= (LogLevel a, LogLevel b) {
+constexpr bool operator>=(LogLevel a, LogLevel b) {
     return static_cast<unsigned int>(a) >= static_cast<unsigned int>(b);
 }
 
 class LogLevelHeader_base {
  public:
-    explicit constexpr LogLevelHeader_base(const char* levelFileLineInfo, const char *code) noexcept
-        : fileLine(levelFileLineInfo), code(code) {
-    }
+    explicit constexpr LogLevelHeader_base(const char *levelFileLineInfo, const char *code) noexcept : fileLine(levelFileLineInfo), code(code) {}
+
  private:
-    const char* fileLine;
-    const char* code;
+    const char *fileLine;
+    const char *code;
 
     friend class Diagnostic_base;
 };
@@ -72,13 +71,13 @@ typedef enum : uint8_t {
     EnableTimestamp = 0x01,
     EnableFileName = 0x02,
     EnableLevelName = 0x04,
-    EnableErrorCode = 0x08
+    EnableErrorCode = 0x08,
+    EnableTimestampCalendar = 0x10
 } HeaderDisplayMode;
 
-constexpr HeaderDisplayMode operator| (const HeaderDisplayMode &x1, const HeaderDisplayMode &x2) noexcept {
+constexpr HeaderDisplayMode operator|(const HeaderDisplayMode &x1, const HeaderDisplayMode &x2) noexcept {
     return static_cast<HeaderDisplayMode>(static_cast<unsigned>(x1) | static_cast<unsigned>(x2));
 }
-
 
 /**
  * @addtogroup Diagnostics
@@ -97,23 +96,17 @@ class Diagnostic_base {
      *
      * @param device - reference to IODevice
      */
-    inline void setOutputDevice(IODevice &device) __attribute__ ((always_inline)) {
-        ioDevice = &device;
-    }
+    inline void setOutputDevice(IODevice &device) __attribute__((always_inline)) { ioDevice = &device; }
     /** This function enable or disable automatic space insertion.
      *
      * @param insert - if true then space will be automatically insert after every '<<' operator
      */
-    inline void autoInsertSpaces(bool insert) __attribute__ ((always_inline)) {
-        spaces = insert;
-    }
+    inline void autoInsertSpaces(bool insert) __attribute__((always_inline)) { spaces = insert; }
 
-    inline void setHeaderDisplayMode(HeaderDisplayMode mode) __attribute__ ((always_inline)) {
-        headerDisplayMode = mode;
-    }
+    inline void setHeaderDisplayMode(HeaderDisplayMode mode) __attribute__((always_inline)) { headerDisplayMode = mode; }
 
     template <class _Rep, class _Period>
-    inline bool tryLock(const std::chrono::duration<_Rep, _Period>& __rtime) {
+    inline bool tryLock(const std::chrono::duration<_Rep, _Period> &__rtime) {
         return ioDevice->mutex.try_lock_for(__rtime);
     }
 
@@ -129,17 +122,21 @@ class Diagnostic_base {
     HeaderDisplayMode headerDisplayMode;
 
     //----------------------------------------- constructors --------------------------------------
-    constexpr Diagnostic_base(const char * header, HeaderDisplayMode mode, LogLevel level) noexcept
-                              : ioDevice(&nullIODevice), header(header), logLevel(level), spaces(false), headerDisplayMode(mode) {
-    }
-    constexpr Diagnostic_base(const char * header, IODevice &dev, HeaderDisplayMode mode, LogLevel level) noexcept
-                              : ioDevice(&dev), header(header), logLevel(level), spaces(false) , headerDisplayMode(mode) {
-    }
-
+    constexpr Diagnostic_base(const char *header, HeaderDisplayMode mode, LogLevel level) noexcept : ioDevice(&nullIODevice),
+                                                                                                     header(header),
+                                                                                                     logLevel(level),
+                                                                                                     spaces(false),
+                                                                                                     headerDisplayMode(mode) {}
+    constexpr Diagnostic_base(const char *header, IODevice &dev, HeaderDisplayMode mode, LogLevel level) noexcept : ioDevice(&dev),
+                                                                                                                    header(header),
+                                                                                                                    logLevel(level),
+                                                                                                                    spaces(false),
+                                                                                                                    headerDisplayMode(mode) {}
 
     //------------------------------------------ functions ----------------------------------------
     inline void putChar(char c) {
-        while (ioDevice->putChar(c) != true) {}
+        while (ioDevice->putChar(c) != true) {
+        }
     }
 
     inline void writeText(const char *txt, size_t len) {
@@ -166,14 +163,10 @@ class Diagnostic_base {
             writeText(c, len);
             insertSpace();
         }
-#else
-        (void)c;
 #endif
     }
 
-    void endl() {
-        writeText("\n\r", 2);
-    }
+    void endl() { writeText("\n\r", 2); }
 
     void write(const uint8_t *data, size_t size, uint8_t radix);
     void write(const uint16_t *data, size_t size, uint8_t radix);
