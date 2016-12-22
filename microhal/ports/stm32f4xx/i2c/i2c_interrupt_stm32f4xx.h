@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include "../stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
+#include "../clockManager.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -50,23 +51,25 @@ private:
 //---------------------------------------- constructors ---------------------------------------
     I2C_interrupt(I2C_TypeDef &i2c) :
             I2C(i2c), transfer(), ErrorSemaphore() {
+    	ClockManager::enable(i2c);
+
         switch (reinterpret_cast<uint32_t>(&i2c)) {
         case reinterpret_cast<uint32_t>(I2C1):
-            RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+        //    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
             NVIC_EnableIRQ (I2C1_EV_IRQn);
             NVIC_SetPriority(I2C1_EV_IRQn, 0);
             NVIC_EnableIRQ (I2C1_ER_IRQn);
             NVIC_SetPriority(I2C1_ER_IRQn, 0);
             break;
         case reinterpret_cast<uint32_t>(I2C2):
-            RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
+        //    RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
             NVIC_EnableIRQ (I2C2_EV_IRQn);
             NVIC_SetPriority(I2C2_EV_IRQn, 0);
             NVIC_EnableIRQ (I2C2_ER_IRQn);
             NVIC_SetPriority(I2C2_ER_IRQn, 0);
             break;
         case reinterpret_cast<uint32_t>(I2C3):
-            RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
+        //    RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
             NVIC_EnableIRQ (I2C3_EV_IRQn);
             NVIC_SetPriority(I2C3_EV_IRQn, 0);
             NVIC_EnableIRQ (I2C3_ER_IRQn);

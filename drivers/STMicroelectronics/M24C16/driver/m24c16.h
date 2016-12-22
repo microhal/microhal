@@ -40,14 +40,15 @@
 class M24C16 {
 	using Endianness = microhal::Endianness;
 	using Error  = microhal::I2C::Error;
+
+
+ public:
 	/**
 	* @brief This enum contain I2C address
 	*/
 	enum : microhal::I2C::DeviceAddress {
 		I2CAddress = 0b1010'000'0
 	};
-
- public:
 	static constexpr size_t pageSize = 16;
 	static constexpr size_t memorySize = 2048; // in Bytes
 	static constexpr size_t beginAddress = 0;
@@ -71,7 +72,7 @@ class M24C16 {
 	microhal::I2C &i2c;
 	// reading functions
 	Error currentAddressRead(uint8_t &data) {
-		return i2c.read(I2CAddress, data);
+		return i2c.read(I2CAddress, &data, 1);
 	}
 
 	Error randomAddressRead(size_t address, gsl::not_null<void*> data, size_t data_size) {
@@ -80,7 +81,7 @@ class M24C16 {
 	}
 
 	Error sequentialCurrentRead(gsl::not_null<void*> data, size_t data_size) {
-		return i2c.read(I2CAddress, data.get(), data_size);
+		return i2c.read(I2CAddress, (uint8_t*)data.get(), data_size);
 	}
 
 	Error sequentealRandomRead(size_t address, gsl::not_null<void*> data, size_t data_size) {

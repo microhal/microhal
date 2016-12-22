@@ -16,7 +16,7 @@
 
 #include "i2c.h"
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial1;
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 
 static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c2;
 

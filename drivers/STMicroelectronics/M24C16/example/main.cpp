@@ -41,23 +41,24 @@ int main(void) {
     diagChannel.setOutputDevice(debugPort);
 
 
-    uint8_t data[100];
-    m24c16.read(0x00, data, sizeof(data));
+    uint8_t data[10];
+    sensorI2C.read(0xA2, data, sizeof(data));
+    //m24c16.read(0x00, data, sizeof(data));
 
     for (uint8_t &x : data) {
     	diagChannel << lock << Debug << "value: " << x << endl <<unlock;
     }
-
-    if (data[0] == 0xFF) {
-    	const uint8_t txt[] = "ala ma kota. Kot ma ale.";
-    	m24c16.write(0x00, txt, sizeof(txt));
-    	// wait for write
-    	std::this_thread::sleep_for(std::chrono::milliseconds {10});
-    }
+//
+//    if (data[0] == 0xFF) {
+//    	const uint8_t txt[] = "ala ma kota. Kot ma ale...";
+//    	m24c16.write(0x00, txt, sizeof(txt));
+//    	// wait for write
+//    	std::this_thread::sleep_for(std::chrono::milliseconds {10});
+//    }
 
     while (1) {
     	std::this_thread::sleep_for(std::chrono::milliseconds {2000});
-    	m24c16.read(0x00, data, sizeof(data));
+    	//m24c16.read(0x00, data, sizeof(data));
     	diagChannel << lock << Debug << "EEPROM: " << (char*)data << endl <<unlock;
     }
 

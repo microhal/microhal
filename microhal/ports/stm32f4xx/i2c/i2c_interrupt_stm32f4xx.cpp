@@ -54,10 +54,6 @@ I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size
     transfer.bufferA.length = length;
     transfer.mode = Transmit;
 
-//    transfer.buffer_ptr = const_cast<uint8_t*>(&data[1]);
-//    transfer.length = length-1;
-
-
     ErrorSemaphore = UnknownError;
     // send start
     while (i2c.SR2 & I2C_SR2_BUSY) {
@@ -78,10 +74,6 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const void *write_d
     transfer.bufferB.ptr = (uint8_t*)const_cast<void*>(write_dataB);
     transfer.bufferB.length = write_data_sizeB;
     transfer.mode = TransmitDoubleBuffer;
-
-//    transfer.buffer_ptr = (uint8_t*)const_cast<void*>(write_dataB);
-//    transfer.length = write_data_sizeB;
-
 
     ErrorSemaphore = UnknownError;
     // send start

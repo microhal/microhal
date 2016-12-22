@@ -25,6 +25,14 @@ namespace microhal {
 namespace stm32f4xx {
 
 extern "C" {
+void I2C1_EV_IRQHandler(void);
+void I2C2_EV_IRQHandler(void);
+void I2C3_EV_IRQHandler(void);
+
+void I2C1_ER_IRQHandler(void);
+void I2C2_ER_IRQHandler(void);
+void I2C3_ER_IRQHandler(void);
+
 void DMA1_Stream0_IRQHandler(void);
 void DMA1_Stream2_IRQHandler(void);
 void DMA1_Stream3_IRQHandler(void);
@@ -55,27 +63,32 @@ class I2C_dma : public stm32f4xx::I2C {
 
     I2C::Error write(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size) noexcept final;
     Error write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
-                size_t write_data_sizeB) noexcept final{};
+                size_t write_data_sizeB) noexcept final;
 
     I2C::Error read(DeviceAddress deviceAddress, uint8_t *read_data, size_t read_data_size) noexcept final;
     Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final{};
 
-    microhal::I2C::Error write(microhal::I2C::DeviceAddress, uint8_t);
-    microhal::I2C::Error read(uint8_t, uint8_t &);
+//    microhal::I2C::Error write(microhal::I2C::DeviceAddress, uint8_t);
+ //   microhal::I2C::Error read(uint8_t, uint8_t &);
 
  private:
-    typedef enum { Receive = 0x01, Transmit = 0x02 } Mode;
+    enum class Mode { Receive = 0x01, Transmit = 0x02, TransmitReceive = 0x04 };
     //---------------------------------- variables
     //----------------------------------
     volatile I2C::Error errorSemaphore;
     DMA::Stream &rxStream;
     DMA::Stream &txStream;
 
+    struct Buffer {
+    	void *ptr;
+    	size_t length;
+    };
     struct {
         Mode mode;
         DeviceAddress deviceAddress;
         size_t txLength;
         size_t rxLength;
+        Buffer bufferB;
     } transfer;
     //---------------------------------- constructors
     //-------------------------------
@@ -108,13 +121,11 @@ class I2C_dma : public stm32f4xx::I2C {
         }
     }
 
-    //---------------------------------- functions
-    //----------------------------------
+    //---------------------------------- functions ----------------------------------
     void init(void);
     static void IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c);
     static void IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c);
-    //---------------------------------- friends
-    //------------------------------------
+    //---------------------------------- friends ------------------------------------
 
     friend void I2C1_EV_IRQHandler(void);
     friend void I2C2_EV_IRQHandler(void);
