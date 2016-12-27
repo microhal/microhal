@@ -2,13 +2,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      externalInterrupt port include file
+ * @brief      board support package for stm32f4Discovery board
  *
  * @authors    Pawel Okas
- * created on: 9-04-2014
+ * created on: 30-01-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2014-2016, microHAL
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,25 +27,19 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_EXTERNALINTERRUPT_PORT_H_
-#define _MICROHAL_EXTERNALINTERRUPT_PORT_H_
-/* ************************************************************************************************
- * INCLUDES
- */
-#if defined(VENDOR_ATMEL)
-#include "Atmel/externalInterrupt_atmel.h"
-#elif defined(VENDOR_NORDIC)
-#include "Nordic/externalInterrupt_nordic.h"
-#elif defined(VENDOR_RENESAS)
-#include "Renesas/externalInterrupt_renesas.h"
-#elif defined(VENDOR_SILICON_LABS)
-#include "SiliconLabs/externalInterrupt_siliconLabs.h"
-#elif defined(VENDOR_STMICROELECTRONICS)
-#include "STMicroelectronics/externalInterrupt_stm.h"
-#elif defined(LINUX_PORT)
-//#include "Linux/externalInterrupt_linux.h"
-#else
-#error "Microcontroller vendor undefined."
-#endif
+#ifndef STM32F4DISCOVERY_H_
+#define STM32F4DISCOVERY_H_
 
-#endif  // _MICROHAL_EXTERNALINTERRUPT_PORT_H_
+#include "microhal.h"
+
+constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+constexpr microhal::GPIO::IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortD, 12);
+constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
+constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+
+constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortA, 0);
+
+constexpr microhal::GPIO::IOPin greenLed_pin = led4_pin;
+constexpr microhal::GPIO::IOPin redLed_pin = led3_pin;
+
+#endif /* STM32F4DISCOVERY_H_ */

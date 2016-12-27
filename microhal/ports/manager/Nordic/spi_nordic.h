@@ -2,13 +2,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      externalInterrupt port include file
+ * @brief      
  *
- * @authors    Pawel Okas
- * created on: 9-04-2014
- * last modification: <DD-MM-YYYY>
+ * @authors    pawel
+ * created on: 27-12-2016
+ * last modification: 27-12-2016
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2016, microHAL
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,25 +27,16 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_EXTERNALINTERRUPT_PORT_H_
-#define _MICROHAL_EXTERNALINTERRUPT_PORT_H_
-/* ************************************************************************************************
+#ifndef _MICROHAL_SPI_NORDIC_H_
+#define _MICROHAL_SPI_NORDIC_H_
+/* **************************************************************************************************************************************************
  * INCLUDES
  */
-#if defined(VENDOR_ATMEL)
-#include "Atmel/externalInterrupt_atmel.h"
-#elif defined(VENDOR_NORDIC)
-#include "Nordic/externalInterrupt_nordic.h"
-#elif defined(VENDOR_RENESAS)
-#include "Renesas/externalInterrupt_renesas.h"
-#elif defined(VENDOR_SILICON_LABS)
-#include "SiliconLabs/externalInterrupt_siliconLabs.h"
-#elif defined(VENDOR_STMICROELECTRONICS)
-#include "STMicroelectronics/externalInterrupt_stm.h"
-#elif defined(LINUX_PORT)
-//#include "Linux/externalInterrupt_linux.h"
-#else
-#error "Microcontroller vendor undefined."
-#endif
 
-#endif  // _MICROHAL_EXTERNALINTERRUPT_PORT_H_
+
+/* **************************************************************************************************************************************************
+ * CLASS
+ */
+
+
+#endif  // _MICROHAL_SPI_NORDIC_H_

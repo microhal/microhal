@@ -33,24 +33,24 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#if defined (VENDOR_ATMEL)
-	#include "Atmel/core_atmel.h"
-#elif defined (VENDOR_NORDIC)
-	#include "Nordic/core_nordic.h"
-#elif defined (VENDOR_RENESAS)
-	#include "Renesas/core_renesas.h"
-#elif defined (VENDOR_SILICON_LABS)
-    #include "SiliconLabs/core_siliconLabs.h"
-#elif defined (VENDOR_STMICROELECTRONICS)
-	#include "STMicroelectronics/core_stm.h"
-#elif defined (LINUX_PORT)
-	//#include "Linux/core_linux.h"
+#if defined(VENDOR_ATMEL)
+#include "Atmel/core_atmel.h"
+#elif defined(VENDOR_NORDIC)
+#include "Nordic/core_nordic.h"
+#elif defined(VENDOR_RENESAS)
+#include "Renesas/core_renesas.h"
+#elif defined(VENDOR_SILICON_LABS)
+#include "SiliconLabs/core_siliconLabs.h"
+#elif defined(VENDOR_STMICROELECTRONICS)
+#include "STMicroelectronics/core_stm.h"
+#elif defined(LINUX_PORT)
+//#include "Linux/core_linux.h"
 #else
-	#error "Microcontroler vendor undefined."
+#error "Microcontroler vendor undefined."
 #endif
 
-namespace microhal {
-typedef activePort::Core Core;
-}
+// namespace microhal {
+// typedef activePort::Core Core;
+//}
 
 #endif  // _MICROHAL_CORE_PORT_H_

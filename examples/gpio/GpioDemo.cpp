@@ -30,8 +30,8 @@
 // This demo require at least two LED and one button.
 // If you want run this example with your's board. You have to create own BSP file.
 
+#include "bsp.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 using namespace microhal;
 using namespace std::literals::chrono_literals;

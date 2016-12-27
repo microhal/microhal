@@ -40,7 +40,7 @@
 #include "dataBus.h"
 #include "gpio.h"
 
-#include "ExternalInterrupt.h"
+//#include "ExternalInterrupt.h"
 #include "IOManager.h"
 
 #include "ports/manager/core_port.h"
@@ -48,7 +48,6 @@
 #include "adc.h"
 
 #endif
-
 
 #include "diagnostic/diagnostic.h"
 #include "i2c.h"

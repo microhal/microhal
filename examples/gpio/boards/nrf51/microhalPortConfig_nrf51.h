@@ -2,13 +2,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for stm32f4Discovery board
+ * @brief      
  *
- * @authors    Pawel Okas
- * created on: 30-01-2014
- * last modification: <DD-MM-YYYY>
+ * @authors    pawel
+ * created on: 27-12-2016
+ * last modification: 27-12-2016
  *
- * @copyright Copyright (c) 2014-2016, microHAL
+ * @copyright Copyright (c) 2016, microHAL
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,17 +27,16 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef STM32F4DISCOVERY_H_
-#define STM32F4DISCOVERY_H_
+#ifndef _MICROHAL_MICROHALPORTCONFIG_NRF51_H_
+#define _MICROHAL_MICROHALPORTCONFIG_NRF51_H_
+/* **************************************************************************************************************************************************
+ * INCLUDES
+ */
 
-constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
 
-constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortA, 0);
+/* **************************************************************************************************************************************************
+ * CLASS
+ */
 
-constexpr microhal::GPIO::IOPin greenLed_pin = led4_pin;
-constexpr microhal::GPIO::IOPin redLed_pin = led3_pin;
 
-#endif /* STM32F4DISCOVERY_H_ */
+#endif  // _MICROHAL_MICROHALPORTCONFIG_NRF51_H_

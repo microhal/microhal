@@ -36,7 +36,7 @@
 #if defined(VENDOR_ATMEL)
     #include "Atmel/i2c_atmel.h"
 #elif defined(VENDOR_NORDIC)
-    #include "Nordic/I2C_nordic.h"
+    #include "Nordic/i2c_nordic.h"
 #elif defined(VENDOR_RENESAS)
     #include "Renesas/i2c_renesas.h"
 #elif defined(VENDOR_SILICON_LABS)
