@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,15 +24,18 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                             */
 
-#include "serialPort_linux.h"
-#include "microhal_bsp.h"
 #include "microhal.h"
+#include "microhal_bsp.h"
+#include "serialPort_linux.h"
 
 using namespace microhal;
 using namespace diagnostic;
 
-microhal::linux::SerialPort serialPortA("tty1");
+microhal::linux::SerialPort serialPort_linux1("tty1");
+microhal::linux::SerialPort serialPort_linux2("tty2");
 
-microhal::SerialPort &serialPort = serialPortA;
+microhal::SerialPort &serialPortA = serialPort_linux1;
+microhal::SerialPort &serialPortB = serialPort_linux2;
