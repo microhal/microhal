@@ -10,7 +10,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 #include "../stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
 #include "../clockManager.h"

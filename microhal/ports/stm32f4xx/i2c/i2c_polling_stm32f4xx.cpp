@@ -159,6 +159,57 @@ I2C::Error I2C_polling::read(DeviceAddress deviceAddress, uint8_t *data, size_t 
     return NoError;
 }
 
+I2C::Error I2C_polling::read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
+    // Generate the Start condition
+    const I2C::Error restartError = sendStart(i2c);
+    if (restartError != I2C::NoError) return restartError;
+    // Send I2Cx slave Address for read
+    const I2C::Error deviceReadAddressError = sendDeviceAddress(i2c, deviceAddress + 1);
+    if (deviceReadAddressError != I2C::NoError) return deviceReadAddressError;
+
+    __attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete,read sr2 for clear addr flag
+
+    I2C::Error error;
+    volatile uint16_t status;
+
+    // buffer A
+    i2c.CR1 |= I2C_CR1_ACK;
+
+    for (size_t i = 0; i < dataLength; i++) {
+    	do {
+    		status = i2c.SR1;
+    		error = errorCheckAndClear(&i2c, status);
+    		if (error != NoError) return error;
+    	} while (!(status & I2C_SR1_RXNE));
+    	((uint8_t *)data)[i] = i2c.DR;
+    }
+    // buffer B
+    size_t i = 0;
+    if (dataBLength > 1) {
+    	for (; i < dataBLength - 1; i++) {
+            do {
+                status = i2c.SR1;
+                error = errorCheckAndClear(&i2c, status);
+                if (error != NoError) return error;
+            } while (!(status & I2C_SR1_RXNE));
+            ((uint8_t *)dataB)[i] = i2c.DR;
+        }
+    }
+
+    i2c.CR1 &= ~I2C_CR1_ACK;
+    // Generate the Stop condition
+    i2c.CR1 |= I2C_CR1_STOP;
+    // wait until one byte has been received
+    do {
+        status = i2c.SR1;
+        error = errorCheckAndClear(&i2c, status);
+        if (error != NoError) return error;
+    } while (!(status & I2C_SR1_RXNE));
+    // read data from I2C data register
+    ((uint8_t *)dataB)[i] = i2c.DR;
+    return NoError;
+};
+
 I2C::Error I2C_polling::write(uint8_t data) {
     Error error;
     uint16_t status;

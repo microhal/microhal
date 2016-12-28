@@ -15,7 +15,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 #include "../clockManager.h"
 #include "../dma_stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
@@ -65,7 +65,7 @@ class I2C_dma : public stm32f4xx::I2C {
                 size_t writeBLength) noexcept final;
 
     Error read(DeviceAddress address, uint8_t *read, size_t readLength) noexcept final;
-    Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
+    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
 
  private:
     enum class Mode { Receive = 0x01, Transmit = 0x02, TransmitReceive = 0x04, ReceiveDoubleBuffer = 0x11, TransmitDoubleBuffer = 0x12 };
