@@ -47,7 +47,7 @@ void freeFunctionBool(bool b) {
     }
 }
 
-void freeFunctionBoolInt(bool b, int i) {
+void freeFunctionBoolInt(bool b, int i __attribute__((unused))) {
     diagChannel << Debug << "Text from free function with bool parameter. Value: ";
     if (b == true) {
         diagChannel << Debug << "true" << endl;

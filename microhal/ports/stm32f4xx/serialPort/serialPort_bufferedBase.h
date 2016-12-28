@@ -49,7 +49,7 @@ template <class Derived>
 class SerialPort_BufferedBase: public stm32f4xx::SerialPort {
 public:
 	SerialPort_BufferedBase(USART_TypeDef & usart, char * const rxData, size_t rxDataSize, char * const txData, size_t txDataSize) noexcept
-		: SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize) {}
+		: SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize), txFinish(), rxSemaphore() {}
 //--------------------------------------------- functions ---------------------------------------//
     /**
      *

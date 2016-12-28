@@ -138,7 +138,7 @@ public:
 
     //------------------------------------------- constructors --------------------------------------//
     SerialPort(const char *name) :
-            portName(name), tty_fd(0) {
+    	 tty_fd(0), portName(name) {
         memset(&tio, 0, sizeof(tio));
     }
     ~SerialPort() {

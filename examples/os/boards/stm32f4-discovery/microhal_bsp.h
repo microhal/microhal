@@ -29,7 +29,7 @@
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
-static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial3;
+extern microhal::SerialPort &serialPort;
 
 constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
 constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
