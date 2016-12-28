@@ -46,8 +46,7 @@ void DMA1_Stream7_IRQHandler(void);
  */
 class I2C_dma : public stm32f4xx::I2C {
  public:
-//---------------------------------------- variables
-//----------------------------------------//
+//---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_I2C1_DMA
     static I2C_dma i2c1;
 #endif
@@ -58,21 +57,18 @@ class I2C_dma : public stm32f4xx::I2C {
     static I2C_dma i2c3;
 #endif
  protected:
-    I2C::Error writeRead(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, void *read_data,
-                         size_t read_data_size) noexcept final;
+    Error writeRead(DeviceAddress address, const void *write, size_t writeLength, void *read,
+                         size_t readLength) noexcept final;
 
-    I2C::Error write(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size) noexcept final;
-    Error write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
-                size_t write_data_sizeB) noexcept final;
+    Error write(DeviceAddress address, const uint8_t *write, size_t writeLength) noexcept final;
+    Error write(DeviceAddress address, const void *writ, size_t writeLength, const void *writeB,
+                size_t writeBLength) noexcept final;
 
-    I2C::Error read(DeviceAddress deviceAddress, uint8_t *read_data, size_t read_data_size) noexcept final;
-    Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final{};
-
-//    microhal::I2C::Error write(microhal::I2C::DeviceAddress, uint8_t);
- //   microhal::I2C::Error read(uint8_t, uint8_t &);
+    Error read(DeviceAddress address, uint8_t *read, size_t readLength) noexcept final;
+    Error read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
 
  private:
-    enum class Mode { Receive = 0x01, Transmit = 0x02, TransmitReceive = 0x04 };
+    enum class Mode { Receive = 0x01, Transmit = 0x02, TransmitReceive = 0x04, ReceiveDoubleBuffer = 0x11, TransmitDoubleBuffer = 0x12 };
     //---------------------------------- variables
     //----------------------------------
     volatile I2C::Error errorSemaphore;
@@ -90,29 +86,25 @@ class I2C_dma : public stm32f4xx::I2C {
         size_t rxLength;
         Buffer bufferB;
     } transfer;
-    //---------------------------------- constructors
-    //-------------------------------
+    //---------------------------------- constructors -------------------------------
     I2C_dma(I2C_TypeDef &i2c, DMA::Stream &rxStream, DMA::Stream &txStream)
         : I2C(i2c), errorSemaphore(), rxStream(rxStream), txStream(txStream), transfer() {
         init();
         ClockManager::enable(i2c);
         switch (reinterpret_cast<uint32_t>(&i2c)) {
             case reinterpret_cast<uint32_t>(I2C1):
-                // RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
                 NVIC_EnableIRQ(I2C1_EV_IRQn);
                 NVIC_SetPriority(I2C1_EV_IRQn, 0);
                 NVIC_EnableIRQ(I2C1_ER_IRQn);
                 NVIC_SetPriority(I2C1_ER_IRQn, 0);
                 break;
             case reinterpret_cast<uint32_t>(I2C2):
-                // RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
                 NVIC_EnableIRQ(I2C2_EV_IRQn);
                 NVIC_SetPriority(I2C2_EV_IRQn, 0);
                 NVIC_EnableIRQ(I2C2_ER_IRQn);
                 NVIC_SetPriority(I2C2_ER_IRQn, 0);
                 break;
             case reinterpret_cast<uint32_t>(I2C3):
-                // RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
                 NVIC_EnableIRQ(I2C3_EV_IRQn);
                 NVIC_SetPriority(I2C3_EV_IRQn, 0);
                 NVIC_EnableIRQ(I2C3_ER_IRQn);

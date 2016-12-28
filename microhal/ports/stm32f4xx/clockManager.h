@@ -30,9 +30,9 @@
 #ifndef MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 #define MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 
+#include "microhalPortConfig_stm32f4xx.h"
 #include <type_traits>
 
-#include "microhalPortConfig_stm32f4xx.h"
 #include "stm32f4xx.h"
 
 namespace microhal {
@@ -270,7 +270,7 @@ class ClockManager {
          */
         static constexpr Frequency frequency() noexcept {
             static_assert(externalClockFrequency >= 4000000 && externalClockFrequency <= 26000000,
-                          "External HES frequency out of allowed range. HSE have to be grather than 4MHz and lower than 26MHz.");
+                          "External HES frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
             if (externalClockPresent == false) {
                 while (1)
                     ;

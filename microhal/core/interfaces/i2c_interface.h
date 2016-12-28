@@ -62,6 +62,9 @@ class I2C {
     virtual Speed speed() noexcept = 0;
     virtual void busReset() noexcept = 0;
 
+    Error write(uint8_t deviceAddress, uint8_t data) noexcept {
+    	return write(deviceAddress, &data, sizeof(data));
+    }
     virtual Error write(uint8_t deviceAddress, const uint8_t *data, size_t length) noexcept = 0;
     virtual Error write(DeviceAddress deviceAddress,
         		        const void * data, size_t dataLength,

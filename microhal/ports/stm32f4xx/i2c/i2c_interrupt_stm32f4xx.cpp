@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "i2c_interrupt_stm32f4xx.h"
 #include "microhalPortConfig_stm32f4xx.h"
+#include "i2c_interrupt_stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -48,7 +48,7 @@ I2C_interrupt I2C_interrupt::i2c3(*I2C3);
 I2C &I2C::i2c3 = I2C_interrupt::i2c3;
 #endif
 
-I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size_t length) {
+I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size_t length) noexcept {
     transfer.deviceAddress = deviceAddress;
     transfer.bufferA.ptr = const_cast<uint8_t*>(data);
     transfer.bufferA.length = length;
@@ -87,7 +87,7 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const void *write_d
 
     return ErrorSemaphore;
 };
-I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t length) {
+I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t length) noexcept {
     transfer.deviceAddress = deviceAddress;
     transfer.bufferA.ptr = data;
     transfer.bufferA.length = length;

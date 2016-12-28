@@ -61,7 +61,7 @@ static I2C::Error sendDeviceAddress(I2C_TypeDef &i2c, uint8_t deviceAddress) {
  *
  * @return NoError if data was read successfully or error code if an error occurred, see @ref I2C::Error.
  */
-I2C::Error I2C_polling::writeRead(DeviceAddress deviceAddress, const void *write, size_t write_size, void *data_read, size_t read_size) {
+I2C::Error I2C_polling::writeRead(DeviceAddress deviceAddress, const void *write, size_t write_size, void *data_read, size_t read_size) noexcept {
     I2C::Error error = write_implementation(deviceAddress, write, write_size, write, 0);
     if (error == NoError) {
         volatile uint16_t status;
@@ -84,7 +84,7 @@ I2C::Error I2C_polling::writeRead(DeviceAddress deviceAddress, const void *write
  *
  * @return NoError if data was send successfully or error code if an error occurred, see @ref I2C::Error.
  */
-I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size) {
+I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size) noexcept {
     if (write_size == 0) return NoError;
 
     const I2C::Error error = write_implementation(deviceAddress, write, write_size, write, 0);
@@ -103,7 +103,7 @@ I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write,
 }
 
 I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
-                              size_t write_data_sizeB) {
+                              size_t write_data_sizeB) noexcept {
     const I2C::Error error = write_implementation(deviceAddress, write_data, write_data_size, write_dataB, write_data_sizeB);
     if (error == NoError) {
         uint16_t status;
@@ -119,7 +119,7 @@ I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const void *write_dat
     return error;
 }
 
-I2C::Error I2C_polling::read(DeviceAddress deviceAddress, uint8_t *data, size_t data_size) {
+I2C::Error I2C_polling::read(DeviceAddress deviceAddress, uint8_t *data, size_t data_size) noexcept {
     // Generate the Start condition
     const I2C::Error restartError = sendStart(i2c);
     if (restartError != I2C::NoError) return restartError;

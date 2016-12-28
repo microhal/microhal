@@ -119,6 +119,10 @@ public:
 		stream.M1AR = reinterpret_cast<uint32_t>(memoryAddr);
 	}
 
+	void* getMemoryBank0() {
+		return reinterpret_cast<void*>(stream.M0AR);
+	}
+
 	void setNumberOfItemsToTransfer(size_t len){
 		stream.NDTR = len;
 	}
