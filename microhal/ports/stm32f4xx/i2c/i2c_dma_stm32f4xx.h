@@ -20,6 +20,7 @@
 #include "../dma_stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
 #include "../stm32f4xx.h"
+#include "microhal_semaphore.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -57,14 +58,12 @@ class I2C_dma : public stm32f4xx::I2C {
     static I2C_dma i2c3;
 #endif
  protected:
-    Error writeRead(DeviceAddress address, const void *write, size_t writeLength, void *read,
-                         size_t readLength) noexcept final;
+    Error writeRead(DeviceAddress address, const uint8_t *write, size_t writeLength, uint8_t *read, size_t readLength) noexcept final;
 
     Error write(DeviceAddress address, const uint8_t *write, size_t writeLength) noexcept final;
-    Error write(DeviceAddress address, const void *writ, size_t writeLength, const void *writeB,
-                size_t writeBLength) noexcept final;
+    Error write(DeviceAddress address, const uint8_t *write, size_t writeLength, const uint8_t *writeB, size_t writeBLength) noexcept final;
 
-    Error read(DeviceAddress address, uint8_t *read, size_t readLength) noexcept final;
+    Error read(DeviceAddress address, uint8_t *data, size_t length) noexcept final;
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
 
  private:
@@ -72,6 +71,7 @@ class I2C_dma : public stm32f4xx::I2C {
     //---------------------------------- variables
     //----------------------------------
     volatile I2C::Error errorSemaphore;
+   // os::Semaphore semaphore;
     DMA::Stream &rxStream;
     DMA::Stream &txStream;
 

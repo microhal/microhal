@@ -36,10 +36,10 @@ class I2C_polling : public stm32f4xx::I2C {
     //---------------------------------------- constructors ---------------------------------------
     I2C_polling(I2C_TypeDef &i2c) : I2C(i2c) { ClockManager::enable(i2c); }
     //---------------------------------------- functions ----------------------------------------//
-    Error writeRead(DeviceAddress address, const void *write, size_t write_size, void *read, size_t read_size) noexcept final;
+    Error writeRead(DeviceAddress address, const uint8_t *write, size_t write_size, uint8_t *read, size_t read_size) noexcept final;
 
     Error write(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size) noexcept final;
-    Error write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+    Error write(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size, const uint8_t *write_dataB,
                 size_t write_data_sizeB) noexcept final;
 
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t data_size) noexcept final;

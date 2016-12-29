@@ -73,11 +73,10 @@ private:
         }
     }
 //---------------------------------------- functions ----------------------------------------//
-    Error writeRead(DeviceAddress address, const void *write, size_t write_size, void *read_, size_t read_size) noexcept final;
+    Error writeRead(DeviceAddress address, const uint8_t *write, size_t writeLength, uint8_t *read_, size_t readLength) noexcept final;
 
     Error write(DeviceAddress deviceAddress, const uint8_t *data, size_t length) noexcept final;
-    Error write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
-                size_t write_data_sizeB) noexcept final;
+    Error write(DeviceAddress deviceAddress, const uint8_t *data, size_t dataLength, const uint8_t *dataB, size_t dataBLength) noexcept final;
 
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t length) noexcept final;
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;

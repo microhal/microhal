@@ -65,17 +65,17 @@ class I2C {
     Error write(uint8_t deviceAddress, uint8_t data) noexcept {
     	return write(deviceAddress, &data, sizeof(data));
     }
-    virtual Error write(uint8_t deviceAddress, const uint8_t *data, size_t length) noexcept = 0;
+    virtual Error write(DeviceAddress deviceAddress, const uint8_t *data, size_t length) noexcept = 0;
     virtual Error write(DeviceAddress deviceAddress,
-        		        const void * data, size_t dataLength,
-                        const void * dataB, size_t dataBLength) noexcept = 0;
-    virtual Error read(uint8_t deviceAddress, uint8_t *data, size_t size) noexcept = 0;
-    virtual Error read(uint8_t deviceAddress,
+        		        const uint8_t* data, size_t dataLength,
+                        const uint8_t* dataB, size_t dataBLength) noexcept = 0;
+    virtual Error read(DeviceAddress deviceAddress, uint8_t *data, size_t size) noexcept = 0;
+    virtual Error read(DeviceAddress deviceAddress,
     		           uint8_t *data, size_t dataLength,
                        uint8_t *dataB, size_t dataBLength) noexcept = 0;
     virtual Error writeRead(DeviceAddress deviceAddress,
-    		                const void* writeData, size_t wirteLength,
-							void *data, size_t length) noexcept = 0;
+    		                const uint8_t* write, size_t writeLength,
+							uint8_t *read, size_t readLength) noexcept = 0;
 
     virtual ~I2C() {}
 

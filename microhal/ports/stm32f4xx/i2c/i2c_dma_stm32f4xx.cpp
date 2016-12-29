@@ -71,16 +71,17 @@ I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t * write_dat
 
     while (errorSemaphore == UnknownError) {
     }
+    //semaphore.wait(std::chrono::milliseconds::max());
 
     return errorSemaphore;
 }
 
-I2C::Error I2C_dma::write(DeviceAddress address, const void *dataA, size_t dataASize, const void *dataB, size_t dataBSize) noexcept {
+I2C::Error I2C_dma::write(DeviceAddress address, const uint8_t *dataA, size_t dataASize, const uint8_t *dataB, size_t dataBSize) noexcept {
 	transfer.mode = Mode::TransmitDoubleBuffer;
 	transfer.deviceAddress = address;
 	transfer.txLength = dataASize;
 	transfer.rxLength = 0;
-	transfer.bufferB.ptr = const_cast<void*>(dataB);
+	transfer.bufferB.ptr = const_cast<uint8_t*>(dataB);
 	transfer.bufferB.length = dataBSize;
 
     txStream.setNumberOfItemsToTransfer(dataASize);
@@ -96,6 +97,7 @@ I2C::Error I2C_dma::write(DeviceAddress address, const void *dataA, size_t dataA
 
     while (errorSemaphore == UnknownError) {
     }
+    //semaphore.wait(std::chrono::milliseconds::max());
 
     return errorSemaphore;
 };
@@ -107,14 +109,14 @@ I2C::Error I2C_dma::write(DeviceAddress address, const void *dataA, size_t dataA
  * @param length
  * @return
  */
-I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t * read_data, size_t read_data_size) noexcept {
+I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t * data, size_t length) noexcept {
     transfer.mode = Mode::Receive;
     transfer.deviceAddress = deviceAddress;
-    transfer.rxLength = read_data_size;
-    transfer.bufferB.length = read_data_size;
+    transfer.rxLength = length;
+    transfer.bufferB.length = length;
 
-    rxStream.setNumberOfItemsToTransfer(read_data_size);
-    rxStream.setMemoryBank0(read_data);
+    rxStream.setNumberOfItemsToTransfer(length);
+    rxStream.setMemoryBank0(data);
     rxStream.enable();
 
     errorSemaphore = UnknownError;
@@ -128,6 +130,7 @@ I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t * read_data, size_
 
     while (errorSemaphore == UnknownError) {
     }
+    //semaphore.wait(std::chrono::milliseconds::max());
 
     return errorSemaphore;
 }
@@ -154,13 +157,14 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *data, size_t dataLength
 
     while (errorSemaphore == UnknownError) {
     }
+    //semaphore.wait(std::chrono::milliseconds::max());
 
     return errorSemaphore;
 };
 
 I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress,
-                              const void * write_data, size_t write_data_size,
-                              void * read_data, size_t read_data_size) noexcept {
+                              const uint8_t * write_data, size_t write_data_size,
+							  uint8_t * read_data, size_t read_data_size) noexcept {
     transfer.mode = Mode::TransmitReceive;
     transfer.deviceAddress = deviceAddress;
     transfer.txLength = write_data_size;
@@ -184,6 +188,7 @@ I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress,
 
     while (errorSemaphore == UnknownError) {
     }
+    //semaphore.wait(std::chrono::milliseconds::max());
 
     return errorSemaphore;
 }
@@ -279,20 +284,16 @@ void I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
             case I2C_dma::Mode::Transmit:
                 i2c->CR1 |= I2C_CR1_STOP;
                 obj.errorSemaphore = I2C_dma::NoError;
+//        		auto shouldYeld = obj.semaphore.giveFromISR();
+//        #if defined (HAL_RTOS_FreeRTOS)
+//        		portYIELD_FROM_ISR(shouldYeld);
+//        #else
+//        		(void)shouldYeld;
+//        #endif
                 break;
-//            case I2C_dma::Mode::Receive:
-//            	if (sr1 & I2C_SR1_RXNE) {
-//
-//            	}
-//            	break;
         }
-    } //else if ((sr1 & I2C_SR1_RXNE) && (obj.transfer.mode == I2C_dma::Mode::Receive)) {
-//    	i2c->CR2 &= ~I2C_CR2_DMAEN;
-//    	i2c->CR1 |= I2C_CR1_STOP;
-//    	*static_cast<uint8_t*>(obj.rxStream.getMemoryBank0()) = i2c->DR;
-//
-//    	obj.errorSemaphore = I2C_dma::NoError;
-//    }
+    }
+
 }
 
 void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
@@ -303,6 +304,12 @@ void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
     i2c->CR1 |= I2C_CR1_STOP;
     // read error and store it in variable
     obj.errorSemaphore = I2C::errorCheckAndClear(i2c, i2c->SR1);
+//	auto shouldYeld = obj.semaphore.giveFromISR();
+//#if defined (HAL_RTOS_FreeRTOS)
+//	portYIELD_FROM_ISR(shouldYeld);
+//#else
+//	(void)shouldYeld;
+//#endif
 }
 //***********************************************************************************************//
 //                                         DMA IRQHandlers //
@@ -373,6 +380,12 @@ void DMA1_Stream3_IRQHandler(void) {
 	if (i2c.transfer.mode == Mode::Receive) {
 		I2C2->CR1 |= I2C_CR1_STOP;
 		i2c.errorSemaphore = I2C_dma::NoError;
+//		auto shouldYeld = i2c.semaphore.giveFromISR();
+//#if defined (HAL_RTOS_FreeRTOS)
+//		portYIELD_FROM_ISR(shouldYeld);
+//#else
+//		(void)shouldYeld;
+//#endif
 	} else {
 		// we are in double buffer mode
 		i2c.rxStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);

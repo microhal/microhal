@@ -66,12 +66,12 @@ I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size
 
     return ErrorSemaphore;
 }
-I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size, const uint8_t *write_dataB,
                size_t write_data_sizeB) noexcept {
     transfer.deviceAddress = deviceAddress;
-    transfer.bufferA.ptr = (uint8_t*)const_cast<void*>(write_data);
+    transfer.bufferA.ptr = const_cast<uint8_t*>(write_data);
     transfer.bufferA.length = write_data_size;
-    transfer.bufferB.ptr = (uint8_t*)const_cast<void*>(write_dataB);
+    transfer.bufferB.ptr = const_cast<uint8_t*>(write_dataB);
     transfer.bufferB.length = write_data_sizeB;
     transfer.mode = Mode::TransmitDoubleBuffer;
 
@@ -129,11 +129,11 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t data
     return ErrorSemaphore;
 };
 
-I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const void *write, size_t write_size, void *read, size_t read_size) noexcept {
+I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write, size_t write_size, uint8_t *read, size_t read_size) noexcept {
     transfer.deviceAddress = address;
-    transfer.bufferA.ptr = const_cast<uint8_t*>(static_cast<const uint8_t*>(write));
+    transfer.bufferA.ptr = const_cast<uint8_t*>(write);
     transfer.bufferA.length = write_size;
-    transfer.bufferB.ptr = static_cast<uint8_t*>(read);
+    transfer.bufferB.ptr = read;
     transfer.bufferB.length = read_size;
     transfer.mode = Mode::TransmitReceive;
 
