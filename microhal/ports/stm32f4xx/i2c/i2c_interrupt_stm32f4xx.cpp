@@ -6,9 +6,9 @@
  *
  * @authors    Pawel Okas
  * created on: 17-04-2014
- * last modification: 27-06-2016
+ * last modification: 29-06-2016
  *
- * @copyright Copyright (c) 2016, Pawel Okas
+ * @copyright Copyright (c) 2014-2016, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,9 @@ I2C &I2C::i2c2 = I2C_interrupt::i2c2;
 I2C_interrupt I2C_interrupt::i2c3(*I2C3);
 I2C &I2C::i2c3 = I2C_interrupt::i2c3;
 #endif
-
+/* ************************************************************************************************
+ *                                            FUNCTIONS
+ * ***********************************************************************************************/
 I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size_t length) noexcept {
     transfer.deviceAddress = deviceAddress;
     transfer.bufferA.ptr = const_cast<uint8_t*>(data);
