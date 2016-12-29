@@ -30,6 +30,7 @@
 #ifndef _MICROHAL_MICROHALPORTCONFIG_STM32F4XX_H_
 #define _MICROHAL_MICROHALPORTCONFIG_STM32F4XX_H_
 
+#include <cstdint>
 //***********************************************************************************************//
 //                                     Hardware Configuration                                    //
 //***********************************************************************************************//
