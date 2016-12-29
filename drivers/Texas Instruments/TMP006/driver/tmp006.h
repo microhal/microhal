@@ -150,21 +150,21 @@ private:
  * @return true if sensor was reset;
  */
 bool TMP006::reset() {
-    return setBitsInRegister(CONFIGURATION, (uint16_t) CONFIGURATION_RESET, microhal::BigEndian);
+    return setBitsInRegister(CONFIGURATION, (uint16_t) CONFIGURATION_RESET, microhal::Endianness::Big);
 }
 /**
  * @brief This function enable the DRDY pin.
  * @return
  */
 bool TMP006::enableDRDYpin() {
-    return setBitsInRegister(CONFIGURATION, (uint16_t) CONFIGURATION_DRDY_ENABLE, microhal::BigEndian);
+    return setBitsInRegister(CONFIGURATION, (uint16_t) CONFIGURATION_DRDY_ENABLE, microhal::Endianness::Big);
 }
 /**
  * @brief This function disable the DRDY pin.
  * @return
  */
 bool TMP006::disableDRDYpin() {
-    return clearBitsInRegister(CONFIGURATION, (uint16_t) CONFIGURATION_DRDY_ENABLE, microhal::BigEndian);
+    return clearBitsInRegister(CONFIGURATION, (uint16_t) CONFIGURATION_DRDY_ENABLE, microhal::Endianness::Big);
 }
 /**
  * @brief This function read Manufacturer ID from TMP006 sensor.
@@ -173,7 +173,7 @@ bool TMP006::disableDRDYpin() {
 uint16_t TMP006::getManufacturerID() {
     uint16_t id;
 
-    if (readRegister(MANUFACTURER_ID, id, microhal::BigEndian) == true) {
+    if (readRegister(MANUFACTURER_ID, id, microhal::Endianness::Big) == true) {
         return id;
     } else {
         return 0;
@@ -186,7 +186,7 @@ uint16_t TMP006::getManufacturerID() {
 uint16_t TMP006::getDeviceID() {
     uint16_t id;
 
-    if (readRegister(DEVICE_ID, id, microhal::BigEndian) == true) {
+    if (readRegister(DEVICE_ID, id, microhal::Endianness::Big) == true) {
         return id;
     } else {
         return 0;
@@ -199,7 +199,7 @@ uint16_t TMP006::getDeviceID() {
 TMP006::ConversionRates TMP006::getConversionRate() {
     uint16_t conf;
 
-    if (readRegister(CONFIGURATION, conf, microhal::BigEndian) == true) {
+    if (readRegister(CONFIGURATION, conf, microhal::Endianness::Big) == true) {
         //clear other bits than conversion rate
         conf &= ConversionRate_4Hz | ConversionRate_2Hz | ConversionRate_1Hz
                 | ConversionRate_0_5Hz | ConversionRate_0_25Hz;
@@ -217,7 +217,7 @@ TMP006::ConversionRates TMP006::getConversionRate() {
 bool TMP006::isNewDataAvailable(void) {
     uint16_t conf;
 //read configuration register
-    if (readRegister(CONFIGURATION, conf, microhal::BigEndian) == true) {
+    if (readRegister(CONFIGURATION, conf, microhal::Endianness::Big) == true) {
         //check DRDY bit
         if (conf & CONFIGURATION_DRDY_STATUS) {
             //new data available
@@ -237,13 +237,13 @@ bool TMP006::setMode(OperatimgModes mode) {
 
     uint16_t conf;
 //read configuration register
-    if (readRegister(CONFIGURATION, conf, microhal::BigEndian) == true) {
+    if (readRegister(CONFIGURATION, conf, microhal::Endianness::Big) == true) {
         //clear actual configuration
         conf &= ~(ModePowerDown | ModeActive);
         //apply new configuration
         conf |= mode;
         //write configuration
-        return writeRegister(CONFIGURATION, conf, microhal::BigEndian);
+        return writeRegister(CONFIGURATION, conf, microhal::Endianness::Big);
     }
     return false;
 }
@@ -257,14 +257,14 @@ bool TMP006::setConversionRate(ConversionRates rate) {
 
     uint16_t conf;
 //read configuration register
-    if (readRegister(CONFIGURATION, conf, microhal::BigEndian) == true) {
+    if (readRegister(CONFIGURATION, conf, microhal::Endianness::Big) == true) {
         //clear actual configuration
         conf &= ~(ConversionRate_4Hz | ConversionRate_2Hz | ConversionRate_1Hz
                 | ConversionRate_0_5Hz | ConversionRate_0_25Hz);
         //apply new configuration
         conf |= rate;
         //write configuration
-        return writeRegister(CONFIGURATION, conf, microhal::BigEndian);
+        return writeRegister(CONFIGURATION, conf, microhal::Endianness::Big);
     }
     return false;
 }

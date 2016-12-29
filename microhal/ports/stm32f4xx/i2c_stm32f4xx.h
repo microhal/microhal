@@ -77,6 +77,10 @@ class I2C : public microhal::I2C {
     //----------------------------------
     bool init();
 
+    Speed speed(Speed speed) noexcept final {}
+    Speed speed() noexcept final {}
+    void busReset() noexcept final {}
+
     /**
      * @brief This function change I2C peripheral mode. Changing mode is only
      * possible when I2C peripheral is disabled.
@@ -84,7 +88,7 @@ class I2C : public microhal::I2C {
      * @retval true if mode was set.
      * @retval false if I2C is enabled and mode can't be changed.
      */
-    bool setMode(Mode mode) final {
+    bool setMode(Mode mode) noexcept final {
         bool fastMode = false;
         bool dutyCycle = false;
 
@@ -179,7 +183,7 @@ class I2C : public microhal::I2C {
     	i2c.CR1 |= I2C_CR1_START;
     }
 
-
+public:
     static I2C::Error errorCheckAndClear(I2C_TypeDef *i2c, uint16_t sr1) {
         uint32_t errors = I2C::NoError;
 

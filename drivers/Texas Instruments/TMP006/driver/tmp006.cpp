@@ -44,8 +44,8 @@ bool TMP006::update() {
 
     int16_t temp;
     int16_t voltage;
-    if (readRegister(T_AMBIENT, (uint16_t&) temp, microhal::BigEndian) == false) return false;
-    if (readRegister(V_OBJECT, (uint16_t&) voltage, microhal::BigEndian) == false) return false;
+    if (readRegister(T_AMBIENT, (uint16_t&) temp, microhal::Endianness::Big) == false) return false;
+    if (readRegister(V_OBJECT, (uint16_t&) voltage, microhal::Endianness::Big) == false) return false;
 
     //convert to kelvin
     ambientTemperature = Temperature {static_cast<float>(temp / 128 + 273)};

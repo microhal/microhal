@@ -162,7 +162,7 @@ bool BMP180::update() {
     int32_t up;
     uint8_t buff[3];
     //read uncompressed temperature value
-    if (readRegister(OUT_MSB, (uint16_t&) ut, microhal::BigEndian) == true) {
+    if (readRegister(OUT_MSB, (uint16_t&) ut, microhal::Endianness::Big) == true) {
         //read uncompressed pressure value
         if (readRegisters(OUT_MSB, buff, 3) == true) {
             up = buff[0] << 16 | buff[1] << 8 | buff[0];
