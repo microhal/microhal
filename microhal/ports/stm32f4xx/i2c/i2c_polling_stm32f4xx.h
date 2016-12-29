@@ -42,12 +42,17 @@ class I2C_polling : public stm32f4xx::I2C {
     Error write(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size, const uint8_t *write_dataB,
                 size_t write_data_sizeB) noexcept final;
 
-    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t data_size) noexcept final;
-    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
+    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength) noexcept final {
+    	return read_implementation(deviceAddress, nullptr, 0, data, dataLength);
+    }
+    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final {
+    	return read_implementation(deviceAddress, data, dataLength, dataB, dataBLength);
+    }
 
     inline Error write(uint8_t data);
     Error write_implementation(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
                                size_t write_data_sizeB);
+    Error read_implementation(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept;
 };
 
 }  // namespace stm32f4xx

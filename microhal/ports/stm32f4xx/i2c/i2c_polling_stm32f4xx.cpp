@@ -119,47 +119,51 @@ I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write_
     return error;
 }
 
-I2C::Error I2C_polling::read(DeviceAddress deviceAddress, uint8_t *data, size_t data_size) noexcept {
-    // Generate the Start condition
-    const I2C::Error restartError = sendStart(i2c);
-    if (restartError != I2C::NoError) return restartError;
-    // Send I2Cx slave Address for read
-    const I2C::Error deviceReadAddressError = sendDeviceAddress(i2c, deviceAddress + 1);
-    if (deviceReadAddressError != I2C::NoError) return deviceReadAddressError;
+I2C::Error I2C_polling::write(uint8_t data) {
+    Error error;
+    uint16_t status;
 
-    __attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete,read sr2 for clear addr flag
-
-    I2C::Error error;
-    volatile uint16_t status;
-    size_t i = 0;
-    if (data_size > 1) {
-        i2c.CR1 |= I2C_CR1_ACK;
-
-        for (; i < data_size - 1; i++) {
-            do {
-                status = i2c.SR1;
-                error = errorCheckAndClear(&i2c, status);
-                if (error != NoError) return error;
-            } while (!(status & I2C_SR1_RXNE));
-            ((uint8_t *)data)[i] = i2c.DR;
-        }
-    }
-
-    i2c.CR1 &= ~I2C_CR1_ACK;
-    // Generate the Stop condition
-    i2c.CR1 |= I2C_CR1_STOP;
-    // wait until one byte has been received
     do {
         status = i2c.SR1;
         error = errorCheckAndClear(&i2c, status);
         if (error != NoError) return error;
-    } while (!(status & I2C_SR1_RXNE));
-    // read data from I2C data register
-    ((uint8_t *)data)[i] = i2c.DR;
+    } while (!(status & I2C_SR1_TXE));
+    i2c.DR = data;
+
     return NoError;
 }
 
-I2C::Error I2C_polling::read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
+I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+                                             size_t write_data_sizeB) {
+    if (write_data_size == 0) return NoError;
+
+    I2C::Error error;
+
+    // Generate the Start condition
+    const I2C::Error startError = sendStart(i2c);
+    if (startError != I2C::NoError) return startError;
+    // Send I2Cx slave Address for write
+    const I2C::Error deviceAddressError = sendDeviceAddress(i2c, deviceAddress);
+    if (deviceAddressError != I2C::NoError) return startError;
+
+    __attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete, read sr2 for clear addr flag,
+
+    const uint8_t *ptr = static_cast<const uint8_t *>(write_data);
+    while (write_data_size--) {
+        error = write(*ptr++);
+        if (error != NoError) return error;
+    }
+
+    const uint8_t *ptrB = static_cast<const uint8_t *>(write_dataB);
+    while (write_data_sizeB--) {
+        error = write(*ptrB++);
+        if (error != NoError) return error;
+    }
+
+    return NoError;
+}
+
+I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
     // Generate the Start condition
     const I2C::Error restartError = sendStart(i2c);
     if (restartError != I2C::NoError) return restartError;
@@ -209,50 +213,6 @@ I2C::Error I2C_polling::read(DeviceAddress deviceAddress, uint8_t *data, size_t 
     ((uint8_t *)dataB)[i] = i2c.DR;
     return NoError;
 };
-
-I2C::Error I2C_polling::write(uint8_t data) {
-    Error error;
-    uint16_t status;
-
-    do {
-        status = i2c.SR1;
-        error = errorCheckAndClear(&i2c, status);
-        if (error != NoError) return error;
-    } while (!(status & I2C_SR1_TXE));
-    i2c.DR = data;
-
-    return NoError;
-}
-
-I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
-                                             size_t write_data_sizeB) {
-    if (write_data_size == 0) return NoError;
-
-    I2C::Error error;
-
-    // Generate the Start condition
-    const I2C::Error startError = sendStart(i2c);
-    if (startError != I2C::NoError) return startError;
-    // Send I2Cx slave Address for write
-    const I2C::Error deviceAddressError = sendDeviceAddress(i2c, deviceAddress);
-    if (deviceAddressError != I2C::NoError) return startError;
-
-    __attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete, read sr2 for clear addr flag,
-
-    const uint8_t *ptr = static_cast<const uint8_t *>(write_data);
-    while (write_data_size--) {
-        error = write(*ptr++);
-        if (error != NoError) return error;
-    }
-
-    const uint8_t *ptrB = static_cast<const uint8_t *>(write_dataB);
-    while (write_data_sizeB--) {
-        error = write(*ptrB++);
-        if (error != NoError) return error;
-    }
-
-    return NoError;
-}
 
 }  // namespace stm32f4xx
 }  // namespace microhal
