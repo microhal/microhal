@@ -68,8 +68,7 @@ class I2C_dma : public stm32f4xx::I2C {
 
  private:
     enum class Mode { Receive = 0x01, Transmit = 0x02, TransmitReceive = 0x04, ReceiveDoubleBuffer = 0x11, TransmitDoubleBuffer = 0x12 };
-    //---------------------------------- variables
-    //----------------------------------
+    //---------------------------------- variables ----------------------------------
     volatile I2C::Error error;
     DMA::Stream &rxStream;
     DMA::Stream &txStream;
@@ -138,4 +137,5 @@ class I2C_dma : public stm32f4xx::I2C {
 
 }  // namespace stm32f4xx
 }  // namespace microhal
+
 #endif  // I2C_DMA_STM32F4XX_H_

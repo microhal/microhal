@@ -239,7 +239,7 @@ DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c) {
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
-void I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
+void  __attribute__((optimize("O0"))) I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
 	using Mode = I2C_dma::Mode;
     uint16_t sr1 = i2c->SR1;
 
@@ -250,24 +250,16 @@ void I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
     } else if (sr1 & I2C_SR1_ADDR) {  // adres(MASTER MODE) was sent
     	if (obj.transfer.rxLength == 1) i2c->CR1 &= ~I2C_CR1_ACK;
     	__attribute__((unused)) volatile uint16_t tmp =  i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
-
     } else if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) && (sr1 & I2C_SR1_RXNE) == 0) {
         switch (obj.transfer.mode) {
-            case I2C_dma::Mode::TransmitReceive:
-            	i2c->CR2 &= ~I2C_CR2_DMAEN;
-            	obj.transfer.mode = I2C_dma::Mode::Receive;
-            	//obj.rxStream.enable();
-                //if (obj.transfer.txLength == 1) {
-                    //i2c->CR1 = /*(i2c->CR1 & (~I2C_CR1_ACK & ~I2C_CR1_POS)) | I2C_CR1_START;
-                //} else {
-            		//obj.rxStream.enable();
-            		i2c->CR2 |= I2C_CR2_LAST;
-                    i2c->CR1 |= /*I2C_CR1_ACK | /*I2C_CR1_POS |*/ I2C_CR1_START;
-                //}
+            case Mode::TransmitReceive:
+            	i2c->CR2 = (i2c->CR2 & ~I2C_CR2_DMAEN) | I2C_CR2_LAST;
+            	//i2c->CR2 |= I2C_CR2_LAST;
+            	obj.transfer.mode = Mode::Receive;
+                i2c->CR1 |= I2C_CR1_START;
                 break;
-            case I2C_dma::Mode::Transmit:
+            case Mode::Transmit:
                 i2c->CR1 |= I2C_CR1_STOP;
-                //obj.errorSemaphore = I2C_dma::NoError;
         		auto shouldYeld = obj.semaphore.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
         		portYIELD_FROM_ISR(shouldYeld);
@@ -277,7 +269,6 @@ void I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
                 break;
         }
     }
-
 }
 
 void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
@@ -344,12 +335,31 @@ void DMA1_Stream7_IRQHandler(void) {
 //***********************************************************************************************//
 #if MICROHAL_I2C2_DMA_RX_STREAM == 2
 void DMA1_Stream2_IRQHandler(void) {
-    I2C2->CR1 |= I2C_CR1_STOP;
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c2;
 
-    DMA1_Stream3->CR &= ~DMA_SxCR_EN;
-    DMA1->LIFCR = DMA_LIFCR_CTCIF3;
+    DMA1_Stream2->CR &= ~DMA_SxCR_EN;
+    DMA1->LIFCR = DMA_LIFCR_CTCIF2;
 
-    I2C_dma::i2c2.errorSemaphore = I2C_dma::NoError;
+	if (i2c.transfer.mode == Mode::Receive) {
+		I2C2->CR1 |= I2C_CR1_STOP;
+		auto shouldYeld = i2c.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+		portYIELD_FROM_ISR(shouldYeld);
+#else
+		(void)shouldYeld;
+#endif
+	} else {
+		// we are in double buffer mode
+		i2c.rxStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+		i2c.rxStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+		if (i2c.transfer.bufferB.length == 1) {
+			i2c.i2c.CR1 &= ~I2C_CR1_ACK;
+		}
+		i2c.i2c.CR2 |= I2C_CR2_LAST;
+		i2c.rxStream.enable();
+		i2c.transfer.mode = Mode::Receive;
+	}
 }
 #endif
 //***********************************************************************************************//
