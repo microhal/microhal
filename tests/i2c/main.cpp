@@ -138,6 +138,7 @@ int main(void) {
 		sensorI2C.write(0xA2, txBuff, ratio + 1, data + ratio, sizeof(data) - ratio);
 		std::this_thread::sleep_for(std::chrono::milliseconds {10});
 
+		std::fill(std::begin(readBuffer), std::end(readBuffer), 0);
 		sensorI2C.writeRead(0xA2, &addr, 1, readBuffer, sizeof(readBuffer));
 		if (std::equal(std::begin(data), std::end(data), readBuffer)) {
 			diagChannel << MICROHAL_NOTICE << "i2c.write OK" << " B size = " << (uint32_t)(sizeof(data) - ratio);
