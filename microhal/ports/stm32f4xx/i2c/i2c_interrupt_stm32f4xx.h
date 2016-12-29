@@ -14,6 +14,7 @@
 #include "../stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
 #include "../clockManager.h"
+#include "microhal_semaphore.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -44,11 +45,11 @@ private:
     } Transfer;
 
     Transfer transfer;
-
-    volatile I2C::Error ErrorSemaphore;
+    volatile I2C::Error error;
+    os::Semaphore semaphore;
 //---------------------------------------- constructors ---------------------------------------
     I2C_interrupt(I2C_TypeDef &i2c) :
-            I2C(i2c), transfer(), ErrorSemaphore() {
+            I2C(i2c), transfer(), error() {
     	ClockManager::enable(i2c);
 
         switch (reinterpret_cast<uint32_t>(&i2c)) {

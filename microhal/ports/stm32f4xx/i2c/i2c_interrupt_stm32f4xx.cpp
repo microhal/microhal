@@ -54,17 +54,16 @@ I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size
     transfer.bufferA.length = length;
     transfer.mode = Mode::Transmit;
 
-    ErrorSemaphore = UnknownError;
     // send start
     while (i2c.SR2 & I2C_SR2_BUSY) {
     }
     i2c.CR2 |= I2C_CR2_ITBUFEN;
     i2c.CR1 |= I2C_CR1_START;
 
-    while (ErrorSemaphore == UnknownError) {
-    }
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
 
-    return ErrorSemaphore;
+    return error;
 }
 I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size, const uint8_t *write_dataB,
                size_t write_data_sizeB) noexcept {
@@ -75,17 +74,16 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const uint8_t *writ
     transfer.bufferB.length = write_data_sizeB;
     transfer.mode = Mode::TransmitDoubleBuffer;
 
-    ErrorSemaphore = UnknownError;
     // send start
     while (i2c.SR2 & I2C_SR2_BUSY) {
     }
     i2c.CR2 |= I2C_CR2_ITBUFEN;
     i2c.CR1 |= I2C_CR1_START;
 
-    while (ErrorSemaphore == UnknownError) {
-    }
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
 
-    return ErrorSemaphore;
+    return error;
 };
 I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t length) noexcept {
     transfer.deviceAddress = deviceAddress;
@@ -95,16 +93,15 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t leng
 
     i2c.CR2 &= ~I2C_CR2_ITBUFEN;
 
-    ErrorSemaphore = UnknownError;
     // send start
     while (i2c.SR2 & I2C_SR2_BUSY) {
     }
     i2c.CR1 |= I2C_CR1_START;
 
-    while (ErrorSemaphore == UnknownError) {
-    }
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
 
-    return ErrorSemaphore;
+    return error;
 }
 
 I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
@@ -116,17 +113,15 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t data
     transfer.mode = Mode::ReceiveDoubleBuffer;
 
     i2c.CR2 &= ~I2C_CR2_ITBUFEN;
-
-    ErrorSemaphore = UnknownError;
     // send start
     while (i2c.SR2 & I2C_SR2_BUSY) {
     }
     i2c.CR1 |= I2C_CR1_START;
 
-    while (ErrorSemaphore == UnknownError) {
-    }
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
 
-    return ErrorSemaphore;
+    return error;
 };
 
 I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write, size_t write_size, uint8_t *read, size_t read_size) noexcept {
@@ -138,16 +133,15 @@ I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write,
     transfer.mode = Mode::TransmitReceive;
 
     i2c.CR2 &= ~I2C_CR2_ITBUFEN;
-    ErrorSemaphore = UnknownError;
     while (i2c.SR2 & I2C_SR2_BUSY) {
     }
     // send start
     i2c.CR1 |= I2C_CR1_START;
 
-    while (ErrorSemaphore == UnknownError) {
-    }
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
 
-    return ErrorSemaphore;
+    return error;
 }
 //***********************************************************************************************//
 //                                     interrupt functions //
@@ -211,8 +205,12 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
 				*obj.transfer.bufferA.ptr = i2c->DR;
 				*obj.transfer.bufferB.ptr = i2c->DR;
 			}
-
-			obj.ErrorSemaphore = I2C_interrupt::NoError;
+			auto shouldYeld = obj.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+			portYIELD_FROM_ISR(shouldYeld);
+#else
+			(void)shouldYeld;
+#endif
 		} else if (status1 & I2C_SR1_RXNE) {
 			auto toReceive = obj.transfer.mode == Mode::Receive ? obj.transfer.bufferA.length
 																: obj.transfer.bufferA.length + obj.transfer.bufferB.length;
@@ -239,7 +237,12 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
 			} else if (toReceive == 1) {
 				i2c->CR1 |= I2C_CR1_STOP;
 				*obj.transfer.bufferA.ptr = i2c->DR;
-				 obj.ErrorSemaphore = I2C_interrupt::NoError;
+				auto shouldYeld = obj.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+				portYIELD_FROM_ISR(shouldYeld);
+#else
+				(void)shouldYeld;
+#endif
 			}
 		} else if (status1 == I2C_SR1_TXE) {
 			if (obj.transfer.bufferA.length) {
@@ -265,7 +268,12 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
 				} else {
 					i2c->CR1 |= I2C_CR1_STOP;
 					i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-					obj.ErrorSemaphore = I2C_interrupt::NoError;
+					auto shouldYeld = obj.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+					portYIELD_FROM_ISR(shouldYeld);
+#else
+					(void)shouldYeld;
+#endif
 				}
 			}
 		}
@@ -295,19 +303,37 @@ void I2C3_EV_IRQHandler(void) {
 #ifdef MICROHAL_USE_I2C1_INTERRUPT
 void I2C1_ER_IRQHandler(void) {
     I2C1->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c1.ErrorSemaphore = I2C::errorCheckAndClear(I2C1, I2C1->SR1);
+    I2C_interrupt::i2c1.error = I2C::errorCheckAndClear(I2C1, I2C1->SR1);
+	auto shouldYeld = I2C_interrupt::i2c1.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+	portYIELD_FROM_ISR(shouldYeld);
+#else
+	(void)shouldYeld;
+#endif
 }
 #endif
 #ifdef MICROHAL_USE_I2C2_INTERRUPT
 void I2C2_ER_IRQHandler(void) {
     I2C2->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c2.ErrorSemaphore = I2C::errorCheckAndClear(I2C2, I2C2->SR1);
+    I2C_interrupt::i2c2.error = I2C::errorCheckAndClear(I2C2, I2C2->SR1);
+	auto shouldYeld = I2C_interrupt::i2c2.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+	portYIELD_FROM_ISR(shouldYeld);
+#else
+	(void)shouldYeld;
+#endif
 }
 #endif
 #ifdef MICROHAL_USE_I2C3_INTERRUPT
 void I2C3_ER_IRQHandler(void) {
     I2C3->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c3.ErrorSemaphore = I2C::errorCheckAndClear(I2C3, I2C3->SR1);
+    I2C_interrupt::i2c3.error = I2C::errorCheckAndClear(I2C3, I2C3->SR1);
+	auto shouldYeld = I2C_interrupt::i2c3.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+	portYIELD_FROM_ISR(shouldYeld);
+#else
+	(void)shouldYeld;
+#endif
 }
 #endif
 
