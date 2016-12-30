@@ -46,7 +46,7 @@ int main(void) {
 	debugPort.write("\n\r------------------- SHT21 Demo -------------------------\n\r");
 	diagChannel.setOutputDevice(debugPort);
 
-    SHT21 sht(sensorI2C);
+	SHT21 sht(sensorI2C);
 
     char buffer[100];
     std::this_thread::sleep_for(1000ms);

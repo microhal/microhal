@@ -134,7 +134,7 @@ private:
 	TIM_TypeDef &timer;
 //------------------------------------------- constructors --------------------------------------//
 	constexpr Timer(TIM_TypeDef &timer) :
-			timer(timer) {
+			onCompare(), overflow(), timer(timer) {
 	}
 	//virtual ~timer_stm32f0xx();
 //------------------------------------------- friends -------------------------------------------//

@@ -989,7 +989,7 @@ private:
 			const uint8_t byte[4];
 		};
 
-		if(microhal::DeviceEndianness == microhal::Endianness::LittleEndian) sync = microhal::byteswap(sync);
+		if(microhal::hardware::Device::endianness == microhal::Endianness::Little) sync = microhal::byteswap(sync);
 
 		SyncWord syncWord = {sync};
 

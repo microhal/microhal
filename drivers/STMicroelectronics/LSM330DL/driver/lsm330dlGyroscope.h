@@ -174,7 +174,7 @@ public:
 	bool readSamples(int16_t &x, int16_t &y, int16_t &z) {
 		int16_t data[3];
 		const bool status = readRegisters(OUT_X_L_G | ENABLE_AUTOINCREMENT,
-				(uint16_t*)data, 3, microhal::LittleEndian);
+				(uint16_t*)data, 3, microhal::Endianness::Little);
 
 		x = data[0];
 		y = data[1];

@@ -52,106 +52,49 @@ static DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c);
 /* ************************************************************************************************
  *                                 		  Functions
  * ***********************************************************************************************/
-/**
- *
- * @param deviceAddress
- * @param data
- * @return
- */
-I2C::Error I2C_dma::write(uint8_t deviceAddress, uint8_t data) {
-    transfer.mode = Transmit;
+I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t * write_data, size_t write_data_size) noexcept {
+    transfer.mode = Mode::Transmit;
     transfer.deviceAddress = deviceAddress;
-    transfer.registerAddress = data;
-    transfer.length = 0;
+    transfer.txLength = write_data_size;
+    transfer.rxLength = 0;
 
-    errorSemaphore = UnknownError;
-
-    while (i2c.SR1 & I2C_SR1_BTF) {
-    }
-    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
-    i2c.CR1 |= I2C_CR1_START;
-
-    while (errorSemaphore == UnknownError) {
-    }
-
-    return errorSemaphore;
-}
-/**
- *
- * @param deviceAddress
- * @param registerAddress
- * @param data
- * @return
- */
-I2C::Error I2C_dma::write(uint8_t deviceAddress, uint8_t registerAddress, uint8_t data) {
-    return write(deviceAddress, registerAddress, &data, 1);
-}
-/**
- *
- * @param deviceAddress
- * @param registerAddress
- * @param data
- * @param length
- * @return
- */
-I2C::Error I2C_dma::write(uint8_t deviceAddress, uint8_t registerAddress, const void *data, size_t length) {
-    transfer.mode = Transmit;
-    transfer.deviceAddress = deviceAddress;
-    transfer.registerAddress = registerAddress;
-    transfer.length = length;
-
-    txStream.setNumberOfItemsToTransfer(length);
-    txStream.setMemoryBank0(data);
+    txStream.setNumberOfItemsToTransfer(write_data_size);
+    txStream.setMemoryBank0(write_data);
     txStream.enable();
 
-    errorSemaphore = UnknownError;
+    while (i2c.SR1 & I2C_SR1_BTF) {
+    }
+    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
+    i2c.CR1 |= I2C_CR1_START;
+
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
+
+    return error;
+}
+
+I2C::Error I2C_dma::write(DeviceAddress address, const uint8_t *dataA, size_t dataASize, const uint8_t *dataB, size_t dataBSize) noexcept {
+	transfer.mode = Mode::TransmitDoubleBuffer;
+	transfer.deviceAddress = address;
+	transfer.txLength = dataASize;
+	transfer.rxLength = 0;
+	transfer.bufferB.ptr = const_cast<uint8_t*>(dataB);
+	transfer.bufferB.length = dataBSize;
+
+    txStream.setNumberOfItemsToTransfer(dataASize);
+    txStream.setMemoryBank0(dataA);
+    txStream.enable();
 
     while (i2c.SR1 & I2C_SR1_BTF) {
     }
     i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
     i2c.CR1 |= I2C_CR1_START;
 
-    while (errorSemaphore == UnknownError) {
-    }
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
 
-    return errorSemaphore;
-}
-/**
- *
- * @param deviceAddress
- * @param data
- * @return
- */
-I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t &data) {
-    transfer.mode = Receive;
-    transfer.deviceAddress = deviceAddress;
-
-    rxStream.setNumberOfItemsToTransfer(1);
-    rxStream.setMemoryBank0(&data);
-    rxStream.enable();
-
-    errorSemaphore = UnknownError;
-
-    while (i2c.SR1 & I2C_SR1_BTF) {
-    }
-    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
-    i2c.CR1 |= I2C_CR1_START;
-
-    while (errorSemaphore == UnknownError) {
-    }
-
-    return errorSemaphore;
-}
-/**
- *
- * @param deviceAddress
- * @param registerAddress
- * @param data
- * @return
- */
-I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t &data) {
-    return read(deviceAddress, registerAddress, &data, 1);
-}
+    return error;
+};
 /**
  *
  * @param deviceAddress
@@ -160,85 +103,114 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t
  * @param length
  * @return
  */
-I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) {
-    transfer.mode = ReceiveFromRegister;
+I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t * data, size_t length) noexcept {
+    transfer.mode = Mode::Receive;
     transfer.deviceAddress = deviceAddress;
-    transfer.registerAddress = registerAddress;
-    transfer.length = length;
+    transfer.rxLength = length;
+    transfer.bufferB.length = length;
 
     rxStream.setNumberOfItemsToTransfer(length);
     rxStream.setMemoryBank0(data);
     rxStream.enable();
 
-    errorSemaphore = UnknownError;
+    while (i2c.SR1 & I2C_SR1_BTF) {
+    }
+	i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST & ~I2C_CR2_ITBUFEN;
+    i2c.CR2 |= I2C_CR2_LAST;
+    i2c.CR1 &= ~I2C_CR1_ACK & ~I2C_CR1_POS;
+    i2c.CR1 |= I2C_CR1_START | I2C_CR1_ACK; // | I2C_CR1_PE;
+
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
+
+    return error;
+}
+
+I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
+    transfer.mode = Mode::ReceiveDoubleBuffer;
+    transfer.deviceAddress = deviceAddress;
+    transfer.rxLength = dataBLength + dataLength;
+    transfer.bufferB.length = dataBLength;
+    transfer.bufferB.ptr = dataB;
+
+    rxStream.setNumberOfItemsToTransfer(dataLength);
+    rxStream.setMemoryBank0(data);
+    rxStream.enable();
+
+    while (i2c.SR1 & I2C_SR1_BTF) {
+    }
+
+    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST & ~I2C_CR2_ITBUFEN;
+    i2c.CR1 |= I2C_CR1_START;// | I2C_CR1_ACK; // | I2C_CR1_PE;
+
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
+
+    return error;
+};
+
+I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress,
+                              const uint8_t * write_data, size_t write_data_size,
+							  uint8_t * read_data, size_t read_data_size) noexcept {
+    transfer.mode = Mode::TransmitReceive;
+    transfer.deviceAddress = deviceAddress;
+    transfer.txLength = write_data_size;
+    transfer.rxLength = read_data_size;
+    transfer.bufferB.length = read_data_size;
+
+    txStream.setNumberOfItemsToTransfer(write_data_size);
+    txStream.setMemoryBank0(write_data);
+    txStream.enable();
+
+    rxStream.setNumberOfItemsToTransfer(read_data_size);
+    rxStream.setMemoryBank0(read_data);
+    rxStream.enable();
 
     while (i2c.SR1 & I2C_SR1_BTF) {
     }
     i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
-    i2c.CR1 |= I2C_CR1_START;  // | I2C_CR1_PE;
+    i2c.CR1 |= I2C_CR1_START;
 
-    while (errorSemaphore == UnknownError) {
-    }
+    error = NoError;
+    semaphore.wait(std::chrono::milliseconds::max());
 
-    return errorSemaphore;
+    return error;
 }
 /**
  *
  */
 void I2C_dma::init(void) {
-    DMA::dma1->clockEnable();
+	DMA::DMA &dma = *DMA::dma1;
+    dma.clockEnable();
 
     // rx
     rxStream.deinit();
-    rxStream.init(getChannalNumber(i2c), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
-                  DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
-                  DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::PerToMem);
+    rxStream.init(DMA::Stream::Channel::Channel7, DMA::Stream::MemoryBurst::SingleTransfer,
+                DMA::Stream::PeripheralBurst::SingleTransfer,
+                DMA::Stream::MemoryDataSize::Byte,
+                DMA::Stream::PeripheralDataSize::Byte,
+                DMA::Stream::MemoryIncrementMode::PointerIncremented,
+                DMA::Stream::PeripheralIncrementMode::PointerFixed,
+                DMA::Stream::TransmisionDirection::PerToMem);
     rxStream.setPeripheralAddress(&i2c.DR);
     rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
     // tx
     txStream.deinit();
-    txStream.init(getChannalNumber(i2c), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
-                  DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
-                  DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::MemToPer);
+    txStream.init(getChannalNumber(i2c), DMA::Stream::MemoryBurst::SingleTransfer,
+                DMA::Stream::PeripheralBurst::SingleTransfer,
+                DMA::Stream::MemoryDataSize::Byte,
+                DMA::Stream::PeripheralDataSize::Byte,
+                DMA::Stream::MemoryIncrementMode::PointerIncremented,
+                DMA::Stream::PeripheralIncrementMode::PointerFixed,
+                DMA::Stream::TransmisionDirection::MemToPer);
     txStream.setPeripheralAddress(&i2c.DR);
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
-    IRQn_Type rxIRQ = DMA2_Stream0_IRQn, txIRQ = DMA2_Stream0_IRQn;
-    switch (reinterpret_cast<uint32_t>(&i2c)) {
-        case reinterpret_cast<uint32_t>(I2C1):
-#if MICROHAL_I2C1_DMA_RX_STREAM == 0
-            rxIRQ = DMA2_Stream0_IRQn;
-#elif MICROHAL_I2C1_DMA_RX_STREAM == 5
-            rxIRQ = DMA2_Stream5_IRQn;
-#endif
-#if MICROHAL_I2C1_DMA_TX_STREAM == 6
-            txIRQ = DMA2_Stream6_IRQn;
-#elif MICROHAL_I2C1_DMA_TX_STREAM == 7
-            txIRQ = DMA2_Stream7_IRQn;
-#endif
-            break;
-        case reinterpret_cast<uint32_t>(I2C2):
-#if MICROHAL_I2C2_DMA_RX_STREAM == 2
-            rxIRQ = DMA1_Stream2_IRQn;
-#elif MICROHAL_I2C2_DMA_RX_STREAM == 3
-            rxIRQ = DMA1_Stream3_IRQn;
-#endif
-            txIRQ = DMA1_Stream7_IRQn;
-            break;
-        case reinterpret_cast<uint32_t>(I2C3):
-            rxIRQ = DMA1_Stream2_IRQn;
-            txIRQ = DMA1_Stream4_IRQn;
-            break;
-    }
-
-    DMA::dma1->clearInterruptFlag(rxStream, DMA::Stream::Interrupt::TransferComplete);
-    NVIC_EnableIRQ(rxIRQ);
-    NVIC_SetPriority(rxIRQ, 0);
-
-    DMA::dma1->clearInterruptFlag(txStream, DMA::Stream::Interrupt::TransferComplete);
-    NVIC_EnableIRQ(txIRQ);
-    NVIC_SetPriority(txIRQ, 0);
+    dma.clearInterruptFlag(txStream, DMA::Stream::Interrupt::TransferComplete);
+    dma.clearInterruptFlag(rxStream, DMA::Stream::Interrupt::TransferComplete);
+    dma.enableInterrupt(txStream, 6);
+    dma.enableInterrupt(rxStream, 6);
 
     i2c.CR1 |= I2C_CR1_PE;
 }
@@ -267,59 +239,33 @@ DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c) {
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
-void I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
+void  __attribute__((optimize("O0"))) I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
+	using Mode = I2C_dma::Mode;
     uint16_t sr1 = i2c->SR1;
 
     if (sr1 == I2C_SR1_SB) {  // sent start sequence
-        i2c->DR = obj.transfer.deviceAddress | (obj.transfer.mode & 0x01);
-    } else if (sr1 & I2C_SR1_ADDR) {                      // adres(MASTER MODE) was sent
-        __attribute__((unused)) uint16_t tmp = i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
-
+    	i2c->DR = obj.transfer.deviceAddress | (static_cast<uint8_t>(obj.transfer.mode) & 0x01);
+    	i2c->CR1 |= I2C_CR1_ACK;
+    	i2c->CR2 |= I2C_CR2_DMAEN;
+    } else if (sr1 & I2C_SR1_ADDR) {  // adres(MASTER MODE) was sent
+    	if (obj.transfer.rxLength == 1) i2c->CR1 &= ~I2C_CR1_ACK;
+    	__attribute__((unused)) volatile uint16_t tmp =  i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
+    } else if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) && (sr1 & I2C_SR1_RXNE) == 0) {
         switch (obj.transfer.mode) {
-            case I2C_dma::Transmit:
-                i2c->DR = obj.transfer.registerAddress;
+            case Mode::TransmitReceive:
+            	i2c->CR2 = (i2c->CR2 & ~I2C_CR2_DMAEN) | I2C_CR2_LAST;
+            	//i2c->CR2 |= I2C_CR2_LAST;
+            	obj.transfer.mode = Mode::Receive;
+                i2c->CR1 |= I2C_CR1_START;
                 break;
-
-            case I2C_dma::Receive:
-                i2c->CR2 |= I2C_CR2_DMAEN | I2C_CR2_LAST;
-                break;
-
-            case I2C_dma::ReceiveFromRegister:
-                obj.transfer.mode = I2C_dma::Receive;
-                i2c->DR = obj.transfer.registerAddress;
-                break;
-            default:
+            case Mode::Transmit:
                 i2c->CR1 |= I2C_CR1_STOP;
-                obj.errorSemaphore = I2C_dma::NoError;
-        }
-        ////} else if (sr1 & (I2C_SR1_RXNE | I2C_SR1_BTF)) {
-        ////        I2C2->CR1 |= I2C_CR1_STOP;
-        ////        if (obj.transfer.length == 2) {
-        ////            *obj.transfer.buffer_ptr++ = i2c->DR;
-        ////        }
-        ////        *obj.transfer.buffer_ptr = i2c->DR;
-        ////
-        ////        obj.ErrorSemaphore = I2C_interrupt::NoError;
-    } else if (sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) {
-        switch (obj.transfer.mode) {
-            case I2C_dma::Receive:
-                if (obj.transfer.length == 1) {
-                    i2c->CR1 = (i2c->CR1 & (~I2C_CR1_ACK & ~I2C_CR1_POS)) | I2C_CR1_START;
-                } else {
-                    i2c->CR1 |= I2C_CR1_ACK | I2C_CR1_POS | I2C_CR1_START;
-                }
-                break;
-            case I2C_dma::Transmit:
-                if (obj.transfer.length > 0) {
-                    i2c->CR2 |= I2C_CR2_DMAEN;
-                } else {
-                    i2c->CR1 |= I2C_CR1_STOP;
-                    obj.errorSemaphore = I2C_dma::NoError;
-                }
-                break;
-            default:
-                i2c->CR1 |= I2C_CR1_STOP;
-                obj.errorSemaphore = I2C_dma::NoError;
+        		auto shouldYeld = obj.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+        		portYIELD_FROM_ISR(shouldYeld);
+#else
+        		(void)shouldYeld;
+#endif
                 break;
         }
     }
@@ -332,7 +278,13 @@ void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
     // send stop signal to I2C data bus
     i2c->CR1 |= I2C_CR1_STOP;
     // read error and store it in variable
-    obj.errorSemaphore = I2C::errorCheckAndClear(i2c, i2c->SR1);
+    obj.error = I2C::errorCheckAndClear(i2c, i2c->SR1);
+	auto shouldYeld = obj.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+	portYIELD_FROM_ISR(shouldYeld);
+#else
+	(void)shouldYeld;
+#endif
 }
 //***********************************************************************************************//
 //                                         DMA IRQHandlers //
@@ -354,12 +306,8 @@ void DMA1_Stream0_IRQHandler(void) {
 #if MICROHAL_I2C1_DMA_RX_STREAM == 5
 void DMA1_Stream5_IRQHandler(void) {
     // I2C tx
-    I2C2->CR1 |= I2C_CR1_STOP;
-
     DMA1_Stream5->CR &= ~DMA_SxCR_EN;
     DMA1->HIFCR = DMA_LIFCR_HTCIF5;
-
-    I2C_dma::i2c1.errorSemaphore = I2C_dma::NoError;
 }
 #endif
 //***********************************************************************************************//
@@ -380,10 +328,6 @@ void DMA1_Stream7_IRQHandler(void) {
     // I2C tx
     DMA1_Stream7->CR &= ~DMA_SxCR_EN;
     DMA1->HIFCR = DMA_LIFCR_HTCIF7;
-
-    I2C2->CR1 |= I2C_CR1_STOP;
-
-    I2C_dma::i2c1.errorSemaphore = I2C_dma::NoError;
 }
 #endif
 #endif
@@ -391,30 +335,78 @@ void DMA1_Stream7_IRQHandler(void) {
 //***********************************************************************************************//
 #if MICROHAL_I2C2_DMA_RX_STREAM == 2
 void DMA1_Stream2_IRQHandler(void) {
-    I2C2->CR1 |= I2C_CR1_STOP;
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c2;
 
-    DMA1_Stream3->CR &= ~DMA_SxCR_EN;
-    DMA1->LIFCR = DMA_LIFCR_CTCIF3;
+    DMA1_Stream2->CR &= ~DMA_SxCR_EN;
+    DMA1->LIFCR = DMA_LIFCR_CTCIF2;
 
-    I2C_dma::i2c2.errorSemaphore = I2C_dma::NoError;
+	if (i2c.transfer.mode == Mode::Receive) {
+		I2C2->CR1 |= I2C_CR1_STOP;
+		auto shouldYeld = i2c.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+		portYIELD_FROM_ISR(shouldYeld);
+#else
+		(void)shouldYeld;
+#endif
+	} else {
+		// we are in double buffer mode
+		i2c.rxStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+		i2c.rxStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+		if (i2c.transfer.bufferB.length == 1) {
+			i2c.i2c.CR1 &= ~I2C_CR1_ACK;
+		}
+		i2c.i2c.CR2 |= I2C_CR2_LAST;
+		i2c.rxStream.enable();
+		i2c.transfer.mode = Mode::Receive;
+	}
 }
 #endif
 //***********************************************************************************************//
 #if MICROHAL_I2C2_DMA_RX_STREAM == 3
 void DMA1_Stream3_IRQHandler(void) {
-    I2C2->CR1 |= I2C_CR1_STOP;
-    DMA1_Stream3->CR &= ~DMA_SxCR_EN;
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c2;
 
-    DMA1->LIFCR = DMA_LIFCR_CTCIF3 | DMA_LIFCR_CTEIF3;
+	DMA1_Stream3->CR &= ~DMA_SxCR_EN;
+	DMA1->LIFCR = DMA_LIFCR_CTCIF3 | DMA_LIFCR_CTEIF3;
 
-    I2C_dma::i2c2.errorSemaphore = I2C_dma::NoError;
+	if (i2c.transfer.mode == Mode::Receive) {
+		I2C2->CR1 |= I2C_CR1_STOP;
+		//i2c.errorSemaphore = I2C_dma::NoError;
+		auto shouldYeld = i2c.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+		portYIELD_FROM_ISR(shouldYeld);
+#else
+		(void)shouldYeld;
+#endif
+	} else {
+		// we are in double buffer mode
+		i2c.rxStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+		i2c.rxStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+		if (i2c.transfer.bufferB.length == 1) {
+			i2c.i2c.CR1 &= ~I2C_CR1_ACK;
+		}
+		i2c.i2c.CR2 |= I2C_CR2_LAST;
+		i2c.rxStream.enable();
+		i2c.transfer.mode = Mode::Receive;
+	}
 }
 #endif
 //***********************************************************************************************//
-void DMA1_Stream7_IRQHandler(void) {
-    I2C_dma::i2c2.transfer.length = 0;
+void DMA1_Stream7_IRQHandler(void) { // tx
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c2;
+
     DMA1_Stream7->CR &= ~DMA_SxCR_EN;
     DMA1->HIFCR = DMA_HIFCR_CTCIF7 | DMA_HIFCR_CTEIF7;
+
+    if (i2c.transfer.mode == Mode::TransmitDoubleBuffer) {
+    	i2c.txStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+    	i2c.txStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+    	i2c.txStream.enable();
+    	i2c.transfer.mode = Mode::Transmit;
+    }
 }
 #endif
 #ifdef MICROHAL_USE_I2C3_DMA
@@ -433,10 +425,6 @@ void DMA1_Stream4_IRQHandler(void) {
     // tx
     DMA1_Stream4->CR &= ~DMA_SxCR_EN;
     DMA1->LIFCR = DMA_LIFCR_CTCIF4;
-
-    I2C3->CR1 |= I2C_CR1_STOP;
-
-    I2C_dma::i2c3.errorSemaphore = I2C_dma::NoError;
 }
 #endif
 //***********************************************************************************************//

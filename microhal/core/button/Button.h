@@ -33,7 +33,7 @@ public:
     Button() = delete;
 
     Button(const GPIO::IOPin pin, const ActiveState activeState = ACTIVE_LOW) __attribute__((always_inline)) :
-    GPIO(pin, GPIO::Direction::Input, GPIO::PullUp), activeState(activeState), debouncer(0xAA) {
+    GPIO(pin, GPIO::Direction::Input, GPIO::PullUp), onPressed(), activeState(activeState), debouncer(0xAA) {
         if (first == nullptr) {
             first = this;
         } else {

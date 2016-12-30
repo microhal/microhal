@@ -60,7 +60,7 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint16_t data, End
     uint16_t dataTmp = data;
 
     // convert endianness if needed
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         // do conversion
         dataTmp = byteswap(data);
     }
@@ -102,7 +102,7 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint32_t data, End
     uint32_t dataTmp = data;
 
     // convert endianness if needed
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         // do conversion
         dataTmp = byteswap(data);
     }
@@ -195,7 +195,7 @@ bool SPIDevice::readRegister_noLock(uint8_t registerAddress, uint16_t &data, End
 
     if (status == SPI::NoError) {
         // convert endianness if needed
-        if (endianness != DeviceEndianness) {
+        if (endianness != hardware::Device::endianness) {
             // do conversion
             data = byteswap(data);
         }
@@ -231,7 +231,7 @@ bool SPIDevice::readRegister_noLock(uint8_t registerAddress, uint32_t &data, End
 
     if (status == SPI::NoError) {
         // convert endianness if needed
-        if (endianness != DeviceEndianness) {
+        if (endianness != hardware::Device::endianness) {
             // do conversion
             data = byteswap(data);
         }

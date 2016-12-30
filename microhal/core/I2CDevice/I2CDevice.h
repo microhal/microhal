@@ -35,7 +35,7 @@
 #include <cstdint>
 #include "../i2c.h"
 #include "byteswap.h"
-#include "platform.h"
+#include "ports/manager/hardware.h"
 
 namespace microhal {
 /**
@@ -71,6 +71,7 @@ namespace microhal {
  */
 class I2CDevice {
  public:
+	using DeviceAddress = I2C::DeviceAddress;
     /**
      * Class copying was disabled by deleting copy constructor and assigning operator.
      */
@@ -84,15 +85,15 @@ class I2CDevice {
      * @param meAddress - address of device connected to I2C data buss. This address is in 8bit form @a aaaaaaax where @a a are address bits and
      * 					  @a x bit changes when you want to write or read from device. When you passing device address @a x have to be 0.
      */
-    explicit constexpr I2CDevice(I2C &i2c, const uint8_t meAddress) : i2c(i2c), deviceAddress(meAddress), lastError(I2C::NoError) {}
-    ~I2CDevice() = default;
+    explicit constexpr I2CDevice(I2C &i2c, DeviceAddress meAddress) : i2c(i2c), deviceAddress(meAddress), lastError(I2C::NoError) {}
+//    virtual ~I2CDevice() = default;
     //------------------------------------------ functions ----------------------------------------
     /**
      * @brief This function return address of the device.
      *
      * @return I2C device address. Last bit of returned address indicate write or read operation and is always set to 0.
      */
-    uint8_t getMyI2CAddress() const noexcept { return deviceAddress; }
+    constexpr DeviceAddress getMyI2CAddress() const noexcept { return deviceAddress; }
     /**
      * @brief This function return last error of this device. To see full error list please go to @ref I2C::Error
      *
@@ -111,7 +112,7 @@ class I2CDevice {
      */
     bool write(uint8_t data) {
         i2c.lock();
-        I2C::Error status = i2c.write(deviceAddress, data);
+        I2C::Error status = i2c.write(deviceAddress, &data, 1);
         i2c.unlock();
         if (status == I2C::NoError) {
             return true;
@@ -132,7 +133,7 @@ class I2CDevice {
      */
     bool read(uint8_t &data) {
         i2c.lock();
-        I2C::Error status = i2c.read(deviceAddress, data);
+        I2C::Error status = i2c.read(deviceAddress, &data, 1);
         i2c.unlock();
         if (status == I2C::NoError) {
             return true;
@@ -337,7 +338,7 @@ class I2CDevice {
     bool writeRegisters(uint8_t address, const uint8_t *buff, size_t size) {
         i2c.lock();
 
-        I2C::Error status = i2c.write(deviceAddress, address, buff, size);
+        I2C::Error status = i2c.write(deviceAddress, &address, sizeof(address), buff, size);
 
         i2c.unlock();
 
@@ -385,7 +386,7 @@ class I2CDevice {
     bool readRegisters(uint8_t address, uint8_t *buff, size_t size) {
         i2c.lock();
 
-        I2C::Error status = i2c.read(deviceAddress, address, buff, size);
+        I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, buff, size);
 
         i2c.unlock();
 
@@ -547,13 +548,13 @@ class I2CDevice {
 
  private:
     I2C &i2c;
-    const uint8_t deviceAddress;  ///< address of I2C slave device
+    const DeviceAddress deviceAddress;  ///< address of I2C slave device
     I2C::Error lastError;
 
     template <typename T>
     inline bool writeRegister_impl(uint8_t address, T data, Endianness endianness) {
         // convert endianness if needed
-        if (endianness != DeviceEndianness) {
+        if (endianness != hardware::Device::endianness) {
             // do conversion
             data = byteswap(data);
         }
@@ -565,7 +566,7 @@ class I2CDevice {
     inline bool readRegister_impl(uint8_t address, T &data, Endianness endianness) {
         if (readRegisters(address, reinterpret_cast<uint8_t *>(&data), sizeof(T))) {
             // convert endianness if needed
-            if (endianness != DeviceEndianness) {
+            if (endianness != hardware::Device::endianness) {
                 // do conversion
                 data = byteswap(data);
             }
@@ -590,7 +591,7 @@ class I2CDevice {
     bool readRegisters_impl(uint8_t registerAddress, T *buffer, size_t size, Endianness endianness) {
         if (readRegisters(registerAddress, (uint8_t *)buffer, sizeof(T) * size) == true) {
             // convert endianness if needed
-            if (endianness != DeviceEndianness) {
+            if (endianness != hardware::Device::endianness) {
                 // do conversion
                 for (size_t i = 0; i < size; i++) {
                     buffer[i] = byteswap(buffer[i]);
@@ -612,7 +613,7 @@ class I2CDevice {
     bool writeRegisterWithMask_impl(uint8_t address, T data, T mask, Endianness endianness);
 
     inline bool readRegister_noLock(uint8_t address, uint8_t &data) {
-        I2C::Error status = i2c.read(deviceAddress, address, data);
+        I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, &data, 1);
 
         if (status == I2C::NoError) {
             return true;
@@ -622,7 +623,7 @@ class I2CDevice {
         }
     }
     inline bool writeRegister_noLock(uint8_t address, const uint8_t data) {
-        I2C::Error status = i2c.write(deviceAddress, address, data);
+        I2C::Error status = i2c.write(deviceAddress, &address, sizeof(address), &data, 1);
 
         if (status == I2C::NoError) {
             return true;

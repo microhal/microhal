@@ -14,7 +14,7 @@ Quaternion::~Quaternion() {
     // TODO Auto-generated destructor stub
 }
 
-Quaternion::Quaternion(float phi, float theta, float psi) {
+Quaternion::Quaternion(float phi, float theta, float psi): Quaternion() {
     this->set(phi, theta, psi);
 }
 

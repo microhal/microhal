@@ -33,17 +33,18 @@
  */
 #include "serialPort_stm32f4xx.h"
 #include "core_stm32f4xx.h"
+#include "clockManager.h"
 
 namespace microhal {
 namespace stm32f4xx {
 
 bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
-    usart.BRR = Core::getUSARTclk(&usart) / baudRate;
+    usart.BRR = ClockManager::USARTFrequency(usart) / baudRate;
     return true;
 }
 
 uint32_t SerialPort::getBaudRate() const noexcept {
-    return Core::getUSARTclk(&usart) * usart.BRR;
+    return ClockManager::USARTFrequency(usart) * usart.BRR;
 }
 
 bool SerialPort::setParity(SerialPort::Parity parity) noexcept {

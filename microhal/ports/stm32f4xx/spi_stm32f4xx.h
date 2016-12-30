@@ -103,7 +103,10 @@ class SPI : public microhal::SPI {
 
     void enable() override final { spi.CR1 |= SPI_CR1_SPE; }
     void disable() override final { spi.CR1 &= ~SPI_CR1_SPE; }
-    uint32_t speed(uint32_t speed) final {}
+    uint32_t speed(uint32_t speed) final {
+    	// TODO
+    	return speed;
+    }
 
  protected:
     //---------------------------------------- variables

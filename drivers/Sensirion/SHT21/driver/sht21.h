@@ -77,17 +77,17 @@ public:
         UNKNOWN
     } Resolution;
     //---------------------------------------- constructors ---------------------------------------
-    inline SHT21(microhal::I2C &i2c) :
+    inline SHT21(microhal::I2C &i2c) noexcept :
                 I2CDevice(i2c, DEFAULT_ADDRESS) {
     }
     //------------------------------------------ functions ----------------------------------------
-    bool reset();
+    bool reset() noexcept;
 
-    bool startTemperatureConversion() {
+    bool startTemperatureConversion() noexcept {
     	return write(TRIGGER_T_MEASURE_HOLD);
     }
 
-    bool readTemperature(float &temperature){
+    bool readTemperature(float &temperature) noexcept {
     	uint8_t temp;
 
     	if (read(temp) == true) {
@@ -105,10 +105,10 @@ public:
      * @retval true if temperature read correctly.
      * @retval false if an error occurred.
      */
-    bool getTemperature(float &temperature) {
+    bool getTemperature(float &temperature) noexcept {
         uint16_t temp;
 
-        if (readRegister(TRIGGER_T_MEASURE_HOLD, temp, microhal::BigEndian) == true) {
+        if (readRegister(TRIGGER_T_MEASURE_HOLD, temp, microhal::Endianness::Big) == true) {
             temperature = (float) temp * 0.002681274;
             temperature -= 46.85;
 
@@ -122,10 +122,10 @@ public:
      * @retval true if humidity read successful.
      * @retval false if an error occurred.
      */
-    bool getHumidity(float &humidity) {
+    bool getHumidity(float &humidity) noexcept {
         uint16_t tmp;
 
-        if (readRegister(TRIGGER_RH_MEASURE_HOLD, tmp, microhal::BigEndian) == true) {
+        if (readRegister(TRIGGER_RH_MEASURE_HOLD, tmp, microhal::Endianness::Big) == true) {
             humidity = (float) tmp * 0.001907349;
             humidity -= 6;
 
@@ -134,10 +134,10 @@ public:
         return false;
     }
 
-    bool heaterEnable();
-    bool heaterDisable();
+    bool heaterEnable() noexcept;
+    bool heaterDisable() noexcept;
 
-    bool setResolution(Resolution resolution);
-    Resolution getResolution();
+    bool setResolution(Resolution resolution) noexcept;
+    Resolution getResolution() noexcept;
 };
 #endif /* SHT21_H_ */

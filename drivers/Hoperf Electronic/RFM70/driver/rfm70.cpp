@@ -297,7 +297,7 @@ void RFM70::bank1RegisterDump(void) {
     diagChannel << Debug << "RFM70: Registers in BANK 1" << endl << endl;
 
     for (uint_fast8_t addr = 0; addr <= 0x0E; addr++) {
-        readRegister(addr, reg, Endianness::BigEndian);
+        readRegister(addr, reg, Endianness::Big);
 
         diagChannel << Debug << "RFM70: reg: 0x" << toHex(addr) << " val: 0x" << toHex(reg) << endl;
     }

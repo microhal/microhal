@@ -33,6 +33,9 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial4;
+microhal::SerialPort &serialPortB = microhal::stm32f4xx::SerialPort::Serial2;
+
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();

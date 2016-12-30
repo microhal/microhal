@@ -7,6 +7,7 @@
 
 
 #include "i2c_stm32f4xx.h"
+#include "clockManager.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -18,7 +19,7 @@ namespace stm32f4xx {
  * @return true if peripheral was successfully initialized, false otherwise.
  */
 bool I2C::init() {
-	const uint32_t freqHz = Core::getI2Cclk(&i2c); // in Hz
+	const uint32_t freqHz = ClockManager::I2CFrequency(i2c); // in Hz
 	const uint8_t freqMHz = freqHz / 1000000; //frequency in MHz
 
 	if(freqMHz >= 2 && freqMHz <= 42) {
@@ -50,7 +51,7 @@ bool I2C::init() {
 bool I2C::configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty) {
 	if(isEnable() == true) return false;
 
-	const uint32_t clockFreqHz = Core::getI2Cclk(&i2c); // in Hz
+	const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c); // in Hz
 	const uint8_t clockFreqMHz = clockFreqHz / 1000000; //frequency in MHz
 
 	if(clockFreqMHz >= 2 && clockFreqMHz <= 42) {

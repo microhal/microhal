@@ -103,6 +103,8 @@ public:
 	}
 
 	bool deselectChannel(Channel channel) {
+		// TODO
+		channel = channel;
 		//adc.CHSELR &= ~channel;
 		return false;
 	}
