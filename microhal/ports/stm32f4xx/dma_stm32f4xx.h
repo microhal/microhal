@@ -8,7 +8,7 @@
 #ifndef DMA_STM32F4XX_H_
 #define DMA_STM32F4XX_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include "stm32f4xx.h"
 
 namespace microhal {
@@ -270,9 +270,7 @@ private:
 			if (&devicePtr == UART5) return Stream::Channel::Channel4;
 			break;
 		}
-		while(1) {
-			volatile auto dbg = streamNumber;
-		}
+		while(1) {}
 	}
 
 	Stream::Channel DMA2Channel(const Stream &stream, const USART_TypeDef &devicePtr) {
@@ -296,9 +294,7 @@ private:
 			if (&devicePtr == USART6) return Stream::Channel::Channel5;
 			break;
 		}
-		while(1) {
-			volatile auto dbg = stremNumber;
-		}
+		while(1) {}
 	}
 
 //	Stream::Channel getChannelForDma1Stream0(void *devicePtr);
