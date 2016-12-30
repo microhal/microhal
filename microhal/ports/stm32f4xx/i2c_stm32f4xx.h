@@ -8,7 +8,7 @@
  * created on: 2014
  * last modification: 27-06-2016
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2014-2016, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -77,9 +77,19 @@ class I2C : public microhal::I2C {
     //----------------------------------
     bool init();
 
-    Speed speed(Speed speed) noexcept final {}
-    Speed speed() noexcept final {}
-    void busReset() noexcept final {}
+    Speed speed(Speed speed) noexcept final {
+//    	bool fastMode = false;
+//    	bool dutyCycle = false;
+//
+//    	if (speed > 100000) {
+//    		fastMode = true;
+//    		dutyCycle = true;
+//    	}
+//
+//    	return configure(getSCLfreq(mode), getMaxRiseTime(mode), fastMode, dutyCycle);
+    }
+    Speed speed() noexcept final;
+    void busReset() noexcept final { i2c.CR1 |= I2C_CR1_STOP;}
 
     /**
      * @brief This function change I2C peripheral mode. Changing mode is only

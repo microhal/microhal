@@ -102,6 +102,20 @@ bool I2C::configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty)
 	return false;
 }
 
+I2C::Speed I2C::speed() noexcept {
+	const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c); // in Hz
+
+	// get Thigh to Tlow
+	uint16_t multiply = 2; // in standard mode Tlow = Thigh => period = 2 * Thigh
+	if (i2c.CCR & (I2C_CCR_FS | I2C_CCR_DUTY)) {
+		multiply = 25;  // in HighSpeed mode Thigh = 9/16 Tlow => periond = 25 * Thigh
+	} else if (i2c.CCR & I2C_CCR_FS) {
+		multiply = 3; // in FastSpeed mode Thigh = Tlow / 2 => period = 3 * Thigh
+	}
+	uint16_t ccr = i2c.CCR & 0x0FFF;
+	return clockFreqHz / (multiply * ccr);
+}
+
 } // namespace stm32f4xx
 } // namespace microhal
 
