@@ -51,6 +51,10 @@ int main(void) {
 	uint8_t page[] = "ala ma kot";
 	uint8_t bufferA[sizeof(page)];
 	uint8_t bufferB[sizeof(page)];
+
+	// read I2C speed
+	diagChannel << MICROHAL_NOTICE << "i2c.speed() = " << sensorI2C.speed();
+
 /////////////////////////////////
 	sensorI2C.write(0xA0, 0);
 
