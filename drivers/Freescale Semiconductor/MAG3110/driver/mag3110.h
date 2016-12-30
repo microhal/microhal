@@ -41,7 +41,8 @@
 
 class MAG3110 : protected microhal::I2CDevice {
 	using Endianness = microhal::Endianness;
-	using RegisterAccess = microhal::RegisterAccess;
+	using Access = microhal::Access;
+	using Error = microhal::I2C::Error;
 
 	typedef enum  : uint8_t {
         CTRL_REG2_RAW = 0x20,
@@ -52,18 +53,18 @@ class MAG3110 : protected microhal::I2CDevice {
     	 CTRL_REG1_AC = 0x01,
     } CTRL_REG1_Flags;
 
-	static constexpr auto DR_STATUS = microhal::createDeviceRegister<RegisterAccess::ReadWrite, uint8_t>().address<uint8_t, 0x00>();
-	static constexpr auto OUT_X = microhal::createDeviceRegister<RegisterAccess::ReadWrite, int16_t, Endianness::BigEndian>().address<uint8_t, 0x01>();
-	static constexpr auto OUT_Y = microhal::createDeviceRegister<RegisterAccess::ReadWrite, int16_t, Endianness::BigEndian>().address<uint8_t, 0x03>();
-	static constexpr auto OUT_Z = microhal::createDeviceRegister<RegisterAccess::ReadWrite, int16_t, Endianness::BigEndian>().address<uint8_t, 0x05>();
-	static constexpr auto WHO_AM_I = microhal::createDeviceRegister<RegisterAccess::ReadWrite, uint8_t>().address<uint8_t, 0x07>();
-	static constexpr auto SYSMOD = microhal::createDeviceRegister<RegisterAccess::ReadWrite, uint8_t>().address<uint8_t, 0x08>();
-	static constexpr auto OFF_X = microhal::createDeviceRegister<RegisterAccess::ReadWrite, int16_t, Endianness::BigEndian>().address<uint8_t, 0x09>();
-	static constexpr auto OFF_Y = microhal::createDeviceRegister<RegisterAccess::ReadWrite, int16_t, Endianness::BigEndian>().address<uint8_t, 0x0B>();
-	static constexpr auto OFF_Z = microhal::createDeviceRegister<RegisterAccess::ReadWrite, int16_t, Endianness::BigEndian>().address<uint8_t, 0x0D>();
-	static constexpr auto DIE_TEMP = microhal::createDeviceRegister<RegisterAccess::ReadWrite, int8_t>().address<uint8_t, 0x0F>();
-	static constexpr auto CTRL_REG1 = microhal::createDeviceRegister<RegisterAccess::ReadWrite, uint8_t>().address<uint8_t, 0x10>();
-	static constexpr auto CTRL_REG2 = microhal::createDeviceRegister<RegisterAccess::ReadWrite, CTRL_REG2_Flags>().address<uint8_t, 0x11>();
+    static constexpr auto DR_STATUS = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x00>{});
+	static constexpr auto OUT_X = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x01>{});
+	static constexpr auto OUT_Y = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x03>{});
+	static constexpr auto OUT_Z = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x05>{});
+	static constexpr auto WHO_AM_I = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x07>{});
+	static constexpr auto SYSMOD = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x08>{});
+	static constexpr auto OFF_X = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x09>{});
+	static constexpr auto OFF_Y = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x0B>{});
+	static constexpr auto OFF_Z = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x0D>{});
+	static constexpr auto DIE_TEMP = microhal::makeRegister<int8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x0F>{});
+	static constexpr auto CTRL_REG1 = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x10>{});
+	static constexpr auto CTRL_REG2 = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x11>{});
 
  public:
     /**
@@ -166,22 +167,22 @@ class MAG3110 : protected microhal::I2CDevice {
 	 */
     bool init(void);
 	/**
-	 * @brief Set correction offest for magnetic field reading from X ax.
+	 * @brief Set correction offset for magnetic field reading from X ax.
 	 * 
 	 * @param offset 
 	 * @return true if setting was successful, false otherwise
 	 */
     bool setXCorrection(int16_t offset) {
-        return writeRegister(OFF_X, offset);
+        return write(OFF_X, offset) == Error::NoError;
     }
 	/**
-	 * @brief Set correction offest for magnetic field reading from Y ax.
+	 * @brief Set correction offset for magnetic field reading from Y ax.
 	 * 
 	 * @param offset 
 	 * @return true if setting was successful, false otherwise
 	 */
     bool setYCorrection(int16_t offset) {
-        return writeRegister(OFF_Y, offset);
+        return write(OFF_Y, offset) == Error::NoError;
     }
  	/**
 	 * @brief Set correction offset for magnetic field reading from Z ax.
@@ -191,7 +192,7 @@ class MAG3110 : protected microhal::I2CDevice {
 	 * @return true if setting was successful, false otherwise
 	 */
     bool setZCorrection(int16_t offset) {
-        return writeRegister(OFF_Z, offset);
+        return write(OFF_Z, offset) == Error::NoError;
     }
 	/**
 	 * @brief Set correction offset for magnetic field reading all axis.
@@ -209,7 +210,12 @@ class MAG3110 : protected microhal::I2CDevice {
 	 * @return true if read was successful, false otherwise
 	 */
     std::experimental::optional<int16_t> getXCorrection() {
-        return readRegister(OFF_X);
+    	std::experimental::optional<int16_t> out;
+    	int16_t tmp;
+        if (read(OFF_X, tmp) == Error::NoError) {
+        	out = tmp;
+        }
+        return out;
     }
 	/**
 	 * @brief Get Y ax correction offset
@@ -218,7 +224,12 @@ class MAG3110 : protected microhal::I2CDevice {
 	 * @return true if read was successful, false otherwise
 	 */
     std::experimental::optional<int16_t> getYCorrection() {
-        return readRegister(OFF_Y);
+    	std::experimental::optional<int16_t> out;
+		int16_t tmp;
+		if (read(OFF_Y, tmp) == Error::NoError) {
+			out = tmp;
+		}
+		return out;
     }
 	/**
 	 * @brief Get Z ax correction offset
@@ -227,7 +238,12 @@ class MAG3110 : protected microhal::I2CDevice {
 	 * @return true if read was successful, false otherwise
 	 */
     std::experimental::optional<int16_t> getZCorrection() {
-        return readRegister(OFF_Z);
+    	std::experimental::optional<int16_t> out;
+		int16_t tmp;
+		if (read(OFF_Z, tmp) == Error::NoError) {
+			out = tmp;
+		}
+		return out;
     }
 	/**
 	 * @brief Get all axis correction offset at once
@@ -242,8 +258,9 @@ class MAG3110 : protected microhal::I2CDevice {
 
     std::experimental::optional<microhal::Temperature> getDieTemperature() {
     	std::experimental::optional<microhal::Temperature> temperature;
-    	if (auto temp = readRegister(DIE_TEMP)) {
-    		temperature = microhal::Temperature::fromCelcius(static_cast<float>(*temp));
+    	int8_t tmp;
+    	if (read(DIE_TEMP, tmp) == Error::NoError) {
+    		temperature = microhal::Temperature::fromCelcius(tmp);
         }
         return temperature;
     }
@@ -254,8 +271,9 @@ class MAG3110 : protected microhal::I2CDevice {
 	 */
     std::experimental::optional<Mode> getMode() {
     	std::experimental::optional<Mode> mode;
-    	if (auto sysmod = readRegister(SYSMOD)) {
-            mode = static_cast<Mode>(*sysmod);
+    	uint8_t tmp;
+    	if (read(SYSMOD, tmp) == Error::NoError) {
+            mode = static_cast<Mode>(tmp);
         }
         return mode;
     }
@@ -272,15 +290,30 @@ class MAG3110 : protected microhal::I2CDevice {
     }
 
     std::experimental::optional<int16_t> getX(void) {
-        return readRegister(OUT_X);
+    	std::experimental::optional<int16_t> out;
+    	int16_t tmp;
+    	if (read(OUT_X, tmp) == Error::NoError) {
+    		out = tmp;
+    	}
+    	return out;
     }
 
     std::experimental::optional<int16_t> getY(void) {
-        return readRegister(OUT_Y);
+    	std::experimental::optional<int16_t> out;
+		int16_t tmp;
+		if (read(OUT_Y, tmp) == Error::NoError) {
+			out = tmp;
+		}
+		return out;
     }
 
     std::experimental::optional<int16_t> getZ(void) {
-        return readRegister(OUT_Z);
+    	std::experimental::optional<int16_t> out;
+		int16_t tmp;
+		if (read(OUT_Z, tmp) == Error::NoError) {
+			out = tmp;
+		}
+		return out;
     }
 };
 

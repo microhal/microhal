@@ -40,7 +40,7 @@ class I2C {
 	using DeviceAddress = uint8_t;
 	using Speed = uint32_t;
 
-    typedef enum { UnknownError = 0x00, NoError = 0x01, Timeout, BusError, AcknowledgeFailure, ArbitrationLost, OverrunError } Error;
+    typedef enum { NoError = 0x00, Timeout, BusError, AcknowledgeFailure, ArbitrationLost, OverrunError, UnknownError = 0xFF } Error;
 
     enum class Mode : uint_fast8_t {
         Standard = 0,  // 100kHz

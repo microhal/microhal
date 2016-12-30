@@ -8,6 +8,8 @@
 #ifndef BASICS_H_
 #define BASICS_H_
 
+#include "ports/manager/hardware.h"
+
 namespace microhal {
 
 static inline uint16_t byteswap(uint16_t data) __attribute__ ((always_inline));
@@ -31,6 +33,26 @@ static inline uint64_t byteswap(uint64_t x) {
   x = (x & 0x00FF00FF00FF00FF) << 8  | (x & 0xFF00FF00FF00FF00) >> 8;
   return x;
 }
+
+template <typename T>
+constexpr static inline T convertEndiannessIfRequired(T data, Endianness endianness) {
+  if (endianness != hardware::Device::endianness) {
+    return static_cast<T>(
+        byteswap(static_cast<typename std::make_unsigned<T>::type>(data)));
+  }
+  return data;
+}
+
+
+template <typename T>
+constexpr static inline T convertEndianness(T data, Endianness from, Endianness to) {
+  if (from != to) {
+    return static_cast<T>(
+        byteswap(static_cast<typename std::make_unsigned<T>::type>(data)));
+  }
+  return data;
+}
+
 
 }/* namespace hal*/
 

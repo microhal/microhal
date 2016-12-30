@@ -40,6 +40,12 @@ class Temperature {
         temperature(static_cast <float>(temperatureInKelvin)) { }
     ~Temperature() {}
 
+    static Temperature fromCelcius(float celcius) noexcept {
+    	Temperature tmp;
+    	tmp.setCelsius(celcius);
+    	return tmp;
+    }
+
     void setFahrenheit(const int32_t temperatureInFahrenheit) {
         temperature = (((static_cast <float> (temperatureInFahrenheit)) - 32.00) / 1.8000) + 273.15;
     }

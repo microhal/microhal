@@ -27,14 +27,13 @@
 
 #include "microhal.h"
 #include "diagnostic/diagnostic.h"
-#include "mag3110/mag3110.h"
+#include "mag3110.h"
 #include "microhal_bsp.h"
 
 
 using namespace microhal;
 using namespace diagnostic;
 
-// MAG3110 object
 MAG3110 mag3110(sensorI2C, MAG3110::I2C_ADDRESS_0);
 
 int main(void) {
@@ -43,32 +42,30 @@ int main(void) {
 
     do {
         if (!mag3110.init()) {
-            diagChannel << lock << ERROR<< "Cannot initialize MG3110" << endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Cannot initialize MG3110" << endl << unlock;
             break;
         }
-        mag3110.enableAxis(MAG3110::XYZ);
+      //  mag3110.enableAxis(MAG3110::XYZ);
 
         mag3110.setODR_OSR(MAG3110::ODR_10Hz_OSR_128);
 
         if (!mag3110.setMode(MAG3110::ACTIVE_RAW)) {
-            diagChannel<< lock << ERROR << "Cannot set operation mode."<< endl << unlock;
+            diagChannel<< lock << MICROHAL_ERROR << "Cannot set operation mode."<< endl << unlock;
             break;
         }
-        MAG3110::MagneticVector mag;
-        Temperature temperature;
+
         while (1) {
             std::this_thread::sleep_for(std::chrono::milliseconds {250});
-            if (mag3110.getMagnetic(&mag)) {
-                diagChannel << lock << DEBUG << "X[g]: " << mag[0] << ", Y[g]: " << mag[1] << ", Z[g]: " << mag[2] << endl << unlock;
+            if (const auto mag = mag3110.getMagnetic()) {
+                diagChannel << lock << MICROHAL_DEBUG << "X[g]: " << (*mag)[0] << ", Y[g]: " << (*mag)[1] << ", Z[g]: " << (*mag)[2] << endl << unlock;
             }
-            if (mag3110.getDieTemperature(&temperature)) {
-                diagChannel << lock << DEBUG << "Die Temperature " << temperature.getCelsius() << endl << unlock;
+            if (auto temperature = mag3110.getDieTemperature()) {
+                diagChannel << lock << MICROHAL_DEBUG << "Die Temperature " << temperature->getCelsius() << endl << unlock;
             }
         }
     } while (0);
 
     while (1) {
-        {}
     }
 
     return 0;

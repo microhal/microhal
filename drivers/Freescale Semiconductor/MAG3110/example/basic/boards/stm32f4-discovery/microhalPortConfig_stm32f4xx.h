@@ -22,7 +22,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
+//#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
 													//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
 													//						 MICROHAL_USE_SERIAL_PORTx_DMA
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
@@ -32,7 +32,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
 
-//#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
 #define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 128
 
@@ -48,7 +48,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_I2C1_DMA_RX_STREAM 0	//possible streams are 0 and 5
 #define MICROHAL_I2C1_DMA_TX_STREAM 6	//possible streams are 6 and 7
 
-#define MICROHAL_USE_I2C2_POLLING
+#define MICROHAL_USE_I2C2_INTERRUPT
 #define MICROHAL_I2C2_DMA_RX_STREAM 3	//possible streams are 2 and 3
 //tx stream can be connected only to stream 7
 

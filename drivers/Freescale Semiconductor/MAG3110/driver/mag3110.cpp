@@ -28,12 +28,13 @@
 
 #include "mag3110.h"
 
-//using namespace microhal::diagnostic;
+using namespace microhal::diagnostic;
 
-bool MAG3110::init(){
-	if(auto whoAmI = readRegister(WHO_AM_I)) {
-		if (*whoAmI != WHO_AM_I_VALUE) {
-			//diagChannel << lock << ERROR << "MAG3110: error in init - ID mismatch: expected: " << toHex(WHO_AM_I_VALUE) << ", received: " << toHex(*whoAmI)	<< endl << unlock;
+bool MAG3110::init() {
+	uint8_t whoAmI;
+	if(read(WHO_AM_I, whoAmI) == Error::NoError) {
+		if (whoAmI != WHO_AM_I_VALUE) {
+			diagChannel << lock << MICROHAL_ERROR << "MAG3110: error in init - ID mismatch: expected: " << toHex(WHO_AM_I_VALUE) << ", received: " << toHex(whoAmI)	<< endl << unlock;
 		} else {
 			return true;
 		}
@@ -44,47 +45,44 @@ bool MAG3110::init(){
 bool MAG3110::setMode(Mode mode){
 	switch(mode){
 	case STANDBY:
-		return clearBitsInRegister(CTRL_REG1, (uint8_t)CTRL_REG1_AC);
+		return bitsClear(CTRL_REG1, CTRL_REG1_AC) == Error::NoError;
 	case ACTIVE_RAW:
 		// enable automatic reset
-		if(!setBitsInRegister(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN)) { return false;	}
+		if(bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) { return false; }
 		//to change value of control registers device have to be in standby mode
 		//change mode to standby
-		if(!clearBitsInRegister(CTRL_REG1, (uint8_t)CTRL_REG1_AC)) { return false; }
+		if(bitsClear(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) { return false; }
 		//set RAW bit for enable data correction
-		if(!setBitsInRegister(CTRL_REG2, CTRL_REG2_RAW)) { return false; }
+		if(bitsSet(CTRL_REG2, CTRL_REG2_RAW) != Error::NoError) { return false; }
 		//set mode to active
-		if(!setBitsInRegister(CTRL_REG1, (uint8_t)CTRL_REG1_AC)) { break; }
+		if(bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) { return false; }
 		break;
 	case ACTIVE_CORRECTED:
         // enable automatic reset
-        if(!setBitsInRegister(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN)) { return false; }
+        if(bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) { return false; }
         //to change value of control registers device have to be in standby mode
         //change mode to standby
-        if(!clearBitsInRegister(CTRL_REG1, (uint8_t)CTRL_REG1_AC)) { return false; }
+        if(bitsClear(CTRL_REG1, (uint8_t)CTRL_REG1_AC) != Error::NoError) { return false; }
         //clear RAW bit for enable data correction
-        if(!clearBitsInRegister(CTRL_REG2, CTRL_REG2_RAW)) { return false; }
+        if(bitsClear(CTRL_REG2, CTRL_REG2_RAW) != Error::NoError) { return false; }
         //set mode to active
-        if(!setBitsInRegister(CTRL_REG1, (uint8_t)CTRL_REG1_AC)) { return false; }
+        if(bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) { return false; }
 		break;
 	}
 	return true;
 }
 
 bool MAG3110::setCorrection(int16_t x, int16_t y, int16_t z) {
-	const int16_t tab[3] = { microhal::convertEndiannessIfRequired(x, microhal::BigEndian),
-						     microhal::convertEndiannessIfRequired(y, microhal::BigEndian),
-						     microhal::convertEndiannessIfRequired(z, microhal::BigEndian)};
-
-	return writeRegisterMultipleData(OFF_X.getAddress(), gsl::span<const int16_t> {tab});
+	const std::array<int16_t, 3> data = {x,y,z};
+	return writeRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::NoError;
 }
 
 bool MAG3110::getCorrection(int16_t* x, int16_t* y, int16_t* z) {
-	int16_t tab[3];
-	bool status = readRegisterMultipleData(OFF_X.getAddress(), gsl::span<int16_t> {tab});
-	*x = microhal::convertEndiannessIfRequired(tab[0], microhal::BigEndian);
-	*y = microhal::convertEndiannessIfRequired(tab[1], microhal::BigEndian);
-	*z = microhal::convertEndiannessIfRequired(tab[2], microhal::BigEndian);
+	std::tuple<int16_t, int16_t, int16_t> data;
+	const bool status = readRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::NoError;
+	*x = std::get<0>(data);
+	*y = std::get<1>(data);
+	*z = std::get<2>(data);
 
 	return status;
 }
@@ -93,13 +91,14 @@ bool MAG3110::setODR_OSR(OutputDataRate_OverSamplingRate odr_osr) {
 	//to change output data rate and output sampling rate we need switch Mode to STANDBY
 	if (auto mode = getMode()) {
 		if (setMode(STANDBY)) {
-			if (auto ctrl_reg = readRegister(CTRL_REG1)) {
-				uint8_t ctrl_reg_1 = *ctrl_reg;
+			uint8_t ctrl_reg;
+			if (read(CTRL_REG1, ctrl_reg)) {
+				uint8_t ctrl_reg_1 = ctrl_reg;
 				//clear old settings
 				ctrl_reg_1 &= 0xF8;
 				//set new settings
 				ctrl_reg_1 |= odr_osr;
-				if (writeRegister(CTRL_REG1, ctrl_reg_1)) {
+				if (write(CTRL_REG1, ctrl_reg_1)) {
 					return setMode(*mode);
 				}
 			}
@@ -110,25 +109,16 @@ bool MAG3110::setODR_OSR(OutputDataRate_OverSamplingRate odr_osr) {
 
 std::experimental::optional <MAG3110::MagneticVector> MAG3110::getMagnetic() {
 	std::experimental::optional <MagneticVector> mag;
-	if (auto status = readRegister(DR_STATUS)) {
-        std::experimental::optional<int16_t> x = 0;
-        std::experimental::optional<int16_t> y = 0;
-        std::experimental::optional<int16_t> z = 0;
+	uint8_t status;
+	if (read(DR_STATUS, status) == Error::NoError) {
+        std::tuple<int16_t, int16_t, int16_t> data;
+        readRegisters(data, OUT_X, OUT_Y, OUT_Z);
+        int16_t x = std::get<0>(data);
+        int16_t y = std::get<1>(data);
+        int16_t z = std::get<2>(data);
 
-        //int16_t data;
-        //readRegisterMultipleData(OUT_X.getAddress(), data);
-
-        if (*status & Axis::X) {  // all axis requested
-			x = getX();
-		}
-		if ((*status & Axis::Y)) {  // all axis requested
-			y = getY();
-		}
-		if ((*status & Axis::Z)) {  // all axis requested
-			z = getZ();
-		}
 		MagneticVector tmp;
-        convertToMagnetic(&tmp, *x, *y, *z);
+        convertToMagnetic(&tmp, x, y, z);
         mag = tmp;
     }
     return mag;
