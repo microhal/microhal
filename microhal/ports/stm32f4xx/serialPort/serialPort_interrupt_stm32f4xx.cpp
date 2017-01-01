@@ -111,15 +111,27 @@ inline void serialPort_interruptFunction(USART_TypeDef * const usart, SerialPort
     	if (serial.txBuffer.isEmpty()) {
     		usart->CR1 &= ~USART_CR1_TXEIE;
     		if (serial.txWait) {
-    			auto shouldYeld = serial.txFinish.giveFromISR();
-#if defined (HAL_RTOS_FreeRTOS)
-    			portYIELD_FROM_ISR(shouldYeld);
-#else
-    			(void)shouldYeld;
-#endif
+    			usart->CR1 |= USART_CR1_TCIE;
+//    			auto shouldYeld = serial.txFinish.giveFromISR();
+//#if defined (HAL_RTOS_FreeRTOS)
+//    			portYIELD_FROM_ISR(shouldYeld);
+//#else
+//    			(void)shouldYeld;
+//#endif
     		}
     	} else {
     		usart->DR = serial.txBuffer.get_unsafe();
+    	}
+    } else if ((sr & USART_SR_TC) && (usart->CR1 & USART_CR1_TCIE)) {
+    	if (serial.txWait) {
+    		serial.txWait = false;
+    		usart->CR1 &= ~USART_CR1_TCIE;
+    		auto shouldYeld = serial.txFinish.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+    		portYIELD_FROM_ISR(shouldYeld);
+#else
+    		(void)shouldYeld;
+#endif
     	}
     }
 }

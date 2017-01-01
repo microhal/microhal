@@ -55,6 +55,9 @@ void GPIO::pinInitialize(const Port port, const uint_fast8_t pin, const PinConfi
             break;
     }
 
+    reinterpret_cast<volatile GPIO_TypeDef *>(port)->AFR[pin / 8] |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);
+
+    reinterpret_cast<volatile GPIO_TypeDef *>(port)->ODR |= 1<<pin;
     // set mode -> config.mode is split to 2 part 4MSB bit
     //      contain alternate function and 4LSB bit contain mode
     reinterpret_cast<volatile GPIO_TypeDef *>(port)->MODER |= (0x03 & config.mode) << (pin * 2);
@@ -65,7 +68,7 @@ void GPIO::pinInitialize(const Port port, const uint_fast8_t pin, const PinConfi
     // set speed
     reinterpret_cast<volatile GPIO_TypeDef *>(port)->OSPEEDR |= config.speed << (pin * 2);
 
-    reinterpret_cast<volatile GPIO_TypeDef *>(port)->AFR[pin / 8] |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);
+
 }
 
 }  // namespace stm32f4xx
