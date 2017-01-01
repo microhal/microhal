@@ -259,7 +259,7 @@ class ClockManager {
 
         static void disable() noexcept { RCC->CR &= ~RCC_CR_HSION; }
 
-        static bool isReady() noexcept { return RCC->CR && RCC_CR_HSIRDY; }
+        static bool isReady() noexcept { return RCC->CR & RCC_CR_HSIRDY; }
     };
 
     struct HSE {
@@ -282,7 +282,7 @@ class ClockManager {
 
         static void disable() noexcept { RCC->CR &= ~RCC_CR_HSEON; }
 
-        static bool isReady() noexcept { return RCC->CR && RCC_CR_HSERDY; }
+        static bool isReady() noexcept { return RCC->CR & RCC_CR_HSERDY; }
     };
 
     struct PLL {
@@ -315,7 +315,7 @@ class ClockManager {
 
             static void disable() noexcept { RCC->CR &= ~RCC_CR_PLLON; }
 
-            static bool isReady() noexcept { return RCC->CR && RCC_CR_PLLRDY; }
+            static bool isReady() noexcept { return RCC->CR & RCC_CR_PLLRDY; }
 
             static float PFrequency() { return VCOOutputFrequency() / P(); }
 
