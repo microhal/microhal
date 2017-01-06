@@ -4,16 +4,20 @@ import shlex
 import serial
 
 class SerialPortTest(unittest.TestCase):
-	def setUp(self):
-		self.serial = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
+	def setUp(self):		
+		self.serial = []
+		self.serial.append(serial.Serial('/dev/ttyFTDI0', 115200, timeout=1))
+		self.serial.append(serial.Serial('/dev/ttyFTDI1', 115200, timeout=1))
+		self.serial.append(serial.Serial('/dev/ttyFTDI2', 115200, timeout=1))
+		self.serial.append(serial.Serial('/dev/ttyFTDI2', 115200, timeout=1))
 
 	def testOne(self):
 		subprocess.call(shlex.split('./flash.sh stm32f4-discovery'))
 
 		txt = "----------------------------- SerialPort Test -----------------------------\n"
-		self.serial.readline() # discard first line becouse may be incomplette
+		self.serial[0].readline() # discard first line becouse may be incomplette
 
-		line = self.serial.readline()
+		line = self.serial[0].readline()
 		self.assertEqual(txt, line)
 
 def main():
