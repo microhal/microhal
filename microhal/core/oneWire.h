@@ -44,7 +44,7 @@ namespace microhal {
  */
 class OneWire {
  public:
-	enum class Command {
+	enum class Command : uint8_t {
 		MatchROM = 0x55,
 		SearchROM =	0xF0,
 		SkipROM = 0xCC,
@@ -52,7 +52,11 @@ class OneWire {
 		ReadRom = 0x33,
 	};
 
-	OneWire(SerialPort &serial) noexcept : serial(serial) {
+	constexpr OneWire(SerialPort &serial) noexcept : serial(serial) {
+	}
+
+	bool write(Command command) {
+		return write(static_cast<uint8_t>(command));
 	}
 
 	bool write(uint8_t data) {
@@ -67,7 +71,14 @@ class OneWire {
 		return serial.write(reinterpret_cast<char*>(tmp), sizeof(tmp)) == sizeof(tmp);
 	}
 
-	bool read(uint8_t *data, size_t length) {
+	bool write(const uint8_t *data, size_t size) {
+		for(size_t i=0; i<size; i++) {
+			if (write(data[i]) == false) return false;
+		}
+		return true;
+	}
+
+	bool read(uint8_t *data, size_t length) const {
 		if (serial.waitForWriteFinish(std::chrono::milliseconds {100})) {
 			serial.clear(SerialPort::Direction::Input);
 			const uint8_t write[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -89,7 +100,7 @@ class OneWire {
 		return false;
 	}
 
-	bool sendResetPulse(void) {
+	bool sendResetPulse() const {
 		if (serial.waitForWriteFinish(std::chrono::milliseconds::max())) {
 			serial.clear(SerialPort::Direction::Input);
 			serial.setBaudRate(SerialPort::Baud9600);
@@ -106,8 +117,70 @@ class OneWire {
 		return false;
 	}
 
+	bool searchRom(uint64_t *deviceRom) {
+		//if (sendResetPulse()) {
+			write(Command::SearchROM);
+			uint8_t bit, complementaryBit;
+			uint64_t devRom = 0;
+			uint_fast8_t lastTransition = 0;
+			for(uint_fast8_t position = 0; position < 64; position++) {
+				if (readBit(bit, complementaryBit)) {
+					if (bit == 1 && complementaryBit == 1) {
+						return false; // no device on buss
+					}
+
+					if (bit != complementaryBit) {
+						writeBit(bit);
+						if(bit) devRom |= 1 << position;
+					} else {
+						lastTransition = position;
+					}
+				}
+			}
+
+			return true;
+		//}
+		return false;
+	}
+
+	bool readRom(uint64_t *deviceRom) {
+		if (sendResetPulse()) {
+			write(Command::ReadRom);
+			uint64_t tmp;
+			read(reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
+			//tmp = convertEndianness();
+			// check CRC
+			*deviceRom = tmp;
+
+			return true;
+		}
+		return false;
+	}
+
  private:
 	SerialPort &serial;
+
+	bool writeBit(uint8_t bit) {
+		return serial.putChar( bit ? 0xFF : 0x00);
+	}
+
+	bool readBit(uint8_t &bit, uint8_t &complementaryBit) {
+		if (serial.waitForWriteFinish(std::chrono::milliseconds {100})) {
+			serial.clear(SerialPort::Direction::Input);
+			const uint8_t write[] = {0xFF, 0xFF};
+			static_assert(sizeof(write) == 2,"");
+
+			serial.write(reinterpret_cast<const char*>(write), sizeof(write));
+			uint8_t read[2];
+			serial.read(reinterpret_cast<char*>(read), sizeof(read), std::chrono::milliseconds {10});
+			uint8_t tmp = 0;
+
+			bit = read[0] == 0xFF ? 1 : 0;
+			complementaryBit = read[1] == 0xFF ? 1 : 0;
+			return true;
+		}
+		return false;
+	}
 };
 
 }  // namespace microhal

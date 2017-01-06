@@ -46,7 +46,8 @@ class DS18B20 {
 		RecallE2 = 0xB8,
 		ReadPowerSupply = 0xB4,
 	};
-public:
+
+ public:
 	enum class Resolution {
 		Bits_9 = 0x00, ///< 9 bit resolution, maximum conversion time = 93.75ms
 		Bits_10 = 0x20, ///< 10 bit resolution, maximum conversion time = 187.5ms
@@ -54,24 +55,35 @@ public:
 		Bits_12 = 0x60 ///< 12 bit resolution, maximum conversion time = 750ms
 	};
 
-	DS18B20(microhal::OneWire &oneWire) : oneWire(oneWire) {}
+	constexpr DS18B20(microhal::OneWire &oneWire, uint64_t rom) : oneWire(oneWire), rom(rom) {}
 
 	Resolution resolution(Resolution resolution) {
-		if(oneWire.sendResetPulse()) {
-			oneWire.write(static_cast<uint8_t>(microhal::OneWire::Command::SkipROM));
-			oneWire.write(static_cast<uint8_t>(Command::WriteScratchpad));
-			oneWire.write(0x00);
-			oneWire.write(0x00);
-			oneWire.write(static_cast<uint8_t>(resolution));
+		uint8_t scratchpad[9];
+		if (readScrathpad(scratchpad)) {
+			if(oneWire.sendResetPulse()) {
+				oneWire.write(microhal::OneWire::Command::MatchROM);
+				oneWire.write(reinterpret_cast<uint8_t*>(&rom), sizeof(rom));
+				oneWire.write(static_cast<uint8_t>(Command::WriteScratchpad));
+				oneWire.write(scratchpad[2]);
+				oneWire.write(scratchpad[3]);
+				oneWire.write(static_cast<uint8_t>(resolution));
+			}
 		}
 		return resolution;
 	}
 
-	Resolution resolution() const {}
+	Resolution resolution() const {
+		uint8_t tmp[9];
+		if (readScrathpad(tmp)) {
+			uint8_t config = tmp[4];
+			return static_cast<Resolution>(config);
+		}
+	}
 
 	bool startConversion(bool waitForConversionEnd) {
 		oneWire.sendResetPulse();
-		oneWire.write(static_cast<uint8_t>(microhal::OneWire::Command::SkipROM));
+		oneWire.write(microhal::OneWire::Command::MatchROM);
+		oneWire.write(reinterpret_cast<uint8_t*>(&rom), sizeof(rom));
 		oneWire.write(static_cast<uint8_t>(Command::Convert));
 
 		if (waitForConversionEnd) {				//if function should wait for conversion end
@@ -81,20 +93,30 @@ public:
 	}
 
 	bool temperature(float *temp) {
-		oneWire.sendResetPulse();
-		oneWire.write(static_cast<uint8_t>(microhal::OneWire::Command::SkipROM));
-		oneWire.write(static_cast<uint8_t>(Command::ReadScratchpad));
-		uint8_t tmp[2];
-		oneWire.read(tmp, 2);
-
-		//microhal::diagnostic::diagChannel << microhal::diagnostic::Debug << microhal::diagnostic::toHex(tmp) << " tmp2: "
-		//								  <<  microhal::diagnostic::toHex(tmp2) << microhal::diagnostic::endl;
-		int16_t temporary = tmp[1] << 8 | tmp[0];
-		*temp = (float)temporary / 16;	//calculate actual temperature
-		return true;
+		uint8_t scratchpad[9];
+		if (readScrathpad(scratchpad)) {
+			int16_t temporary = scratchpad[1] << 8 | scratchpad[0];
+			*temp = (float)temporary / 16;	//calculate actual temperature
+			return true;
+		}
+		return false;
 	}
  private:
-	microhal::OneWire oneWire;
+	mutable microhal::OneWire oneWire;
+	uint64_t rom;
+
+	bool readScrathpad(uint8_t scratchpad[9]) const {
+		if(oneWire.sendResetPulse()) {
+			oneWire.write(microhal::OneWire::Command::MatchROM);
+			oneWire.write(reinterpret_cast<const uint8_t*>(&rom), sizeof(rom));
+			oneWire.write(static_cast<uint8_t>(Command::ReadScratchpad));
+			oneWire.read(scratchpad, sizeof(scratchpad));
+			//return scratchpad.crc == CRC<uint8_t, "x^8 + x^5 + x^4 + 1">::calculate(scratchpad, 8);
+			return true;
+		}
+		return false;
+	}
+
 };
 
 #endif  // _MICROHAL_DS18B20_H_
