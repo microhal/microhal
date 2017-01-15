@@ -17,7 +17,7 @@
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_START_MODE" value="run"/>
 <booleanAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_ARGUMENTS" value="-f board/stm32f4discovery.cfg&#10;-c init&#10;-c targets&#10;-c &quot;reset halt&quot;&#10;-c &quot;sleep 100&quot;&#10;-c &quot;flash write_image erase stm32f4-discovery/mag3110.elf&quot;&#10;-c &quot;verify_image stm32f4-discovery/mag3110.elf&quot;&#10;-c &quot;reset run&quot;&#10;-c shutdown"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_ARGUMENTS" value="-f board/stm32f4discovery_stlinkV2-1.cfg&#10;-c init&#10;-c targets&#10;-c &quot;reset halt&quot;&#10;-c &quot;sleep 100&quot;&#10;-c &quot;flash write_image erase stm32f4-discovery/mag3110.elf&quot;&#10;-c &quot;verify_image stm32f4-discovery/mag3110.elf&quot;&#10;-c &quot;reset run&quot;&#10;-c shutdown"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${openocd_path}/${openocd_executable}"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="mag3110"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>

@@ -83,22 +83,22 @@ class MAG3110 : protected microhal::I2CDevice {
     /**
     * Possible operating mode.
     */
-    typedef enum {
-        STANDBY = 0x00,        //!< STANDBY
-        ACTIVE_RAW =  0x01,        //!< ACTIVE
-        ACTIVE_CORRECTED =  0x02,        //!< ACTIVE
-    } Mode;
+    enum class Mode {
+        Standby = 0x00,        //!< STANDBY
+        ActiveRAW =  0x01,        //!< ACTIVE
+        ActiveCorrected =  0x02,        //!< ACTIVE
+    };
 
-    typedef enum {
-        X = 0x01,
-        Y = 0x02,
-        Z = 0x04,
-        XY = X | Y,  //!< XY
-        XZ = X | Z,  //!< XZ
-        YZ = Y | Z,  //!< YZ
-        XYZ = X | Y | Z,  //!< XYZ
-        AxisUnknown
-    } Axis;
+    enum class Axis {
+        x = 0x01,
+        y = 0x02,
+        z = 0x04,
+        xy = x | y,  //!< XY
+        xz = x | z,  //!< XZ
+        yz = y | z,  //!< YZ
+        xyz = x | y | z,  //!< XYZ
+        Unknown
+    };
 
     typedef enum : uint8_t {
         ODR_80Hz_OSR_16 = 0x00,
@@ -156,9 +156,6 @@ class MAG3110 : protected microhal::I2CDevice {
 	 */
     MAG3110(microhal::I2C &i2c, PossibleI2CAddress address) :
         I2CDevice(i2c, address) {
-    }
-
-    ~MAG3110() {
     }
 	/**
 	 * @brief Function initializes MAG3110 driver.
@@ -256,7 +253,7 @@ class MAG3110 : protected microhal::I2CDevice {
     bool getCorrection(int16_t* x, int16_t* y, int16_t* z);
 
 
-    std::experimental::optional<microhal::Temperature> getDieTemperature() {
+    std::experimental::optional<microhal::Temperature> temperature() {
     	std::experimental::optional<microhal::Temperature> temperature;
     	int8_t tmp;
     	if (read(DIE_TEMP, tmp) == Error::NoError) {

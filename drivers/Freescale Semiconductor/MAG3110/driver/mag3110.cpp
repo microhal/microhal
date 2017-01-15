@@ -43,10 +43,10 @@ bool MAG3110::init() {
 }
 
 bool MAG3110::setMode(Mode mode){
-	switch(mode){
-	case STANDBY:
+	switch(mode) {
+	case Mode::Standby:
 		return bitsClear(CTRL_REG1, CTRL_REG1_AC) == Error::NoError;
-	case ACTIVE_RAW:
+	case Mode::ActiveRAW:
 		// enable automatic reset
 		if(bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) { return false; }
 		//to change value of control registers device have to be in standby mode
@@ -57,7 +57,7 @@ bool MAG3110::setMode(Mode mode){
 		//set mode to active
 		if(bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) { return false; }
 		break;
-	case ACTIVE_CORRECTED:
+	case Mode::ActiveCorrected:
         // enable automatic reset
         if(bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) { return false; }
         //to change value of control registers device have to be in standby mode
@@ -90,7 +90,7 @@ bool MAG3110::getCorrection(int16_t* x, int16_t* y, int16_t* z) {
 bool MAG3110::setODR_OSR(OutputDataRate_OverSamplingRate odr_osr) {
 	//to change output data rate and output sampling rate we need switch Mode to STANDBY
 	if (auto mode = getMode()) {
-		if (setMode(STANDBY)) {
+		if (setMode(Mode::Standby)) {
 			uint8_t ctrl_reg;
 			if (read(CTRL_REG1, ctrl_reg)) {
 				uint8_t ctrl_reg_1 = ctrl_reg;
@@ -111,11 +111,12 @@ std::experimental::optional <MAG3110::MagneticVector> MAG3110::getMagnetic() {
 	std::experimental::optional <MagneticVector> mag;
 	uint8_t status;
 	if (read(DR_STATUS, status) == Error::NoError) {
-        std::tuple<int16_t, int16_t, int16_t> data;
+        //std::tuple<int16_t, int16_t, int16_t> data;
+        std::array<int16_t, 3> data;
         readRegisters(data, OUT_X, OUT_Y, OUT_Z);
-        int16_t x = std::get<0>(data);
-        int16_t y = std::get<1>(data);
-        int16_t z = std::get<2>(data);
+        int16_t x = data[0];
+        int16_t y = data[1];
+        int16_t z = data[2];
 
 		MagneticVector tmp;
         convertToMagnetic(&tmp, x, y, z);

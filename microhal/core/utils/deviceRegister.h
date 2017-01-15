@@ -36,6 +36,7 @@
 #include <cstddef>
 #include <type_traits>
 #include "microhalDefs.h"
+#include "ports/manager/hardware.h"
 
 /* **************************************************************************************************************************************************
  * CLASS
@@ -63,7 +64,7 @@ class Address {
     }
 };
 
-template <typename T, Access _Access, typename AddressType, Endianness ...endianness>
+template <typename T, Access _Access, typename AddressType, Endianness ...endianness_>
 class Register {
  public:
 	using Address = AddressType;
@@ -74,7 +75,11 @@ class Register {
 		return Address::value;
 	}
 
-	Endianness getEndianness() { return get(endianness...); }
+	constexpr Endianness endianness() const noexcept { return get(endianness_...); }
+
+	constexpr bool requireEndiannessConversion() const noexcept {
+		return endianness() != microhal::hardware::Device::endianness;
+	}
 
 	constexpr Access access() const {
 		return _Access;
@@ -95,6 +100,10 @@ class Register<T, _Access, AddressType> {
 
 	constexpr typename Address::Type getAddress() const {
 		return Address::value;
+	}
+
+	constexpr bool requireEndiannessConversion() const noexcept {
+		return false;
 	}
 
 	constexpr Access access() const {
@@ -128,6 +137,30 @@ constexpr void isContinous(Register reg, Register2 reg2, Rest... regs) {
 	isContinous(reg2, regs...);
 }
 ////////////////////////
+template<typename Register>
+constexpr size_t sizeOfRegistersData(Register reg) {
+	(void) reg;
+	return sizeof(typename Register::Type);
+}
+template<typename Register, typename... Rest>
+constexpr size_t sizeOfRegistersData(Register reg, Rest... regs) {
+	(void) reg;
+	return sizeof(typename Register::Type) + sizeOfRegistersData(regs...);
+}
+////////////////////////
+template<typename Type, typename Register>
+void dataTypeCheck(Register reg) {
+	(void)reg;
+	static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
+}
+template<typename Type, typename Register, typename... Registers>
+void dataTypeCheck(Register reg, Registers... regs) {
+	(void)reg;
+	static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
+	dataTypeCheck<Type>(regs...);
+}
+
+
 //template<typename Register, typename Register2>
 //constexpr auto first_impl(Register min, Register2 current) {
 //	if (min.getAddress() > current.getAddress()){

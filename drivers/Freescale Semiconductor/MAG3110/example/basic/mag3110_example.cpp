@@ -49,7 +49,7 @@ int main(void) {
 
         mag3110.setODR_OSR(MAG3110::ODR_10Hz_OSR_128);
 
-        if (!mag3110.setMode(MAG3110::ACTIVE_RAW)) {
+        if (!mag3110.setMode(MAG3110::Mode::ActiveRAW)) {
             diagChannel<< lock << MICROHAL_ERROR << "Cannot set operation mode."<< endl << unlock;
             break;
         }
@@ -59,7 +59,7 @@ int main(void) {
             if (const auto mag = mag3110.getMagnetic()) {
                 diagChannel << lock << MICROHAL_DEBUG << "X[g]: " << (*mag)[0] << ", Y[g]: " << (*mag)[1] << ", Z[g]: " << (*mag)[2] << endl << unlock;
             }
-            if (auto temperature = mag3110.getDieTemperature()) {
+            if (auto temperature = mag3110.temperature()) {
                 diagChannel << lock << MICROHAL_DEBUG << "Die Temperature " << temperature->getCelsius() << endl << unlock;
             }
         }
