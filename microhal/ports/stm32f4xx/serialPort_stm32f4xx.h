@@ -117,8 +117,6 @@ protected:
             break;
         }
     }
-
-   // virtual ~SerialPort(){}
 };
 
 } // namespace stm32f4xx

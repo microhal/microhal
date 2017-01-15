@@ -57,14 +57,16 @@ int main() {
 
 	OneWire oneWire(oneWirePort);
 
-//	diagChannel << Debug << "Detected 1-Wire device: " << oneWire.sendResetPulse();
 	diagChannel << Debug << "Detected 1-Wire device: " << oneWire.sendResetPulse();
 
-	uint64_t rom;
-	diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.readRom(&rom);
-	diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.readRom(&rom);
+	OneWire::Rom rom;
+	diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.readRom(&rom) << endl;
 
-	diagChannel << Debug << "Device ROM: " << toHex(rom);
+	uint64_t searchRom;
+	diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.searchRom(&searchRom) << endl;
+
+	diagChannel << Debug << "Device ROM from read: " << toHex(rom) << endl;
+	diagChannel << Debug << "Device ROM from search: " << toHex(searchRom) << endl;
 
 	DS18B20 ds(oneWire, rom);
 

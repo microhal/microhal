@@ -123,9 +123,9 @@ inline void serialPort_interruptFunction(USART_TypeDef * const usart, SerialPort
     		usart->DR = serial.txBuffer.get_unsafe();
     	}
     } else if ((sr & USART_SR_TC) && (usart->CR1 & USART_CR1_TCIE)) {
+    	usart->CR1 &= ~USART_CR1_TCIE;
     	if (serial.txWait) {
     		serial.txWait = false;
-    		usart->CR1 &= ~USART_CR1_TCIE;
     		auto shouldYeld = serial.txFinish.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
     		portYIELD_FROM_ISR(shouldYeld);

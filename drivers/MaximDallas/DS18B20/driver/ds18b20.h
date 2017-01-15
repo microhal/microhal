@@ -48,6 +48,8 @@ class DS18B20 {
 	};
 
  public:
+	using OneWire = microhal::OneWire;
+
 	enum class Resolution {
 		Bits_9 = 0x00, ///< 9 bit resolution, maximum conversion time = 93.75ms
 		Bits_10 = 0x20, ///< 10 bit resolution, maximum conversion time = 187.5ms
@@ -55,13 +57,13 @@ class DS18B20 {
 		Bits_12 = 0x60 ///< 12 bit resolution, maximum conversion time = 750ms
 	};
 
-	constexpr DS18B20(microhal::OneWire &oneWire, uint64_t rom) : oneWire(oneWire), rom(rom) {}
+	constexpr DS18B20(OneWire &oneWire, OneWire::Rom rom) : oneWire(oneWire), rom(rom) {}
 
 	Resolution resolution(Resolution resolution) {
 		uint8_t scratchpad[9];
 		if (readScrathpad(scratchpad)) {
 			if(oneWire.sendResetPulse()) {
-				oneWire.write(microhal::OneWire::Command::MatchROM);
+				oneWire.write(OneWire::Command::MatchROM);
 				oneWire.write(reinterpret_cast<uint8_t*>(&rom), sizeof(rom));
 				oneWire.write(static_cast<uint8_t>(Command::WriteScratchpad));
 				oneWire.write(scratchpad[2]);
@@ -82,7 +84,7 @@ class DS18B20 {
 
 	bool startConversion(bool waitForConversionEnd) {
 		oneWire.sendResetPulse();
-		oneWire.write(microhal::OneWire::Command::MatchROM);
+		oneWire.write(OneWire::Command::MatchROM);
 		oneWire.write(reinterpret_cast<uint8_t*>(&rom), sizeof(rom));
 		oneWire.write(static_cast<uint8_t>(Command::Convert));
 
@@ -102,12 +104,12 @@ class DS18B20 {
 		return false;
 	}
  private:
-	mutable microhal::OneWire oneWire;
-	uint64_t rom;
+	mutable OneWire oneWire;
+	OneWire::Rom rom;
 
 	bool readScrathpad(uint8_t scratchpad[9]) const {
 		if(oneWire.sendResetPulse()) {
-			oneWire.write(microhal::OneWire::Command::MatchROM);
+			oneWire.write(OneWire::Command::MatchROM);
 			oneWire.write(reinterpret_cast<const uint8_t*>(&rom), sizeof(rom));
 			oneWire.write(static_cast<uint8_t>(Command::ReadScratchpad));
 			oneWire.read(scratchpad, sizeof(scratchpad));
