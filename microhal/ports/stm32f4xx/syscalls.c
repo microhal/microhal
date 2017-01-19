@@ -98,7 +98,7 @@ extern "C" {
 #include <sys/times.h>
 #include <stdint.h>
 #include <sys/time.h>
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 /*
  +=============================================================================+
  | module variables

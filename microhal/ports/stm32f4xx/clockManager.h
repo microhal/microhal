@@ -8,7 +8,7 @@
 #ifndef MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 #define MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -29,18 +29,27 @@ public:
 		case reinterpret_cast<uint32_t>(USART2):
 			rccEnableFlag = RCC_APB1ENR_USART2EN;
 			break;
+
+#if defined(USART3)
 		case reinterpret_cast<uint32_t>(USART3):
 			rccEnableFlag = RCC_APB1ENR_USART3EN;
 			break;
+#endif
+#if defined(UART4)
 		case reinterpret_cast<uint32_t>(UART4):
 			rccEnableFlag = RCC_APB1ENR_UART4EN;
 			break;
+#endif
+#if defined(UART5)
 		case reinterpret_cast<uint32_t>(UART5):
 			rccEnableFlag = RCC_APB1ENR_UART5EN;
 			break;
+#endif
+#if defined(USART6)
 		case reinterpret_cast<uint32_t>(USART6):
 			rccEnableFlag = RCC_APB2ENR_USART6EN;
 			break;
+#endif
 		default:
 			return false;
 		}

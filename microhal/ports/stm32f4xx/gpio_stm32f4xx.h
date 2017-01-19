@@ -33,7 +33,7 @@
  * INCLUDES
  */
 #include <stdint.h>
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -53,7 +53,9 @@ class GPIO {
         PortC = GPIOC_BASE,     //!< PortC
         PortD = GPIOD_BASE,     //!< PortD
         PortE = GPIOE_BASE,     //!< PortE
+#if defined(GPIOF_BASE)
         PortF = GPIOF_BASE      //!< PortF
+#endif
     } Port;
 	/**
 	 *
@@ -150,7 +152,7 @@ class GPIO {
      * @param mask - if bit in mask is set then corresponding pin will be set
      */
     static inline void setMask(Port port, uint16_t mask) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRRL = mask;
+        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = mask;
     }
     /** @brief This function set pins to low state.
      *
@@ -158,7 +160,7 @@ class GPIO {
      * @param mask - if bit in mask is set then corresponding pin will be reset
      */
     static inline void resetMask(Port port, uint16_t mask) __attribute__((always_inline)) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRRH = mask;
+        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = mask << 16;
     }
     /** @brief This function return port state.
      *

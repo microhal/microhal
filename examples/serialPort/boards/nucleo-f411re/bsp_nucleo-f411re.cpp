@@ -35,11 +35,14 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-    Core::pll_start(8000000, 168000000);
+   // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortC, 10>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortC, 11>();
+    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
+    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
+
+    IOManager::routeSerial<6, Txd, stm32f4xx::GPIO::PortC, 6>();
+    IOManager::routeSerial<6, Rxd, stm32f4xx::GPIO::PortC, 7>();
 
     SysTick_Config(168000000/1000);
 }

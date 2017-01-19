@@ -35,7 +35,7 @@
 
 #include <cstdint>
 
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 #include "gpio_stm32f4xx.h"
 
 #include "signalSlot/signalSlot.h"

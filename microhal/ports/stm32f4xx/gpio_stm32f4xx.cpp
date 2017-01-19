@@ -50,9 +50,11 @@ void GPIO::pinInitialize(const Port port, const uint_fast8_t pin, const PinConfi
         case PortE:
             RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
             break;
+#if defined(GPIOF_BASE)
         case PortF:
             RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
             break;
+#endif
     }
 
     // set mode -> config.mode is split to 2 part 4MSB bit

@@ -4,7 +4,7 @@
  * INCLUDES
  */
 #include <stdint.h>
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -55,18 +55,30 @@ public:
 			return getAPB2frequency();
 		case reinterpret_cast<uint32_t>(USART2):
 			return getAPB1frequency();
+#if defined (USART3)
 		case reinterpret_cast<uint32_t>(USART3):
 			return getAPB1frequency();
+#endif
+#if defined (UART4)
 		case reinterpret_cast<uint32_t>(UART4):
 			return getAPB1frequency();
+#endif
+#if defined (UART5)
 		case reinterpret_cast<uint32_t>(UART5):
 			return getAPB1frequency();
+#endif
+#if defined (USART6)
 		case reinterpret_cast<uint32_t>(USART6):
 			return getAPB2frequency();
+#endif
+#if defined (UART7)
 		case reinterpret_cast<uint32_t>(UART7):
 			return getAPB1frequency();
+#endif
+#if defined (UART8)
 		case reinterpret_cast<uint32_t>(UART8):
 			return getAPB1frequency();
+#endif
 		default:
 			return 0;
 		}
@@ -86,12 +98,18 @@ public:
 			return getAPB1frequency();
 		case reinterpret_cast<uint32_t>(SPI3):
 			return getAPB1frequency();
+#if defined(SPI4)
 		case reinterpret_cast<uint32_t>(SPI4):
 			return getAPB2frequency();
+#endif
+#if defined(SPI5)
 		case reinterpret_cast<uint32_t>(SPI5):
 			return getAPB2frequency();
+#endif
+#if defined(SPI6)
 		case reinterpret_cast<uint32_t>(SPI6):
 			return getAPB2frequency();
+#endif
 		default:
 			return 0;
 		}
@@ -105,17 +123,29 @@ public:
 			case reinterpret_cast<uint32_t>(TIM3):	return getAPB1frequency();
 			case reinterpret_cast<uint32_t>(TIM4):	return getAPB1frequency();
 			case reinterpret_cast<uint32_t>(TIM5):	return getAPB1frequency();
-			case reinterpret_cast<uint32_t>(TIM6):	return getAPB1frequency();
-			case reinterpret_cast<uint32_t>(TIM7):	return getAPB1frequency();
 
+#if defined (TIM6)
+			case reinterpret_cast<uint32_t>(TIM6):	return getAPB1frequency();
+#endif
+#if defined (TIM7)
+			case reinterpret_cast<uint32_t>(TIM7):	return getAPB1frequency();
+#endif
+#if defined (TIM8)
 			case reinterpret_cast<uint32_t>(TIM8):	return getAPB2frequency();
+#endif
 			case reinterpret_cast<uint32_t>(TIM9):	return getAPB2frequency();
 			case reinterpret_cast<uint32_t>(TIM10):	return getAPB2frequency();
 			case reinterpret_cast<uint32_t>(TIM11):	return getAPB2frequency();
 
+#if defined (TIM12)
 			case reinterpret_cast<uint32_t>(TIM12):	return getAPB1frequency();
+#endif
+#if defined (TIM13)
 			case reinterpret_cast<uint32_t>(TIM13):	return getAPB1frequency();
+#endif
+#if defined (TIM14)
 			case reinterpret_cast<uint32_t>(TIM14):	return getAPB1frequency();
+#endif
 			default:								return 0;
 		}
 	}

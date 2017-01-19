@@ -34,7 +34,7 @@
  * INCLUDES
  */
 #include <cstdint>
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 #include "interfaces/serialPort_interface.h"
 #include "microhalPortConfig_stm32f4xx.h"
 
@@ -99,22 +99,30 @@ protected:
             NVIC_EnableIRQ(USART2_IRQn);
             NVIC_SetPriority(USART2_IRQn, priority);
             break;
+#if defined(USART3)
         case reinterpret_cast<uint32_t>(USART3):
             NVIC_EnableIRQ (USART3_IRQn);
             NVIC_SetPriority(USART3_IRQn, priority);
             break;
+#endif
+#if defined(UART4)
         case reinterpret_cast<uint32_t>(UART4):
             NVIC_EnableIRQ (UART4_IRQn);
             NVIC_SetPriority(UART4_IRQn, priority);
             break;
+#endif
+#if defined(UART5)
         case reinterpret_cast<uint32_t>(UART5):
             NVIC_EnableIRQ (UART5_IRQn);
             NVIC_SetPriority(UART5_IRQn, priority);
             break;
+#endif
+#if defined(USART6)
         case reinterpret_cast<uint32_t>(USART6):
             NVIC_EnableIRQ (USART6_IRQn);
             NVIC_SetPriority(USART6_IRQn, priority);
             break;
+#endif
         }
     }
 
