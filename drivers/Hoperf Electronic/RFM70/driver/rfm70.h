@@ -237,7 +237,7 @@ uint32_t RFM70::getID() {
 
     switchCFG(BANK1);
 
-    if (readRegister(0x08, id, microhal::Endianness::LittleEndian) == false) {
+    if (readRegister(0x08, id, microhal::Endianness::Little) == false) {
         id = 0x00000000;
     }
 

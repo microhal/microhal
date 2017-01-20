@@ -29,7 +29,7 @@
 #include "isl29023.h"
 
 bool ISL29023::reset(){
-	return writeRegister(COMMAND_1, static_cast<uint16_t>(0), microhal::LittleEndian);
+	return writeRegister(COMMAND_1, static_cast<uint16_t>(0), microhal::Endianness::Little);
 }
 
 /** @brief This function set operating mode.

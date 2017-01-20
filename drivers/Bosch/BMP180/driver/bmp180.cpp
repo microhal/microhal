@@ -33,5 +33,5 @@
  * @return
  */
 bool BMP180::readCalibrationData() {
-    return readRegisters(0xAA, (uint16_t *) &calibrationCoefs, sizeof(calibrationCoefs) / 2, microhal::BigEndian);
+    return readRegisters(0xAA, (uint16_t *) &calibrationCoefs, sizeof(calibrationCoefs) / 2, microhal::Endianness::Big);
 }

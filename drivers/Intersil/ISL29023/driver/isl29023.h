@@ -127,7 +127,7 @@ private:
  * @return
  */
 bool ISL29023::setIntLowThreshold(uint16_t threshold) {
-    return writeRegister(INT_LT, threshold, microhal::LittleEndian);
+    return writeRegister(INT_LT, threshold, microhal::Endianness::Little);
 }
 /**
  *
@@ -136,7 +136,7 @@ bool ISL29023::setIntLowThreshold(uint16_t threshold) {
 uint16_t ISL29023::getIntLowThreshold() {
     uint16_t threshold;
 
-    if (readRegister(INT_LT, threshold, microhal::LittleEndian) == true) {
+    if (readRegister(INT_LT, threshold, microhal::Endianness::Little) == true) {
         return threshold;
     } else {
         return 0;
@@ -148,7 +148,7 @@ uint16_t ISL29023::getIntLowThreshold() {
  * @return
  */
 bool ISL29023::setIntHighThreshold(uint16_t threshold) {
-    return writeRegister(INT_HT, threshold, microhal::LittleEndian);
+    return writeRegister(INT_HT, threshold, microhal::Endianness::Little);
 }
 /**
  *
@@ -157,7 +157,7 @@ bool ISL29023::setIntHighThreshold(uint16_t threshold) {
 uint16_t ISL29023::getIntHighThreshold() {
     uint16_t threshold;
 
-    if (readRegister(INT_HT, threshold, microhal::LittleEndian) == true) {
+    if (readRegister(INT_HT, threshold, microhal::Endianness::Little) == true) {
         return threshold;
     } else {
         return 0;
@@ -171,7 +171,7 @@ uint16_t ISL29023::getIntHighThreshold() {
 bool ISL29023::getLux(float &lux) {
     uint16_t data;
 
-    if (readRegister(DATA, data, microhal::LittleEndian) == true) {
+    if (readRegister(DATA, data, microhal::Endianness::Little) == true) {
         lux = static_cast<float>(data) * alfa;
         return true;
     } else {

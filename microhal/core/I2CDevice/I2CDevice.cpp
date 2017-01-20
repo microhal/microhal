@@ -28,6 +28,7 @@
  */
 
 #include "I2CDevice.h"
+#include "ports/manager/hardware.h"
 
 namespace microhal {
 /**
@@ -70,17 +71,17 @@ bool I2CDevice::readRegisters(uint8_t registerAddress, uint32_t *buffer, size_t 
  */
 template <typename T>
 bool I2CDevice::setBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endianness endianness) {
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         bitMask = byteswap(bitMask);
     }
 
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.read(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
     if (status == I2C::NoError) {
         tmp |= bitMask;
-        status = i2c.write(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+        status = i2c.write(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
     }
 
     i2c.unlock();
@@ -112,17 +113,17 @@ bool I2CDevice::setBitsInRegister(uint8_t registerAddress, uint32_t bitMask, End
  */
 template <typename T>
 bool I2CDevice::clearBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endianness endianness) {
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         bitMask = ~byteswap(bitMask);
     }
 
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.read(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
     if (status == I2C::NoError) {
         tmp &= bitMask;
-        status = i2c.write(deviceAddress, registerAddress, &tmp, sizeof(tmp));
+        status = i2c.write(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
     }
 
     i2c.unlock();
@@ -154,7 +155,7 @@ bool I2CDevice::clearBitsInRegister(uint8_t registerAddress, uint32_t bitMask, E
  */
 template <typename T>
 bool I2CDevice::writeRegisterWithMask_impl(uint8_t address, T data, T mask, Endianness endianness) {
-    if (endianness != DeviceEndianness) {
+    if (endianness != hardware::Device::endianness) {
         mask = byteswap(mask);
         data = byteswap(data);
     }
@@ -162,13 +163,13 @@ bool I2CDevice::writeRegisterWithMask_impl(uint8_t address, T data, T mask, Endi
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.read(deviceAddress, address, &tmp, sizeof(tmp));
+    I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
     if (status == I2C::NoError) {
         // clear bits
         tmp &= ~mask;
         // set new value
         tmp |= (data & mask);
-        status = i2c.write(deviceAddress, address, &tmp, sizeof(tmp));
+        status = i2c.write(deviceAddress, &address, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
     }
 
     i2c.unlock();
