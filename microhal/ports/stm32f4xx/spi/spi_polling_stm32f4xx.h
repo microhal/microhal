@@ -109,9 +109,11 @@ class SPI_polling : public stm32f4xx::SPI {
       case reinterpret_cast<uint32_t>(SPI5):
         RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
         break;
+#if defined(SPI6)
       case reinterpret_cast<uint32_t>(SPI6):
         RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
         break;
+#endif
     }
   }
 

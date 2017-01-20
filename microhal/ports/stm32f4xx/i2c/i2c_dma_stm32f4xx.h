@@ -15,7 +15,7 @@
  * INCLUDES
  */
 #include <stdint.h>
-#include "../stm32f4xx.h"
+#include "../device/stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
 #include "../dma_stm32f4xx.h"
 
