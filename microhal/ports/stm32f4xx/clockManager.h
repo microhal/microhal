@@ -89,6 +89,26 @@ class ClockManager {
                 ;  // Error should newer go there
         }
     }
+    static void enable(const GPIO_TypeDef &gpio) {
+        if (&gpio == GPIOA)
+                RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+        else if (&gpio == GPIOB)
+                RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+        else if (&gpio == GPIOC)
+                RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+        else if (&gpio == GPIOD)
+                RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+        else if (&gpio == GPIOE)
+                RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
+    #if defined(GPIOF_BASE)
+        else if (&gpio == GPIOF)
+                RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
+    #endif
+        else {
+            while (1);
+        }
+    }
+
     //--------------------------------------------------------------------------------------------------------------
     /**
      * @brief This function return usart clock

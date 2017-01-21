@@ -8,7 +8,7 @@
  * created on: 17-01-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014, microHAL
+ * @copyright Copyright (c) 2014 - 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 #include "device/stm32f4xx.h"
 
 namespace microhal {
