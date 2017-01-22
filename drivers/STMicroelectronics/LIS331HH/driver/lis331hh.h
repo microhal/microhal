@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */ /* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 #ifndef LIS331HH_H_
 #define LIS331HH_H_
@@ -33,10 +34,80 @@
 #include <experimental/optional>
 
 #include "I2CDevice/I2CDevice.h"
+#include "deviceRegister.h"
 #include "math/vector.h"
 #include "microhal.h"
 #include "units/magnetic.h"
 #include "units/temperature.h"
+
+class LIS331HH : protected microhal::I2CDevice {
+    // registers definitions
+    static constexpr auto CTRL_REG1 = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x20>{});
+    static constexpr auto CTRL_REG2 = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x21>{});
+    static constexpr auto CTRL_REG3 = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x22>{});
+    static constexpr auto CTRL_REG4 = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x23>{});
+    static constexpr auto REFERENCE = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x26>{});
+    static constexpr auto STATUS_REG = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x27>{});
+    static constexpr auto OUT_X_L = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x28>{});
+    static constexpr auto OUT_X_H = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x29>{});
+    static constexpr auto OUT_Y_L = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x2A>{});
+    static constexpr auto OUT_Y_H = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x2B>{});
+    static constexpr auto OUT_Z_L = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x2C>{});
+    static constexpr auto OUT_Z_H = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x2D>{});
+    static constexpr auto INT1_CFG = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x30>{});
+    static constexpr auto INT1_SOURCE = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x31>{});
+    static constexpr auto INT1_THS = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x32>{});
+    static constexpr auto INT1_DURATION = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x33>{});
+    static constexpr auto INT2_CFG = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x34>{});
+    static constexpr auto INT2_SOURCE = microhal::makeRegister<uint8_t, microhal::Access::ReadOnly>(microhal::Address<uint8_t, 0x35>{});
+    static constexpr auto INT2_THS = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x36>{});
+    static constexpr auto INT2_DURATION = microhal::makeRegister<uint8_t, microhal::Access::ReadWrite>(microhal::Address<uint8_t, 0x37>{});
+
+    // CTRL_REG1 configurations
+    typedef enum : uint8_t { zen = 0x04, yen = 0x02, xen = 0x01 } CTRL_REG1_Flags;
+    typedef enum : uint8_t { OM = 0xe0, DR = 0x18 } CTRL_REG1_Masks;
+    typedef enum : uint8_t {
+        powerDown = 0,
+        normalMode = 1,
+        lowPower_05Hz = 2,
+        lowPower_1Hz = 3,
+        lowPower_2Hz = 4,
+        lowPower_5Hz = 5,
+        lowPower_10Hz = 6
+    } CTRL_REG1_PowerModes;
+    typedef enum : uint8_t { normalMode_50Hz = 0, normalMode_100Hz = 1, normalMode_400Hz = 2, normalMode_1000Hz = 3 } CTRL_REG1_DataRates;
+
+    // CTRL_REG2 configurations
+    typedef enum : uint8_t {
+        boot = 0x80,
+        FDS = 0x10,
+        highPassEnable2 = 0x80,
+        highPassEnable1 = 0x40,
+    } CTRL_REG2_Flags;
+    typedef enum : uint8_t { highPassFilterMode = 0x60, highpassFilterCutOff = 0x03 } CTRL_REG2_Masks;
+
+    // CTRL_REG3 configurations
+    typedef enum : uint8_t { IAH = 0x80, PP_OD = 0x40, LIR2 = 0x20, LIR1 = 0x02 } CTRL_REG3_Flags;
+    typedef enum : uint8_t { I2_CFG = 0x18, I1_CFG = 0x03 } CTRL_REG3_Masks;
+    typedef enum : uint8_t { onlyOneSource = 0, orSource = 1, dataReady = 2, bootRunning = 3 } CTRL_REG3_Interrupt;
+
+    // CTRL_REG4 configurations
+    typedef enum : uint8_t { BDU = 0x80, BLE = 0x40, STsign = 0x08, ST = 0x02, SIM = 0x01 } CTRL_REG4_Flags;
+    typedef enum : uint8_t { FS = 0x30 } CTRL_REG4_Masks;
+    typedef enum : uint8_t { sensitivity6g = 0, sensitivity12g = 1, sensitivity24 = 3 } CTRL_REG4_FullScaleRange;
+
+    // CTRL_REG5 configurations
+    typedef enum : uint8_t { turnOn1 = 0x02, turnOn2 = 0x01 } CTRL_REG5_Flags;
+
+    // STATUS_REG
+    typedef enum : uint8_t { ZYXOR = 0x80, ZOR = 0x40, YOR = 0x20, XOR = 0x10, ZYXDA = 0x08, ZDA = 0x04, YDA = 0x02, XDA = 0x01 } STATUS_REG_Flags;
+
+    // INTERRUPTS
+    typedef enum : uint8_t { AOI = 0x80, _6D = 0x40, ZHIE = 0x20, ZLIE = 0x10, YHIE = 0x08, YLIE = 0x04, XHIE = 0x02, XLIE = 0x01 } INTX_CFG_Flags;
+    typedef enum : uint8_t { IA = 0x40, ZH = 0x20, ZL = 0x10, YH = 0x08, YL = 0x04, XH = 0x02, XL = 0x01 } INTX_SRC_Flags;
+
+};  // class LIS331HH
+
 //
 // class MAG3110 : protected microhal::I2CDevice {
 //  using Endianness = microhal::Endianness;
