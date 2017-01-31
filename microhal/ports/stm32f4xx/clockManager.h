@@ -161,10 +161,14 @@ class ClockManager {
             return APB1Frequency();
         else if (&spi == SPI3)
             return APB1Frequency();
+#if defined(SPI4)
         else if (&spi == SPI4)
             return APB2Frequency();
+#endif
+#if defined(SPI5)
         else if (&spi == SPI5)
             return APB2Frequency();
+#endif
 #if defined(SPI6)
         else if (&spi == SPI6)
             return APB2Frequency();

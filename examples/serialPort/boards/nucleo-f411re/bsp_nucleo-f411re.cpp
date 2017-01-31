@@ -41,8 +41,8 @@ void hardwareConfig(void) {
     IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
     IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
 
-    IOManager::routeSerial<6, Txd, stm32f4xx::GPIO::PortC, 6>();
-    IOManager::routeSerial<6, Rxd, stm32f4xx::GPIO::PortC, 7>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
     SysTick_Config(168000000/1000);
 }

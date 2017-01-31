@@ -31,7 +31,6 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
-static microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial1;
-static microhal::SerialPort &serialPortB = microhal::stm32f4xx::SerialPort::Serial2;
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
 #endif  // NUCLEO_F411RE_H_
