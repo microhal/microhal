@@ -12,7 +12,7 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
-microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
+microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial3;
 
 microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c2;
 

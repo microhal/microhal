@@ -16,7 +16,7 @@
 
 #include "i2c.h"
 
-extern microhal::SerialPort &debugPort;
+extern microhal::SerialPort &serialPort;
 
 extern microhal::I2C &sensorI2C;
 
