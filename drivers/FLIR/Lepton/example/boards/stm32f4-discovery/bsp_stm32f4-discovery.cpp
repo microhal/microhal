@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,14 +24,25 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                         */
 
+#include "SPIDevice/SPIDevice.h"
 #include "microhal.h"
 #include "microhal_bsp.h"
-#include "SPIDevice/SPIDevice.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
+
+microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
+microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial1;
+
+microhal::SPI &leptonSPI = microhal::stm32f4xx::SPI::spi1;
+microhal::I2C &leptonI2C = microhal::stm32f4xx::I2C::i2c2;
+
+microhal::GPIO::IOPin leptonCS(microhal::stm32f4xx::GPIO::Port::PortE, 6);
+microhal::GPIO::IOPin leptonPower(microhal::stm32f4xx::GPIO::Port::PortD, 12);
+microhal::GPIO::IOPin leptonReset(microhal::stm32f4xx::GPIO::Port::PortD, 12);
 
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
@@ -41,12 +52,11 @@ void hardwareConfig(void) {
     IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
 
     IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-	IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-	IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
+    IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
-	IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-	IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
-
+    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
+    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
 
     debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
@@ -57,12 +67,12 @@ void hardwareConfig(void) {
     stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_16);
     stm32f4xx::SPI::spi1.enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
-//uint64_t SysTick_time = 0;
+// uint64_t SysTick_time = 0;
 //
-//extern "C" void SysTick_Handler(void)
+// extern "C" void SysTick_Handler(void)
 //{
 //	SysTick_time++;
 //}

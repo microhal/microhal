@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,19 +24,20 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                         */
 
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
-static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial1;
+extern microhal::SerialPort &debugPort;
+extern microhal::SerialPort &cameraPort;
 
-static microhal::SPI &leptonSPI = microhal::stm32f4xx::SPI::spi1;
-static microhal::I2C &leptonI2C = microhal::stm32f4xx::I2C::i2c2;
+extern microhal::SPI &leptonSPI;
+extern microhal::I2C &leptonI2C;
 
-constexpr microhal::GPIO::IOPin leptonCS(microhal::stm32f4xx::GPIO::Port::PortE, 6);
-constexpr microhal::GPIO::IOPin leptonPower(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-constexpr microhal::GPIO::IOPin leptonReset(microhal::stm32f4xx::GPIO::Port::PortD, 12);
+extern microhal::GPIO::IOPin leptonCS;
+extern microhal::GPIO::IOPin leptonPower;
+extern microhal::GPIO::IOPin leptonReset;
 
 #endif  // STM32F4DISCOVERY_H_

@@ -113,9 +113,7 @@ class HostCommPacket {
 
     HostCommPacket(uint8_t type, bool needAck) noexcept : HostCommPacket(nullptr, 0, type, needAck, false) {}
 
-    //    ~HostCommPacket(){
-    //
-    //    }
+    virtual ~HostCommPacket() {}
 
     uint16_t getSize() const { return packetInfo.size; }
 
@@ -141,7 +139,7 @@ class HostCommPacket {
 
  protected:
     HostCommPacket(void *dataPtr, size_t dataSize, uint8_t type = 0xFF, bool needAck = false, bool calculateCRC = false)
-        : dataSize(dataSize), dataPtr(dataPtr) {
+        : dataSize(dataSize), dataPtr(dataPtr), packetInfo() {
         uint8_t control = 0;
 
         if (needAck) {
@@ -223,9 +221,10 @@ class HostCommDataPacket : public HostCommPacket {
     static constexpr uint8_t PacketType = packetType;
 
     explicit HostCommDataPacket(bool needAck = false, bool calculateCRC = false) noexcept
-        : HostCommPacket(allocator.allocate(1), sizeof(T), packetType, needAck, calculateCRC) {}
+        : HostCommPacket(allocator.allocate(1), sizeof(T), packetType, needAck, calculateCRC),
+          allocator() {}
 
-    ~HostCommDataPacket() { allocator.deallocate(payloadPtr(), 1); }
+    virtual ~HostCommDataPacket() { allocator.deallocate(payloadPtr(), 1); }
 
     T *payloadPtr() const { return HostCommPacket::getDataPtr<T>(); }
 

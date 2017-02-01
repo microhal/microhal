@@ -1,4 +1,4 @@
-/* =========================================================================================== *//**
+/* =========================================================================================== */ /**
  @file        STM32F4Discovery.h
  @authors     Michal Karwatowski
  @version     $Id$
@@ -8,7 +8,8 @@
  @copyright   $Copyright$
  @details
 
- *//* ============================================================================================ */
+ */ /* ============================================================================================
+                                                                                                          */
 /* Created on: 20 sty 2014 */
 
 #ifndef STM32F4DISCOVERY_H_
@@ -16,18 +17,18 @@
 
 #include "i2c.h"
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
+extern microhal::SerialPort &debugPort;
 
-static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c2;
+extern microhal::I2C &sensorI2C;
 
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-constexpr microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+extern microhal::GPIO::IOPin Led3;
+extern microhal::GPIO::IOPin Led4;
+extern microhal::GPIO::IOPin Led5;
+extern microhal::GPIO::IOPin Led6;
 
-constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
+extern microhal::GPIO::IOPin Sw1;
 
-constexpr microhal::GPIO::IOPin GreenLed = Led4;
-constexpr microhal::GPIO::IOPin RedLed = Led3;
+extern microhal::GPIO::IOPin GreenLed;
+extern microhal::GPIO::IOPin RedLed;
 
 #endif /* STM32F4DISCOVERY_H_ */
