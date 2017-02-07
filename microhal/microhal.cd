@@ -137,7 +137,7 @@ SRC := $(SRC) \
        ports/nrf52/serialPort/serialPort_polling_nrf52.cpp \
        ports/nrf52/spi/spi_spim_dma_nrf52.cpp \
        ports/nrf52/spi/spi_spim_polling_nrf52.cpp \
-       ports/nrf52/startup/startup.c \
+       ports/nrf52/startup/startup.cpp \
        ports/nrf52/startup/vectors.c \
        ports/nrf52/adc_nrf52.cpp \
        ports/nrf52/core_nrf52.cpp \
