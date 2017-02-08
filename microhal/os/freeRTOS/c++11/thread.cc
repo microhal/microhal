@@ -159,7 +159,7 @@ namespace std _GLIBCXX_VISIBILITY(default) {
         __b->_M_this_ptr = __b;
         function_param = __b;
 
-        BaseType_t __e = xTaskCreate(&execute_native_thread_routine, NULL, 8 * 128, __b.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
+        BaseType_t __e = xTaskCreate(&execute_native_thread_routine, NULL, 512, __b.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
 
         if (__e != pdPASS) {
             __b->_M_this_ptr.reset();
