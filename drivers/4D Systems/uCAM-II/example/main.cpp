@@ -27,15 +27,14 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
-
 #include "uCamII.h"
+#include "bsp.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;

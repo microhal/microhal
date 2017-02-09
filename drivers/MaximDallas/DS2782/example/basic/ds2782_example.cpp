@@ -1,14 +1,15 @@
 ///*
 // * ds2782_example.cpp
 // *
-// *  Created on: 16 paŸ 2014
+// *  Created on: 16 paï¿½ 2014
 // *      Author: Dell
 // */
 //
 #include "microhal.h"
 #include "diagnostic/diagnostic.h"
 #include "ds2782.h"
-#include "microhal_bsp.h"
+
+#include "bsp.h"
 //
 //
 using namespace microhal;

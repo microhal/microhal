@@ -28,7 +28,7 @@
 
 #include "microhal.h"
 #include "diagnostic/diagnostic.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 #include "mpl3115.h"
 
 using namespace microhal;

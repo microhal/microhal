@@ -27,8 +27,8 @@
 
 #include "microhal.h"
 #include "diagnostic/diagnostic.h"
-#include "mag3110/mag3110.h"
-#include "microhal_bsp.h"
+#include "mag3110.h"
+#include "bsp.h"
 
 
 using namespace microhal;

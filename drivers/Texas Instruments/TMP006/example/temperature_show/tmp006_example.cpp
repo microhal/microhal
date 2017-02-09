@@ -26,11 +26,11 @@
 
  *//* ========================================================================================================================== */#include "microhal.h"
 
- #include "diagnostic/diagnostic.h"
+#include "diagnostic/diagnostic.h"
 #include "tmp006.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace microhal;
 using namespace diagnostic;

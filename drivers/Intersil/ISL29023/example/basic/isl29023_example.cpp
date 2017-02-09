@@ -29,7 +29,7 @@
 #include "microhal.h"
 #include "diagnostic/diagnostic.h"
 #include "isl29023.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
 #include <stdio.h>
 
