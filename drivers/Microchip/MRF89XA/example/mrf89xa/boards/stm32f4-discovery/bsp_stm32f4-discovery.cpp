@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                         */
+                                                                                                                                                                                                                                                                           */
 #include "SPIDevice/SPIDevice.h"
 #include "microhal.h"
 #include "microhal_bsp.h"
@@ -36,7 +36,35 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
-void main(void *);
+microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial1;
+
+microhal::SerialPort &communicationPort = microhal::stm32f4xx::SerialPort::Serial2;
+
+// first RF module pins configuration
+microhal::SPI &rfModule1_SPI = microhal::stm32f4xx::SPI::spi2;
+microhal::GPIO::IOPin rfModule1_csDat(microhal::stm32f4xx::GPIO::Port::PortD, 8);
+microhal::GPIO::IOPin rfModule1_csCon(microhal::stm32f4xx::GPIO::Port::PortD, 1);
+microhal::GPIO::IOPin rfModule1_IRQ0(microhal::stm32f4xx::GPIO::Port::PortD, 3);
+microhal::GPIO::IOPin rfModule1_IRQ1(microhal::stm32f4xx::GPIO::Port::PortD, 10);
+microhal::GPIO::IOPin rfModule1_RESET(microhal::stm32f4xx::GPIO::Port::PortD, 0);
+
+// second RF module pins configuration
+microhal::SPI &rfModule2_SPI = microhal::stm32f4xx::SPI::spi1;
+microhal::GPIO::IOPin rfModule2_csDat(microhal::stm32f4xx::GPIO::Port::PortB, 8);
+microhal::GPIO::IOPin rfModule2_csCon(microhal::stm32f4xx::GPIO::Port::PortA, 3);
+microhal::GPIO::IOPin rfModule2_IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 2);
+microhal::GPIO::IOPin rfModule2_IRQ1(microhal::stm32f4xx::GPIO::Port::PortE, 4);
+microhal::GPIO::IOPin rfModule2_RESET(microhal::stm32f4xx::GPIO::Port::PortA, 1);
+
+microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
+microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
+microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+
+microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
+
+microhal::GPIO::IOPin GreenLed = Led4;
+microhal::GPIO::IOPin RedLed = Led3;
 
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);

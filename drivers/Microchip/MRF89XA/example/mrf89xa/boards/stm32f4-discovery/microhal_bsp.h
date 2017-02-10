@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,42 +24,40 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                             */
 
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial1;
+extern microhal::SerialPort &debugPort;
 
-static microhal::SerialPort &communicationPort = microhal::stm32f4xx::SerialPort::Serial2;
-
+extern microhal::SerialPort &communicationPort;
 
 // first RF module pins configuration
-static microhal::SPI &rfModule1_SPI = microhal::stm32f4xx::SPI::spi2;
-constexpr microhal::GPIO::IOPin rfModule1_csDat(microhal::stm32f4xx::GPIO::Port::PortD, 8);
-constexpr microhal::GPIO::IOPin rfModule1_csCon(microhal::stm32f4xx::GPIO::Port::PortD, 1);
-constexpr microhal::GPIO::IOPin rfModule1_IRQ0(microhal::stm32f4xx::GPIO::Port::PortD, 3);
-constexpr microhal::GPIO::IOPin rfModule1_IRQ1(microhal::stm32f4xx::GPIO::Port::PortD, 10);
-constexpr microhal::GPIO::IOPin rfModule1_RESET(microhal::stm32f4xx::GPIO::Port::PortD, 0);
+extern microhal::SPI &rfModule1_SPI;
+extern microhal::GPIO::IOPin rfModule1_csDat;
+extern microhal::GPIO::IOPin rfModule1_csCon;
+extern microhal::GPIO::IOPin rfModule1_IRQ0;
+extern microhal::GPIO::IOPin rfModule1_IRQ1;
+extern microhal::GPIO::IOPin rfModule1_RESET;
 
 // second RF module pins configuration
-static microhal::SPI &rfModule2_SPI = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin rfModule2_csDat(microhal::stm32f4xx::GPIO::Port::PortB, 8);
-constexpr microhal::GPIO::IOPin rfModule2_csCon(microhal::stm32f4xx::GPIO::Port::PortA, 3);
-constexpr microhal::GPIO::IOPin rfModule2_IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 2);
-constexpr microhal::GPIO::IOPin rfModule2_IRQ1(microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin rfModule2_RESET(microhal::stm32f4xx::GPIO::Port::PortA, 1);
+extern microhal::SPI &rfModule2_SPI;
+extern microhal::GPIO::IOPin rfModule2_csDat;
+extern microhal::GPIO::IOPin rfModule2_csCon;
+extern microhal::GPIO::IOPin rfModule2_IRQ0;
+extern microhal::GPIO::IOPin rfModule2_IRQ1;
+extern microhal::GPIO::IOPin rfModule2_RESET;
 
+extern microhal::GPIO::IOPin Led3;
+extern microhal::GPIO::IOPin Led4;
+extern microhal::GPIO::IOPin Led5;
+extern microhal::GPIO::IOPin Led6;
 
+extern microhal::GPIO::IOPin Sw1;
 
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-constexpr microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
-
-constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
-
-constexpr microhal::GPIO::IOPin GreenLed = Led4;
-constexpr microhal::GPIO::IOPin RedLed = Led3;
+extern microhal::GPIO::IOPin GreenLed;
+extern microhal::GPIO::IOPin RedLed;
 
 #endif /* STM32F4DISCOVERY_H_ */

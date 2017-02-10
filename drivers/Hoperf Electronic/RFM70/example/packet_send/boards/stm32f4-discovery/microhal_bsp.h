@@ -1,4 +1,4 @@
-/* =========================================================================================== *//**
+/* =========================================================================================== */ /**
  @file        STM32F4Discovery.h
  @authors     Michal Karwatowski
  @version     $Id$
@@ -8,7 +8,7 @@
  @copyright   $Copyright$
  @details
 
- *//* ============================================================================================ */
+ */ /* ============================================================================================ */
 /* Created on: 20 sty 2014 */
 
 #ifndef STM32F4DISCOVERY_H_
@@ -20,24 +20,23 @@ namespace bsp {
 
 namespace rfm70 {
 
-static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin csn(microhal::stm32f4xx::GPIO::Port::PortA, 3);
-constexpr microhal::GPIO::IOPin ce(microhal::stm32f4xx::GPIO::Port::PortA, 2);
-
+extern microhal::SPI &spi;
+extern microhal::GPIO::IOPin csn;
+extern microhal::GPIO::IOPin ce;
 }
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
+extern microhal::SerialPort &debugPort;
 
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-constexpr microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+extern microhal::GPIO::IOPin Led3;
+extern microhal::GPIO::IOPin Led4;
+extern microhal::GPIO::IOPin Led5;
+extern microhal::GPIO::IOPin Led6;
 
-constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
+extern microhal::GPIO::IOPin Sw1;
 
-constexpr microhal::GPIO::IOPin lis_ce(microhal::stm32f4xx::GPIO::Port::PortA, 3);
+extern microhal::GPIO::IOPin lis_ce;
 
-constexpr microhal::GPIO::IOPin GreenLed = Led4;
-constexpr microhal::GPIO::IOPin RedLed = Led3;
+extern microhal::GPIO::IOPin GreenLed;
+extern microhal::GPIO::IOPin RedLed;
 }
 #endif /* STM32F4DISCOVERY_H_ */

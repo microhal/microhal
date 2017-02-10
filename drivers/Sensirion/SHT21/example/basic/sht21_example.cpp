@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,10 +24,11 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                           */
 
-#include "microhal.h"
 #include "sht21.h"
+#include "microhal.h"
 #include "microhal_bsp.h"
 
 #include <stdio.h>
@@ -38,25 +39,26 @@ using namespace std::literals::chrono_literals;
 
 int main(void) {
     debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+    debugPort.setStopBits(SerialPort::OneStop);
+    debugPort.setParity(SerialPort::NoParity);
+    debugPort.open(SerialPort::ReadWrite);
+    debugPort.setBaudRate(SerialPort::Baud115200);
 
-	debugPort.write("\n\r------------------- SHT21 Demo -------------------------\n\r");
-	diagChannel.setOutputDevice(debugPort);
+    debugPort.write("\n\r------------------- SHT21 Demo -------------------------\n\r");
+    diagChannel.setOutputDevice(debugPort);
 
-	SHT21 sht(sensorI2C);
+    SHT21 sht(sensorI2C);
 
-    char buffer[100];
+    char buffer[100] = {};
     std::this_thread::sleep_for(1000ms);
-    float temp, humidity;
+    float temp = {};
+    float humidity = {};
     while (1) {
         if (sht.getTemperature(temp) == false) {
-        	diagChannel << lock << MICROHAL_ERROR << "Error in reading temperature\n\r" << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Error in reading temperature\n\r" << unlock;
         }
         if (sht.getHumidity(humidity) == false) {
-        	diagChannel << lock << MICROHAL_ERROR << "Error in reading humidity\n\r" << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Error in reading humidity\n\r" << unlock;
         }
 
         sprintf(buffer, "Temperature: %f, Humidity: %f\n\r", temp, humidity);
