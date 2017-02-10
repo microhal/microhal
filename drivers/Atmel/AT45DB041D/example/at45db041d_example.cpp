@@ -32,7 +32,7 @@ int main(void) {
   }
 
   char txt[] = "Ala ma kota";
-  char buffer[100];
+  char buffer[100] = {};
   at45.bufferWrite(AT45DB041D::BufferNumber::Buffer1, 0x00, txt, sizeof(txt));
 
   at45.bufferToMainMemoryWithErase(AT45DB041D::BufferNumber::Buffer1, 0x00);
