@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   */
 
 #include "hostComm.h"
 #include "microhal.h"
@@ -58,7 +58,6 @@ void proceedPacket(HostCommPacket &packet) {
 }
 
 int main() {
-    fail the build;
     debugPort.open(IODevice::WriteOnly);
 
     communicationPort.setDataBits(SerialPort::Data8);
