@@ -42,8 +42,8 @@ void hardwareConfig(void) {
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
+    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
 
     stm32f4xx::I2C::i2c1.init();
     stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Standard);
