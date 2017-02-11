@@ -116,6 +116,8 @@ class GPIO {
      *
      */
     typedef enum : uint8_t {
+    	Timer_1_2 = 1,
+    	Timer_3_4_5 = 2,
         Serial = 0x07,  //!< Serial
         Serial_4_5_6 = 0x08,
         SPI = 0x05,     //!< Alternate function for SPI 1 and 2

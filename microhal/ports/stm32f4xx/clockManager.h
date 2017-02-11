@@ -83,6 +83,40 @@ class ClockManager {
                 ;  // Error should newer go there
         }
     }
+    static void enable(const TIM_TypeDef &timer) {
+    	if (&timer == TIM1) {
+    		RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+    	} else if (&timer == TIM2) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+		} else if (&timer == TIM3) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+		} else if (&timer == TIM4) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+		} else if (&timer == TIM5) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
+		} else if (&timer == TIM6) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
+		} else if (&timer == TIM7) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;
+		} else if (&timer == TIM8) {
+			RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
+		} else if (&timer == TIM9) {
+			RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
+		} else if (&timer == TIM10) {
+			RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+		} else if (&timer == TIM11) {
+			RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+		} else if (&timer == TIM12) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM12EN;
+		} else if (&timer == TIM13) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM13EN;
+		} else if (&timer == TIM14) {
+			RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
+		} else {
+			while (1)
+				;  // Error should newer go there
+		}
+    }
     //--------------------------------------------------------------------------------------------------------------
     /**
      * @brief This function return usart clock

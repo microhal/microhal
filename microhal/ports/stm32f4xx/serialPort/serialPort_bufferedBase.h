@@ -118,9 +118,12 @@ public:
     }
 
     bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final {
-    	if (txBuffer.isNotEmpty()) {
+    	if (txBuffer.isNotEmpty() || !(usart.SR & USART_SR_TXE)) {
     		txWait = true;
-    		return txFinish.wait(timeout);
+    		if (txFinish.wait(timeout) == false) {
+    			txWait = false;
+    			return false;
+    		}
     	}
     	return true;
     }
