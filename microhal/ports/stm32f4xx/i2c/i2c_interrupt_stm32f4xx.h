@@ -32,7 +32,7 @@
  * INCLUDES
  */
 #include <cstdint>
-#include "../stm32f4xx.h"
+#include "../device/stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
 #include "../clockManager.h"
 #include "microhal_semaphore.h"

@@ -13,7 +13,7 @@
 #include "gpio_stm32f4xx.h"
 #include "interfaces/spi_interface.h"
 #include "microhalPortConfig_stm32f4xx.h"
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 class SPIDevice;

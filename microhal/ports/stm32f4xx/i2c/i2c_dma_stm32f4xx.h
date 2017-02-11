@@ -1,4 +1,4 @@
-/* =========================================================================================== */ /**
+/* =========================================================================================== *//**
  @file        i2cSTM32F4xx.cpp
  @authors     Pawel Okas
  @version     $Id$
@@ -7,8 +7,7 @@
  @hardware    STM32F4xx
  @copyright   $Copyright$
  @details
- */ /* ============================================================================================
-                                                                                                                                                                                                                                                                                                                */
+ *//* ============================================================================================ */
 
 #ifndef I2C_DMA_STM32F4XX_H_
 #define I2C_DMA_STM32F4XX_H_
@@ -19,7 +18,7 @@
 #include "../clockManager.h"
 #include "../dma_stm32f4xx.h"
 #include "../i2c_stm32f4xx.h"
-#include "../stm32f4xx.h"
+#include "../device/stm32f4xx.h"
 #include "microhal_semaphore.h"
 
 namespace microhal {
@@ -89,7 +88,6 @@ class I2C_dma : public stm32f4xx::I2C {
     I2C_dma(I2C_TypeDef &i2c, DMA::Stream &rxStream, DMA::Stream &txStream)
         : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), transfer() {
         init();
-        ClockManager::enable(i2c);
         switch (reinterpret_cast<uint32_t>(&i2c)) {
             case reinterpret_cast<uint32_t>(I2C1):
                 NVIC_EnableIRQ(I2C1_EV_IRQn);

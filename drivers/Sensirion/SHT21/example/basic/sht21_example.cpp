@@ -28,7 +28,7 @@
 
 #include "microhal.h"
 #include "sht21.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
 #include <stdio.h>
 

@@ -13,7 +13,7 @@
 #include <cstdint>
 #include "../clockManager.h"
 #include "../i2c_stm32f4xx.h"
-#include "../stm32f4xx.h"
+#include "../device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {

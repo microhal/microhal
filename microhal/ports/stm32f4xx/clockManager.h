@@ -33,7 +33,7 @@
 #include "microhalPortConfig_stm32f4xx.h"
 #include <type_traits>
 
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -52,12 +52,18 @@ class ClockManager {
             rccEnableFlag = RCC_APB2ENR_USART1EN;
         else if (&usart == USART2)
             rccEnableFlag = RCC_APB1ENR_USART2EN;
+#if defined(USART3)
         else if (&usart == USART3)
             rccEnableFlag = RCC_APB1ENR_USART3EN;
+#endif
+#if defined(UART4)
         else if (&usart == UART4)
             rccEnableFlag = RCC_APB1ENR_UART4EN;
+#endif
+#if defined(UART5)
         else if (&usart == UART5)
             rccEnableFlag = RCC_APB1ENR_UART5EN;
+#endif
         else if (&usart == USART6)
             rccEnableFlag = RCC_APB2ENR_USART6EN;
         else {
@@ -94,29 +100,60 @@ class ClockManager {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
 		} else if (&timer == TIM5) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
+#if defined(TIM6)
 		} else if (&timer == TIM6) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
+#endif
+#if defined(TIM7)
 		} else if (&timer == TIM7) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;
+#endif
+#if defined(TIM8)
 		} else if (&timer == TIM8) {
 			RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
+#endif
 		} else if (&timer == TIM9) {
 			RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
 		} else if (&timer == TIM10) {
 			RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
 		} else if (&timer == TIM11) {
 			RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+#if defined(TIM12)
 		} else if (&timer == TIM12) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM12EN;
+#endif
+#if defined(TIM13)
 		} else if (&timer == TIM13) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM13EN;
+#endif
+#if defined(TIM14)
 		} else if (&timer == TIM14) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
+#endif
 		} else {
 			while (1)
 				;  // Error should newer go there
 		}
     }
+	static void enable(const GPIO_TypeDef &gpio) {
+	if (&gpio == GPIOA)
+			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+	else if (&gpio == GPIOB)
+			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+	else if (&gpio == GPIOC)
+			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+	else if (&gpio == GPIOD)
+			RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+	else if (&gpio == GPIOE)
+			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
+#if defined(GPIOF_BASE)
+	else if (&gpio == GPIOF)
+			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
+#endif
+	else {
+		while (1);
+	}
+}
     //--------------------------------------------------------------------------------------------------------------
     /**
      * @brief This function return usart clock
@@ -129,19 +166,30 @@ class ClockManager {
             return APB2Frequency();
         else if (&usart == USART2)
             return APB1Frequency();
+#if defined(USART3)
         else if (&usart == USART3)
             return APB1Frequency();
+#endif
+#if defined(UART4)
         else if (&usart == UART4)
             return APB1Frequency();
+#endif
+#if defined(UART5)
         else if (&usart == UART5)
             return APB1Frequency();
+#endif
+#if defined(USART6)
         else if (&usart == USART6)
             return APB2Frequency();
+#endif
+#if defined(UART7)
         else if (&usart == UART7)
             return APB1Frequency();
+#endif
+#if defined(UART8)
         else if (&usart == UART8)
             return APB1Frequency();
-
+#endif
         while (1)
             ;  // Error should newer go there
     }
@@ -158,12 +206,18 @@ class ClockManager {
             return APB1Frequency();
         else if (&spi == SPI3)
             return APB1Frequency();
+#if defined(SPI4)
         else if (&spi == SPI4)
             return APB2Frequency();
+#endif
+#if defined(SPI5)
         else if (&spi == SPI5)
             return APB2Frequency();
+#endif
+#if defined(SPI6)
         else if (&spi == SPI6)
             return APB2Frequency();
+#endif
         else {
             while (1)
                 ;  // Error should newer go there
@@ -198,26 +252,38 @@ class ClockManager {
             return APB1Frequency();
         else if (&tim == TIM5)
             return APB1Frequency();
+#if defined(TIM6)
         else if (&tim == TIM6)
             return APB1Frequency();
+#endif
+#if defined(TIM7)
         else if (&tim == TIM7)
             return APB1Frequency();
+#endif
 
+#if defined(TIM8)
         else if (&tim == TIM8)
             return APB2Frequency();
+#endif
         else if (&tim == TIM9)
             return APB2Frequency();
         else if (&tim == TIM10)
             return APB2Frequency();
+
         else if (&tim == TIM11)
             return APB2Frequency();
-
+#if defined(TIM12)
         else if (&tim == TIM12)
             return APB1Frequency();
+#endif
+#if defined(TIM13)
         else if (&tim == TIM13)
             return APB1Frequency();
+#endif
+#if defined(TIM14)
         else if (&tim == TIM14)
             return APB1Frequency();
+#endif
         else {
             while (1)
                 ;  // Error should newer go there

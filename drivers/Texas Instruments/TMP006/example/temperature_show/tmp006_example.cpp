@@ -26,11 +26,11 @@
 
  *//* ========================================================================================================================== */#include "microhal.h"
 
- #include "diagnostic/diagnostic.h"
+#include "diagnostic/diagnostic.h"
 #include "tmp006.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace microhal;
 using namespace diagnostic;
@@ -48,7 +48,7 @@ int main(void) {
 
     diagChannel.setOutputDevice(serialPort);
 
-    TMP006 tmp(sensorI2C, TMP006::I2C_ADDRESS_2);
+    TMP006 tmp(sensorI2C, TMP006::I2C_ADDRESS_1);
 
     uint16_t id;
 
