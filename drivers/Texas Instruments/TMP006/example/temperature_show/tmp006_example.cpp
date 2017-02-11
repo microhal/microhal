@@ -48,7 +48,7 @@ int main(void) {
 
     diagChannel.setOutputDevice(serialPort);
 
-    TMP006 tmp(sensorI2C, TMP006::I2C_ADDRESS_2);
+    TMP006 tmp(sensorI2C, TMP006::I2C_ADDRESS_1);
 
     uint16_t id;
 
