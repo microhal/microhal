@@ -38,6 +38,11 @@ void GPIO::pinInitialize(const Port port_, const uint_fast8_t pin, const PinConf
 
 	ClockManager::enable(*reinterpret_cast<const GPIO_TypeDef *>(port_));
 
+    uint32_t afr = port->AFR[pin / 8];
+    afr &= ~(0b1111 << ((pin % 8) * 4)); // clear old configuration
+    afr |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4); // set new configuration
+    port->AFR[pin / 8] = afr;
+
     // set mode -> config.mode is split to 2 part 4MSB bit
     //      contain alternate function and 4LSB bit contain mode
     uint32_t moder = port->MODER;
@@ -59,11 +64,6 @@ void GPIO::pinInitialize(const Port port_, const uint_fast8_t pin, const PinConf
     ospeedr &= ~(0b11 << (pin*2));  // clear old configuration
     ospeedr |= config.speed << (pin * 2);  // set new configuration
     port->OSPEEDR = ospeedr;
-
-    uint32_t afr = port->AFR[pin / 8];
-    afr &= ~(0b1111 << ((pin % 8) * 4)); // clear old configuration
-    afr |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4); // set new configuration
-    port->AFR[pin / 8] = afr;
 }
 
 }  // namespace stm32f4xx
