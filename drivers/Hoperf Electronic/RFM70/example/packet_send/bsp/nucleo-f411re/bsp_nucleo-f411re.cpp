@@ -42,18 +42,16 @@ void hardwareConfig(void) {
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
-    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
+    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
+    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
+    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
-    stm32f4xx::I2C::i2c1.init();
-    stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Fast);
-    stm32f4xx::I2C::i2c1.enable();
-
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_8);
+    stm32f4xx::SPI::spi1.enable();
 
     SysTick_Config(84000000/1000);
 }
-
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
 
 extern "C" void SysTick_Handler(void)
 {

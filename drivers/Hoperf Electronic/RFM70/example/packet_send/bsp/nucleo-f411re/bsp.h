@@ -28,34 +28,24 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
+#ifndef NUCLEO_F411RE_H_
+#define NUCLEO_F411RE_H_
 
-#include "bsp.h"
+namespace bsp {
 
-using namespace microhal;
-using namespace stm32f4xx;
+namespace rfm70 {
 
-void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+constexpr microhal::GPIO::IOPin csn(microhal::stm32f4xx::GPIO::Port::PortC, 10);
+constexpr microhal::GPIO::IOPin ce(microhal::stm32f4xx::GPIO::Port::PortC, 11);
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
-
-    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
-
-    stm32f4xx::I2C::i2c1.init();
-    stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Fast);
-    stm32f4xx::I2C::i2c1.enable();
-
-
-    SysTick_Config(84000000/1000);
 }
 
-uint64_t SysTick_time = 0;;
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortA, 13);
+constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+
 }
+
+#endif  // NUCLEO_F411RE_H_

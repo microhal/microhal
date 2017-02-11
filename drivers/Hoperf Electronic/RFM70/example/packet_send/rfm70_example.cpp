@@ -70,9 +70,10 @@ int main(void) {
     diagChannel.setOutputDevice(port);
 
     //lis302dl ce pin only discovery f4 board
+#if defined(BSP_STM32F4DISCOVERY)
     GPIO lisCE(bsp::lis_ce, GPIO::Direction::Output);
     lisCE.set();
-    //end of lis
+#endif
 
     GPIO led(bsp::Led3, GPIO::Direction::Output);
     GPIO button(bsp::Sw1, GPIO::Direction::Input);
