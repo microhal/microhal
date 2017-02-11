@@ -31,7 +31,7 @@
 #include "isl29023.h"
 #include "bsp.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace microhal;
 using namespace diagnostic;
