@@ -31,7 +31,7 @@ int main(void) {
     diagChannel << Notice << "Manufacturer ID:" << id << endl;
   }
 
-  char txt[] = "Ala ma kota i psa";
+  char txt[] = "Ala ma kota";
   char buffer[100] = {};
   at45.bufferWrite(AT45DB041D::BufferNumber::Buffer1, 0x00, txt, sizeof(txt));
 
