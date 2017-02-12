@@ -27,9 +27,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "consoleIODevice.h"
-#include "microhal_bsp.h"
+#include "consoleIODevice_linux.h"
 #include "microhal.h"
+#include "microhal_bsp.h"
 
 using namespace microhal;
 using namespace diagnostic;

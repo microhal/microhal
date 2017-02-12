@@ -155,8 +155,7 @@ private:
 //------------------------------------------- variables -----------------------------------------//
 	TIM_TypeDef &timer;
 //------------------------------------------- constructors --------------------------------------//
-	constexpr Timer(TIM_TypeDef &timer) :
-			timer(timer) {
+	constexpr Timer(TIM_TypeDef &timer) : timer(timer) {
 		ClockManager::enable(timer);
 	}
 	//virtual ~timer_stm32f0xx();

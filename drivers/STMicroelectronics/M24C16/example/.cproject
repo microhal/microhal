@@ -58,11 +58,6 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
-									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
-									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 								</option>
@@ -70,21 +65,17 @@
 							</tool>
 							<tool command="${cross_prefix}${cross_c}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} $(MICROHAL_CONFIGURATION_DEFINES) ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GCCErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.2072301046" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.6193186" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/boards/stm32f4-discovery}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/ports/common/cmsis/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/m24c16}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/bsp/stm32f4-discovery}&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1244988123" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 								</option>
@@ -92,13 +83,13 @@
 							</tool>
 							<tool command="${cross_prefix}${cross_cpp}${cross_suffix}" commandLinePattern="${COMMAND} ${cross_toolchain_flags} $(MICROHAL_CONFIGURATION_DEFINES) ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GCCErrorParser" id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.424533692" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.2128575989" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/boards/stm32f4-discovery}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/ports/common/cmsis/Include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/m24c16}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/bsp/stm32f4-discovery}&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions.865032593" name="Do not use exceptions (-fno-exceptions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.615335773" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
@@ -108,8 +99,6 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>

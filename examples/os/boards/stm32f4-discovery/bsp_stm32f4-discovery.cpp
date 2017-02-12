@@ -33,6 +33,8 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial3;
+
 extern "C" int main(int, void*);
 
 static void run_main(void *) {

@@ -19,15 +19,10 @@ void hardwareConfig(void) {
     IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
     IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
 
-//    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortB, 6>();
-//    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortB, 7>();
-
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>(stm32f4xx::GPIO::PullUp);
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>(stm32f4xx::GPIO::PullUp);
+    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
+    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
 
     // configure Serial Port interfaces
-    stm32f4xx::SerialPort::Serial3.clear();
-
     stm32f4xx::SerialPort::Serial3.setDataBits(stm32f4xx::SerialPort::Data8);
 	stm32f4xx::SerialPort::Serial3.setStopBits(stm32f4xx::SerialPort::OneStop);
 	stm32f4xx::SerialPort::Serial3.setParity(stm32f4xx::SerialPort::NoParity);
@@ -35,15 +30,14 @@ void hardwareConfig(void) {
 	stm32f4xx::SerialPort::Serial3.open(stm32f4xx::SerialPort::ReadWrite);
 
     stm32f4xx::I2C::i2c2.init();
-   // stm32f4xx::I2C::i2c2.setMode(microhal::I2C::Mode::Fast);
+    stm32f4xx::I2C::i2c2.setMode(microhal::I2C::Mode::Standard);
     stm32f4xx::I2C::i2c2.enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
+extern "C" void SysTick_Handler(void) {
 	SysTick_time++;
 }

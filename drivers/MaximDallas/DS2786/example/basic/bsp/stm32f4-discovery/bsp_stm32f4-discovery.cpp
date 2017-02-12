@@ -26,12 +26,11 @@ void hardwareConfig(void) {
     stm32f4xx::I2C::i2c2.setMode(microhal::I2C::Mode::Fast);
     stm32f4xx::I2C::i2c2.enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
+extern "C" void SysTick_Handler(void) {
 	SysTick_time++;
 }

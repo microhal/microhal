@@ -26,12 +26,11 @@ void hardwareConfig(void) {
     stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_16);
     stm32f4xx::SPI::spi1.enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

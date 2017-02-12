@@ -32,4 +32,5 @@
 static microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial3;
 static microhal::SerialPort &serialPortB = microhal::stm32f4xx::SerialPort::Serial4;
 
+
 #endif /* STM32F4DISCOVERY_H_ */

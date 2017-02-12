@@ -41,12 +41,11 @@ void hardwareConfig(void) {
     IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
 
     IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-	IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-	IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
+    IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
-	IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-	IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
-
+    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
+    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
 
     debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
@@ -57,7 +56,7 @@ void hardwareConfig(void) {
     stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_16);
     stm32f4xx::SPI::spi1.enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 //uint64_t SysTick_time = 0;

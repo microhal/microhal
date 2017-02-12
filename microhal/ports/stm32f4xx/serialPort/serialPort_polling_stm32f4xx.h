@@ -112,7 +112,7 @@ private:
      * @param[in] maxSize - size of data to copy.
      * @return number of bytes stored in data buffer.
      */
-    size_t read(char *data, size_t length, std::chrono::milliseconds timeout) noexcept final {
+    size_t read(char *data, size_t length, std::chrono::milliseconds timeout __attribute__((unused))) noexcept final {
         size_t tmp = length;
         while (length--) {
             getChar(*data++);
