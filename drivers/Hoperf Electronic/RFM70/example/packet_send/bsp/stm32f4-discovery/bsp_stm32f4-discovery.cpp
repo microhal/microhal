@@ -23,7 +23,7 @@ void hardwareConfig(void) {
     stm32f4xx::IOManager::routeSPI<Spi1, MISO, stm32f4xx::GPIO::PortA, 6>();
     stm32f4xx::IOManager::routeSPI<Spi1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_16);
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_16);
     stm32f4xx::SPI::spi1.enable();
 
     SysTick_Config(168000000/1000);

@@ -59,7 +59,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_I2C1_INTERRUPT		//available settings are MICROHAL_USE_I2Cx_POLLING
+//#define MICROHAL_USE_I2C1_INTERRUPT		//available settings are MICROHAL_USE_I2Cx_POLLING
 										//						 MICROHAL_USE_I2Cx_INTERRUPT
 										//						 MICROHAL_USE_I2Cx_DMA
 #define MICROHAL_I2C1_DMA_RX_STREAM 0	//possible streams are 0 and 5

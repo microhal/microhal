@@ -5,9 +5,9 @@
  *      Author: pawel
  */
 #include "microhal.h"
-#include "microhal_bsp.h"
 #include "SPIDevice/SPIDevice.h"
 #include "i2c.h"
+#include "bsp.h"
 
 using namespace microhal;
 using namespace stm32f4xx;

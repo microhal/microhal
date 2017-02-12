@@ -21,8 +21,8 @@ namespace bsp {
 namespace rfm70 {
 
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin csn(microhal::stm32f4xx::GPIO::Port::PortA, 3);
-constexpr microhal::GPIO::IOPin ce(microhal::stm32f4xx::GPIO::Port::PortA, 2);
+constexpr microhal::GPIO::IOPin csn(microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::GPIO::IOPin ce(microhal::stm32f4xx::GPIO::Port::PortE, 5);
 
 }
 

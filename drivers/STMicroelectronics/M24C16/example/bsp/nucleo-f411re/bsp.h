@@ -28,32 +28,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
+#ifndef NUCLEO_F411RE_H_
+#define NUCLEO_F411RE_H_
 
-#include "bsp.h"
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-using namespace microhal;
-using namespace stm32f4xx;
+static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c1;
 
-void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
-
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
-
-    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
-
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_8);
-    stm32f4xx::SPI::spi1.enable();
-
-    SysTick_Config(84000000/1000);
-}
-uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
-}
+#endif  // NUCLEO_F411RE_H_

@@ -42,16 +42,25 @@ void hardwareConfig(void) {
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
-    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_8);
-    stm32f4xx::SPI::spi1.enable();
+    // configure Serial Port interfaces
+    stm32f4xx::SerialPort::Serial2.setDataBits(stm32f4xx::SerialPort::Data8);
+	stm32f4xx::SerialPort::Serial2.setStopBits(stm32f4xx::SerialPort::OneStop);
+	stm32f4xx::SerialPort::Serial2.setParity(stm32f4xx::SerialPort::NoParity);
+	stm32f4xx::SerialPort::Serial2.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+	stm32f4xx::SerialPort::Serial2.open(stm32f4xx::SerialPort::ReadWrite);
+
+    stm32f4xx::I2C::i2c1.init();
+    stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Standard);
+    stm32f4xx::I2C::i2c1.enable();
+
 
     SysTick_Config(84000000/1000);
 }
-uint64_t SysTick_time = 0;
+
+uint64_t SysTick_time = 0;;
 
 extern "C" void SysTick_Handler(void)
 {

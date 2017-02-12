@@ -49,21 +49,17 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
 
-//#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
 
-#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
-#define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 128
-
-//#define MICROHAL_USE_SERIAL_PORT4_INTERRUPT
-#define MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE 128
+//#define MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 128
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//
-//#define MICROHAL_USE_I2C1_POLLING		//available settings are MICROHAL_USE_I2Cx_POLLING
+#define MICROHAL_USE_I2C1_INTERRUPT		//available settings are MICROHAL_USE_I2Cx_POLLING
 										//						 MICROHAL_USE_I2Cx_INTERRUPT
 										//						 MICROHAL_USE_I2Cx_DMA
 #define MICROHAL_I2C1_DMA_RX_STREAM 0	//possible streams are 0 and 5
@@ -79,7 +75,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                        SPI configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_SPI1_INTERRUPT		//available settings are MICROHAL_USE_SPIx_POLLING
+//#define MICROHAL_USE_SPI1_POLLING			//available settings are MICROHAL_USE_SPIx_POLLING
 										//						 MICROHAL_USE_SPIx_INTERRUPT
 										//						 MICROHAL_USE_SPIx_DMA
 #define MICROHAL_SPI1_DMA_RX_STREAM 2	//possible streams are 0 and 2 this options are valid only when MICROHAL_USE_SPIx_DMA is defined

@@ -148,6 +148,10 @@ public:
         this->cePin.set();
     }
 //------------------------------------------ functions ----------------------------------------
+    bool isSPIModeSupported(microhal::SPI::Mode mode) {
+    	return mode == microhal::SPI::Mode::Mode0;
+    }
+
     bool init(void);
 
     inline uint32_t getID();

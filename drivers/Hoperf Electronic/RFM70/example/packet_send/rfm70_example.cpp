@@ -98,7 +98,7 @@ int main(void) {
         led.toggle();
 
         //if button pressed
-        if (button.isSet()) {
+        if (button.isReset()) {
             diagChannel << Notice << "Sending packet" << endl;
             //switch to tx mode
             rfm.switchToTX();
