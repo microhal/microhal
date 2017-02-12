@@ -20,9 +20,9 @@ static void delay(std::chrono::duration<long long, std::ratio<1ll, 1ll> > s, uin
 }
 
 static void delay(std::chrono::duration<long long, std::ratio<1ll, 1000000000ll> > ns, uint32_t clock) {
-	auto nsec = ns.count() / 1000;
-	while (nsec--) {
-		volatile uint32_t i = clock/1000000;
+	auto usec = ns.count() / 1000;
+	while (usec--) {
+		volatile uint32_t i = clock/7500000;
 		while(i--);
 	}
 }
