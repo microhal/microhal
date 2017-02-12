@@ -40,7 +40,11 @@ int main(void) {
     debugPort.write("\n\r----------------- LIS331HH demo -----------------\n\r");
     diagChannel.setOutputDevice(debugPort);
 
-    lis331hh.init(LIS331HH::Axis::all, LIS331HH::PowerMode::normalMode, LIS331HH::Sensitivity::sensitivity6g, LIS331HH::DataRate::normalMode_1000Hz);
+    if (false ==
+        lis331hh.init(LIS331HH::Axis::all, LIS331HH::PowerMode::normalMode, LIS331HH::Sensitivity::sensitivity6g,
+                      LIS331HH::DataRate::normalMode_1000Hz)) {
+        diagChannel << lock << MICROHAL_ERROR << "Initialization error" << unlock;
+    }
     LIS331HH::Axis axis;
     Acceleration x, y, z;
     while (1) {

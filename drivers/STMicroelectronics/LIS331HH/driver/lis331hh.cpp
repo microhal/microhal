@@ -24,11 +24,134 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */ /* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 #include "lis331hh.h"
+#include "I2CDevice.h"
 
 using namespace microhal::diagnostic;
+using namespace microhal;
+
+bool LIS331HH::setAxis(Axis axis) {
+    return I2C::Error::NoError == bitsModify(CTRL_REG1, static_cast<uint8_t>(axis), CTRL_REG1_Masks::axis_mask);
+}
+
+bool LIS331HH::setSpeed(PowerMode powerMode, DataRate dataRate) {
+    if (PowerMode::normalMode == powerMode) {
+        if (I2C::Error::NoError != bitsModify(CTRL_REG1, static_cast<uint8_t>(dataRate), CTRL_REG1_Masks::DR_mask)) {
+            return false;
+        }
+    }
+    return I2C::Error::NoError == bitsModify(CTRL_REG1, static_cast<uint8_t>(powerMode), CTRL_REG1_Masks::PM_mask);
+}
+
+bool LIS331HH::setSensitivity(Sensitivity sensitivity) {
+    if (I2C::Error::NoError == bitsModify(CTRL_REG4, static_cast<uint8_t>(sensitivity) << CTRL_REG4_Offset::FS_offset, CTRL_REG4_Masks::FS_mask)) {
+        switch (sensitivity) {
+            case Sensitivity::sensitivity6g:
+                sensitivityMultiplyer = 6.0 / static_cast<float>(INT16_MAX);
+                break;
+            case Sensitivity::sensitivity12g:
+                sensitivityMultiplyer = 12.0 / static_cast<float>(INT16_MAX);
+                break;
+            case Sensitivity::sensitivity24g:
+                sensitivityMultiplyer = 24.0 / static_cast<float>(INT16_MAX);
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool LIS331HH::dataAvailable(Axis &axis) {
+    uint8_t statusRegisterValue;
+    if (I2C::Error::NoError == read(STATUS_REG, statusRegisterValue)) {
+        if (STATUS_REG_Flags::ZYXDA == (statusRegisterValue & STATUS_REG_Flags::ZYXDA)) {
+            axis = Axis::all;
+        } else {
+            if (STATUS_REG_Flags::XDA == (statusRegisterValue & STATUS_REG_Flags::XDA)) {
+                axis |= Axis::X;
+            }
+            if (STATUS_REG_Flags::YDA == (statusRegisterValue & STATUS_REG_Flags::YDA)) {
+                axis |= Axis::Y;
+            }
+            if (STATUS_REG_Flags::ZDA == (statusRegisterValue & STATUS_REG_Flags::ZDA)) {
+                axis |= Axis::Z;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+bool LIS331HH::dataOverrwritten(Axis &axis) {
+    uint8_t statusRegisterValue;
+    if (I2C::Error::NoError == read(STATUS_REG, statusRegisterValue)) {
+        if (STATUS_REG_Flags::ZYXOR == (statusRegisterValue & STATUS_REG_Flags::ZYXOR)) {
+            axis = Axis::all;
+        } else {
+            if (STATUS_REG_Flags::XOR == (statusRegisterValue & STATUS_REG_Flags::XOR)) {
+                axis |= Axis::X;
+            }
+            if (STATUS_REG_Flags::YOR == (statusRegisterValue & STATUS_REG_Flags::YOR)) {
+                axis |= Axis::Y;
+            }
+            if (STATUS_REG_Flags::ZOR == (statusRegisterValue & STATUS_REG_Flags::ZOR)) {
+                axis |= Axis::Z;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+std::experimental::optional<Acceleration> LIS331HH::getAcceleration(Axis axis) {
+    int16_t accelerationData;
+    std::experimental::optional<Acceleration> returnObject;
+    switch (axis) {
+        case Axis::X:
+            if (I2C::Error::NoError != read(OUT_X, accelerationData)) {
+                return returnObject;
+            }
+            break;
+        case Axis::Y:
+            if (I2C::Error::NoError != read(OUT_Y, accelerationData)) {
+                return returnObject;
+            }
+            break;
+        case Axis::Z:
+            if (I2C::Error::NoError != read(OUT_Z, accelerationData)) {
+                return returnObject;
+            }
+            break;
+        default:
+            return returnObject;
+    }
+    returnObject = Acceleration(static_cast<float>(accelerationData) * sensitivityMultiplyer);
+    return returnObject;
+}
+
+bool LIS331HH::getAcceleration(Acceleration &xAcceleration, Acceleration &yAcceleration, Acceleration &zAcceleration) {
+    int16_t accelerationDataX;
+    int16_t accelerationDataY;
+    int16_t accelerationDataZ;
+    if (I2C::Error::NoError != read(OUT_X, accelerationDataX)) {
+        return false;
+    }
+    if (I2C::Error::NoError != read(OUT_Y, accelerationDataY)) {
+        return false;
+    }
+    if (I2C::Error::NoError != read(OUT_Z, accelerationDataZ)) {
+        return false;
+    }
+    xAcceleration = Acceleration(static_cast<float>(accelerationDataX) * sensitivityMultiplyer);
+    yAcceleration = Acceleration(static_cast<float>(accelerationDataY) * sensitivityMultiplyer);
+    zAcceleration = Acceleration(static_cast<float>(accelerationDataZ) * sensitivityMultiplyer);
+    return true;
+}
 
 // bool MAG3110::init() {
 //  uint8_t whoAmI;
