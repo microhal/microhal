@@ -5,27 +5,34 @@
  *      Author: pawel
  */
 
-//#include "empty_port.h"
 #include <thread>
 
 #include <sys/time.h>
+#include "ports/manager/hardware.h"
+
+
+static void delay(std::chrono::duration<long long, std::ratio<1ll, 1ll> > s, uint32_t clock) {
+	auto sec = s.count();
+	while (sec--) {
+		volatile uint32_t i = clock/4;
+		while(i--);
+	}
+}
+
+static void delay(std::chrono::duration<long long, std::ratio<1ll, 1000000000ll> > ns, uint32_t clock) {
+	auto nsec = ns.count() / 1000;
+	while (nsec--) {
+		volatile uint32_t i = clock/1000000;
+		while(i--);
+	}
+}
 
 void std::this_thread::__sleep_for(std::chrono::duration<long long, std::ratio<1ll, 1ll> > s,
         std::chrono::duration<long long, std::ratio<1ll, 1000000000ll> > ns) {
 
-    volatile uint32_t delay = ns.count() / 1000 ;
-    delay += s.count() * 1000000;
-
-    // diagChannel << Warning << "delay [ms]: " << (uint32_t) delay << endl;
-
-    volatile uint32_t i;
-
-    while (delay--) {
-        i = 22;
-        while (i--) {
-        }
-    }
-
+	const uint32_t clock = microhal::hardware::Device::coreFrequency();
+	delay(s, clock);
+	delay(ns, clock);
 }
 
 extern uint64_t SysTick_time;
