@@ -33,6 +33,7 @@
  */
 #include "microhal.h"
 #include "SPIDevice/SPIDevice.h"
+#include "gsl/span"
 /* ************************************************************************************************
  * DEFINES
  */
@@ -120,6 +121,7 @@ private:
         STATUS_TX_FULL = 0x01 //!< STATUS_TX_FULL
     };
 public:
+    using span  = gsl::span<uint8_t>;
     /**
      *  Value of fixed registers.
      */
@@ -162,8 +164,29 @@ public:
     void switchToRX();
     void switchToTX();
 
-    inline bool sendPacket(uint8_t *buffer, uint16_t length, uint8_t pipe);
-    inline bool sendPacket(uint8_t *buffer, uint16_t length, PacketType type = NO_ACK);
+    /**
+     *
+     * @param buffer
+     * @param length
+     * @param pipe
+     * @return
+     */
+    bool sendPacket(const span packet, uint8_t pipe) {
+        if (pipe <= 5) {
+            return writeRegisters(W_ACK_PAYLOAD_CMD | pipe, packet.data(), packet.length_bytes());
+        }
+        return false;
+    }
+    /**
+     *
+     * @param buffer
+     * @param length
+     * @param type
+     * @return
+     */
+    bool sendPacket(const gsl::span<const uint8_t> packet, PacketType type) {
+        return writeRegisters(type, packet.data(), packet.length_bytes());
+    }
 
     bool getPacket(uint8_t *rx_buf);
 
@@ -249,27 +272,5 @@ uint32_t RFM70::getID() {
 
     return id;
 }
-/**
- *
- * @param buffer
- * @param length
- * @param pipe
- * @return
- */
-bool RFM70::sendPacket(uint8_t *buffer, uint16_t length, uint8_t pipe) {
-    if (pipe <= 5) {
-        return writeRegisters(W_ACK_PAYLOAD_CMD | pipe, buffer, length);
-    }
-    return false;
-}
-/**
- *
- * @param buffer
- * @param length
- * @param type
- * @return
- */
-bool RFM70::sendPacket(uint8_t *buffer, uint16_t length, PacketType type) {
-    return writeRegisters(type, buffer, length);
-}
+
 #endif /* RFM70_H_ */

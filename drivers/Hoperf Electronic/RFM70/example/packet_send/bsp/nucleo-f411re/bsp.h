@@ -33,12 +33,23 @@
 
 namespace bsp {
 
+namespace con1 {
+namespace a {
+constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 11);
+constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 10);
+constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortD, 2);
+constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortB, 13);
+//constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortC, 12);
+}
+}
+
 namespace rfm70 {
 
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin csn(microhal::stm32f4xx::GPIO::Port::PortC, 10);
-constexpr microhal::GPIO::IOPin ce(microhal::stm32f4xx::GPIO::Port::PortC, 11);
-
+constexpr microhal::GPIO::IOPin csn = con1::a::io2;
+constexpr microhal::GPIO::IOPin ce = con1::a::io1;
+constexpr microhal::GPIO::IOPin irq = con1::a::io4;
 }
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;

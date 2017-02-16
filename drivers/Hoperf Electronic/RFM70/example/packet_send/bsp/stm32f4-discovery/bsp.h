@@ -18,12 +18,31 @@
 
 namespace bsp {
 
+namespace con1 {
+namespace a {
+constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortE, 5);
+constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortC, 13);
+constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortE, 6);
+constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortE, 4);
+constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortE, 2);
+constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortC, 14);
+}
+namespace b {
+constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 5);
+constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortB, 1);
+constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortE, 9);
+constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortE, 11);
+constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortE, 4);
+constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortE, 7);
+}
+}
+
 namespace rfm70 {
-
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin csn(microhal::stm32f4xx::GPIO::Port::PortC, 15);
-constexpr microhal::GPIO::IOPin ce(microhal::stm32f4xx::GPIO::Port::PortE, 5);
-
+constexpr microhal::GPIO::IOPin csn = con1::a::io2;
+constexpr microhal::GPIO::IOPin ce = con1::a::io1;
+constexpr microhal::GPIO::IOPin irq = con1::a::io4;
 }
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
