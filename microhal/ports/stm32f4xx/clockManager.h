@@ -89,6 +89,29 @@ class ClockManager {
                 ;  // Error should newer go there
         }
     }
+    static void enable(const SPI_TypeDef &spi) {
+        if (&spi == SPI1)
+            RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+        else if (&spi == SPI2)
+            RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+        else if (&spi == SPI3)
+            RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+    #if defined(SPI4)
+        else if (&spi == SPI4)
+        	RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
+    #endif
+    #if defined(SPI5)
+        else if (&spi == SPI5)
+            RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
+    #endif
+    #if defined(SPI6)
+        else if (&spi == SPI6)
+            RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
+    #endif
+        else {
+        	while (1); // Error should newer go there
+        }
+    }
     static void enable(const TIM_TypeDef &timer) {
     	if (&timer == TIM1) {
     		RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;

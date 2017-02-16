@@ -385,8 +385,8 @@ bool SPIDevice::readRegisters(uint8_t registerAddress, uint8_t *buffer, size_t l
     // activate spi device
     cePin.reset();
 
-    bool status = spi.write(registerAddress, false);
-    if (status == true) {
+    bool status = false;
+    if (spi.write(registerAddress, false) == SPI::NoError) {
         // status = readBuffer(buffer, length, true);
         status = readBuffer(buffer, length);
     }
