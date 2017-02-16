@@ -9,7 +9,7 @@
  @details
 
  */ /* ============================================================================================
-                                                                                                          */
+                                                                                                                                                                                                             */
 /* Created on: 20 sty 2014 */
 
 #ifndef STM32F4DISCOVERY_H_
@@ -19,7 +19,7 @@
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c2;
+static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c3;
 
 constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
 constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);

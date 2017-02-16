@@ -31,8 +31,11 @@
 #include "microhal_bsp.h"
 #include "units/acceleration.h"
 
+#include <thread>
+
 using namespace microhal;
 using namespace diagnostic;
+using namespace std::literals::chrono_literals;
 
 LIS331HH lis331hh(sensorI2C, LIS331HH::Address::I2CaddressLowSA0);
 
@@ -40,18 +43,16 @@ int main(void) {
     debugPort.write("\n\r----------------- LIS331HH demo -----------------\n\r");
     diagChannel.setOutputDevice(debugPort);
 
-    if (false ==
-        lis331hh.init(LIS331HH::Axis::all, LIS331HH::PowerMode::normalMode, LIS331HH::Sensitivity::sensitivity6g,
-                      LIS331HH::DataRate::normalMode_1000Hz)) {
+    if (false == lis331hh.init(LIS331HH::Axis::all, LIS331HH::PowerMode::lowPower_10Hz, LIS331HH::Sensitivity::sensitivity24g)) {
         diagChannel << lock << MICROHAL_ERROR << "Initialization error" << unlock;
     }
     LIS331HH::Axis axis;
     Acceleration x, y, z;
     while (1) {
         if (lis331hh.dataAvailable(axis)) {
-            if ((axis | LIS331HH::Axis::all) == LIS331HH::Axis::all) {
+            if ((axis & LIS331HH::Axis::all) == LIS331HH::Axis::all) {
                 if (lis331hh.getAcceleration(x, y, z)) {
-                    diagChannel << lock << MICROHAL_NOTICE << "x=" << x << " y=" << y << " z=" << z << unlock;
+                    diagChannel << lock << Notice << "\n\rx=" << x << " y=" << y << " z=" << z << unlock;
                 } else {
                     diagChannel << lock << MICROHAL_ERROR << "Transaction error" << unlock;
                 }
