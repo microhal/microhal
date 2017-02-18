@@ -43,7 +43,6 @@ class ClockManager {
     using Frequency = uint32_t;
 
     ClockManager() = delete;
-    // virtual ~ClockManager();
     // ------------------------- functions used for enable clock ------------------------------------------------------
     static void enable(const USART_TypeDef &usart) {
         uint32_t rccEnableFlag;
@@ -323,8 +322,7 @@ class ClockManager {
                 freq = HSE::frequency();
                 break;
             case RCC_CFGR_SWS_1:
-                // freq = PLLCLKFrequency();
-                freq = 168000000;
+                freq = PLLCLKFrequency();
                 break;
         }
         return freq;
@@ -393,7 +391,7 @@ class ClockManager {
          */
         static constexpr Frequency frequency() noexcept {
             static_assert(externalClockFrequency >= 4000000 && externalClockFrequency <= 26000000,
-                          "External HES frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
+                          "External HSE frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
             if (externalClockPresent == false) {
                 while (1)
                     ;
@@ -447,7 +445,10 @@ class ClockManager {
          private:
             static float VCOOutputFrequency() noexcept { return inputFrequency() * N(); }
             static uint32_t N() noexcept { return (RCC->PLLCFGR >> 6) & 0x1FF; }
-            static uint32_t P() noexcept { return (RCC->PLLCFGR >> 16) & 0b11; }
+            static uint32_t P() noexcept {
+            	const uint32_t tab[] = {2, 4, 6, 8};
+            	return tab[(RCC->PLLCFGR >> 16) & 0b11];
+            }
             static uint32_t Q() noexcept { return (RCC->PLLCFGR >> 24) & 0xF; }
         };
 
