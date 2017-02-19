@@ -28,11 +28,13 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NUCLEO_F411RE_H_
-#define NUCLEO_F411RE_H_
+#ifndef NUCLEO_F334R8_H_
+#define NUCLEO_F334R8_H_
 
-static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial2;
+#include "microhal.h"
 
-static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
+static microhal::SerialPort &serialPort = microhal::stm32f3xx::SerialPort::Serial2;
 
-#endif  // NUCLEO_F411RE_H_
+static microhal::I2C &i2c = microhal::stm32f3xx::I2C::i2c1;
+
+#endif  // NUCLEO_F334F8_H_

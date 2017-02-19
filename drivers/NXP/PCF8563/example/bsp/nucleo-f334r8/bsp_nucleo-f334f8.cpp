@@ -28,11 +28,34 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NUCLEO_F411RE_H_
-#define NUCLEO_F411RE_H_
+#include "microhal.h"
 
-static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial2;
+#include "bsp.h"
 
-static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
+using namespace microhal;
+using namespace stm32f3xx;
 
-#endif  // NUCLEO_F411RE_H_
+void hardwareConfig(void) {
+   // Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
+
+    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+
+    IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
+
+    stm32f3xx::I2C::i2c1.init();
+    stm32f3xx::I2C::i2c1.setMode(microhal::I2C::Mode::Fast);
+    stm32f3xx::I2C::i2c1.enable();
+
+
+    SysTick_Config(8000000/1000);
+}
+
+uint64_t SysTick_time = 0;;
+
+extern "C" void SysTick_Handler(void)
+{
+	SysTick_time++;
+}
