@@ -137,6 +137,24 @@ class IOManager {
                 }
             }
         }
+	template<int i2cNumber, i2cPinType i2cType, GPIO::Port port, GPIO::Pin pinNr>
+	static void routeI2C(stm32f3xx::GPIO::PullType pull =
+			stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type =
+			stm32f3xx::GPIO::OpenDrain) {
+		static_assert (i2cNumber != 0, "I2C port numbers starts from 1.");
+		static_assert (i2cNumber <= 3, "STM32F4xx has only 3 I2C.");
+		//assert for I2C1
+		static_assert( (i2cNumber != 1 || i2cType != SDA || ((port == GPIO::PortB && pinNr == 7) || (port == GPIO::PortB && pinNr == 9))), "I2C1 SDA can be connected only to: PortB.7 or PortB.9.");
+		static_assert( (i2cNumber != 1 || i2cType != SCL || ((port == GPIO::PortB && pinNr == 6) || (port == GPIO::PortB && pinNr == 8))), "I2C1 SCL can be connected only to: PortB.6 or PortB.8.");
+		//assert for I2C2
+		static_assert( (i2cNumber != 2 || i2cType != SDA || (port == GPIO::PortB && pinNr == 11)), "I2C2 SDA can be connected only to: PortB.11.");
+		static_assert( (i2cNumber != 2 || i2cType != SCL || (port == GPIO::PortB && pinNr == 10)), "I2C2 SCL can be connected only to: PortB.10.");
+		//assert for I2C3
+		static_assert( (i2cNumber != 3 || i2cType != SDA || (port == GPIO::PortC && pinNr == 9) ), "I2C3 SDA can be connected only to: PortC.9.");
+		static_assert( (i2cNumber != 3 || i2cType != SCL || (port == GPIO::PortA && pinNr == 8) ), "I2C3 SCL can be connected only to: PortA.8.");
+
+		stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::I2C, pull, type);
+	}
 
     // clang-format on
 
