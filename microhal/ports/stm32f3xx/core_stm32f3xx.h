@@ -63,98 +63,98 @@ class Core {  // this class is not tested completely
         SCB->CPACR |= ((3UL << 10 * 2) | (3UL << 11 * 2));  // set CP10 and CP11 Full Access
     }
 
-    static uint32_t getHSIfrequency() { return 8000000; }
-    static uint32_t getHSEfrequency() { return hse_value; }
-    static uint32_t getPLLinputClock() {
-        switch (RCC->CFGR & RCC_CFGR_PLLSRC_Msk) {
-            case RCC_CFGR_PLLSRC_HSI_DIV2:
-                return (getHSIfrequency() / 2) / (((RCC->CFGR & RCC_CFGR_PLLXTPRE_Msk) >> RCC_CFGR_PLLXTPRE_Pos) + 1);
-            case RCC_CFGR_PLLSRC_HSE_PREDIV:
-                return (getHSEfrequency() / (RCC->CFGR2 + 1)) / (((RCC->CFGR & RCC_CFGR_PLLXTPRE_Msk) >> RCC_CFGR_PLLXTPRE_Pos) + 1);
-        }
-    }
-    static uint32_t getPLLMultiplier() { return ((RCC->CFGR & RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos) + 2; }
-    static uint32_t getPLLfrequency() {
-        uint32_t multiplier;
-        uint32_t divider;
-        uint32_t result = getPLLinputClock();
-        result *= getPLLMultiplier();
-        return result;
-    }
-    static uint32_t getSYSCLKfrequency() {
-        switch (RCC->CFGR & RCC_CFGR_SWS) {
-            case RCC_CFGR_SWS_HSI:
-                return getHSIfrequency();
-                break;
-            case RCC_CFGR_SWS_HSE:
-                return getHSEfrequency();
-                break;
-            case RCC_CFGR_SWS_PLL:
-                return getPLLfrequency();
-                break;
-        }
-    }
-    static uint32_t getAPB1frequency() {
-        uint32_t result = getAHBfrequency();
-        uint32_t divider = 1;
-        volatile uint32_t cfgr = RCC->CFGR;
-        if ((RCC->CFGR & RCC_CFGR_PPRE1_Msk) >> (RCC_CFGR_PPRE1_Pos + 2) != 0) {
-            divider = 2 << ((((RCC->CFGR & RCC_CFGR_PPRE1_Msk) >> RCC_CFGR_PPRE1_Pos) - 3) - 1);
-        }
-        return result / divider;
-    }
-
-    static uint32_t getAPB2frequency() {
-        uint32_t result = getAHBfrequency();
-        uint32_t divider = 1;
-        if ((RCC->CFGR & RCC_CFGR_PPRE2_Msk) >> (RCC_CFGR_PPRE2_Pos + 2) != 0) {
-            divider = 2 << ((((RCC->CFGR & RCC_CFGR_PPRE2_Msk) >> RCC_CFGR_PPRE2_Pos) - 3) - 1);
-        }
-        return result / divider;
-    }
-
-    static uint32_t getAHBfrequency() {
-        uint32_t result = getSYSCLKfrequency();
-        uint32_t divider = 1;
-        if ((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> (RCC_CFGR_HPRE_Pos + 3) != 0) {
-            if (((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> RCC_CFGR_HPRE_Pos) <= 11) {
-                divider = 2 << ((((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> RCC_CFGR_HPRE_Pos) - 7) - 1);
-            } else {
-                divider = 2 << ((((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> RCC_CFGR_HPRE_Pos) - 6) - 1);
-            }
-        }
-        return result / divider;
-    }
-
-    static void FreqTest() {
-        volatile uint32_t freq;
-        freq = Core::getHSEfrequency();
-        freq = Core::getPLLinputClock();
-        freq = Core::getSYSCLKfrequency();
-        freq = Core::getAHBfrequency();
-        freq = Core::getAPB1frequency();
-        freq = Core::getAPB2frequency();
-    }
-
-    static void SetUSART1ClockSource(UsartClockSource source) { RCC->CFGR3 = (source << RCC_CFGR3_USART1SW_Pos) & RCC_CFGR3_USART1SW_Msk; }
-
-    static uint32_t GetUSARTclk(USART_TypeDef *usart) {
-        uint32_t cfgr3 = RCC->CFGR3;
-        switch (reinterpret_cast<uint32_t>(usart)) {
-            case reinterpret_cast<uint32_t>(USART1):
-                switch (((cfgr3 & RCC_CFGR3_USART1SW_Msk) >> RCC_CFGR3_USART1SW_Pos)) {
-                    case PCLK:
-                        return getAPB2frequency();
-                        break;
-
-                    default:
-                        return 0;
-                }
-
-            default:
-                return 0;
-        }
-    }
+//    static uint32_t getHSIfrequency() { return 8000000; }
+//    static uint32_t getHSEfrequency() {/* return hse_value;*/ }
+//    static uint32_t getPLLinputClock() {
+//        switch (RCC->CFGR & RCC_CFGR_PLLSRC_Msk) {
+//            case RCC_CFGR_PLLSRC_HSI_DIV2:
+//                return (getHSIfrequency() / 2) / (((RCC->CFGR & RCC_CFGR_PLLXTPRE_Msk) >> RCC_CFGR_PLLXTPRE_Pos) + 1);
+//            case RCC_CFGR_PLLSRC_HSE_PREDIV:
+//                return (getHSEfrequency() / (RCC->CFGR2 + 1)) / (((RCC->CFGR & RCC_CFGR_PLLXTPRE_Msk) >> RCC_CFGR_PLLXTPRE_Pos) + 1);
+//        }
+//    }
+//    static uint32_t getPLLMultiplier() { return ((RCC->CFGR & RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos) + 2; }
+//    static uint32_t getPLLfrequency() {
+//        uint32_t multiplier;
+//        uint32_t divider;
+//        uint32_t result = getPLLinputClock();
+//        result *= getPLLMultiplier();
+//        return result;
+//    }
+//    static uint32_t getSYSCLKfrequency() {
+//        switch (RCC->CFGR & RCC_CFGR_SWS) {
+//            case RCC_CFGR_SWS_HSI:
+//                return getHSIfrequency();
+//                break;
+//            case RCC_CFGR_SWS_HSE:
+//                return getHSEfrequency();
+//                break;
+//            case RCC_CFGR_SWS_PLL:
+//                return getPLLfrequency();
+//                break;
+//        }
+//    }
+//    static uint32_t getAPB1frequency() {
+//        uint32_t result = getAHBfrequency();
+//        uint32_t divider = 1;
+//        volatile uint32_t cfgr = RCC->CFGR;
+//        if ((RCC->CFGR & RCC_CFGR_PPRE1_Msk) >> (RCC_CFGR_PPRE1_Pos + 2) != 0) {
+//            divider = 2 << ((((RCC->CFGR & RCC_CFGR_PPRE1_Msk) >> RCC_CFGR_PPRE1_Pos) - 3) - 1);
+//        }
+//        return result / divider;
+//    }
+//
+//    static uint32_t getAPB2frequency() {
+//        uint32_t result = getAHBfrequency();
+//        uint32_t divider = 1;
+//        if ((RCC->CFGR & RCC_CFGR_PPRE2_Msk) >> (RCC_CFGR_PPRE2_Pos + 2) != 0) {
+//            divider = 2 << ((((RCC->CFGR & RCC_CFGR_PPRE2_Msk) >> RCC_CFGR_PPRE2_Pos) - 3) - 1);
+//        }
+//        return result / divider;
+//    }
+//
+//    static uint32_t getAHBfrequency() {
+//        uint32_t result = getSYSCLKfrequency();
+//        uint32_t divider = 1;
+//        if ((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> (RCC_CFGR_HPRE_Pos + 3) != 0) {
+//            if (((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> RCC_CFGR_HPRE_Pos) <= 11) {
+//                divider = 2 << ((((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> RCC_CFGR_HPRE_Pos) - 7) - 1);
+//            } else {
+//                divider = 2 << ((((RCC->CFGR & RCC_CFGR_HPRE_Msk) >> RCC_CFGR_HPRE_Pos) - 6) - 1);
+//            }
+//        }
+//        return result / divider;
+//    }
+//
+//    static void FreqTest() {
+//        volatile uint32_t freq;
+//        freq = Core::getHSEfrequency();
+//        freq = Core::getPLLinputClock();
+//        freq = Core::getSYSCLKfrequency();
+//        freq = Core::getAHBfrequency();
+//        freq = Core::getAPB1frequency();
+//        freq = Core::getAPB2frequency();
+//    }
+//
+//    static void SetUSART1ClockSource(UsartClockSource source) { RCC->CFGR3 = (source << RCC_CFGR3_USART1SW_Pos) & RCC_CFGR3_USART1SW_Msk; }
+//
+//    static uint32_t GetUSARTclk(USART_TypeDef *usart) {
+//        uint32_t cfgr3 = RCC->CFGR3;
+//        switch (reinterpret_cast<uint32_t>(usart)) {
+//            case reinterpret_cast<uint32_t>(USART1):
+//                switch (((cfgr3 & RCC_CFGR3_USART1SW_Msk) >> RCC_CFGR3_USART1SW_Pos)) {
+//                    case PCLK:
+//                        return getAPB2frequency();
+//                        break;
+//
+//                    default:
+//                        return 0;
+//                }
+//
+//            default:
+//                return 0;
+//        }
+//    }
 };
 }  // namespace stm32f3xx
 }  // namespace microhal

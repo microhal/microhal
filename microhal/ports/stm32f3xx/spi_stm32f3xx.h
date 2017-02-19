@@ -34,8 +34,8 @@
  */
 #include "gpio_stm32f3xx.h"
 #include "interfaces/spi_interface.h"
-#include "microhalPortConfig_stm32f3xx.h"
 #include "device/stm32f3xx.h"
+#include "microhalPortConfig_stm32f3xx.h"
 
 /* **************************************************************************************************************************************************
  * CLASS

@@ -61,7 +61,9 @@ class GPIO {
         PortB = GPIOB_BASE,  //!< PortB
         PortC = GPIOC_BASE,  //!< PortC
         PortD = GPIOD_BASE,  //!< PortD
+#if defined(GPIOE_BASE)
         PortE = GPIOE_BASE,  //!< PortE
+#endif
         PortF = GPIOF_BASE   //!< PortF
     } Port;
     /**

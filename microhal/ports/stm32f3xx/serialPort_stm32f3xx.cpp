@@ -33,18 +33,18 @@
 
 #include "serialPort_stm32f3xx.h"
 #include "core_stm32f3xx.h"
+#include "clockManager.h"
 
 namespace microhal {
 namespace stm32f3xx {
 
 bool SerialPort::setBaudRate(uint32_t baudRate) {
-    // case for oversampling by 16
-    usart.BRR = Core::GetUSARTclk(&usart) / baudRate;
+    usart.BRR = ClockManager::USARTFrequency(usart) / baudRate;
     return true;
 }
 
 uint32_t SerialPort::getBaudRate() const {
-    return Core::GetUSARTclk(&usart) * usart.BRR;
+    return ClockManager::USARTFrequency(usart) * usart.BRR;
 }
 
 bool SerialPort::setParity(SerialPort::Parity parity) {

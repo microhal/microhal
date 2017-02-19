@@ -1,21 +1,22 @@
 /**
+ * @file
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief      board support package for nucleo-f411re board
  *
- * @authors    pawel
- * created on: 17-12-2016
- * last modification: 17-12-2016
+ * @authors    Pawel Okas
+ * created on: 18-11-2016
+ * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2016, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
+ * 	   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * 	      documentation and/or other materials provided with the distribution.
  *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
  *        software without specific prior written permission.
  *
@@ -27,28 +28,20 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_HARDWARE_STM_H_
-#define _MICROHAL_HARDWARE_STM_H_
-/* **************************************************************************************************************************************************
- * INCLUDES
- */
-#ifdef MCU_TYPE_STM32F0XX
-#include "STM32F0xx/hardware_stm32f0xx.h"
-namespace microhal {
-    namespace activePort = stm32f0xx;
-}
-#elif defined(MCU_TYPE_STM32F4XX)
-#include "ports/stm32f4xx/hardware_stm32f4xx.h"
-namespace microhal {
-    //namespace activePort = stm32f4xx;
-}
-#elif defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/hardware_stm32f3xx.h"
-namespace microhal {
-    //namespace activePort = stm32f4xx;
-}
-#else
-#error "MCU type must be specified."
-#endif
+#ifndef NUCLEO_F411RE_H_
+#define NUCLEO_F411RE_H_
 
-#endif  // _MICROHAL_HARDWARE_STM_H_
+constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f3xx::GPIO::Port::PortA, 5);
+constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f3xx::GPIO::Port::PortD, 13);
+constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f3xx::GPIO::Port::PortD, 14);
+constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f3xx::GPIO::Port::PortD, 15);
+
+constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f3xx::GPIO::Port::PortC, 13);
+
+
+constexpr microhal::GPIO::IOPin greenLed_pin = ld2_pin;
+constexpr microhal::GPIO::IOPin redLed_pin = led5_pin;
+constexpr microhal::GPIO::IOPin blueLed_pin = led6_pin;
+constexpr microhal::GPIO::IOPin orangeLed_pin = led3_pin;
+
+#endif  // NUCLEO_F411RE_H_

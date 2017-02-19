@@ -29,7 +29,7 @@
 
 #include "microhal.h"
 
-#include "boards/nucleo-f334r8/microhal_bsp.h"
+#include "microhal_bsp.h"
 
 using namespace microhal;
 

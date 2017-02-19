@@ -4,11 +4,11 @@
  * @version    $Id$
  * @brief      
  *
- * @authors    pawel
- * created on: 17-12-2016
- * last modification: 17-12-2016
+ * @authors    Pawel
+ * created on: 19-02-2017
+ * last modification: 19-02-2017
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,28 +27,20 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_HARDWARE_STM_H_
-#define _MICROHAL_HARDWARE_STM_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#ifdef MCU_TYPE_STM32F0XX
-#include "STM32F0xx/hardware_stm32f0xx.h"
-namespace microhal {
-    namespace activePort = stm32f0xx;
-}
-#elif defined(MCU_TYPE_STM32F4XX)
-#include "ports/stm32f4xx/hardware_stm32f4xx.h"
-namespace microhal {
-    //namespace activePort = stm32f4xx;
-}
-#elif defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/hardware_stm32f3xx.h"
-namespace microhal {
-    //namespace activePort = stm32f4xx;
-}
-#else
-#error "MCU type must be specified."
-#endif
+#include "hardware_stm32f3xx.h"
+#include "clockManager.h"
 
-#endif  // _MICROHAL_HARDWARE_STM_H_
+namespace microhal {
+namespace hardware {
+
+uint32_t Device::coreFrequency() {
+	return stm32f3xx::ClockManager::SYSCLKFrequency();
+}
+
+}  // namespace hardware
+}  // namespace microhal
+
+

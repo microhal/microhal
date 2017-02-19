@@ -41,33 +41,35 @@
  */
 
 #include "gpio_stm32f3xx.h"
+#include "clockManager.h"
 
 namespace microhal {
 namespace stm32f3xx {
 
 void GPIO::pinInitialize(const Port port, const uint_fast8_t pin,
                          const PinConfiguration config) {
+	ClockManager::enable(*reinterpret_cast<GPIO_TypeDef *>(port));
   // enable clock
-  switch (port) {
-    case PortA:
-      RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-      break;
-    case PortB:
-      RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-      break;
-    case PortC:
-      RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-      break;
-    case PortD:
-      RCC->AHBENR |= RCC_AHBENR_GPIODEN;
-      break;
-    case PortE:
-      RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
-      break;
-    case PortF:
-      RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
-      break;
-  }
+//  switch (port) {
+//    case PortA:
+//      RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+//      break;
+//    case PortB:
+//      RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+//      break;
+//    case PortC:
+//      RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+//      break;
+//    case PortD:
+//      RCC->AHBENR |= RCC_AHBENR_GPIODEN;
+//      break;
+//    case PortE:
+//      RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
+//      break;
+//    case PortF:
+//      RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
+//      break;
+//  }
 
   // set mode -> config.mode is split to 2 part 4MSB bit
   //      contain alternate function and 4LSB bit contain mode
