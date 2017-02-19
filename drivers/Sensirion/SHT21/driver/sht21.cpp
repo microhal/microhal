@@ -33,7 +33,7 @@
  * @retval true if device was reset.
  * @retval false if an error occurred.
  */
-bool SHT21::reset() {
+bool SHT21::reset() noexcept {
     //return write(SOFT_RESET_CMD); //todo implement in I2Cdevice class
     return false;
 }
@@ -42,7 +42,7 @@ bool SHT21::reset() {
  * @retval true if heater was on.
  * @retval false if an error occurred.
  */
-bool SHT21::heaterEnable() {
+bool SHT21::heaterEnable() noexcept {
     uint8_t userReg;
 
     if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {
@@ -56,7 +56,7 @@ bool SHT21::heaterEnable() {
  * @retval true if heater was off.
  * @retval false if an error occurred.
  */
-bool SHT21::heaterDisable() {
+bool SHT21::heaterDisable() noexcept {
     uint8_t userReg;
 
     if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {
@@ -71,7 +71,7 @@ bool SHT21::heaterDisable() {
  * @retval true if resolution was set.
  * @retval false if an error occurred.
  */
-bool SHT21::setResolution(Resolution resolution) {
+bool SHT21::setResolution(Resolution resolution) noexcept {
     uint8_t userReg;
 
     if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {
@@ -87,7 +87,7 @@ bool SHT21::setResolution(Resolution resolution) {
  *
  * @return actual resolution or UNKNOWN if an error occurred.
  */
-SHT21::Resolution SHT21::getResolution() {
+SHT21::Resolution SHT21::getResolution() noexcept {
     uint8_t userReg;
 
     if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {

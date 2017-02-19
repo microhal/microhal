@@ -13,7 +13,8 @@
 #include "gpio_stm32f4xx.h"
 #include "interfaces/spi_interface.h"
 #include "microhalPortConfig_stm32f4xx.h"
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
+#include "clockManager.h"
 
 namespace microhal {
 class SPIDevice;
@@ -97,13 +98,25 @@ class SPI : public microhal::SPI {
     	spi.CR1 = (spi.CR1 & ~(SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)) | prescaler;
     }
 
+    Prescaler prescaler() const {
+    	return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0));
+    }
+
     bool getMISOstate() override final { return microhal::stm32f4xx::GPIO::get(misoPort, misoPin); }
 
     bool isEnabled() { return spi.CR1 & SPI_CR1_SPE; }
 
     void enable() override final { spi.CR1 |= SPI_CR1_SPE; }
     void disable() override final { spi.CR1 &= ~SPI_CR1_SPE; }
-    uint32_t speed(uint32_t speed) final {}
+    uint32_t speed(uint32_t speed) final {
+    	// TODO
+    	return speed;
+    }
+
+    uint32_t frequency() const {
+    	const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
+    	return ClockManager::SPIFrequency(spi) / prescalerValues[static_cast<uint32_t>(prescaler()) >> 3];
+    }
 
  protected:
     //---------------------------------------- variables

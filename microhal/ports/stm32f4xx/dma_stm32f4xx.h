@@ -8,8 +8,8 @@
 #ifndef DMA_STM32F4XX_H_
 #define DMA_STM32F4XX_H_
 
-#include <stddef.h>
-#include "stm32f4xx.h"
+#include <cstddef>
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -119,6 +119,10 @@ public:
 		stream.M1AR = reinterpret_cast<uint32_t>(memoryAddr);
 	}
 
+	void* getMemoryBank0() {
+		return reinterpret_cast<void*>(stream.M0AR);
+	}
+
 	void setNumberOfItemsToTransfer(size_t len){
 		stream.NDTR = len;
 	}
@@ -160,18 +164,18 @@ public:
 	}
 
 	void enableInterrupt(const Stream& stream, uint32_t priority) noexcept {
-		IRQn irq[2][8] = { { DMA1_Stream0_IRQn, DMA1_Stream1_IRQn, DMA1_Stream2_IRQn, DMA1_Stream3_IRQn, DMA1_Stream4_IRQn, DMA1_Stream5_IRQn, DMA1_Stream6_IRQn, DMA1_Stream7_IRQn},
+		IRQn_Type irq[2][8] = { { DMA1_Stream0_IRQn, DMA1_Stream1_IRQn, DMA1_Stream2_IRQn, DMA1_Stream3_IRQn, DMA1_Stream4_IRQn, DMA1_Stream5_IRQn, DMA1_Stream6_IRQn, DMA1_Stream7_IRQn},
 					       { DMA2_Stream0_IRQn, DMA2_Stream1_IRQn, DMA2_Stream2_IRQn, DMA2_Stream3_IRQn, DMA2_Stream4_IRQn, DMA2_Stream5_IRQn, DMA2_Stream6_IRQn, DMA2_Stream7_IRQn}};
-		IRQn interruptNumber = irq[dmaNumber() - 1][calculateStreamNumber(stream)];
+		IRQn_Type interruptNumber = irq[dmaNumber() - 1][calculateStreamNumber(stream)];
 
 		NVIC_EnableIRQ(interruptNumber);
 		NVIC_SetPriority(interruptNumber, priority);
 	}
 
 	void disableInterrupt(const Stream& stream) {
-		IRQn irq[2][8] = { { DMA1_Stream0_IRQn, DMA1_Stream1_IRQn, DMA1_Stream2_IRQn, DMA1_Stream3_IRQn, DMA1_Stream4_IRQn, DMA1_Stream5_IRQn, DMA1_Stream6_IRQn, DMA1_Stream7_IRQn},
+		IRQn_Type irq[2][8] = { { DMA1_Stream0_IRQn, DMA1_Stream1_IRQn, DMA1_Stream2_IRQn, DMA1_Stream3_IRQn, DMA1_Stream4_IRQn, DMA1_Stream5_IRQn, DMA1_Stream6_IRQn, DMA1_Stream7_IRQn},
 					       { DMA2_Stream0_IRQn, DMA2_Stream1_IRQn, DMA2_Stream2_IRQn, DMA2_Stream3_IRQn, DMA2_Stream4_IRQn, DMA2_Stream5_IRQn, DMA2_Stream6_IRQn, DMA2_Stream7_IRQn}};
-		IRQn interruptNumber = irq[dmaNumber() - 1][calculateStreamNumber(stream)];
+		IRQn_Type interruptNumber = irq[dmaNumber() - 1][calculateStreamNumber(stream)];
 
 		NVIC_DisableIRQ(interruptNumber);
 	}
@@ -237,38 +241,58 @@ private:
 		const uint32_t streamNumber = calculateStreamNumber(stream);
 		switch (streamNumber) {
 		case 0:
+#if defined(UART5)
 			if (&devicePtr == UART5) return Stream::Channel::Channel4;
+#endif
+#if defined(UART8)
 			if (&devicePtr == UART8) return Stream::Channel::Channel5;
+#endif
 			break;
 		case 1:
+#if defined(USART3)
 			if (&devicePtr == USART3) return Stream::Channel::Channel4;
+#endif
+#if defined(UART8)
 			if (&devicePtr == UART7) return Stream::Channel::Channel5;
+#endif
 			break;
+#if defined(UART4)
 		case 2:
 			if (&devicePtr == UART4) return Stream::Channel::Channel4;
 			break;
+#endif
 		case 3:
+#if defined(USART3)
 			if (&devicePtr == USART3) return Stream::Channel::Channel4;
+#endif
+#if defined(UART8)
 			if (&devicePtr == UART7) return Stream::Channel::Channel5;
+#endif
 			break;
 		case 4:
+#if defined(UART4)
 			if (&devicePtr == UART4) return Stream::Channel::Channel4;
+#endif
+#if defined(USART3)
 			if (&devicePtr == USART3) return Stream::Channel::Channel7;
+#endif
 			break;
 		case 5:
 			if (&devicePtr == USART2) return Stream::Channel::Channel4;
 			break;
 		case 6:
 			if (&devicePtr == USART2) return Stream::Channel::Channel4;
+#if defined(UART8)
 			if (&devicePtr == UART8) return Stream::Channel::Channel5;
+#endif
 			break;
+#if defined(UART5)
 		case 7:
 			if (&devicePtr == UART5) return Stream::Channel::Channel4;
 			break;
+#endif
 		}
-		while(1) {
-			volatile auto dbg = streamNumber;
-		}
+		while(1) {}
 	}
 
 	Stream::Channel DMA2Channel(const Stream &stream, const USART_TypeDef &devicePtr) {
@@ -292,9 +316,7 @@ private:
 			if (&devicePtr == USART6) return Stream::Channel::Channel5;
 			break;
 		}
-		while(1) {
-			volatile auto dbg = stremNumber;
-		}
+		while(1) {}
 	}
 
 //	Stream::Channel getChannelForDma1Stream0(void *devicePtr);

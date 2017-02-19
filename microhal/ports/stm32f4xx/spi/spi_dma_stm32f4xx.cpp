@@ -55,23 +55,25 @@ SPI &SPI::spi3 = SPI_dma::spi3;
 #if MICROHAL_SPI4_DMA_TX_STREAM != 1 && MICROHAL_SPI4_DMA_TX_STREAM != 4
 #error SPI TX DMA channel can be confugured as 1 or 4 only
 #endif
+GPIO::IOPin spi4MisoPin(GPIO::PortB, 4);
 SPI_dma SPI_dma::spi4(*SPI4, *DMA::dma2,
                       DMA::dma2->stream[MICROHAL_SPI4_DMA_RX_STREAM],
                       DMA::dma2->stream[MICROHAL_SPI4_DMA_TX_STREAM],
-                      spi1MisoPin);
+                      spi4MisoPin);
 SPI &SPI::spi4 = SPI_dma::spi4;
 #endif
 #ifdef MICROHAL_USE_SPI5_DMA
-#if MICROHAL_SPI1_DMA_RX_STREAM != 3 && MICROHAL_SPI1_DMA_RX_STREAM != 5
+#if MICROHAL_SPI5_DMA_RX_STREAM != 3 && MICROHAL_SPI5_DMA_RX_STREAM != 5
 #error SPI RX DMA channel can be confugured as 3 or 5 only
 #endif
-#if MICROHAL_SPI1_DMA_TX_STREAM != 4 && MICROHAL_SPI1_DMA_TX_STREAM != 6
+#if MICROHAL_SPI5_DMA_TX_STREAM != 4 && MICROHAL_SPI5_DMA_TX_STREAM != 6
 #error SPI TX DMA channel can be confugured as 4 or 6 only
 #endif
+GPIO::IOPin spi5MisoPin(GPIO::PortB, 4);
 SPI_dma SPI_dma::spi5(*SPI5, *DMA::dma2,
                       DMA::dma2->stream[MICROHAL_SPI5_DMA_RX_STREAM],
                       DMA::dma2->stream[MICROHAL_SPI5_DMA_TX_STREAM],
-                      spi1MisoPin);
+                      spi5MisoPin);
 SPI &SPI::spi5 = SPI_dma::spi5;
 #endif
 #ifdef MICROHAL_USE_SPI6_DMA

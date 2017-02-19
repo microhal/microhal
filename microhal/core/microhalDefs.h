@@ -18,10 +18,10 @@ typedef enum {
     MSB_FIRST ///< in first address is MSB data
 } ByteOrder;
 
-typedef enum {
-	LittleEndian = LSB_FIRST,
-	BigEndian = MSB_FIRST
-} Endianness;
+enum class Endianness {
+	Little = LSB_FIRST,
+	Big = MSB_FIRST
+};
 
 }// namespace microhal
 

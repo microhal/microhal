@@ -44,6 +44,10 @@ class IOManager {
 public:
 	IOManager();
 	// virtual ~IOManager();
+	template<int serial, stm32f4xx::GPIO::Port port, stm32f4xx::GPIO::Pin pinNr>
+		static void routeTimer(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
+		stm32f4xx::GPIO::setAlternateFunction(stm32f4xx::GPIO::PortA, 2, stm32f4xx::GPIO::Timer_1_2, stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::PushPull);
+	}
 
 	template<int serial, SerialPinType serialType, stm32f4xx::GPIO::Port port, stm32f4xx::GPIO::Pin pinNr>
 	static void routeSerial(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {

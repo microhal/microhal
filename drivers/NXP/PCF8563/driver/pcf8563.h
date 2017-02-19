@@ -15,8 +15,9 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 #include "microhal.h"
+#include "I2CDevice/I2CDevice.h"
 /**
  * @addtogroup Devices
  * @{
@@ -58,8 +59,8 @@ class PCF8563: public microhal::I2CDevice {
     };
 public:
     typedef enum {
-        SUCCESS = true, ///< value returned if function funished witch succes
-        ERROR = false   ///< value returned by function if somethings goes wrong
+        SUCCESS = true, ///< value returned if function finished witch success
+        ERROR = false   ///< value returned by function if something goes wrong
     } Result;
     /**
      * @brief enumerator type for select timer source
@@ -83,9 +84,15 @@ public:
     } Time;
 
 public:
+    typedef std::chrono::seconds 				duration;
+    typedef duration::rep	  					rep;
+    typedef duration::period	  				period;
+    typedef std::chrono::time_point<PCF8563, duration> 	time_point;
+
+    static constexpr bool is_steady = true;
     /**
      * @brief Default constructor for PCF8563 class
-     * @param   i2cNr - numer of used I2C driver
+     * @param   i2cNr - number of used I2C driver
      */
     PCF8563(microhal::I2C &i2c) :
             I2CDevice(i2c, 0xA2) {
@@ -98,7 +105,12 @@ public:
 
     Result setTime(Time &time);
     Result getTime(Time &time);
+
+    time_point now() {
+
+    }
 private:
     void interruptFunction(void);
+
 };
 #endif

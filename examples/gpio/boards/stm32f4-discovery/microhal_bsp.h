@@ -35,7 +35,7 @@ constexpr microhal::GPIO::IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortD,
 constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
 constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
 
-constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortA, 0);
+constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
 
 constexpr microhal::GPIO::IOPin greenLed_pin = led4_pin;
 constexpr microhal::GPIO::IOPin redLed_pin = led3_pin;

@@ -7,10 +7,6 @@
 namespace microhal {
 namespace stm32f4xx {
 
-uint32_t Core::core_CLK;
-uint32_t Core::APB1_CLK;
-uint32_t Core::APB2_CLK;
-
 /*------------------------------------------------------------------------*//**
  * \brief Configures Flash latency.
  * \details Configures Flash latency (wait-states) which allows the chip to run
@@ -101,103 +97,8 @@ bool Core::pll_start(uint32_t crystal, uint32_t frequency) {
     while (((RCC->CFGR) & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
         ;	// wait for switch
 
-    core_CLK = best_frequency_core;
-    APB1_CLK = best_frequency_core / 4;
-    APB2_CLK = best_frequency_core / 2;
-
-    //USARTstm::usartStm1.reBaud();
-    //USARTstm::usartStm2.reBaud();
-    //USARTstm::usartStm1.reBaud();
-
     return (best_frequency_core == frequency);
 }
 
-uint32_t Core::getAPB1frequency() {
-	uint32_t cfgr = RCC->CFGR;
-	uint32_t divider;
-
-	cfgr &= RCC_CFGR_PPRE1;
-
-	switch (cfgr) {
-	case RCC_CFGR_PPRE1_2:
-		divider = 2;
-		break;
-	case RCC_CFGR_PPRE1_2 | RCC_CFGR_PPRE1_0:
-		divider = 4;
-		break;
-	case RCC_CFGR_PPRE1_2 | RCC_CFGR_PPRE1_1:
-		divider = 8;
-		break;
-	case RCC_CFGR_PPRE1_2 | RCC_CFGR_PPRE1_1 | RCC_CFGR_PPRE1_0:
-		divider = 16;
-		break;
-	default:
-		divider = 1;
-	}
-	return getAHBfrequency() / divider;
-}
-
-uint32_t Core::getAPB2frequency() {
-	uint32_t cfgr = RCC->CFGR;
-	uint32_t divider;
-
-	cfgr &= RCC_CFGR_PPRE2;
-
-	switch (cfgr) {
-	case RCC_CFGR_PPRE2_2:
-		divider = 2;
-		break;
-	case RCC_CFGR_PPRE2_2 | RCC_CFGR_PPRE2_0:
-		divider = 4;
-		break;
-	case RCC_CFGR_PPRE2_2 | RCC_CFGR_PPRE2_1:
-		divider = 8;
-		break;
-	case RCC_CFGR_PPRE2_2 | RCC_CFGR_PPRE2_1 | RCC_CFGR_PPRE2_0:
-		divider = 16;
-		break;
-	default:
-		divider = 1;
-	}
-	return getAHBfrequency() / divider;
-}
-
-uint32_t Core::getAHBfrequency() {
-	uint32_t cfgr = RCC->CFGR;
-	uint32_t divider;
-
-	cfgr &= RCC_CFGR_HPRE;
-
-	switch (cfgr) {
-	case RCC_CFGR_HPRE_3:
-		divider = 2;
-		break;
-	case RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_0:
-		divider = 4;
-		break;
-	case RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_1:
-		divider = 8;
-		break;
-	case RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_1 | RCC_CFGR_HPRE_0:
-		divider = 16;
-		break;
-	case RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_2:
-		divider = 64;
-		break;
-	case RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_2 | RCC_CFGR_HPRE_0:
-		divider = 128;
-		break;
-	case RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_2 | RCC_CFGR_HPRE_1:
-		divider = 256;
-		break;
-	case RCC_CFGR_HPRE_3 | RCC_CFGR_HPRE_2 | RCC_CFGR_HPRE_1 | RCC_CFGR_HPRE_0:
-		divider = 512;
-		break;
-	default:
-		divider = 1;
-	}
-	return getSYSCLKfrequency() / divider;
-}
-////////////////////////////////////////////////////////////////////////////////
 } // namespace stm32f4xx
 } // namespace microhal

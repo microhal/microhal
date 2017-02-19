@@ -10,8 +10,9 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "../spi_stm32f4xx.h"
+#include "../clockManager.h"
 #include "../dma_stm32f4xx.h"
+#include "../spi_stm32f4xx.h"
 #include "microhal_semaphore.h"
 
 namespace microhal {
@@ -76,6 +77,7 @@ private:
     //--------------------------------------- constructors --------------------------------------//
     SPI_dma(SPI_TypeDef &spi, DMA::DMA &dma, DMA::Stream & rxStream, DMA::Stream & txStream, stm32f4xx::GPIO::IOPin misoPin) :
             SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
+    	ClockManager::enable(spi);
 #if defined(HAL_RTOS_FreeRTOS)
     	const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
 #else
@@ -83,37 +85,31 @@ private:
 #endif
         switch (reinterpret_cast<uint32_t>(&spi)) {
         case reinterpret_cast<uint32_t>(SPI1):
-            RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             NVIC_EnableIRQ(SPI1_IRQn);
             NVIC_SetPriority(SPI1_IRQn, priority);
             break;
         case reinterpret_cast<uint32_t>(SPI2):
-            RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
             NVIC_EnableIRQ(SPI2_IRQn);
             NVIC_SetPriority(SPI2_IRQn, priority);
             break;
         case reinterpret_cast<uint32_t>(SPI3):
-            RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             NVIC_EnableIRQ (SPI3_IRQn);
             NVIC_SetPriority(SPI3_IRQn, priority);
             break;
 #ifdef SPI4_IRQn
             case reinterpret_cast<uint32_t>(SPI4):
-            RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
             NVIC_EnableIRQ (SPI4_IRQn);
             NVIC_SetPriority(SPI4_IRQn, priority);
             break;
 #endif
 #ifdef SPI5_IRQn
             case reinterpret_cast<uint32_t>(SPI5):
-            RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
             NVIC_EnableIRQ (SPI5_IRQn);
             NVIC_SetPriority(SPI5_IRQn, priority);
             break;
 #endif
 #ifdef SPI6_IRQn
             case reinterpret_cast<uint32_t>(SPI6):
-            RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
             NVIC_EnableIRQ (SPI6_IRQn);
             NVIC_SetPriority(SPI6_IRQn, priority);
             break;

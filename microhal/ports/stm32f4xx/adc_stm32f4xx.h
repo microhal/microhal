@@ -8,7 +8,7 @@
 #ifndef ADC_STM32F4XX_H_
 #define ADC_STM32F4XX_H_
 
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -103,6 +103,8 @@ public:
 	}
 
 	bool deselectChannel(Channel channel) {
+		// TODO
+		channel = channel;
 		//adc.CHSELR &= ~channel;
 		return false;
 	}

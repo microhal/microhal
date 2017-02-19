@@ -7,6 +7,7 @@
 
 
 #include "i2c_stm32f4xx.h"
+#include "clockManager.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -18,7 +19,7 @@ namespace stm32f4xx {
  * @return true if peripheral was successfully initialized, false otherwise.
  */
 bool I2C::init() {
-	const uint32_t freqHz = Core::getI2Cclk(&i2c); // in Hz
+	const uint32_t freqHz = ClockManager::I2CFrequency(i2c); // in Hz
 	const uint8_t freqMHz = freqHz / 1000000; //frequency in MHz
 
 	if(freqMHz >= 2 && freqMHz <= 42) {
@@ -50,7 +51,7 @@ bool I2C::init() {
 bool I2C::configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty) {
 	if(isEnable() == true) return false;
 
-	const uint32_t clockFreqHz = Core::getI2Cclk(&i2c); // in Hz
+	const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c); // in Hz
 	const uint8_t clockFreqMHz = clockFreqHz / 1000000; //frequency in MHz
 
 	if(clockFreqMHz >= 2 && clockFreqMHz <= 42) {
@@ -99,6 +100,20 @@ bool I2C::configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty)
 		return true;
 	}
 	return false;
+}
+
+I2C::Speed I2C::speed() noexcept {
+	const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c); // in Hz
+
+	// get Thigh to Tlow
+	uint16_t multiply = 2; // in standard mode Tlow = Thigh => period = 2 * Thigh
+	if (i2c.CCR & (I2C_CCR_FS | I2C_CCR_DUTY)) {
+		multiply = 25;  // in HighSpeed mode Thigh = 9/16 Tlow => periond = 25 * Thigh
+	} else if (i2c.CCR & I2C_CCR_FS) {
+		multiply = 3; // in FastSpeed mode Thigh = Tlow / 2 => period = 3 * Thigh
+	}
+	uint16_t ccr = i2c.CCR & 0x0FFF;
+	return clockFreqHz / (multiply * ccr);
 }
 
 } // namespace stm32f4xx

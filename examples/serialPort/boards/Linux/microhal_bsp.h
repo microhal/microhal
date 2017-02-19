@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                         */
 
 #ifndef _LINUX_BSP_H_
 #define _LINUX_BSP_H_
@@ -32,6 +33,7 @@
 bool BSP_Init(void);
 bool BSP_Deinit(void);
 
-extern  microhal::SerialPort &serialPort;
+extern microhal::SerialPort &serialPortA;
+extern microhal::SerialPort &serialPortB;
 
 #endif  // _LINUX_BSP_H_

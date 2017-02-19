@@ -207,10 +207,9 @@ bool RFM70::initBank1(void) {
  * @retval false if an error occurred.
  */
 bool RFM70::init(void) {
-    uint32_t id;
     diagChannel << Debug << "RFM70: Initializing" << endl;
 
-    //if device id is diferent than expected return error.
+    //if device id is different than expected return error.
     if (getID() != ID_VALUE) {
         diagChannel << Error << "RFM70: Error in init function, ID mismatch." << endl;
         return false;
@@ -235,25 +234,6 @@ bool RFM70::init(void) {
 
     return true;
 } /* init */
-///**
-// *
-// * @param type
-// * @param buf
-// * @param len
-// */
-//void RFM70::sendPacket(uint8_t type, const uint8_t *buf, uint8_t len) {
-//    //SwitchToTxMode();  //switch to tx mode
-//    uint8_t status;
-//
-//    //_delay_ms(1);
-//    writeRegisters(type, buf, len); // Writes data to buffer
-//    //_delay_ms(1);
-//    do {
-//        readRegister(STATUS, status);
-//    } while (!(status & 1 << 5));  //czekaj az dane zostana wslane
-//
-//    //SwitchToRxMode();
-//}
 /**
  *
  * @param rx_buf
@@ -297,7 +277,7 @@ void RFM70::bank1RegisterDump(void) {
     diagChannel << Debug << "RFM70: Registers in BANK 1" << endl << endl;
 
     for (uint_fast8_t addr = 0; addr <= 0x0E; addr++) {
-        readRegister(addr, reg, Endianness::BigEndian);
+        readRegister(addr, reg, Endianness::Big);
 
         diagChannel << Debug << "RFM70: reg: 0x" << toHex(addr) << " val: 0x" << toHex(reg) << endl;
     }

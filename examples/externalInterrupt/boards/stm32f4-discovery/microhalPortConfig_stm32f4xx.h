@@ -30,7 +30,14 @@
 #ifndef _MICROHAL_MICROHALPORTCONFIG_STM32F4XX_H_
 #define _MICROHAL_MICROHALPORTCONFIG_STM32F4XX_H_
 
-
+#include <cstdint>
+//***********************************************************************************************//
+//                                     Hardware Configuration                                    //
+//***********************************************************************************************//
+static constexpr bool externalClockPresent = true;
+static constexpr uint32_t externalClockFrequency = 8000000; // this is HSE frequency
+static constexpr bool externalLSEPresent = false;
+static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//

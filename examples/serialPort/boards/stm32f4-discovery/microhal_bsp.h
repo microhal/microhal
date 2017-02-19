@@ -29,7 +29,8 @@
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
-static microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial4;
-static microhal::SerialPort &serialPortB = microhal::stm32f4xx::SerialPort::Serial2;
+static microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial3;
+static microhal::SerialPort &serialPortB = microhal::stm32f4xx::SerialPort::Serial4;
+
 
 #endif /* STM32F4DISCOVERY_H_ */

@@ -8,7 +8,7 @@
  * created on: 17-01-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014, microHAL
+ * @copyright Copyright (c) 2014 - 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,8 +32,8 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
-#include "stm32f4xx.h"
+#include <cstdint>
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -53,7 +53,9 @@ class GPIO {
         PortC = GPIOC_BASE,     //!< PortC
         PortD = GPIOD_BASE,     //!< PortD
         PortE = GPIOE_BASE,     //!< PortE
+#if defined(GPIOF_BASE)
         PortF = GPIOF_BASE      //!< PortF
+#endif
     } Port;
 	/**
 	 *
@@ -116,6 +118,8 @@ class GPIO {
      *
      */
     typedef enum : uint8_t {
+    	Timer_1_2 = 1,
+    	Timer_3_4_5 = 2,
         Serial = 0x07,  //!< Serial
         Serial_4_5_6 = 0x08,
         SPI = 0x05,     //!< Alternate function for SPI 1 and 2
@@ -150,7 +154,7 @@ class GPIO {
      * @param mask - if bit in mask is set then corresponding pin will be set
      */
     static inline void setMask(Port port, uint16_t mask) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRRL = mask;
+        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = mask;
     }
     /** @brief This function set pins to low state.
      *
@@ -158,7 +162,7 @@ class GPIO {
      * @param mask - if bit in mask is set then corresponding pin will be reset
      */
     static inline void resetMask(Port port, uint16_t mask) __attribute__((always_inline)) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRRH = mask;
+        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = mask << 16;
     }
     /** @brief This function return port state.
      *

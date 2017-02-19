@@ -28,13 +28,18 @@
  
 #include "microhal.h"
 #include "rfm70.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
 using namespace microhal;
 using namespace diagnostic;
 
+volatile bool pendingInterrupt = false;
+void rfmInt() {
+	pendingInterrupt = true;
+}
+
 //interrupt function
-void rfmInt(RFM70 &rfm) {
+void rfmOnInterrupt(RFM70 &rfm) {
     RFM70::Interrupts interrupt;
 
     diagChannel << Debug << "RFM70: interrupt" << endl;
@@ -42,9 +47,11 @@ void rfmInt(RFM70 &rfm) {
     rfm.getInterruptSource(interrupt);
 
     if (interrupt & RFM70::RX_NEW) {
-        char buffer[32];
+        char buffer[32] = {0};
         if (rfm.getPacket((uint8_t*) buffer)) {
             diagChannel << Notice << buffer << endl;
+        } else {
+        	diagChannel << Warning << "Received packet but unable to read it." << endl;
         }
     }
 
@@ -70,9 +77,10 @@ int main(void) {
     diagChannel.setOutputDevice(port);
 
     //lis302dl ce pin only discovery f4 board
+#if defined(BSP_STM32F4DISCOVERY)
     GPIO lisCE(bsp::lis_ce, GPIO::Direction::Output);
     lisCE.set();
-    //end of lis
+#endif
 
     GPIO led(bsp::Led3, GPIO::Direction::Output);
     GPIO button(bsp::Sw1, GPIO::Direction::Input);
@@ -83,28 +91,41 @@ int main(void) {
     if (rfm.init() == false) {
         //call fatal error function
         while (1) {
-
         }
     }
 
     ExternalInterrupt::init();
 
 //    rfm.connectIRQ(rfmInt, GPIO::Port::PortA, (uint8_t) 1);
-    rfm.enableIRQ();
-    std::chrono::milliseconds duration(1000);
-    while (1) {
-        //blink led
-        led.toggle();
+    microhal::ExternalInterrupt interrupt(bsp::rfm70::irq);
+    interrupt.connect(rfmInt, microhal::ExternalInterrupt::Trigger::OnFallingEdge);
+    interrupt.enable();
 
-        //if button pressed
-        if (button.isSet()) {
-            diagChannel << Notice << "Sending packet" << endl;
-            //switch to tx mode
-            rfm.switchToTX();
-            //send data
-            rfm.sendPacket((uint8_t*) "Ala ma kota", 12, RFM70::ACK_PIPE_0);
+    rfm.enableIRQ();
+
+    int i = 1000;
+    while (1) {
+        if (i-- == 0) {
+        	i = 1000;
+
+			led.toggle();
+
+		   // if button pressed
+			if (button.isReset()) {
+				diagChannel << Notice << "Sending packet" << endl;
+				//switch to tx mode
+				rfm.switchToTX();
+				//send data
+				const uint8_t data[] = "Ala ma kota";
+				gsl::span<const uint8_t> packet(data);
+				rfm.sendPacket(packet, RFM70::ACK_PIPE_0);
+			}
+        }
+        if (pendingInterrupt) {
+        	pendingInterrupt = false;
+        	rfmOnInterrupt(rfm);
         }
 
-        std::this_thread::sleep_for(duration);
+        std::this_thread::sleep_for(std::chrono::milliseconds {1});
     }
 }

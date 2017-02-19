@@ -37,13 +37,11 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
+    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+
     IOManager::routeSerial<4, Txd, stm32f4xx::GPIO::PortC, 10>();
     IOManager::routeSerial<4, Rxd, stm32f4xx::GPIO::PortC, 11>();
-//    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortB, 6>();
-//    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortB, 7>();
-
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
     SysTick_Config(168000000/1000);
 }

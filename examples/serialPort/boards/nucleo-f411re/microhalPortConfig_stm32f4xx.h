@@ -29,30 +29,33 @@
 #ifndef MICROHALPORTCONFIG_H_
 #define MICROHALPORTCONFIG_H_
 
-
+#include <cstdint>
+//***********************************************************************************************//
+//                                     Hardware Configuration                                    //
+//***********************************************************************************************//
+static constexpr bool externalClockPresent = true;
+static constexpr uint32_t externalClockFrequency = 8000000; // this is HSE frequency
+static constexpr bool externalLSEPresent = false;
+static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//
 //***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-//#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
+#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
 													//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
 													//						 MICROHAL_USE_SERIAL_PORTx_DMA
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
 
-//#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT2_DMA
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
 
-#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
-#define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 128
-
-//#define MICROHAL_USE_SERIAL_PORT4_INTERRUPT
-#define MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE 128
+//#define MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 128
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//

@@ -14,15 +14,25 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
-#include "../stm32f4xx.h"
-#include "../i2c_stm32f4xx.h"
+#include <cstdint>
+#include "../clockManager.h"
 #include "../dma_stm32f4xx.h"
+#include "../i2c_stm32f4xx.h"
+#include "../device/stm32f4xx.h"
+#include "microhal_semaphore.h"
 
 namespace microhal {
 namespace stm32f4xx {
 
 extern "C" {
+void I2C1_EV_IRQHandler(void);
+void I2C2_EV_IRQHandler(void);
+void I2C3_EV_IRQHandler(void);
+
+void I2C1_ER_IRQHandler(void);
+void I2C2_ER_IRQHandler(void);
+void I2C3_ER_IRQHandler(void);
+
 void DMA1_Stream0_IRQHandler(void);
 void DMA1_Stream2_IRQHandler(void);
 void DMA1_Stream3_IRQHandler(void);
@@ -34,9 +44,9 @@ void DMA1_Stream7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class I2C_dma: public stm32f4xx::I2C {
-public:
-    //---------------------------------------- variables ----------------------------------------//
+class I2C_dma : public stm32f4xx::I2C {
+ public:
+//---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_I2C1_DMA
     static I2C_dma i2c1;
 #endif
@@ -46,57 +56,57 @@ public:
 #ifdef MICROHAL_USE_I2C3_DMA
     static I2C_dma i2c3;
 #endif
-protected:
-    I2C::Error write(uint8_t deviceAddress, uint8_t data) override final;
-    I2C::Error write(uint8_t deviceAddress, uint8_t registerAddress, uint8_t data) override final;
-    I2C::Error write(uint8_t deviceAddress, uint8_t registerAddress, const void *data, size_t length) override final;
+ protected:
+    Error writeRead(DeviceAddress address, const uint8_t *write, size_t writeLength, uint8_t *read, size_t readLength) noexcept final;
 
-    I2C::Error read(uint8_t deviceAddress, uint8_t &data) override final;
-    I2C::Error read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t &data) override final;
-    I2C::Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) override final;
-private:
-    typedef enum {
-        Receive = 0x01,
-        ReceiveFromRegister = 0x02,
-        Transmit = 0x04
-    } Mode;
+    Error write(DeviceAddress address, const uint8_t *write, size_t writeLength) noexcept final;
+    Error write(DeviceAddress address, const uint8_t *write, size_t writeLength, const uint8_t *writeB, size_t writeBLength) noexcept final;
+
+    Error read(DeviceAddress address, uint8_t *data, size_t length) noexcept final;
+    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
+
+ private:
+    enum class Mode { Receive = 0x01, Transmit = 0x02, TransmitReceive = 0x04, ReceiveDoubleBuffer = 0x11, TransmitDoubleBuffer = 0x12 };
     //---------------------------------- variables ----------------------------------
-    volatile I2C::Error errorSemaphore;
+    volatile I2C::Error error;
     DMA::Stream &rxStream;
     DMA::Stream &txStream;
+    os::Semaphore semaphore;
 
+    struct Buffer {
+    	void *ptr;
+    	size_t length;
+    };
     struct {
-		Mode mode;
-		uint8_t deviceAddress;
-		uint8_t registerAddress;
-		size_t length;
+        Mode mode;
+        DeviceAddress deviceAddress;
+        size_t txLength;
+        size_t rxLength;
+        Buffer bufferB;
     } transfer;
     //---------------------------------- constructors -------------------------------
-    I2C_dma(I2C_TypeDef &i2c, DMA::Stream & rxStream, DMA::Stream & txStream) :
-            I2C(i2c), errorSemaphore(), rxStream(rxStream), txStream(txStream), transfer() {
+    I2C_dma(I2C_TypeDef &i2c, DMA::Stream &rxStream, DMA::Stream &txStream)
+        : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), transfer() {
         init();
         switch (reinterpret_cast<uint32_t>(&i2c)) {
-        case reinterpret_cast<uint32_t>(I2C1):
-            RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
-            NVIC_EnableIRQ (I2C1_EV_IRQn);
-            NVIC_SetPriority(I2C1_EV_IRQn, 0);
-            NVIC_EnableIRQ (I2C1_ER_IRQn);
-            NVIC_SetPriority(I2C1_ER_IRQn, 0);
-            break;
-        case reinterpret_cast<uint32_t>(I2C2):
-            RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
-            NVIC_EnableIRQ (I2C2_EV_IRQn);
-            NVIC_SetPriority(I2C2_EV_IRQn, 0);
-            NVIC_EnableIRQ (I2C2_ER_IRQn);
-            NVIC_SetPriority(I2C2_ER_IRQn, 0);
-            break;
-        case reinterpret_cast<uint32_t>(I2C3):
-            RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
-            NVIC_EnableIRQ (I2C3_EV_IRQn);
-            NVIC_SetPriority(I2C3_EV_IRQn, 0);
-            NVIC_EnableIRQ (I2C3_ER_IRQn);
-            NVIC_SetPriority(I2C3_ER_IRQn, 0);
-            break;
+            case reinterpret_cast<uint32_t>(I2C1):
+                NVIC_EnableIRQ(I2C1_EV_IRQn);
+                NVIC_SetPriority(I2C1_EV_IRQn, 0);
+                NVIC_EnableIRQ(I2C1_ER_IRQn);
+                NVIC_SetPriority(I2C1_ER_IRQn, 0);
+                break;
+            case reinterpret_cast<uint32_t>(I2C2):
+                NVIC_EnableIRQ(I2C2_EV_IRQn);
+                NVIC_SetPriority(I2C2_EV_IRQn, 0);
+                NVIC_EnableIRQ(I2C2_ER_IRQn);
+                NVIC_SetPriority(I2C2_ER_IRQn, 0);
+                break;
+            case reinterpret_cast<uint32_t>(I2C3):
+                NVIC_EnableIRQ(I2C3_EV_IRQn);
+                NVIC_SetPriority(I2C3_EV_IRQn, 0);
+                NVIC_EnableIRQ(I2C3_ER_IRQn);
+                NVIC_SetPriority(I2C3_ER_IRQn, 0);
+                break;
         }
     }
 
@@ -105,7 +115,6 @@ private:
     static void IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c);
     static void IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c);
     //---------------------------------- friends ------------------------------------
-
 
     friend void I2C1_EV_IRQHandler(void);
     friend void I2C2_EV_IRQHandler(void);
@@ -124,6 +133,7 @@ private:
     friend void DMA1_Stream7_IRQHandler(void);
 };
 
-} // namespace stm32f4xx
-} // namespace microhal
-#endif // I2C_DMA_STM32F4XX_H_
+}  // namespace stm32f4xx
+}  // namespace microhal
+
+#endif  // I2C_DMA_STM32F4XX_H_

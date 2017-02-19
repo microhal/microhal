@@ -10,10 +10,12 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 #include "signalSlot/signalSlot.h"
+#include "clockManager.h"
+#include "dma_stm32f4xx.h"
 
-#include "stm32f4xx.h"
+#include "device/stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -37,19 +39,18 @@ public:
 	/**
 	 * @brief Possible counter directions.
 	 */
-	typedef enum {
-		UP_COUNTER = 0x0000, DOWN_COUNTER = 0x0010
-	} Direction;
+	enum class Direction {
+		UpCounter = 0x0000, DownCounter = 0x0010
+	};
 
-	typedef enum {
-		UPDATE_GENERATION = 0x0001,
-		COMPARE1 = 0x0002,
-		COMPARE2 = 0x0004,
-		COMPARE3 = 0x0008,
-		COMPARE4 = 0x0010,
-		TRIGGER_GENERATION = 0x0040,
-
-	} Events;
+	enum class Event {
+		UpdateGeneration = 0x0001,
+		Compare1 = 0x0002,
+		Compare2 = 0x0004,
+		Compare3 = 0x0008,
+		Compare4 = 0x0010,
+		TriggerGeneration = 0x0040,
+	};
 //--------------------------------------- static variables --------------------------------------//
 	static Timer timer1;
 	static Timer timer2;
@@ -64,9 +65,9 @@ public:
 	 * @brief This function enable timer.
 	 */
 	void enable() {
-		NVIC_EnableIRQ(TIM2_IRQn);
-		NVIC_SetPriority(TIM2_IRQn, 0);
-		timer.DIER |= 1;
+		//NVIC_EnableIRQ(TIM2_IRQn);
+		//NVIC_SetPriority(TIM2_IRQn, 0);
+		//timer.DIER |= 1;
 		timer.CR1 |= TIM_CR1_CEN;
 	}
 	/**
@@ -74,6 +75,7 @@ public:
 	 */
 	void disable() {
 		timer.CR1 &= ~TIM_CR1_CEN;
+		//NVIC_DisableIRQ(TIM2_IRQn);
 	}
 	/**
 	 * @brief This function set timer direction.
@@ -83,9 +85,9 @@ public:
 	void setDirection(Direction direction) {
 		uint16_t cr1 = timer.CR1;
 		//clear actual settings
-		cr1 &= ~(UP_COUNTER | DOWN_COUNTER);
+		cr1 &= ~(static_cast<uint16_t>(Direction::UpCounter) | static_cast<uint16_t>(Direction::DownCounter));
 		//set new settings
-		cr1 |= direction;
+		cr1 |= static_cast<uint16_t>(direction);
 		//update register
 		timer.CR1 = cr1;
 	}
@@ -122,19 +124,39 @@ public:
 		ms = ms;
 	}
 
-	void enableEvent(Events event) {
-		timer.EGR |= event;
+	void enableEvent(Event event) {
+		timer.EGR |= static_cast<uint16_t>(event);
 	}
 
-	void disableEvent(Events event) {
-		timer.EGR &= ~event;
+	void disableEvent(Event event) {
+		timer.EGR &= ~static_cast<uint16_t>(event);
 	}
+
+	volatile void* getDMARegisterPtr() const {
+		return &timer.DMAR;
+	}
+
+	void enableAutoReloadPreload(){
+		timer.CR1 |= TIM_CR1_ARPE;// | TIM_CR1_URS;
+	}
+
+	void magic() {
+		timer.CCMR2 = TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2;
+		timer.CCER |= TIM_CCER_CC3E;
+		timer.DCR =  15;
+		timer.CCMR2 |= TIM_CCMR2_OC3PE;
+		timer.DIER |= TIM_DIER_CC3DE;
+	}
+
+	struct CaptureCompare {
+
+	};
 private:
 //------------------------------------------- variables -----------------------------------------//
 	TIM_TypeDef &timer;
 //------------------------------------------- constructors --------------------------------------//
-	constexpr Timer(TIM_TypeDef &timer) :
-			timer(timer) {
+	constexpr Timer(TIM_TypeDef &timer) : timer(timer) {
+		ClockManager::enable(timer);
 	}
 	//virtual ~timer_stm32f0xx();
 //------------------------------------------- friends -------------------------------------------//

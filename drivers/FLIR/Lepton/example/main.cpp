@@ -32,7 +32,7 @@
 #include "diagnostic/diagnostic.h"
 #include "hostComm.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
 #include "lepton.h"
 #include "picturePacket.h"

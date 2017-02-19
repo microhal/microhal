@@ -29,7 +29,14 @@
 #ifndef MICROHALPORTCONFIG_H_
 #define MICROHALPORTCONFIG_H_
 
-
+#include <cstdint>
+//***********************************************************************************************//
+//                                     Hardware Configuration                                    //
+//***********************************************************************************************//
+static constexpr bool externalClockPresent = true;
+static constexpr uint32_t externalClockFrequency = 8000000; // this is HSE frequency
+static constexpr bool externalLSEPresent = false;
+static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//
@@ -37,7 +44,7 @@
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
 // --------------------------- serial port 1
-#define MICROHAL_USE_SERIAL_PORT1_DMA	//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
+//#define MICROHAL_USE_SERIAL_PORT1_DMA	//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
 													//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
 													//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT_DMA -> receiving via interrupt, transmit via DMA
 													//						 MICROHAL_USE_SERIAL_PORTx_DMA -> receiving and transmit using DMA
@@ -47,7 +54,7 @@
 // serial port 1 TX stream can be connected only to DMA2 Stream 7
 #define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5		// serial port 1 RX stream can be connected to DMA2 Stream 2 or 5
 // --------------------------- serial port 2
-#define MICROHAL_USE_SERIAL_PORT2_DMA
+//#define MICROHAL_USE_SERIAL_PORT2_DMA
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 1000
 // serial port 2 TX stream can be connected only to DMA1 Stream 6.
