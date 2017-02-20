@@ -40,18 +40,6 @@ static I2C::Error sendStart(I2C_TypeDef &i2c) {
 
     return I2C::NoError;
 }
-
-static I2C::Error sendDeviceAddress(I2C_TypeDef &i2c, uint8_t deviceAddress) {
-//    i2c.DR = deviceAddress;
-//    uint16_t status;
-//    do {
-//        status = i2c.ISR;
-//        const I2C::Error error = I2C::errorCheckAndClear(&i2c, status);
-//        if (error != I2C::NoError) return error;
-//    } while (!(status & I2C_SR1_ADDR));
-//
-//    return I2C::NoError;
-}
 /**
  *
  * @param deviceAddress address to I2C device connected to bus
@@ -139,10 +127,9 @@ I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const 
 
     I2C::Error error;
 
-    //
     uint32_t cr2 = i2c.CR2;
     // clear device address and number of bytes
-    cr2 &= I2C_CR2_SADD_Msk & I2C_CR2_NBYTES_Msk & ~I2C_CR2_RD_WRN;
+    cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RD_WRN;
     // set new device addres, set number of bytes to transfer, set transfer direction to transmit
     cr2 |= deviceAddress | ((write_data_size + write_data_sizeB) << I2C_CR2_NBYTES_Pos);
     i2c.CR2 = cr2;
@@ -150,11 +137,6 @@ I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const 
     // Generate the Start condition
     const I2C::Error startError = sendStart(i2c);
     if (startError != I2C::NoError) return startError;
-    // Send I2Cx slave Address for write
-    //const I2C::Error deviceAddressError = sendDeviceAddress(i2c, deviceAddress);
-    //if (deviceAddressError != I2C::NoError) return startError;
-
-    //__attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete, read sr2 for clear addr flag,
 
     const uint8_t *ptr = static_cast<const uint8_t *>(write_data);
     while (write_data_size--) {
@@ -174,7 +156,7 @@ I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const 
 I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
     uint32_t cr2 = i2c.CR2;
     // clear device address and number of bytes
-    cr2 &= I2C_CR2_SADD_Msk & I2C_CR2_NBYTES_Msk;
+    cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk;
     // set new device addres, set number of bytes to transfer, set transfer direction to transmit
     cr2 |= deviceAddress | I2C_CR2_RD_WRN | ((dataLength + dataBLength) << I2C_CR2_NBYTES_Pos);
     i2c.CR2 = cr2;
@@ -182,17 +164,9 @@ I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t
 	// Generate the Start condition
     const I2C::Error restartError = sendStart(i2c);
     if (restartError != I2C::NoError) return restartError;
-    // Send I2Cx slave Address for read
- //   const I2C::Error deviceReadAddressError = sendDeviceAddress(i2c, deviceAddress + 1);
- //   if (deviceReadAddressError != I2C::NoError) return deviceReadAddressError;
-
-  //  __attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete,read sr2 for clear addr flag
 
     I2C::Error error;
     volatile uint16_t status;
-
-    // buffer A
-  //  i2c.CR1 |= I2C_CR1_ACK;
 
     for (size_t i = 0; i < dataLength; i++) {
     	do {
@@ -215,7 +189,6 @@ I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t
         }
     }
 
- //   i2c.CR1 &= ~I2C_CR1_ACK;
     // Generate the Stop condition
     i2c.CR2 |= I2C_CR2_STOP;
     // wait until one byte has been received
