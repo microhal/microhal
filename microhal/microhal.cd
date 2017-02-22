@@ -78,84 +78,89 @@ INC_DIR := $(INC_DIR) \
            ports/manager
 
 ifneq (, $(findstring stm32f4,$(__MAKAO_DEVICE__)))
-  SRC := $(SRC) \
-         ports/stm32f4xx/adc_stm32f4xx.cpp \
-         ports/stm32f4xx/clockManager.cpp \
-         ports/stm32f4xx/core_stm32f4xx.cpp \
-         ports/stm32f4xx/dma_stm32f4xx.cpp \
-         ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp \
-         ports/stm32f4xx/gpio_stm32f4xx.cpp \
-         ports/stm32f4xx/i2c_stm32f4xx.cpp \
-         ports/stm32f4xx/serialPort_stm32f4xx.cpp \
-         ports/stm32f4xx/syscalls.c \
-         ports/stm32f4xx/timer_stm32f4xx.cpp \
-         ports/stm32f4xx/usb_stm32f4xx.cpp \
-         ports/stm32f4xx/i2c/i2c_dma_stm32f4xx.cpp \
-         ports/stm32f4xx/i2c/i2c_interrupt_stm32f4xx.cpp \
-         ports/stm32f4xx/i2c/i2c_polling_stm32f4xx.cpp \
-         ports/stm32f4xx/serialPort/serialPort_interrupt_stm32f4xx.cpp \
-         ports/stm32f4xx/serialPort/serialPort_RxInterruptTxDma_stm32f4xx.cpp \
-         ports/stm32f4xx/serialPort/serialPort_polling_stm32f4xx.cpp \
-         ports/stm32f4xx/serialPort/serialPort_Dma_stm32f4xx.cpp \
-         ports/stm32f4xx/spi/spi_dma_stm32f4xx.cpp \
-         ports/stm32f4xx/spi/spi_interrupt_stm32f4xx.cpp \
-         ports/stm32f4xx/spi/spi_polling_stm32f4xx.cpp \
-         ports/stm32f4xx/startup/startup.S \
-         ports/stm32f4xx/startup/vectors.c \
-         ports/stm32f4xx/startup/STM32F4xxxG_rom.ld
-       
-INC_DIR := $(INC_DIR) \
-           ports/common/common/Include \
-           ports/manager
-       
-DEF := VENDOR_STMICROELECTRONICS \
-       MCU_TYPE_STM32F4XX \
-       STM32F40_41xxx
+	SRC := $(SRC) \
+		 ports/stm32f4xx/adc_stm32f4xx.cpp \
+		 ports/stm32f4xx/clockManager.cpp \
+		 ports/stm32f4xx/core_stm32f4xx.cpp \
+		 ports/stm32f4xx/dma_stm32f4xx.cpp \
+		 ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp \
+		 ports/stm32f4xx/gpio_stm32f4xx.cpp \
+		 ports/stm32f4xx/i2c_stm32f4xx.cpp \
+		 ports/stm32f4xx/serialPort_stm32f4xx.cpp \
+		 ports/stm32f4xx/syscalls.c \
+		 ports/stm32f4xx/timer_stm32f4xx.cpp \
+		 ports/stm32f4xx/usb_stm32f4xx.cpp \
+		 ports/stm32f4xx/i2c/i2c_dma_stm32f4xx.cpp \
+		 ports/stm32f4xx/i2c/i2c_interrupt_stm32f4xx.cpp \
+		 ports/stm32f4xx/i2c/i2c_polling_stm32f4xx.cpp \
+		 ports/stm32f4xx/serialPort/serialPort_interrupt_stm32f4xx.cpp \
+		 ports/stm32f4xx/serialPort/serialPort_RxInterruptTxDma_stm32f4xx.cpp \
+		 ports/stm32f4xx/serialPort/serialPort_polling_stm32f4xx.cpp \
+		 ports/stm32f4xx/serialPort/serialPort_Dma_stm32f4xx.cpp \
+		 ports/stm32f4xx/spi/spi_dma_stm32f4xx.cpp \
+		 ports/stm32f4xx/spi/spi_interrupt_stm32f4xx.cpp \
+		 ports/stm32f4xx/spi/spi_polling_stm32f4xx.cpp \
+		 ports/stm32f4xx/startup/startup.S \
+		 ports/stm32f4xx/startup/vectors.c \
+		 ports/stm32f4xx/startup/STM32F4xxxG_rom.ld
+		   
+	INC_DIR := $(INC_DIR) \
+			   ports/common/common/Include \
+			   ports/manager
+		   
+	DEF := VENDOR_STMICROELECTRONICS \
+		   MCU_TYPE_STM32F4XX \
+		   STM32F40_41xxx
 endif
 
 ifneq (, $(findstring x86,$(__MAKAO_DEVICE__)))
-SRC := $(SRC) \
-       ports/Windows/General/consoleIODevice.cpp \
-       ports/Windows/General/serialPort_windows.cpp
-     
-     
-INC_DIR := $(INC_DIR) \
-       os/Windows \
-       ports/Windows/General \
-     
-DEF := $(DEF) WINDOWS_PORT
-
+	SRC := $(SRC) \
+		   ports/Windows/General/consoleIODevice.cpp \
+		   ports/Windows/General/serialPort_windows.cpp
+		 
+		 
+	INC_DIR := $(INC_DIR) \
+		   os/Windows \
+		   ports/Windows/General \
+		 
+	DEF := $(DEF) WINDOWS_PORT
 endif
 
 ifneq (, $(findstring nrf52,$(__MAKAO_DEVICE__)))
 
-SRC := $(SRC) \
-       ports/nrf52/i2c/i2c_twim_dma_nrf52.cpp \
-       ports/nrf52/i2c/i2c_twim_polling_nrf52.cpp \
-       ports/nrf52/i2c/i2c_twis_dma_nrf52.cpp \
-       ports/nrf52/serialPort/serialPort_interrupt_nrf52.cpp \
-       ports/nrf52/serialPort/serialPort_polling_nrf52.cpp \
-       ports/nrf52/spi/spi_spim_dma_nrf52.cpp \
-       ports/nrf52/spi/spi_spim_polling_nrf52.cpp \
-       ports/nrf52/startup/startup.cpp \
-       ports/nrf52/startup/vectors.c \
-       ports/nrf52/adc_nrf52.cpp \
-       ports/nrf52/core_nrf52.cpp \
-       ports/nrf52/externalInterrupt_nrf52.cpp \
-       ports/nrf52/gpio_nrf52.cpp \
-       ports/nrf52/i2c_twim_nrf52.cpp \
-       ports/nrf52/itmIoDevice.cpp \
-       ports/nrf52/serialPort_nrf52.cpp \
-       ports/nrf52/spi_spim_nrf52.cpp \
+	DEF := $(DEF) \
+		   NRF52832_XXAA
 
-DEF := $(DEF) \
-       VENDOR_NORDIC \
-       MCU_TYPE_NRF52
-       
-INC_DIR := $(INC_DIR) \
-           ports/common/common/Include \
-           ports/manager
-       
+	SRC := $(SRC) \
+		   ports/nrf52/i2c/i2c_twim_dma_nrf52.cpp \
+		   ports/nrf52/i2c/i2c_twim_polling_nrf52.cpp \
+		   ports/nrf52/i2c/i2c_twis_dma_nrf52.cpp \
+		   ports/nrf52/serialPort/serialPort_interrupt_nrf52.cpp \
+		   ports/nrf52/serialPort/serialPort_polling_nrf52.cpp \
+		   ports/nrf52/spi/spi_spim_dma_nrf52.cpp \
+		   ports/nrf52/spi/spi_spim_polling_nrf52.cpp \
+		   ports/nrf52/startup/startup.cpp \
+		   ports/nrf52/startup/vectors.c \
+		   ports/nrf52/adc_nrf52.cpp \
+		   ports/nrf52/core_nrf52.cpp \
+		   ports/nrf52/externalInterrupt_nrf52.cpp \
+		   ports/nrf52/gpio_nrf52.cpp \
+		   ports/nrf52/i2c_twim_nrf52.cpp \
+		   ports/nrf52/itmIoDevice.cpp \
+		   ports/nrf52/serialPort_nrf52.cpp \
+		   ports/nrf52/spi_spim_nrf52.cpp \
+		   ports/manager/Nordic/system_nrf52.c	   
+
+	DEF := $(DEF) \
+		   VENDOR_NORDIC \
+		   MCU_TYPE_NRF52
+		   
+	INC_DIR := $(INC_DIR) \
+			   ports/common/common/Include \
+			   ports/nrf52/hdr \
+			   ports/manager \
+			   ports/manager/Nordic
+	   
 endif
 
 ########################## UNITS ################################
