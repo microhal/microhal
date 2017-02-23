@@ -5,10 +5,10 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 17-04-2014
- * last modification: 29-06-2016
+ * created on: 21-02-2017
+ * last modification: 24-02-2017
  *
- * @copyright Copyright (c) 2014-2016, Pawel Okas
+ * @copyright Copyright (c) 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -50,24 +50,24 @@ I2C &I2C::i2c3 = I2C_interrupt::i2c3;
 /* ************************************************************************************************
  *                                            FUNCTIONS
  * ***********************************************************************************************/
-I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size_t length) noexcept {
+I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size_t size) noexcept {
 	uint32_t cr2 = i2c.CR2;
     // clear device address and number of bytes and read flag
     cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RD_WRN;
     // set new device address, set number of bytes to transfer, set transfer direction to transmit
-    if (length > 255) {
+    if (size > 255) {
     	cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RELOAD;
-    	length -= 255;
+    	size -= 255;
     } else {
-    	cr2 |= deviceAddress | (length << I2C_CR2_NBYTES_Pos);
-    	length = 0;
+    	cr2 |= deviceAddress | (size << I2C_CR2_NBYTES_Pos);
+    	size = 0;
     }
 
     transfer.bufferA.ptr = const_cast<uint8_t*>(data);
-    transfer.bufferA.length = length;
+    transfer.bufferA.length = size;
     transfer.mode = Mode::Transmit;
 
-    i2c.CR1 |= I2C_CR1_TXIE | I2C_CR1_TCIE;// | I2C_CR1_NACKIE | I2C_CR1_STOPIE;
+    i2c.CR1 |= I2C_CR1_TXIE | I2C_CR1_TCIE;
     i2c.CR2 = cr2 | I2C_CR2_START;
 
     error = NoError;
@@ -95,7 +95,7 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const uint8_t *writ
     transfer.bufferB.length = write_data_sizeB;
     transfer.mode = Mode::TransmitDoubleBuffer;
 
-    i2c.CR1 |= I2C_CR1_TXIE | I2C_CR1_TCIE;// | I2C_CR1_NACKIE | I2C_CR1_STOPIE;
+    i2c.CR1 |= I2C_CR1_TXIE | I2C_CR1_TCIE;
     i2c.CR2 = cr2 | I2C_CR2_RELOAD | I2C_CR2_START ;
 
     error = NoError;
@@ -120,7 +120,7 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t leng
     transfer.bufferA.length = length;
     transfer.mode = Mode::Receive;
 
-    i2c.CR1 |= I2C_CR1_RXIE | I2C_CR1_TCIE;// | I2C_CR1_NACKIE | I2C_CR1_STOPIE;
+    i2c.CR1 |= I2C_CR1_RXIE | I2C_CR1_TCIE;
     i2c.CR2 = cr2 | I2C_CR2_START;
 
     error = NoError;
@@ -148,7 +148,7 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t data
     transfer.bufferB.length = dataBLength;
     transfer.mode = Mode::ReceiveDoubleBuffer;
 
-    i2c.CR1 |= I2C_CR1_RXIE | I2C_CR1_TCIE;// | I2C_CR1_NACKIE | I2C_CR1_STOPIE;
+    i2c.CR1 |= I2C_CR1_RXIE | I2C_CR1_TCIE;
     i2c.CR2 = cr2 | I2C_CR2_RELOAD | I2C_CR2_START;
 
     error = NoError;
@@ -170,7 +170,6 @@ I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write,
     	write_size = 0;
     }
 
-	transfer.deviceAddress = address;
     transfer.bufferA.ptr = const_cast<uint8_t*>(write);
     transfer.bufferA.length = write_size;
     transfer.bufferB.ptr = read;
@@ -258,26 +257,6 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
     	cr2 |=  (toWrite << I2C_CR2_NBYTES_Pos);
     	i2c->CR2 = cr2;
     }
-
-//	if (isr & I2C_ISR_STOPF) {
-//		//obj.error = I2C::AcknowledgeFailure;
-//		auto shouldYeld = obj.semaphore.giveFromISR();
-//#if defined (HAL_RTOS_FreeRTOS)
-//		portYIELD_FROM_ISR(shouldYeld);
-//#else
-//		(void)shouldYeld;
-//#endif
-//	}
-
-//    if (isr & I2C_ISR_NACKF) {
-//    	obj.error = I2C::AcknowledgeFailure;
-//		auto shouldYeld = obj.semaphore.giveFromISR();
-//#if defined (HAL_RTOS_FreeRTOS)
-//		portYIELD_FROM_ISR(shouldYeld);
-//#else
-//		(void)shouldYeld;
-//#endif
-//    }
 }
 //***********************************************************************************************//
 //                                          IRQHandlers //

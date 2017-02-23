@@ -2,13 +2,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      I2C implementation for STM32F4xx microcontroler
+ * @brief      I2C implementation for STM32F3xx microcontroler
  *
  * @authors    Pawel Okas
- * created on: 2014
- * last modification: 27-06-2016
+ * created on: 20-02-2017
+ * last modification: 24-02-2017
  *
- * @copyright Copyright (c) 2014-2016, Pawel Okas
+ * @copyright Copyright (c) 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -116,7 +116,7 @@ class I2C : public microhal::I2C {
      *
      * @retval true if analog filter was on
      * @retval false if I2C peripheral is enabled and changing filter state is
-     * unpossible
+     * impossible
      */
     bool analogFilterEnable() {
         if (isEnable() == false) {
@@ -132,7 +132,7 @@ class I2C : public microhal::I2C {
      *
      * @retval true if analog filter was off
      * @retval false if I2C peripheral is enabled and changing filter state is
-     * unpossible
+     * impossible
      */
     bool analogFilterDisable() {
         if (isEnable() == false) {
@@ -187,13 +187,12 @@ class I2C : public microhal::I2C {
         explicit I2C(I2C_TypeDef &i2c)
         : i2c(i2c) {
     }
-    //    virtual ~I2C() {
-    //    }
+
     void start() {
     	i2c.CR2 |= I2C_CR2_START;
     }
 
-public:
+ public:
     static I2C::Error errorCheckAndClear(I2C_TypeDef *i2c, uint16_t isr) {
         uint32_t errors = I2C::NoError;
 
@@ -208,10 +207,6 @@ public:
             errors |= I2C::OverrunError;
             i2c->ICR |= I2C_ICR_OVRCF;
         }
-//        if (isr & I2C_ISR_AF) {
-//            errors |= I2C::AcknowledgeFailure;
-//            i2c->ICR |= I2C_ICR_AFCF;
-//        }
         if (isr & I2C_ISR_ARLO) {
             errors |= I2C::ArbitrationLost;
             i2c->ICR |= I2C_ICR_ARLOCF;
@@ -223,11 +218,10 @@ public:
 
         return static_cast<I2C::Error>(errors);
     }
-    //----------------------------------------- friends
-    //-----------------------------------------//
+    //----------------------------------------- friends -----------------------------------------//
     friend microhal::I2CDevice;
 };
 
-}  // namespace stm32f4xx
+}  // namespace stm32f3xx
 }  // namespace microhal
-#endif  // _MICROHAL_I2C_STM32F4XX_H_
+#endif  // _MICROHAL_I2C_STM32F3XX_H_
