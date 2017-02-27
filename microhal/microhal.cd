@@ -27,20 +27,24 @@ INC_DIR := . \
            core/utils
 
 ifdef MICROHAL_DIAGNOSTIC
-    SRC := $(SRC) \
-       core/diagnostic/diagnostic_base.cpp \
-       core/diagnostic/diagnostic.cpp
-	   
-	INC_DIR := $(INC_DIR) \
-       core/diagnostic
+	ifeq ($(MICROHAL_DIAGNOSTIC),yes) 
+		SRC := $(SRC) \
+		   core/diagnostic/diagnostic_base.cpp \
+		   core/diagnostic/diagnostic.cpp
+		   
+		INC_DIR := $(INC_DIR) \
+		   core/diagnostic
+	endif 
 endif 
 
 ifdef MICROHAL_CRC
-	SRC := $(SRC) \
-	       core/crc/crc16.cpp \
-           core/crc/crc7.cpp
-	INC_DIR := $(INC_DIR) \
-               core/crc
+	ifeq ($(MICROHAL_CRC),yes) 
+		SRC := $(SRC) \
+			   core/crc/crc16.cpp \
+			   core/crc/crc7.cpp
+		INC_DIR := $(INC_DIR) \
+				   core/crc
+	endif
 endif
            
 #############################  OS  ###############################
