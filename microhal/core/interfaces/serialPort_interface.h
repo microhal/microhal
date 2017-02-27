@@ -140,7 +140,7 @@ class SerialPort : public microhal::IODevice {
         UnknownStopBits  ///< Unknown number of stop bits/
     };
     //------------------------------------------ destructors ----------------------------------------//
-    // virtual ~SerialPort() {}
+
     //------------------------------------------- functions -----------------------------------------//
 
     bool open(OpenMode mode, uint32_t baudRate, DataBits dataBits = Data8, StopBits stopBits = OneStop, Parity parity = NoParity) noexcept;
@@ -177,6 +177,9 @@ class SerialPort : public microhal::IODevice {
 
     virtual bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept = 0;
     virtual bool clear(SerialPort::Direction dir = AllDirections) noexcept = 0;
+
+ protected:
+    ~SerialPort() {}
 };
 
 }  // namespace microhal

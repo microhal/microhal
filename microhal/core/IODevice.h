@@ -77,7 +77,7 @@ class IODevice {
     IODevice() : mutex() {}
 #endif
 
-    virtual ~IODevice() {}
+    ~IODevice() {}
     /**
      *
      * @param mode

@@ -67,8 +67,6 @@ class I2C {
     virtual Error read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t &data) = 0;
     virtual Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) = 0;
 
-    virtual ~I2C() {}
-
  protected:
     bool noLock = false;
 
@@ -78,6 +76,8 @@ class I2C {
         I2C()
         : mutex() {
     }
+
+    ~I2C() {}
 
     /**
          * @brief This function return maximum rise time for specific I2C bus

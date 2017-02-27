@@ -49,15 +49,14 @@
 
 #endif
 
-
 #include "diagnostic/diagnostic.h"
 #include "i2c.h"
 #include "serialPort.h"
 #include "spi.h"
 
 extern "C" {
-
 void hardwareConfig(void);
+void hardwareDeinitialize(void);
 }
 
 #endif  // _MICROHAL_MICROHAL_H_
