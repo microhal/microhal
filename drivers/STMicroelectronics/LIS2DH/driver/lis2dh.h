@@ -23,7 +23,7 @@ class LIS2DH : protected microhal::I2CDevice {
     static constexpr auto STAUS_REG_AUX = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0x07>{});
 	static constexpr auto OUT_TEMP_L = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0x0C>{});
 	static constexpr auto OUT_TEMP_H = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0x0D>{});
-	static constexpr auto OUT_TEMP = microhal::makeRegister<uint16_t, Access::ReadOnly,Endianness::Little>(microhal::Address<uint8_t, 0x0C>{});
+	static constexpr auto OUT_TEMP = microhal::makeRegister<uint16_t, Access::ReadOnly,Endianness::Little>(microhal::Address<uint8_t, 0x0C|SUB7>{});
 	static constexpr auto INT_COUNTER_REG = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0x0E>{});
 	static constexpr auto WHO_AM_I = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0x0F>{});
 	static constexpr auto TEMP_CFG_REG = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x1F>{});
@@ -123,6 +123,45 @@ class LIS2DH : protected microhal::I2CDevice {
     BDU = 1U << 7
   };
 
+  enum class CTRL_REG5_BITS : uint8_t {
+
+    D4DINT2 = 0,
+    LIR_INT2 = 1U << 1,
+    D4D_INT1 = 1U << 2,
+    LIR_INT1 = 1U << 3,
+    FIFO_EN = 1U << 6,
+    BOOT = 1U << 7
+  };
+
+  enum class CTRL_REG6_BITS : uint8_t {
+    H_LACTIVE = 1UL << 1,
+    P2_ACT = 1UL << 3,
+    BOOT_I2 = 1UL << 4,
+    I2_INT2 = 1UL << 5,
+    I2_INT1 = 1UL << 6,
+    I2_CLICKen = 1UL << 7
+  };
+
+  enum class INT1_CFG_BITS : uint8_t {
+    XLIE_XDOWNE = 1,
+    XHIE_XUPE = 1UL << 1,
+    YLIE_YDOWNE = 1UL << 2,
+    YHIE_YUPE = 1UL << 3,
+    ZLIE_ZDOWNE = 1UL << 4,
+    ZHIE_ZUPE = 1UL << 5,
+    _6D = 1UL << 6,
+    AIO = 1UL << 7
+  };
+
+  enum class CLICK_CFG_BITS : uint8_t {
+    XS = 1,
+    XD = 1UL << 1,
+    YS = 1UL << 2,
+    YD = 1UL << 3,
+    ZS = 1UL << 4,
+    ZD = 1UL << 5
+  };
+
  public:
   using AccelerationVector = microhal::Vector<microhal::Acceleration, 3>;
 
@@ -150,33 +189,135 @@ class LIS2DH : protected microhal::I2CDevice {
   }
   enum Range { range2g = 0, range4g = 1, range8g = 2, range16g = 3 };
 
+  bool resetRegisters() {
+    Error status = Error::NoError;
+    // here all register in acc must be reseted to default values
+
+    // manual clearing
+    status = bitsSet(TEMP_CFG_REG, 0);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CTRL_REG1, 0x07);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CTRL_REG2, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CTRL_REG3, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CTRL_REG4, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CTRL_REG5, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CTRL_REG6, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(FIFO_CTRL_REG, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = write(INT1_CFG, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(INT1_THS, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(INT1_DURATION, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(INT2_CFG, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(INT2_THS, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(INT2_DURATION, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CLICK_CFG, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(CLICK_THS, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(TIME_LIMIT, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(TIME_LATENCY, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    status = bitsSet(TIME_WINDOW, 0x00);
+    if (status != Error::NoError) {
+      return false;
+    }
+    //    uint8_t temp = static_cast<uint8_t>(CTRL_REG5_BITS::BOOT);
+    //    if (write(CTRL_REG5, temp) == Error::NoError) {
+    //      return true;
+    //    }
+
+    return false;
+  }
   bool init() {
     // Boot procedure is complete about 5 milliseconds just after powered up the
     // device.
     uint8_t temp;
     if (read(WHO_AM_I, temp) == Error::NoError) {
-      if (temp == WHO_AM_I_BITS) {
-        return true;
+      if (temp != WHO_AM_I_BITS) {
+        return false;
       }
-
-      // here all register in acc must be reseted to default values
     }
-    return false;
+    return true;
   }
   // ContinuousUpdate must be enabled also
-  void temperatureSensorEnable() {
+  bool temperatureSensorEnable() {
     // TEMP_EN bit of the TEMP_CFG_REG register to 1.
     // To retrieve the temperature sensor data BDU bit on CTRL_REG4 (23h) must
     // be set to ‘1’.
     // Both OUT_TEMP_H and OUT_TEMP_L registers must be read.
+    uint8_t temp = static_cast<uint8_t>(TEMP_CFG_REG_BITS::TEMP_EN0) |
+                   static_cast<uint8_t>(TEMP_CFG_REG_BITS::TEMP_EN1);
+    if (bitsSet(TEMP_CFG_REG, temp) == Error::NoError) {
+      return true;
+    }
+    return false;
   }
-  void temperatureSensorDisable() {}
+  bool temperatureSensorDisable() {
+    if (bitsSet(TEMP_CFG_REG, 0) == Error::NoError) {
+      return true;
+    }
+    return false;
+  }
   std::experimental::optional<microhal::Temperature> getTemperatue() {
     std::experimental::optional<microhal::Temperature> temperature;
-    uint16_t temp;
 
-    //    if (read(OUT_TEMP | SUB7, temp) == Error::NoError) {
-    //    }
+    uint8_t temp1, temp2;
+    read(OUT_TEMP_L, temp1);
+    read(OUT_TEMP_H, temp2);
+    uint16_t temp = 0;
+    int8_t *temp8 = reinterpret_cast<int8_t *>(&temp);
+    if (read(OUT_TEMP, temp) == Error::NoError) {
+      //      temperature = microhal::Temperature::fromCelcius(temp8[1]);
+    }
     return temperature;
   }
   bool isTemperatureAvailable() {
@@ -197,7 +338,6 @@ class LIS2DH : protected microhal::I2CDevice {
     }
     return false;
   }
-  void setMeasurementRange() {}
   void enableOrientationReocgnition() {}
   void setSleepThreshold() {}
   bool isDataReady() { return false; }
@@ -217,7 +357,7 @@ class LIS2DH : protected microhal::I2CDevice {
     // dedicated
     //	interrupts on INT1/2 pin (configuration through FIFO_CFG_REG).
   }
-
+  // CTRL_REG3 I1-CLICK
   void watermarkInterruptEnable() {
     //(FIFO_WTMK_EN bit into FIFO_CTRL_REG (2E) in order to be
     // raised when the FIFO is filled to the level specified into the
@@ -280,7 +420,19 @@ class LIS2DH : protected microhal::I2CDevice {
     }
     return false;
   }
-  void enableContinuousUpdate() {}
+  bool ContinuousUpdate(bool enable) {
+    uint8_t temp = static_cast<uint8_t>(CTRL_REG4_BITS::BDU);
+    if (true == enable) {
+      if (bitsClear(CTRL_REG4, temp) == Error::NoError) {
+        return true;
+      }
+    } else {
+      if (bitsSet(CTRL_REG4, temp) == Error::NoError) {
+        return true;
+      }
+    }
+    return false;
+  }
   void getFullFifo() {
     //	The reading address is automatically updated by the device and it rolls
     // back to 0x28 when
@@ -318,7 +470,6 @@ class LIS2DH : protected microhal::I2CDevice {
     // mode
     // interrupt enable ...
   }
-  void enableClickinterrupt() {}
 
   enum Scale : uint8_t { Scale2G = 0, Scale4G = 1UL << 4, Scale8G, Scale16G };
 
@@ -329,9 +480,10 @@ class LIS2DH : protected microhal::I2CDevice {
   bool setScale(Scale scale) {
     uint8_t temp = static_cast<uint8_t>(scale);
     this->scale = scale;
-    if (bitsSet(CTRL_REG4, temp) == Error::NoError) {
+    if (write(CTRL_REG4, temp) == Error::NoError) {
       return true;
     }
+    return false;
   }
   microhal::Acceleration convertToAcceleration(int16_t value) {
     float range = 0;
@@ -352,6 +504,274 @@ class LIS2DH : protected microhal::I2CDevice {
     float temp =
         range * static_cast<float>(value) / static_cast<float>(1 << 15);
     return microhal::Acceleration(temp);
+  }
+
+  //  enum class interruptSource : uint8_t {
+  //    XL = 1,
+  //    XH = 1UL << 1,
+  //    YL = 1UL << 2,
+  //    YH = 1UL << 3,
+  //    ZL = 1UL << 4,
+  //    ZH = 1UL << 5,
+  //    IA = 1UL << 6
+  //  };
+  struct interruptSources {
+    uint8_t XL : 1;
+    uint8_t XH : 1;
+    uint8_t YL : 1;
+    uint8_t YH : 1;
+    uint8_t ZL : 1;
+    uint8_t ZH : 1;
+    uint8_t IA : 1;
+  };
+
+  union interruptSource {
+    uint8_t value;
+    interruptSources sources;
+  };
+
+  bool checkInterrupt1Source(interruptSource &source) {
+    uint8_t temp;
+    if (read(INT1_SOURCE, temp) != Error::NoError) return false;
+    source.value = temp;
+    return true;
+  }
+  bool checkInterrupt2Source(uint8_t &source) {
+    if (read(INT1_SOURCE, source) == Error::NoError) return true;
+    return false;
+  }
+
+  enum class INT1Source : uint8_t {
+    ORCombination = 0,
+    Direction6D,
+    AndCombination,
+    Postiion6D,
+    ZHighEvent,
+    ZHighDirection,
+    ZLowEvent,
+    ZLowDirection,
+    YHighEvent,
+    YHighDirection,
+    YLowEvent,
+    YLowDirection,
+    XHighEvent,
+    XHighDirection,
+    XLowEvent,
+    XLowDirection
+
+  };
+
+  bool configureInterrupt1source(INT1Source cfg) {
+    uint8_t clear = 0;
+    uint8_t set = 0;
+
+    switch (cfg) {
+      case INT1Source::AndCombination:
+        set = static_cast<uint8_t>(INT1_CFG_BITS::AIO);
+        clear = static_cast<uint8_t>(INT1_CFG_BITS::_6D);
+        break;
+
+      case INT1Source::ZLowDirection:
+      case INT1Source::ZLowEvent:
+        set |= static_cast<uint8_t>(INT1_CFG_BITS::ZLIE_ZDOWNE);
+        break;
+      case INT1Source::YLowDirection:
+      case INT1Source::YLowEvent:
+        set |= static_cast<uint8_t>(INT1_CFG_BITS::YLIE_YDOWNE);
+        break;
+
+      case INT1Source::XLowEvent:
+      case INT1Source::XLowDirection:
+        set |= static_cast<uint8_t>(INT1_CFG_BITS::XLIE_XDOWNE);
+        break;
+      case INT1Source::ORCombination:
+      default:  // OrCombination
+        clear = INT1_CFG_BITS::AIO | INT1_CFG_BITS::_6D;
+    }
+    if (clear) {
+      if (bitsClear(INT1_CFG, clear) != Error::NoError) {
+        return false;
+      }
+    }
+    if (set) {
+      if (bitsSet(INT1_CFG, set) != Error::NoError) {
+        return false;
+      }
+    }
+    return true;
+  }
+  friend uint8_t operator|(LIS2DH::INT1_CFG_BITS a, LIS2DH::INT1_CFG_BITS b) {
+    return static_cast<uint8_t>(a) | static_cast<uint8_t>(b);
+  }
+
+  enum class Interrupt1Sources {
+    OVERRUN = 1UL << 1,
+    WTM = 1UL << 2,
+    DRDY2 = 1UL << 3,
+    DRDY1 = 1UL << 4,
+    AOI2 = 1UL << 5,
+    AOI1 = 1UL << 6,
+    Click = 1UL << 7
+
+  };
+  bool interrupt1EnableSource(Interrupt1Sources source) {
+    uint8_t temp = static_cast<uint8_t>(source);
+
+    if (bitsSet(CTRL_REG3, temp) == Error::NoError) {
+      return true;
+    }
+  }
+  bool interrupt1DisableSource(Interrupt1Sources source) {
+    uint8_t temp = static_cast<uint8_t>(source);
+
+    if (bitsSet(CTRL_REG3, temp) == Error::NoError) {
+      return true;
+    }
+  }
+  bool interrupt1DisableAll() {
+    if (write(CTRL_REG3, 0) == Error::NoError) {
+      return true;
+    }
+  }
+
+  struct clickinterruptSources {
+    uint8_t X : 1;     // X click-click detection
+    uint8_t Y : 1;     // Y click-click detection
+    uint8_t Z : 1;     // Z click-click detection
+    uint8_t Sign : 1;  // Click-click-sign 0-positive,1-negative
+    uint8_t Stap : 1;
+    uint8_t DClick : 1;
+    uint8_t IA : 1;  // one or more interrupts has been generated
+  };
+
+  union cliclinterruptSource {
+    uint8_t value;
+    clickinterruptSources sources;
+  };
+  bool checkClickSource(cliclinterruptSource source) {
+    uint8_t temp;
+    if (read(CLICK_SRC, temp) != Error::NoError) return false;
+    source.value = temp;
+    return true;
+  }
+  // threshold - 1 LSB = full scale/128.
+  // timelimit - 1 LSB = 1/ODR.
+  // interrupt is kept high until click source is read
+  bool setClick(uint8_t threshold, uint8_t timeLimit, uint8_t timeLatency,
+                uint8_t timeWindow, bool xAxis, bool yAxis, bool zAxis,
+                bool singleClick, bool doubleClick) {
+    uint8_t temp = 0;
+
+    // registers has only 7 bits
+    if (threshold > 126) return false;
+    if (timeLimit > 126) return false;
+
+    if (write(CLICK_THS, threshold) != Error::NoError) {
+      return false;
+    }
+
+    if (write(TIME_LIMIT, timeLimit) != Error::NoError) {
+      return false;
+    }
+
+    if (write(TIME_LATENCY, timeLatency) != Error::NoError) {
+      return false;
+    }
+
+    if (write(TIME_WINDOW, timeWindow) != Error::NoError) {
+      return false;
+    }
+
+    if (true == singleClick) {
+      if (true == xAxis) {
+        temp = static_cast<uint8_t>(CLICK_CFG_BITS::XS);
+      }
+      if (true == yAxis) {
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::YS);
+      }
+      if (true == zAxis) {
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::ZS);
+      }
+    }
+
+    if (true == doubleClick) {
+      if (true == xAxis) {
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::XS);
+      }
+      if (true == yAxis) {
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::YS);
+      }
+      if (true == zAxis) {
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::ZS);
+      }
+    }
+
+    if (bitsSet(CLICK_CFG, temp) != Error::NoError) {
+      return false;
+    }
+    return true;
+  }
+  enum class interruptLevel { LOW = 0, HIGH };
+  bool interruptSetLevel(interruptLevel level) {
+    if (level == interruptLevel::LOW) {
+      if (bitsSet(CTRL_REG6, static_cast<uint8_t>(CTRL_REG6_BITS::H_LACTIVE)) !=
+          Error::NoError) {
+        return false;
+      }
+    } else {
+      if (bitsClear(CTRL_REG6,
+                    static_cast<uint8_t>(CTRL_REG6_BITS::H_LACTIVE)) !=
+          Error::NoError) {
+        return false;
+      }
+    }
+    return true;
+  }
+  bool interrupt1LatchRequest(bool enable) {
+    if (enable) {
+      if (bitsSet(CTRL_REG5, static_cast<uint8_t>(CTRL_REG5_BITS::LIR_INT1)) !=
+          Error::NoError) {
+        return false;
+      }
+    } else {
+      if (bitsClear(CTRL_REG5,
+                    static_cast<uint8_t>(CTRL_REG5_BITS::LIR_INT1)) !=
+          Error::NoError) {
+        return false;
+      }
+    }
+    return true;
+  }
+  bool configureFreefall(uint8_t threshold, uint8_t eventDuration) {
+    if (write(INT1_THS, threshold) != Error::NoError) {
+      return false;
+    }
+
+    if (write(INT1_DURATION, eventDuration) != Error::NoError) {
+      return false;
+    }
+    return true;
+  }
+
+  bool disableHighPassFilters() {
+    if (write(CTRL_REG2, 0) != Error::NoError) {
+      return false;
+    }
+    return true;
+  }
+
+  void test() {
+    // write(CTRL_REG1, 0xa7);
+    //  write(CTRL_REG2, 0);
+    //  write(CTRL_REG3, 0x40);
+    // write(CTRL_REG4, 0);
+    //  write(CTRL_REG5, 0x08);
+    //   write(INT1_THS, 0x16);
+    //  write(INT1_DURATION, 0x03);
+    // write(INT1_CFG, 0x95);
+
+    uint8_t temp;
+    read(INT1_CFG, temp);
   }
 };
 
