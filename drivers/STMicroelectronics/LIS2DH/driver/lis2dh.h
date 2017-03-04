@@ -173,14 +173,14 @@ class LIS2DH : protected microhal::I2CDevice {
   enum class DataRate : uint8_t {
     PowerDown = 0,
     Mode1Hz = 1UL << 4,
-    Mode10Hz,
-    Mode25Hz,
-    Mode50Hz,
-    Mode100Hz,
-    Mode200Hz,
-    Mode400Hz,
-    LowPower1_62kHz,
-    HRNormal1_344khzLowpower5_376kHz
+    Mode10Hz = 2UL << 4,
+    Mode25Hz = 3UL << 4,
+    Mode50Hz = 4UL << 4,
+    Mode100Hz = 5UL << 4,
+    Mode200Hz = 6UL << 4,
+    Mode400Hz = 7UL << 4,
+    LowPower1_62kHz = 8UL << 4,
+    HRNormal1_344khzLowpower5_376kHz = 9UL << 4
   };
 
   LIS2DH(microhal::I2C &i2c, PossibleI2CAddress address)
@@ -194,35 +194,35 @@ class LIS2DH : protected microhal::I2CDevice {
     // here all register in acc must be reseted to default values
 
     // manual clearing
-    status = bitsSet(TEMP_CFG_REG, 0);
+    status = write(TEMP_CFG_REG, 0);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CTRL_REG1, 0x07);
+    status = write(CTRL_REG1, 0x07);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CTRL_REG2, 0x00);
+    status = write(CTRL_REG2, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CTRL_REG3, 0x00);
+    status = write(CTRL_REG3, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CTRL_REG4, 0x00);
+    status = write(CTRL_REG4, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CTRL_REG5, 0x00);
+    status = write(CTRL_REG5, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CTRL_REG6, 0x00);
+    status = write(CTRL_REG6, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(FIFO_CTRL_REG, 0x00);
+    status = write(FIFO_CTRL_REG, 0x00);
     if (status != Error::NoError) {
       return false;
     }
@@ -230,46 +230,47 @@ class LIS2DH : protected microhal::I2CDevice {
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(INT1_THS, 0x00);
+    status = write(INT1_THS, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(INT1_DURATION, 0x00);
+    status = write(INT1_DURATION, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(INT2_CFG, 0x00);
+    status = write(INT2_CFG, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(INT2_THS, 0x00);
+    status = write(INT2_THS, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(INT2_DURATION, 0x00);
+    status = write(INT2_DURATION, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CLICK_CFG, 0x00);
+    status = write(CLICK_CFG, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(CLICK_THS, 0x00);
+    status = write(CLICK_THS, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(TIME_LIMIT, 0x00);
+    status = write(TIME_LIMIT, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(TIME_LATENCY, 0x00);
+    status = write(TIME_LATENCY, 0x00);
     if (status != Error::NoError) {
       return false;
     }
-    status = bitsSet(TIME_WINDOW, 0x00);
+    status = write(TIME_WINDOW, 0x00);
     if (status != Error::NoError) {
       return false;
     }
+    // at this moment i dont know how use it
     //    uint8_t temp = static_cast<uint8_t>(CTRL_REG5_BITS::BOOT);
     //    if (write(CTRL_REG5, temp) == Error::NoError) {
     //      return true;
@@ -760,18 +761,10 @@ class LIS2DH : protected microhal::I2CDevice {
     return true;
   }
 
+  // used to debug
   void test() {
-    // write(CTRL_REG1, 0xa7);
-    //  write(CTRL_REG2, 0);
-    //  write(CTRL_REG3, 0x40);
-    // write(CTRL_REG4, 0);
-    //  write(CTRL_REG5, 0x08);
-    //   write(INT1_THS, 0x16);
-    //  write(INT1_DURATION, 0x03);
-    // write(INT1_CFG, 0x95);
-
     uint8_t temp;
-    read(INT1_CFG, temp);
+    read(CTRL_REG1, temp);
   }
 };
 
