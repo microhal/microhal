@@ -5,6 +5,7 @@
 
 using namespace microhal;
 using namespace diagnostic;
+using namespace std::chrono_literals;
 
 LIS2DH lis2dh(sensorI2C, LIS2DH::I2C_ADDRESS_0);
 
@@ -173,13 +174,9 @@ void test3() {
   lis2dh.setScale(LIS2DH::Scale::Scale4G);                          // REG4
   lis2dh.interrupt1LatchRequest(true);                              // REG5
 
-  //  // interrupt occur on any event
-  //  lis2dh.configureInterrupt1source(
-  //      LIS2DH::INT1Source::ORCombination);  // INT1_CFG
-
-  // 100*4G/128=3,125G - threshold
-  // 0x33/400Hz=51/400=127,5ms - timelimit
-  lis2dh.setClick(100, 0x33, 0, 0, true, true, true, true, false);
+  Acceleration threshold(3.125f);  // 3.125G
+  std::chrono::microseconds timeLimit = 127ms;
+  lis2dh.setClick(threshold, timeLimit, 0, 0, true, true, true, true, false);
 }
 
 void lisInterrupt1test4() {

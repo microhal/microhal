@@ -186,6 +186,7 @@ class LIS2DH : protected microhal::I2CDevice {
   LIS2DH(microhal::I2C &i2c, PossibleI2CAddress address)
       : I2CDevice(i2c, address) {
     scale = Scale::Scale2G;
+    dataRate = DataRate::PowerDown;
   }
   enum Range { range2g = 0, range4g = 1, range8g = 2, range16g = 3 };
 
@@ -462,9 +463,11 @@ class LIS2DH : protected microhal::I2CDevice {
   void enableSelfTest(SelfTestMode mode) { uint8_t temp = 0; }
   bool setDataRate(DataRate rate) {
     uint8_t temp = static_cast<uint8_t>(rate);
+    dataRate = rate;
     if (bitsSet(CTRL_REG1, temp) == Error::NoError) {
       return true;
     }
+    return false;
   }
   void configureHighPassFilter() {
     // cut off selection
@@ -481,6 +484,46 @@ class LIS2DH : protected microhal::I2CDevice {
 
  private:
   Scale scale;
+  DataRate dataRate;
+
+  uint32_t getFullScale() {
+    switch (scale) {
+      case Scale2G:
+        return 2;
+      case Scale4G:
+        return 4;
+      case Scale8G:
+        return 8;
+      case Scale16G:
+        return 16;
+    }
+    return 0;
+  }
+
+  uint32_t getDataRate() {
+    switch (dataRate) {
+      case DataRate::Mode50Hz:
+        return 50;
+      case DataRate::Mode400Hz:
+        return 400;
+      case DataRate::Mode25Hz:
+        return 25;
+      case DataRate::Mode200Hz:
+        return 200;
+      case DataRate::Mode1Hz:
+        return 1;
+      case DataRate::Mode10Hz:
+        return 10;
+      case DataRate::Mode100Hz:
+        return 100;
+      case DataRate::LowPower1_62kHz:
+        return 1620;
+      case DataRate::HRNormal1_344khzLowpower5_376kHz:
+        return 0;  // todo
+      default:
+        return 0;
+    }
+  }
 
  public:
   bool setScale(Scale scale) {
@@ -626,6 +669,7 @@ class LIS2DH : protected microhal::I2CDevice {
     if (bitsSet(CTRL_REG3, temp) == Error::NoError) {
       return true;
     }
+    return false;
   }
   bool interrupt1DisableSource(Interrupt1Sources source) {
     uint8_t temp = static_cast<uint8_t>(source);
@@ -663,20 +707,25 @@ class LIS2DH : protected microhal::I2CDevice {
   // threshold - 1 LSB = full scale/128.
   // timelimit - 1 LSB = 1/ODR.
   // interrupt is kept high until click source is read
-  bool setClick(uint8_t threshold, uint8_t timeLimit, uint8_t timeLatency,
+  bool setClick(microhal::Acceleration threshold,
+                std::chrono::microseconds timeLimit, uint8_t timeLatency,
                 uint8_t timeWindow, bool xAxis, bool yAxis, bool zAxis,
                 bool singleClick, bool doubleClick) {
     uint8_t temp = 0;
 
+    float rawThreshold = (threshold.getAcceleration() * 128) / getFullScale();
+    uint32_t rawTimeLimit = getDataRate() * timeLimit.count() / std::micro::den;
     // registers has only 7 bits
-    if (threshold > 126) return false;
-    if (timeLimit > 126) return false;
+    if (rawThreshold > 126) return false;
+    if (rawTimeLimit > 126) return false;
 
-    if (write(CLICK_THS, threshold) != Error::NoError) {
+    if (write(CLICK_THS, static_cast<uint8_t>(rawThreshold)) !=
+        Error::NoError) {
       return false;
     }
 
-    if (write(TIME_LIMIT, timeLimit) != Error::NoError) {
+    if (write(TIME_LIMIT, static_cast<uint8_t>(rawTimeLimit)) !=
+        Error::NoError) {
       return false;
     }
 
