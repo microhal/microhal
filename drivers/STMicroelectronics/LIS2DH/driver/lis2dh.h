@@ -472,7 +472,12 @@ class LIS2DH : protected microhal::I2CDevice {
     // interrupt enable ...
   }
 
-  enum Scale : uint8_t { Scale2G = 0, Scale4G = 1UL << 4, Scale8G, Scale16G };
+  enum Scale : uint8_t {
+    Scale2G = 0,
+    Scale4G = 1UL << 4,
+    Scale8G = 2UL << 4,
+    Scale16G = 3UL << 4
+  };
 
  private:
   Scale scale;
@@ -645,11 +650,11 @@ class LIS2DH : protected microhal::I2CDevice {
     uint8_t IA : 1;  // one or more interrupts has been generated
   };
 
-  union cliclinterruptSource {
+  union clickinterruptSource {
     uint8_t value;
     clickinterruptSources sources;
   };
-  bool checkClickSource(cliclinterruptSource source) {
+  bool checkClickSource(clickinterruptSource &source) {
     uint8_t temp;
     if (read(CLICK_SRC, temp) != Error::NoError) return false;
     source.value = temp;
@@ -697,13 +702,13 @@ class LIS2DH : protected microhal::I2CDevice {
 
     if (true == doubleClick) {
       if (true == xAxis) {
-        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::XS);
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::XD);
       }
       if (true == yAxis) {
-        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::YS);
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::YD);
       }
       if (true == zAxis) {
-        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::ZS);
+        temp |= static_cast<uint8_t>(CLICK_CFG_BITS::ZD);
       }
     }
 
