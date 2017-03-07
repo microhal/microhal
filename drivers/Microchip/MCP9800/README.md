@@ -1,7 +1,5 @@
 #MCP9800
-#MCP9801
-#MCP9802
-#MCP9803
+##MCP9801 MCP9802 MCP9803
 
 2-Wire High-Accuracy Temperature Sensor
 
