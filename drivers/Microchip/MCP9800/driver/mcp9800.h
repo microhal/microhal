@@ -39,54 +39,54 @@
  * CLASS
  */
 class MCP9800 : private microhal::I2CDevice {
-	enum Register {
-		AmbientTemperature = 0x00,
-		SensorConfiguration,
-		TemperatureHysteresis,
-		TemperatureLimitSet
-	};
+    enum Register {
+        AmbientTemperature = 0x00,
+        SensorConfiguration,
+        TemperatureHysteresis,
+        TemperatureLimitSet
+    };
 
  public:
     enum class Resolution : uint8_t {
         NineBits   = 0b00000000,    //! 0.5 Celsius degree
         TenBits    = 0b00100000,     //! 0.25 Celsius degree
-		ElevenBits = 0b01000000,  //! 0.125 Celsius degree
-		TwelveBits = 0b01100000  //! 0.0625 Celsius degree
-	};
+        ElevenBits = 0b01000000,  //! 0.125 Celsius degree
+        TwelveBits = 0b01100000  //! 0.0625 Celsius degree
+    };
 
-	enum class AlertPolarity {
-		ActiveLow = 0b000,
-		ActiveHigh = 0b100
-	};
+    enum class AlertPolarity {
+        ActiveLow = 0b000,
+        ActiveHigh = 0b100
+    };
 
-	enum class AlertMode {
-		Comparator = 0b00,
-		Interrupt = 0b10,
-	};
+    enum class AlertMode {
+        Comparator = 0b00,
+        Interrupt = 0b10,
+    };
 
-	enum class Address : uint8_t {
-		Ox90 = 0x90,
-		Ox92 = 0x92,
-		Ox94 = 0x94,
-		Ox96 = 0x96,
-		Ox98 = 0x98,
-		Ox9A = 0x9A,
-		Ox9C = 0x9C,
-		Ox9E = 0x9E,
-	};
+    enum class Address : uint8_t {
+        Ox90 = 0x90,
+        Ox92 = 0x92,
+        Ox94 = 0x94,
+        Ox96 = 0x96,
+        Ox98 = 0x98,
+        Ox9A = 0x9A,
+        Ox9C = 0x9C,
+        Ox9E = 0x9E,
+    };
 
     MCP9800(microhal::I2C &i2c, Address address) : I2CDevice(i2c, static_cast<uint8_t>(address)) {}
 
     bool temperature(float *temperature) {
-    	uint16_t tmp;
-    	const bool status = readRegister(AmbientTemperature, tmp, microhal::Endianness::Big);
-    	float temp = static_cast<int16_t>(tmp);
-    	*temperature = temp / 256;
-    	return status;
+        uint16_t tmp;
+        const bool status = readRegister(AmbientTemperature, tmp, microhal::Endianness::Big);
+        float temp = static_cast<int16_t>(tmp);
+        *temperature = temp / 256;
+        return status;
     }
 
     bool resolution(Resolution resolution) {
-    	return writeRegisterWithMask(SensorConfiguration, static_cast<uint8_t>(resolution), 0b01100000);
+        return writeRegisterWithMask(SensorConfiguration, static_cast<uint8_t>(resolution), 0b01100000);
     }
 
     bool configureAlertPin(AlertMode mode, AlertPolarity polarity) {
@@ -104,40 +104,40 @@ class MCP9800 : private microhal::I2CDevice {
     }
 
     bool enableOneShot() {
-    	return setBitsInRegister(SensorConfiguration, 1);
+        return setBitsInRegister(SensorConfiguration, 1);
     }
 
     bool disableOneShot() {
-    	return clearBitsInRegister(SensorConfiguration, 1);
+        return clearBitsInRegister(SensorConfiguration, 1);
     }
 
     bool faultQueue(uint8_t *bits) {
-    	const uint8_t lookup[] = {1, 2, 4, 6};
-    	uint8_t tmp;
-    	const bool status = readRegister(SensorConfiguration, tmp);
-    	*bits = lookup[(tmp >> 3) & 0b11];
-    	return status;
+        const uint8_t lookup[] = {1, 2, 4, 6};
+        uint8_t tmp;
+        const bool status = readRegister(SensorConfiguration, tmp);
+        *bits = lookup[(tmp >> 3) & 0b11];
+        return status;
     }
 
     bool faultQueue(uint8_t bits) {
-    	uint8_t tmp;
-    	switch (bits) {
-    	case 1:
-    		tmp = 0;
-    		break;
-    	case 2:
-    		tmp = 1;
-    		break;
-    	case 4:
-    		tmp = 2;
-    		break;
-    	case 6:
-    		tmp = 3;
-    		break;
-    	default:
-    		return false;
-    	}
-    	return writeRegisterWithMask(SensorConfiguration, tmp, 0b00011000);
+        uint8_t tmp;
+        switch (bits) {
+        case 1:
+            tmp = 0;
+            break;
+        case 2:
+            tmp = 1;
+            break;
+        case 4:
+            tmp = 2;
+            break;
+        case 6:
+            tmp = 3;
+            break;
+        default:
+            return false;
+        }
+        return writeRegisterWithMask(SensorConfiguration, tmp, 0b00011000);
     }
     /**
      *
@@ -147,12 +147,12 @@ class MCP9800 : private microhal::I2CDevice {
      * @return false if an error occurred
      */
     bool congigureTemperatureAlert(float Tset, float Thyst) {
-    	Tset *= 16;
-    	if (writeRegister(TemperatureLimitSet, static_cast<int16_t>(Tset), microhal::Endianness::Big)) {
-    		Thyst *= 16;
-    		return writeRegister(TemperatureHysteresis, static_cast<int16_t>(Thyst), microhal::Endianness::Big);
-    	}
-    	return false;
+        Tset *= 256;
+        if (writeRegister(TemperatureLimitSet, static_cast<int16_t>(Tset), microhal::Endianness::Big)) {
+            Thyst *= 256;
+            return writeRegister(TemperatureHysteresis, static_cast<int16_t>(Thyst), microhal::Endianness::Big);
+        }
+        return false;
     }
 };
 
