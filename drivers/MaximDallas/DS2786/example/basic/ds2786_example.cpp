@@ -35,68 +35,67 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-	debugPort.clear();
+    debugPort.clear();
 
-	debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+    debugPort.setDataBits(SerialPort::Data8);
+    debugPort.setStopBits(SerialPort::OneStop);
+    debugPort.setParity(SerialPort::NoParity);
+    debugPort.open(SerialPort::ReadWrite);
+    debugPort.setBaudRate(SerialPort::Baud115200);
 
-	debugPort.write("\n\r------------------- DS2786 Demo -------------------------\n\r");
+    debugPort.write("\n\r------------------- DS2786 Demo -------------------------\n\r");
 
     diagChannel.setOutputDevice(debugPort);
-
 
     DS2786 ds2786(sensorI2C, 500000);
 
     while (1) {
-	    if(ds2786.isCapacityLearningEnabled())
-			diagChannel << Debug << "Capacity Learning enabled." << endl;
-		else
-			diagChannel << Debug << "Capacity Learning disabled." << endl;
+        if(ds2786.isCapacityLearningEnabled())
+            diagChannel << Debug << "Capacity Learning enabled." << endl;
+        else
+            diagChannel << Debug << "Capacity Learning disabled." << endl;
 
-	    if(auto vout = ds2786.isVoutDisabled())
-			diagChannel << Debug << "Vout " << (*vout ? "disabled" : "enabled") << endl;
-		else
-			diagChannel << Debug << "Error while reading Vout status." << endl;
+        if(auto vout = ds2786.isVoutDisabled())
+            diagChannel << Debug << "Vout " << (*vout ? "disabled" : "enabled") << endl;
+        else
+            diagChannel << Debug << "Error while reading Vout status." << endl;
 
-	    if(auto aux0 = ds2786.readAxuiliary0())
-	    	diagChannel << Debug << "Value of Auxiliary 0: " << *aux0 << endl;
-	    else
-	    	diagChannel << Debug << "Auxiliary 0 reading error." << endl;
+        if(auto aux0 = ds2786.readAxuiliary0())
+            diagChannel << Debug << "Value of Auxiliary 0: " << *aux0 << endl;
+        else
+            diagChannel << Debug << "Auxiliary 0 reading error." << endl;
 
-	    if(auto aux1 = ds2786.readAxuiliary1())
-	    	diagChannel << Debug << "Value of Auxiliary 1: " << *aux1 << endl;
-	    else
-	    	diagChannel << Debug << "Auxiliary 1 reading error: " << aux1.error() << endl;
+        if(auto aux1 = ds2786.readAxuiliary1())
+            diagChannel << Debug << "Value of Auxiliary 1: " << *aux1 << endl;
+        else
+            diagChannel << Debug << "Auxiliary 1 reading error: " << aux1.error() << endl;
 
-	    if (auto temperature = ds2786.readTemperature())
-	    	diagChannel << Debug << "Die temperature " << *temperature << endl;
-	    else
-	    	diagChannel << Debug << "Auxiliary 1 reading error: " << temperature.error() << endl;
+        if (auto temperature = ds2786.readTemperature())
+            diagChannel << Debug << "Die temperature " << *temperature << endl;
+        else
+            diagChannel << Debug << "Auxiliary 1 reading error: " << temperature.error() << endl;
 
-	    if(auto initVoltage = ds2786.readInitialVoltage())
-	    	diagChannel << Debug << "Initial battery voltage: " << *initVoltage << " V" << endl;
-	    else
-	    	diagChannel << Debug << "Initial battery voltage reading error" << endl;
+        if(auto initVoltage = ds2786.readInitialVoltage())
+            diagChannel << Debug << "Initial battery voltage: " << *initVoltage << " V" << endl;
+        else
+            diagChannel << Debug << "Initial battery voltage reading error" << endl;
 
-	    if(auto voltage = ds2786.readVoltage())
-	    	diagChannel << Debug << "Battery voltage: " << *voltage << " V" << endl;
-	    else
-	    	diagChannel << Debug << "Battery voltage reading error." << endl;
+        if(auto voltage = ds2786.readVoltage())
+            diagChannel << Debug << "Battery voltage: " << *voltage << " V" << endl;
+        else
+            diagChannel << Debug << "Battery voltage reading error." << endl;
 
-	    if (auto current = ds2786.readCurrent())
-	    	diagChannel << Debug << "Battery current: " << *current << " uA" << endl;
-	    else
-	    	diagChannel << Debug << "Battery current reading error." << endl;
+        if (auto current = ds2786.readCurrent())
+            diagChannel << Debug << "Battery current: " << *current << " uA" << endl;
+        else
+            diagChannel << Debug << "Battery current reading error." << endl;
 
-	    if (auto capacity = ds2786.relativeCapacity())
-	    	diagChannel << Debug << "Battery capacity: " << *capacity << " %" << endl;
-	    else
-	    	diagChannel << Debug << "Battery capacity reading error." << endl;
+        if (auto capacity = ds2786.relativeCapacity())
+            diagChannel << Debug << "Battery capacity: " << *capacity << " %" << endl;
+        else
+            diagChannel << Debug << "Battery capacity reading error." << endl;
 
-	    diagChannel << Debug << endl;
-	    std::this_thread::sleep_for(std::chrono::milliseconds {1000});
+        diagChannel << Debug << endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds {1000});
     }
 }
