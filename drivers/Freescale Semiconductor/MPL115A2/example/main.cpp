@@ -54,7 +54,7 @@ int main(){
 	GPIO mplReset(mpl115a2::resetPin, GPIO::Direction::Output);
 	mplReset.set();
 
-	diagChannel << lock << MICROHAL_DEBUG << "Initializing MPL3115..." << unlock;
+	diagChannel << lock << MICROHAL_DEBUG << "Initializing MPL115A2..." << unlock;
 	if(mpl.init() == true){
 		diagChannel << Debug << "OK";
 	} else{

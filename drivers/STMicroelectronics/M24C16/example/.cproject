@@ -471,7 +471,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f3xx/startup/startup.c|microhal/ports/stm32f3xx/i2c/i2c_interrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/i2c/i2c_dma_stm32f3xx.cpp|microhal/ports/stm32f4xx|bsp/nucleo-f411re|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/i2c/stm32f4xx_dma.c|microhal/ports/stm32f4xx/i2c/stm32f4xx_hal_dma.c|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|microhal/core/button|microhal/core/SPIDevice|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/units|microhal/math|gsl/tests|devices/common|microHAL" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f3xx/startup/startup.c|microhal/ports/stm32f4xx|bsp/nucleo-f411re|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/i2c/stm32f4xx_dma.c|microhal/ports/stm32f4xx/i2c/stm32f4xx_hal_dma.c|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|microhal/core/button|microhal/core/SPIDevice|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/units|microhal/math|gsl/tests|devices/common|microHAL" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
