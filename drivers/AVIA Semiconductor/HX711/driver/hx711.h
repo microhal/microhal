@@ -31,7 +31,6 @@
 #define _MICROHAL_HX711_H_
 
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 #include <ExternalInterrupt.h>
 
