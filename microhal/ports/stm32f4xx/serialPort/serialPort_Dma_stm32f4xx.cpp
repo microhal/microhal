@@ -153,7 +153,6 @@ SerialPort_Dma::SerialPort_Dma(USART_TypeDef &usart, char * const rxData, char *
     dma.clockEnable();
     // tx
     txStream.deinit();
-    volatile auto dbg = &txStream;
     txStream.init(
     	dma.channel(txStream, usart), DMA::Stream::MemoryBurst::SingleTransfer,
         DMA::Stream::PeripheralBurst::SingleTransfer,
