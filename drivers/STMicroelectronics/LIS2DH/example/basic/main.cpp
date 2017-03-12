@@ -23,7 +23,7 @@ void lisInterrupt1() {
 }
 
 void lisInterrupt2() {}
-void test0() {
+void test0ReadTemp() {
   lis2dh.resetRegisters();
   diagChannel << lock << Informational << "======Test0======" << endl << unlock;
   diagChannel << lock << Informational << "Simple temperature reading" << endl
@@ -53,7 +53,7 @@ void test0() {
     diagChannel << lock << MICROHAL_ERROR << "Test0 error" << endl << unlock;
   }
 }
-void test1() {
+void test1PollRawRead() {
   lis2dh.resetRegisters();
   diagChannel << lock << Informational << "======Test1======" << endl << unlock;
   diagChannel << lock << Informational << "Simple  accelerate read test" << endl
@@ -71,7 +71,7 @@ void test1() {
   } while (1);
 
   int16_t x, y, z;
-  for (int i = 0; (i < 50) && (flag == true); i++) {
+  for (int i = 0; (i < 10) && (flag == true); i++) {
     flag = lis2dh.getLastData(x, y, z);
     diagChannel << lock << Informational << "Raw X:" << x << " Raw Y:" << y
                 << " Raw Z:" << z << endl
@@ -85,7 +85,7 @@ void test1() {
     diagChannel << lock << MICROHAL_ERROR << "Test1 error" << endl << unlock;
   }
 }
-void test2() {
+void test2AccelerationRead() {
   lis2dh.resetRegisters();
   diagChannel << lock << Informational << "======Test2======" << endl << unlock;
   diagChannel << lock << Informational << "Accelerate reading test " << endl
@@ -102,7 +102,7 @@ void test2() {
   } while (1);
 
   int16_t x, y, z;
-  while (flag == true) {
+  for (int i = 0; (i < 10) && (flag == true); i++) {
     flag = lis2dh.getLastData(x, y, z);
     diagChannel << lock << Informational << "Raw X:" << x << " Raw Y:" << y
                 << " Raw Z:" << z << endl
@@ -126,7 +126,7 @@ void test2() {
   diagChannel << lock << MICROHAL_ERROR << "Test2 error" << endl << unlock;
 }
 
-void lisInterrupt1test3() {
+void lisInterrupt1Clicktest() {
   LIS2DH::interruptSource source;
   lis2dh.checkInterrupt1Source(source);
   diagChannel << Informational << endl << "Interrupt source:" << source.value;
@@ -163,9 +163,14 @@ void lisInterrupt1test3() {
   }
 }
 //  click interrupt test
-void test3() {
+void test3SingleClick() {
+  diagChannel << lock << Informational << endl
+              << "======Test3======" << endl
+              << unlock;
+  diagChannel << lock << Informational << "Single click detection " << endl
+              << unlock;
   // rising edge is genereated on event, fallign edge occur after INT1_SRC read
-  ExternalInterrupt::connect(lisInterrupt1test3,
+  ExternalInterrupt::connect(lisInterrupt1Clicktest,
                              ExternalInterrupt::Trigger::OnRisingEdge, lisINT1);
   ExternalInterrupt::enable(lisINT1);
 
@@ -177,6 +182,11 @@ void test3() {
   Acceleration threshold(3.125f);  // 3.125G
   std::chrono::microseconds timeLimit = 127ms;
   lis2dh.setClick(threshold, timeLimit, 0, 0, true, true, true, true, false);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+  ExternalInterrupt::disable(lisINT1);
+  ExternalInterrupt::disconnect(lisInterrupt1Clicktest, lisINT1);
 }
 
 void lisInterrupt1test4() {
@@ -190,8 +200,10 @@ void lisInterrupt1test4() {
               << endl;
 }
 // Test4 - Data ready interrupt test(with interrupt latch)
-void test4() {
-  diagChannel << lock << Informational << "======Test4======" << endl << unlock;
+void test4IntRead() {
+  diagChannel << lock << Informational << endl
+              << "======Test4======" << endl
+              << unlock;
   diagChannel << lock << Informational
               << "Read last data using data ready interrupt " << endl
               << unlock;
@@ -214,10 +226,10 @@ void test4() {
   std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
   ExternalInterrupt::disable(lisINT1);
-  // ExternalInterrupt::disconnect();//todo
+  ExternalInterrupt::disconnect(lisInterrupt1test4, lisINT1);
 }
 
-void lisInterrupt1test5() {
+void lisInterrupt1FreeFall() {
   LIS2DH::interruptSource source;
   lis2dh.checkInterrupt1Source(source);
   diagChannel << Informational << "Interrupt source:" << source.value;
@@ -230,12 +242,14 @@ void lisInterrupt1test5() {
   }
 }
 // freefall detection test
-void test5() {
-  diagChannel << lock << Informational << "======Test6======" << endl << unlock;
+void test5FreeFall() {
+  diagChannel << lock << Informational << endl
+              << "======Test6======" << endl
+              << unlock;
   diagChannel << lock << Informational << "Freefall detection " << endl
               << unlock;
   // rising edge is genereated on event, fallign edge occur after INT1_SRC read
-  ExternalInterrupt::connect(lisInterrupt1test5,
+  ExternalInterrupt::connect(lisInterrupt1FreeFall,
                              ExternalInterrupt::Trigger::OnRisingEdge, lisINT1);
   ExternalInterrupt::enable(lisINT1);
   lis2dh.resetRegisters();
@@ -257,6 +271,9 @@ void test5() {
 
   // wait 5 seconds and go to next test
   std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+  ExternalInterrupt::disable(lisINT1);
+  ExternalInterrupt::disconnect(lisInterrupt1FreeFall, lisINT1);
 }
 int main(void) {
   ExternalInterrupt::init();
@@ -272,14 +289,14 @@ int main(void) {
     diagChannel << lock << MICROHAL_ERROR << "Cannot initialize LIS2DH" << endl
                 << unlock;
   }
+
   std::this_thread::sleep_for(std::chrono::milliseconds(5));
-  // test0();  // this test not work
-  // test1();
-  // test2();
-  test3();
-  // not working
-  // test4();
-  // test5();  // freefall detection
+  // test0ReadTemp();  // this test not work
+  test1PollRawRead();
+  test2AccelerationRead();
+  test3SingleClick();
+  test4IntRead();
+  test5FreeFall();  // freefall detection
   while (1) {
   }
 

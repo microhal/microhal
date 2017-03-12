@@ -707,6 +707,8 @@ class LIS2DH : protected microhal::I2CDevice {
   // threshold - 1 LSB = full scale/128.
   // timelimit - 1 LSB = 1/ODR.
   // interrupt is kept high until click source is read
+
+  // Click detection mechanism descirbed in LIS3DHappnote
   bool setClick(microhal::Acceleration threshold,
                 std::chrono::microseconds timeLimit, uint8_t timeLatency,
                 uint8_t timeWindow, bool xAxis, bool yAxis, bool zAxis,
