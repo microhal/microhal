@@ -710,13 +710,18 @@ class LIS2DH : protected microhal::I2CDevice {
 
   // Click detection mechanism descirbed in LIS3DHappnote
   bool setClick(microhal::Acceleration threshold,
-                std::chrono::microseconds timeLimit, uint8_t timeLatency,
-                uint8_t timeWindow, bool xAxis, bool yAxis, bool zAxis,
-                bool singleClick, bool doubleClick) {
+                std::chrono::microseconds timeLimit,
+                std::chrono::microseconds timeLatency,
+                std::chrono::microseconds timeWindow, bool xAxis, bool yAxis,
+                bool zAxis, bool singleClick, bool doubleClick) {
     uint8_t temp = 0;
 
     float rawThreshold = (threshold.getAcceleration() * 128) / getFullScale();
     uint32_t rawTimeLimit = getDataRate() * timeLimit.count() / std::micro::den;
+    uint32_t rawTimeLatency =
+        getDataRate() * timeLatency.count() / std::micro::den;
+    uint32_t rawTimeWindow =
+        getDataRate() * timeWindow.count() / std::micro::den;
     // registers has only 7 bits
     if (rawThreshold > 126) return false;
     if (rawTimeLimit > 126) return false;
@@ -731,11 +736,11 @@ class LIS2DH : protected microhal::I2CDevice {
       return false;
     }
 
-    if (write(TIME_LATENCY, timeLatency) != Error::NoError) {
+    if (write(TIME_LATENCY, rawTimeLatency) != Error::NoError) {
       return false;
     }
 
-    if (write(TIME_WINDOW, timeWindow) != Error::NoError) {
+    if (write(TIME_WINDOW, rawTimeWindow) != Error::NoError) {
       return false;
     }
 

@@ -181,7 +181,10 @@ void test3SingleClick() {
 
   Acceleration threshold(3.125f);  // 3.125G
   std::chrono::microseconds timeLimit = 127ms;
-  lis2dh.setClick(threshold, timeLimit, 0, 0, true, true, true, true, false);
+  std::chrono::microseconds timeLatency = std::chrono::microseconds::zero();
+  std::chrono::microseconds timeWindow = std::chrono::microseconds::zero();
+  lis2dh.setClick(threshold, timeLimit, timeLatency, timeWindow, true, true,
+                  true, true, false);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
@@ -275,6 +278,35 @@ void test5FreeFall() {
   ExternalInterrupt::disable(lisINT1);
   ExternalInterrupt::disconnect(lisInterrupt1FreeFall, lisINT1);
 }
+void test6DoubleClick() {
+  diagChannel << lock << Informational << endl
+              << "======Test6======" << endl
+              << unlock;
+  diagChannel << lock << Informational << "Double click detection " << endl
+              << unlock;
+  // rising edge is genereated on event, fallign edge occur after INT1_SRC read
+  ExternalInterrupt::connect(lisInterrupt1Clicktest,
+                             ExternalInterrupt::Trigger::OnRisingEdge, lisINT1);
+  ExternalInterrupt::enable(lisINT1);
+  lis2dh.resetRegisters();
+  lis2dh.setDataRate(LIS2DH::DataRate::Mode400Hz);
+  lis2dh.interrupt1EnableSource(LIS2DH::Interrupt1Sources::Click);  // CTRL_REG3
+  lis2dh.setScale(LIS2DH::Scale::Scale4G);                          // REG4
+  lis2dh.interrupt1LatchRequest(true);                              // REG5
+
+  Acceleration threshold(3.125f);  // 3.125G
+  std::chrono::microseconds timeLimit = 127ms;
+  std::chrono::microseconds timeLatency = 52ms;  // 0x15
+  std::chrono::microseconds timeWindow = 565ms;
+  lis2dh.setClick(threshold, timeLimit, timeLatency, timeWindow, true, true,
+                  true, false, true);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
+  // ExternalInterrupt::disable(lisINT1);
+  // ExternalInterrupt::disconnect(lisInterrupt1Clicktest, lisINT1);
+}
+
 int main(void) {
   ExternalInterrupt::init();
   debugPort.write("\n\r----------------- LIS2DH Demo -----------------\n\r");
@@ -292,11 +324,12 @@ int main(void) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(5));
   // test0ReadTemp();  // this test not work
-  test1PollRawRead();
-  test2AccelerationRead();
-  test3SingleClick();
-  test4IntRead();
-  test5FreeFall();  // freefall detection
+  // test1PollRawRead();
+  // test2AccelerationRead();
+  // test3SingleClick();
+  // test4IntRead();
+  // test5FreeFall();  // freefall detection
+  test6DoubleClick();
   while (1) {
   }
 
