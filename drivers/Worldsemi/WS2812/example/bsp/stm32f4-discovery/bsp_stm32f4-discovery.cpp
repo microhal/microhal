@@ -7,7 +7,6 @@
 #include "microhal.h"
 #include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
-#include "i2c.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
@@ -20,12 +19,12 @@ void hardwareConfig(void) {
     IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
     IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
 
-    serialPort.setDataBits(stm32f4xx::SerialPort::Data8);
-    serialPort.setStopBits(stm32f4xx::SerialPort::OneStop);
-    serialPort.setParity(stm32f4xx::SerialPort::NoParity);
-    serialPort.open(stm32f4xx::SerialPort::ReadWrite);
-    serialPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
-    diagChannel.setOutputDevice(serialPort);
+    bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
+    bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
+    bsp::debugPort.setParity(stm32f4xx::SerialPort::NoParity);
+    bsp::debugPort.open(stm32f4xx::SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
 
 //    IOManager::routeSPI<Spi1, SCK, stm32f4xx::GPIO::PortA, 5>();
@@ -36,8 +35,6 @@ void hardwareConfig(void) {
     stm32f4xx::SPI::spi1.enable();
 
     diagChannel << Notice << "SPI frequency: " << stm32f4xx::SPI::spi1.frequency() << endl;
-
-    diagChannel << Notice << "SPI frequency: " << stm32f4xx::ClockManager::SPIFrequency(*SPI1) << endl;
 
     SysTick_Config(102400000/1000);
 }

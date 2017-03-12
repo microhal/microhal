@@ -36,40 +36,49 @@
 using namespace microhal;
 
 int main() {
-	serialPort.write("\n\r------------------- WS2812B Demo -------------------------\n\r");
+	bsp::debugPort.write("\n\r------------------- WS2812B Demo -------------------------\n\r");
 
 	constexpr int WS2812_chainLength = 8;
-	WS2812B<WS2812_chainLength> ws(ws_spi);
+	WS2812B<WS2812_chainLength> ws(bsp::wsSpi);
 
-	ws[0].r = 0x10;
-	ws[0].g = 0x00;
-	ws[0].b = 0x00;
-	ws[1].r = 0x00;
-	ws[1].g = 0x10;
-	ws[1].b = 0x00;
-	ws[2].r = 0x00;
-	ws[2].g = 0x00;
-	ws[2].b = 0x10;
-	ws[3].r = 0x10;
-	ws[3].g = 0x10;
-	ws[3].b = 0x10;
-	ws[4].r = 0x10;
-	ws[4].g = 0x10;
-	ws[4].b = 0x00;
-	ws[5].r = 0x10;
-	ws[5].g = 0x00;
-	ws[5].b = 0x10;
-	ws[6].r = 0x00;
-	ws[6].g = 0x10;
-	ws[6].b = 0x10;
-	ws[7].r = 0x20;
-	ws[7].g = 0x20;
-	ws[7].b = 0x20;
+	WS2812B<WS2812_chainLength>::Pixel colors[8];
 
+	colors[0].r = 0x10;
+	colors[0].g = 0x00;
+	colors[0].b = 0x00;
+	colors[1].r = 0x00;
+	colors[1].g = 0x10;
+	colors[1].b = 0x00;
+	colors[2].r = 0x00;
+	colors[2].g = 0x00;
+	colors[2].b = 0x10;
+	colors[3].r = 0x10;
+	colors[3].g = 0x10;
+	colors[3].b = 0x10;
+	colors[4].r = 0x10;
+	colors[4].g = 0x10;
+	colors[4].b = 0x00;
+	colors[5].r = 0x10;
+	colors[5].g = 0x00;
+	colors[5].b = 0x10;
+	colors[6].r = 0x00;
+	colors[6].g = 0x10;
+	colors[6].b = 0x10;
+	colors[7].r = 0x20;
+	colors[7].g = 0x20;
+	colors[7].b = 0x20;
+
+	uint8_t offset = 0;
 	while(1) {
-		std::this_thread::sleep_for(std::chrono::milliseconds {1000});
+		for (size_t i=0; i<8;i++) {
+			ws[i] = colors[(i + offset)%8];
+		}
+		offset++;
+		if(offset >= 8) offset = 0;
 
 		ws.redraw();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds {200});
 	}
 
 	return 0;
