@@ -304,15 +304,11 @@ class ClockManager {
      */
     static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
         if (&i2c == I2C1)
-            return APB1Frequency();
-#if defined(I2C2)
-        else if (&i2c == I2C2)
-            return APB1Frequency();
-#endif
-#if defined(I2C3)
-        else if (&i2c == I2C3)
-            return APB1Frequency();
-#endif
+        	if (RCC->CFGR3 & RCC_CFGR3_I2C1SW) {
+        		return SYSCLKFrequency();
+        	} else {
+        		return HSI::frequency();
+        	}
         else {
             while (1)
                 ;  // Error should newer go there

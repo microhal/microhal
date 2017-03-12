@@ -88,7 +88,7 @@ class SPI : public microhal::SPI {
     static SPI &spi3;
 #endif
     //---------------------------------------- functions ----------------------------------------//
-    bool setMode(Mode mode) override final {
+    bool setMode(Mode mode) final {
         const uint32_t modeFlags[] = {0x00, SPI_CR1_CPHA, SPI_CR1_CPOL, SPI_CR1_CPHA | SPI_CR1_CPOL};
 
         if (isEnabled() == false) {
@@ -104,12 +104,17 @@ class SPI : public microhal::SPI {
         this->noLock = noLock;
     }
 
-    bool getMISOstate() override final { return microhal::stm32f3xx::GPIO::get(misoPort, misoPin); }
+    bool getMISOstate() final { return microhal::stm32f3xx::GPIO::get(misoPort, misoPin); }
 
     bool isEnabled() { return spi.CR1 & SPI_CR1_SPE; }
 
-    void enable() override final { spi.CR1 |= SPI_CR1_SPE; }
-    void disable() override final { spi.CR1 &= ~SPI_CR1_SPE; }
+    void enable() final { spi.CR1 |= SPI_CR1_SPE; }
+    void disable() final { spi.CR1 &= ~SPI_CR1_SPE; }
+
+    uint32_t speed(uint32_t speed) final {
+    	// TODO
+    	return speed;
+    }
 
  protected:
     //---------------------------------------- variables ----------------------------------------//

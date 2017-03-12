@@ -100,16 +100,12 @@ class IOManager {
             static_assert( (spiNumber != 3 || spiType != MOSI || ((port == GPIO::PortA && pinNr == 3) || (port == GPIO::PortC && pinNr == 12)|| (port == GPIO::PortB && pinNr == 5))), "SPI3 MOSI can be connected only to: PortA.3 or PortC.12 or PortB.5");
             if(spiNumber == 3){
                 stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_3, pull, type);
-            }else if(spiNumber == 2)
-            {
+            } else if(spiNumber == 2) {
                stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_2, pull, type);
-            }else if(spiNumber == 1)
-            {
-                if((pinNr = 11)||(pinNr = 12)|| (pinNr = 13))
-                {
+            }else if(spiNumber == 1) {
+                if((pinNr == 11)||(pinNr == 12)|| (pinNr == 13)) {
                     stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF6, pull, type);
-                }else
-                {
+                } else {
                     stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF5, pull, type);
                 }
             }

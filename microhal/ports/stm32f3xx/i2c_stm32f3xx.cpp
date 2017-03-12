@@ -8,6 +8,9 @@
 
 #include "i2c_stm32f3xx.h"
 #include "clockManager.h"
+#include "diagnostic/diagnostic.h"
+
+using namespace microhal::diagnostic;
 
 namespace microhal {
 namespace stm32f3xx {
@@ -27,7 +30,7 @@ bool I2C::init() {
 		i2c.CR1 = I2C_CR1_SWRST;
 		i2c.CR1 = 0;
 		// enable interrupts
-		i2c.CR1 = /*I2C_CR1_RXIE/* | I2C_CR2_ITBUFEN|*/ I2C_CR1_ERRIE;// | freqMHz;
+		//i2c.CR1 = /*I2C_CR1_RXIE/* | I2C_CR2_ITBUFEN|*/ I2C_CR1_ERRIE;// | freqMHz;
 
 		setMode(Mode::Standard);
 
@@ -47,9 +50,12 @@ bool I2C::init() {
  * @retval false - if an error occurred, in example: peripheral was enabled
  */
 bool I2C::configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty) {
-//	if(isEnable() == true) return false;
+	if(isEnable() == true) {
+		diagChannel << diagnostic::lock << MICROHAL_WARNING << "Unable to configure I2C, please first disable I2C and then retry." << diagnostic::unlock;
+		return false;
+	}
 //
-//	const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c); // in Hz
+	const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c); // in Hz
 //	const uint8_t clockFreqMHz = clockFreqHz / 1000000; //frequency in MHz
 //
 //	if(clockFreqMHz >= 2 && clockFreqMHz <= 42) {
@@ -97,23 +103,43 @@ bool I2C::configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty)
 //
 //		return true;
 //	}
+	diagChannel << diagnostic::lock << MICROHAL_NOTICE << "Setting I2C speed: " << speed << diagnostic::unlock;
+	// 1/i2cFreq * 1000 000 000
+	const uint32_t Ti2cclk = 1000'000'000 / clockFreqHz; // in ns
+	//calculate Thigh in ns
+	//uint32_t Tpresc = (PRESC +1) * Ti2cclk;
+
+	uint32_t Tscl = 1000000000 / speed;
+
+	uint32_t Tsclh = Tscl / 2;
+	uint32_t Tscll = Tscl - Tsclh;
+
+	uint32_t scllDivider = Tscll / Ti2cclk;
+	uint32_t sclhDivider = Tsclh / Ti2cclk;
+
+	diagChannel << diagnostic::lock << MICROHAL_DEBUG << "SCL low prescaler: " << scllDivider << "SCL high prescaler: " << sclhDivider << diagnostic::unlock;
+
+	i2c.TIMINGR |= 15 << I2C_TIMINGR_PRESC_Pos;
+	//SCLL = Tscll / ((PRESC + 1) * Ti2cclk);
+
+	//SCLL / Ti2cclk = Tscll / (PRESC + 1)
+
+	// Tscll = (SCLL + 1)*Tpresc
+//	SCLL = (Tscll / Tpresc) - 1;
+	// Tsclh = (SCLH + 1)*Tpresc
+//	SCLH = (Tsclh / Tpresc) - 1;
 	return false;
 }
 
 I2C::Speed I2C::speed() noexcept {
 	const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c); // in Hz
-
-	// get Thigh to Tlow
-//	uint16_t multiply = 2; // in standard mode Tlow = Thigh => period = 2 * Thigh
-//	if (i2c.CCR & (I2C_CCR_FS | I2C_CCR_DUTY)) {
-//		multiply = 25;  // in HighSpeed mode Thigh = 9/16 Tlow => periond = 25 * Thigh
-//	} else if (i2c.CCR & I2C_CCR_FS) {
-//		multiply = 3; // in FastSpeed mode Thigh = Tlow / 2 => period = 3 * Thigh
-//	}
-//	uint16_t ccr = i2c.CCR & 0x0FFF;
-//	return clockFreqHz / (multiply * ccr);
+	const uint32_t timingr = i2c.TIMINGR;
+	const uint32_t SCLL = (timingr & I2C_TIMINGR_SCLL_Msk) >> I2C_TIMINGR_SCLL_Pos;
+	const uint32_t SCLH = (timingr & I2C_TIMINGR_SCLH_Msk) >> I2C_TIMINGR_SCLH_Pos;
+	const uint32_t PRESC = (timingr & I2C_TIMINGR_PRESC_Msk) >> I2C_TIMINGR_PRESC_Pos;
+	return clockFreqHz / ((SCLL + SCLH + 2) * (PRESC + 1));
 }
 
-} // namespace stm32f4xx
+} // namespace stm32f3xx
 } // namespace microhal
 
