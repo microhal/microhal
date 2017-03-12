@@ -40,59 +40,61 @@ class SPI_polling : public stm32f4xx::SPI {
   static SPI_polling spi6;
 #endif
   //---------------------------------------- functions ----------------------------------------//
-  SPI::Error write(const uint8_t data, bool last) final {
-    const SPI::Error error = writeNoRead(data);
-    if (last) {
-      while (spi.SR & SPI_SR_BSY) {
-      }
-    }
-    return error;
-  }
-  SPI::Error read(uint8_t &data, const uint8_t write = 0x00) final {
-    while (spi.SR & SPI_SR_BSY) {
-    }
-    volatile uint16_t tmp __attribute__((unused)) = spi.DR;
+    SPI::Error write(const void *data, const size_t len, bool last) final {
+        SPI::Error error;
 
-    return writeRead(write, data);
-  }
-  SPI::Error writeBuffer(const void *data, const size_t len, bool last) final {
-    SPI::Error error;
-
-    for (uint16_t i = 0; i < len; i++) {
-      error = writeNoRead(((uint8_t *)(data))[i]);
-      if (error != NoError) return error;
+        for (uint16_t i = 0; i < len; i++) {
+            error = writeNoRead(((uint8_t *)(data))[i]);
+            if (error != NoError) return error;
+        }
+        if (last) {
+            while (!(spi.SR & SPI_SR_TXE));
+            while (spi.SR & SPI_SR_BSY);
+        }
+        return error;
     }
-    if (last) {
-      while (spi.SR & SPI_SR_BSY) {
-      }
-    }
-    return error;
-  }
-  SPI::Error readBuffer(void *data, const size_t len,
-                        const uint8_t write = 0x00) final {
-    uint32_t sr;
-    SPI::Error error;
-    do {
-      sr = spi.SR;
-      error = errorCheck(sr);
-      if (error != NoError) return error;
-    } while (sr & SPI_SR_BSY);
+    SPI::Error read(void *data, size_t len, uint8_t write = 0x00) final {
+        uint32_t sr;
+        SPI::Error error;
+        do {
+            sr = spi.SR;
+            error = errorCheck(sr);
+            if (error != NoError) return error;
+        } while (sr & SPI_SR_BSY);
 
-    volatile uint16_t tmp __attribute__((unused)) = spi.DR;
+        volatile uint16_t tmp __attribute__((unused)) = spi.DR;
 
-    for (uint16_t i = 0; i < len; i++) {
-      error = writeRead(write, static_cast<uint8_t *>(data)[i]);
-      if (error != NoError) break;
+        for (uint16_t i = 0; i < len; i++) {
+            error = writeRead(write, static_cast<uint8_t *>(data)[i]);
+            if (error != NoError) break;
+        }
+        return error;
     }
-    return error;
-  }
+
+    SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final {
+    	 uint32_t sr;
+    	 SPI::Error error;
+    	 do {
+    		 sr = spi.SR;
+    		 error = errorCheck(sr);
+    		 if (error != NoError) return error;
+    	 } while (sr & SPI_SR_BSY);
+
+    	 volatile uint16_t tmp __attribute__((unused)) = spi.DR;
+
+    	 for (uint16_t i = 0; i < readWriteLength; i++) {
+    		 error = writeRead(static_cast<const uint8_t *>(dataWrite)[i], static_cast<uint8_t *>(dataRead)[i]);
+    		 if (error != NoError) break;
+    	 }
+    	 return error;
+    }
 
  private:
   //---------------------------------------- constructors ---------------------------------------
   SPI_polling(SPI_TypeDef &spi, stm32f4xx::GPIO::IOPin misoPin)
       : SPI(spi, misoPin) {  ClockManager::enable(spi); }
   //---------------------------------------- functions ----------------------------------------//
-  inline SPI::Error writeNoRead(const uint8_t data) {
+  SPI::Error writeNoRead(uint8_t data) {
     uint32_t sr;
     SPI::Error error = NoError;
 
@@ -106,7 +108,7 @@ class SPI_polling : public stm32f4xx::SPI {
 
     return error;
   }
-  inline SPI::Error writeRead(const uint8_t data, uint8_t &receivedData) {
+  SPI::Error writeRead(uint8_t data, uint8_t &receivedData) {
     uint32_t sr;
     SPI::Error error;
     do {

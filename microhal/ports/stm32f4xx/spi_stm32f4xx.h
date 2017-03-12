@@ -41,8 +41,7 @@ class SPI : public microhal::SPI {
     friend class IOManager;
 
  public:
-    //---------------------------------------- typedefs
-    //-----------------------------------------//
+    //---------------------------------------- typedefs -----------------------------------------//
     /**
      *
      */
@@ -56,8 +55,7 @@ class SPI : public microhal::SPI {
         PRESCALER_128 = SPI_CR1_BR_2 | SPI_CR1_BR_1,                 //!< PRESCALER_128
         PRESCALER_256 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,  //!< PRESCALER_256
     } Prescaler;
-//------------------------------------- static reference
-//--------------------------------------//
+//------------------------------------- static reference --------------------------------------//
 #if (defined MICROHAL_USE_SPI1_INTERRUPT) || (defined MICROHAL_USE_SPI1_POLLING) || (defined MICROHAL_USE_SPI1_DMA)
     static SPI &spi1;
 #endif
@@ -76,9 +74,8 @@ class SPI : public microhal::SPI {
 #if (defined MICROHAL_USE_SPI6_INTERRUPT) || (defined MICROHAL_USE_SPI6_POLLING) || (defined MICROHAL_USE_SPI6_DMA)
     static SPI &spi6;
 #endif
-    //---------------------------------------- functions
-    //----------------------------------------//
-    bool setMode(Mode mode) override final {
+    //---------------------------------------- functions ----------------------------------------//
+    bool setMode(Mode mode) final {
         const uint32_t modeFlags[] = {0x00, SPI_CR1_CPHA, SPI_CR1_CPOL, SPI_CR1_CPHA | SPI_CR1_CPOL};
 
         if (isEnabled() == false) {
@@ -88,13 +85,12 @@ class SPI : public microhal::SPI {
         return false;
     }
 
-    void init(Mode mode, Prescaler prescaler, bool noLock = false) {
+    void init(Mode mode, Prescaler prescaler) {
         const uint32_t modeFlags[] = {0x00, SPI_CR1_CPHA, SPI_CR1_CPOL, SPI_CR1_CPHA | SPI_CR1_CPOL};
         spi.CR1 = SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI | modeFlags[mode] | prescaler;
-        this->noLock = noLock;
     }
 
-    void setPrescaler(Prescaler prescaler) {
+    void prescaler(Prescaler prescaler) {
     	spi.CR1 = (spi.CR1 & ~(SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)) | prescaler;
     }
 
@@ -102,14 +98,15 @@ class SPI : public microhal::SPI {
     	return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0));
     }
 
-    bool getMISOstate() override final { return microhal::stm32f4xx::GPIO::get(misoPort, misoPin); }
+    bool getMISOstate() final { return microhal::stm32f4xx::GPIO::get(misoPort, misoPin); }
 
     bool isEnabled() { return spi.CR1 & SPI_CR1_SPE; }
 
-    void enable() override final { spi.CR1 |= SPI_CR1_SPE; }
-    void disable() override final { spi.CR1 &= ~SPI_CR1_SPE; }
+    void enable() final { spi.CR1 |= SPI_CR1_SPE; }
+    void disable() final { spi.CR1 &= ~SPI_CR1_SPE; }
     uint32_t speed(uint32_t speed) final {
     	// TODO
+    	while(1);
     	return speed;
     }
 
@@ -119,21 +116,17 @@ class SPI : public microhal::SPI {
     }
 
  protected:
-    //---------------------------------------- variables
-    //----------------------------------------//
+    //---------------------------------------- variables ----------------------------------------//
     SPI_TypeDef &spi;
     microhal::stm32f4xx::GPIO::Pin misoPin;
     microhal::stm32f4xx::GPIO::Port misoPort;
-//--------------------------------------- constructors
-//--------------------------------------//
+    //--------------------------------------- constructors --------------------------------------//
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
         SPI(SPI_TypeDef &spi, stm32f4xx::GPIO::IOPin misoPin)
         : spi(spi), misoPin(misoPin.pin), misoPort(misoPin.port) {
     }
-    // virtual ~SPI() {
-    //}
 
     static SPI::Error errorCheck(uint32_t SRregisterValue) {
         SPI::Error error = NoError;
@@ -156,8 +149,7 @@ class SPI : public microhal::SPI {
         // }
         return error;
     }
-    //----------------------------------------- friends
-    //-----------------------------------------//
+    //----------------------------------------- friends -----------------------------------------//
     friend microhal::SPIDevice;
 };
 
