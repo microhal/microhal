@@ -32,6 +32,7 @@
 
 using namespace microhal;
 using namespace std::literals::chrono_literals;
+using namespace diagnostic;
 
 void HX711::read() {
     // requirements:
@@ -40,7 +41,7 @@ void HX711::read() {
     const uint8_t command[] = {0b0100'0000, 0b01010'0000, 0b0101'0100};
     uint8_t data[6];
 
-    spi.readBuffer(data, sizeof(data), 0b01010101);
+    spi.read(data, sizeof(data), 0b01010101);
     spi.write(command[static_cast<uint8_t>(channel)], true);
 
     uint32_t out = 0;

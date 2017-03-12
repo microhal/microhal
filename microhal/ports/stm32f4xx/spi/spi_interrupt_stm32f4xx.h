@@ -41,11 +41,9 @@ public:
     static SPI_interrupt spi6;
 #endif
     //---------------------------------------- functions ----------------------------------------//
-    SPI::Error write(uint8_t data, bool last) final;
-    SPI::Error read(uint8_t &data, uint8_t write = 0x00) final;
-    SPI::Error writeBuffer(const void *data, size_t len, bool last) final;
-    SPI::Error readBuffer(void *data, size_t len, uint8_t write = 0x00) final;
-    SPI::Error readWrite(void *dataRead, const void *dataWrite, size_t readWriteLength) final;
+    SPI::Error write(const void *data, size_t len, bool last) final;
+    SPI::Error read(void *data, size_t len, uint8_t write = 0x00) final;
+    SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final;
 private:
     typedef enum {
         WAITING, TRANSMIT, RECEIVE

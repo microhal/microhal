@@ -40,11 +40,7 @@ SPI_interrupt SPI_interrupt::spi6(*SPI6);
 SPI &SPI::spi6 = SPI_interrupt::spi6;
 #endif
 
-SPI::Error SPI_interrupt::write(uint8_t data, bool last) {
-	return writeBuffer(&data, 1, last);
-}
-
-SPI::Error SPI_interrupt::writeBuffer(const void *data, size_t len, bool last) {
+SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
 	readPtr = nullptr;
 	writePtr = (uint8_t *)data;
 	writeEnd = ((uint8_t *)data) + len;
@@ -68,11 +64,7 @@ SPI::Error SPI_interrupt::writeBuffer(const void *data, size_t len, bool last) {
 	return SPI::NoError;
 }
 
-SPI::Error SPI_interrupt::read(uint8_t &data, uint8_t write) {
-	return readBuffer(&data, 1, write);
-}
-
-SPI::Error SPI_interrupt::readBuffer(void *data, size_t len, uint8_t write) {
+SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
 	writePtr = nullptr;
 	readPtr = static_cast<uint8_t*>(data);
 	readEnd = static_cast<uint8_t*>(data) + len;
@@ -92,7 +84,7 @@ SPI::Error SPI_interrupt::readBuffer(void *data, size_t len, uint8_t write) {
 	return SPI::NoError;
 }
 
-SPI::Error SPI_interrupt::readWrite(void *dataRead, const void *dataWrite, size_t readWriteLength) {
+SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) {
 	readPtr = static_cast<uint8_t*>(dataRead);
 	readEnd = static_cast<uint8_t*>(dataRead) + readWriteLength;
 	writePtr = static_cast<const uint8_t*>(dataWrite);
@@ -120,7 +112,6 @@ inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) {
 			object.readPtr = nullptr;
 	//		object.mode = SPI_interrupt::WAITING;
 			spi->CR2 &= ~(SPI_CR2_RXNEIE);  // fixme maybe bitband
-			//object.semaphore = false;
 			bool shouldYeld = object.semaphore.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
 			portYIELD_FROM_ISR( shouldYeld );
@@ -137,7 +128,6 @@ inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) {
 			object.writePtr = nullptr;
 			//object.mode = SPI_interrupt::WAITING;
 			spi->CR2 &= ~(SPI_CR2_TXEIE);  // fixme maybe bitband
-			//object.semaphore = false;
 			if (object.readPtr == nullptr) {
 				bool shouldYeld = object.semaphore.giveFromISR();
 				#if defined (HAL_RTOS_FreeRTOS)

@@ -16,6 +16,7 @@
 
 #include "microhal.h"
 
+namespace bsp {
 namespace con1 {
 namespace a {
 constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortE, 5);
@@ -36,13 +37,11 @@ constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortE, 7);
 }
 }
 
-static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial3;
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 
 // ---------------------------- Sensors ----------------------------------------
-static microhal::SPI &ws_spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin at45db_CEpin(microhal::stm32f4xx::GPIO::Port::PortE, 3);
-constexpr microhal::GPIO::IOPin at45db_RESETpin(microhal::stm32f4xx::GPIO::Port::PortE, 3);
-constexpr microhal::GPIO::IOPin at45db_WPpin(microhal::stm32f4xx::GPIO::Port::PortE, 3);
+static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+constexpr microhal::GPIO::IOPin miso (microhal::stm32f4xx::GPIO::PortA, 6);
 
 // ----------------------------- LEDs -------------------------------------------
 constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
@@ -52,7 +51,6 @@ constexpr microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15)
 
 constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
 
-constexpr microhal::GPIO::IOPin GreenLed = Led4;
-constexpr microhal::GPIO::IOPin RedLed = Led3;
+}  // namespace bsp
 
 #endif /* STM32F4DISCOVERY_H_ */

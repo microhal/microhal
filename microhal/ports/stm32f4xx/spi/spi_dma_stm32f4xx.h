@@ -54,12 +54,13 @@ public:
     static SPI_dma spi6;
 #endif
     //---------------------------------------- functions ----------------------------------------//
-    SPI::Error write(uint8_t data, bool last) override final;
-    SPI::Error read(uint8_t &data, uint8_t write = 0x00) override final;
-    SPI::Error writeBuffer(const void *data, size_t len, bool last) override final;
-    SPI::Error readBuffer(void *data, size_t len, uint8_t write = 0x00) override final;
-
-    SPI::Error writeRead(void *writePtr, void *readPtr, size_t writeLen, size_t readLen);
+    SPI::Error write(const void *data, size_t len, bool last) final;
+    SPI::Error read(void *data, size_t len, uint8_t write = 0x00) final {
+    	  return writeRead(&write, data, 1, len);
+    }
+    SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final {
+    	return writeRead(dataWrite, dataRead, readWriteLength, readWriteLength);
+    }
 
     void setDMAStreamPriority(DMA::Stream::Priority rxPriority, DMA::Stream::Priority txPriority){
     	rxStream.setPriority(rxPriority);
@@ -67,8 +68,6 @@ public:
     }
 private:
     //---------------------------------------- variables ----------------------------------------//
-   // TaskHandle_t threadID;
-    //volatile bool semaphore;
     os::Semaphore semaphore;
     DMA::DMA &dma;
     DMA::Stream &rxStream;
@@ -119,8 +118,8 @@ private:
         init();
     }
 
-    virtual ~SPI_dma(){
-    }
+    SPI::Error writeRead(const void *writePtr, void *readPtr, size_t writeLen, size_t readLen);
+
     //---------------------------------------- functions ----------------------------------------//
     void init();
 

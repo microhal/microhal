@@ -21,12 +21,12 @@ class Semaphore {
     bool wait(std::chrono::milliseconds timeout) {
         std::chrono::milliseconds time(0);
         while (sem == false) {
-            if (time == timeout) {
+            if (time == (timeout * 10)) {
                 return false;
             }
 
             time++;
-            std::this_thread::sleep_for(std::chrono::milliseconds{1});
+            std::this_thread::sleep_for(std::chrono::microseconds{100});
         }
         sem = false;
         return true;

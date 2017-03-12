@@ -34,6 +34,9 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
+	(void)cameraPort;
+	(void)leptonSPI;
+	(void)leptonI2C;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 

@@ -142,22 +142,12 @@ static DMA::Stream::Channel getTxChannalNumber(SPI_TypeDef &spi) {
   return DMA::Stream::Channel::Channel0;
 }
 
-SPI::Error SPI_dma::write(uint8_t data, bool last) {
-  return writeBuffer(&data, 1, last);
-}
-SPI::Error SPI_dma::read(uint8_t &data, uint8_t write) {
-  return writeRead(&write, &data, 1, 1);
-}
-inline SPI::Error SPI_dma::writeBuffer(const void *data, size_t len, bool last) {
-  //semaphore = true;
-
+inline SPI::Error SPI_dma::write(const void *data, size_t len, bool last) {
   txStream.setNumberOfItemsToTransfer(len);
   txStream.setMemoryBank0(data);
   txStream.enable();
 
   spi.CR2 |= SPI_CR2_TXDMAEN;
-  //while (semaphore) {
-  //}
   semaphore.wait(std::chrono::milliseconds::max());
 
   if (last) {
@@ -167,13 +157,8 @@ inline SPI::Error SPI_dma::writeBuffer(const void *data, size_t len, bool last) 
 
   return NoError;
 }
-SPI::Error SPI_dma::readBuffer(void *data, size_t len, uint8_t write) {
-  return writeRead(&write, data, 1, len);
-}
 
-SPI::Error SPI_dma::writeRead(void *writePtr, void *readPtr, size_t writeLen, size_t readLen) {
-  //semaphore = true;
-
+SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeLen, size_t readLen) {
   txStream.disableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
   if (writeLen < readLen) {
@@ -204,12 +189,8 @@ SPI::Error SPI_dma::writeRead(void *writePtr, void *readPtr, size_t writeLen, si
   spi.CR2 |= SPI_CR2_RXDMAEN;
   txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
   //rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
-  //while (semaphore) {
-  //}
   semaphore.wait(std::chrono::milliseconds::max());
   txStream.setMemoryIncrement(DMA::Stream::MemoryIncrementMode::PointerIncremented);
-  // threadID = xTaskGetCurrentTaskHandle();
-  // vTaskSuspend(threadID);
 
   return NoError;
 }
@@ -312,7 +293,6 @@ void SPI_dma::IRQfunction(SPI_dma &object, SPI_TypeDef *spi) {
   const SPI::Error error = SPI::errorCheck(spi->SR);
 
   if (error != SPI::NoError) {
-    //object.semaphore = false;
       bool shouldYeld = object.semaphore.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
       portYIELD_FROM_ISR( shouldYeld );
@@ -353,11 +333,11 @@ void DMA2_Stream2_IRQHandler(void) {
 #if MICROHAL_SPI1_DMA_TX_STREAM == 5
   DMA2_Stream5->CR &= ~DMA_SxCR_EN;
 #endif
-  // SPI_dma::spi1.semaphore = false;
-  //xTaskResumeFromISR(SPI_dma::spi1.threadID);
   bool shouldYeld = SPI_dma::spi1.semaphore.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
   portYIELD_FROM_ISR( shouldYeld );
+#else
+  (void)shouldYeld;
 #endif
 }
 #endif
@@ -368,7 +348,7 @@ void DMA2_Stream3_IRQHandler(void) {
   SPI1->CR2 &= ~SPI_CR2_TXDMAEN;
   DMA2_Stream3->CR &= ~DMA_SxCR_EN;
 
-  SPI_dma::spi1.semaphore = false;
+  SPI_dma::spi1.semaphore.giveFromISR();
 }
 #endif
 #if MICROHAL_SPI1_DMA_TX_STREAM == 5
@@ -378,11 +358,11 @@ void DMA2_Stream5_IRQHandler(void) {
   SPI1->CR2 &= ~SPI_CR2_TXDMAEN;
   DMA2_Stream5->CR &= ~DMA_SxCR_EN;
 
-  // SPI_dma::spi1.semaphore = false;
-  //xTaskResumeFromISR(SPI_dma::spi1.threadID);
   bool shouldYeld = SPI_dma::spi1.semaphore.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
   portYIELD_FROM_ISR( shouldYeld );
+#else
+  (void)shouldYeld;
 #endif
 }
 #endif
@@ -447,7 +427,7 @@ void DMA1_Stream2_IRQHandler(void) {
   // disable SPI DMA request
   SPI3->CR2 &= ~SPI_CR2_RXDMAEN & ~SPI_CR2_TXDMAEN;
 
-  SPI_dma::spi3.semaphore = false;
+  SPI_dma::spi3.semaphore.giveFromISR();
 }
 #endif
 #if MICROHAL_SPI3_DMA_TX_STREAM == 5
@@ -460,7 +440,7 @@ void DMA1_Stream5_IRQHandler(void) {
   // disable SPI DMA request
   SPI3->CR2 &= ~SPI_CR2_TXDMAEN;
 
-  SPI_dma::spi3.semaphore = false;
+  SPI_dma::spi3.semaphore.giveFromISR();
 }
 #endif
 #if MICROHAL_SPI3_DMA_TX_STREAM == 7
@@ -490,9 +470,7 @@ void DMA1_Stream7_IRQHandler(void) {
 //                                         SPI IRQHandlers //
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_SPI1_DMA
-extern "C" void SPI1_IRQHandler(void) {
-  SPI_dma::IRQfunction(SPI_dma::spi1, SPI1);
-}
+extern "C" void SPI1_IRQHandler(void) {  SPI_dma::IRQfunction(SPI_dma::spi1, SPI1); }
 #endif
 #ifdef MICROHAL_USE_SPI2_DMA
 void SPI2_IRQHandler(void) { SPI_dma::IRQfunction(SPI_dma::spi2, SPI2); }

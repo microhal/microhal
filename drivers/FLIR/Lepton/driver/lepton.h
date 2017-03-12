@@ -113,7 +113,7 @@ class Lepton {
   bool readImagePacket() {
     cs.reset();
     microhal::SPI::Error status =
-        spi.readBuffer(&imagePacket, sizeof(imagePacket));
+        spi.read(&imagePacket, sizeof(imagePacket));
     cs.set();
     return status == microhal::SPI::NoError;
   }

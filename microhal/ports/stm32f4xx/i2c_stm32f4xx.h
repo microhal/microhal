@@ -32,7 +32,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 
 #include "core_stm32f4xx.h"
 #include "interfaces/i2c_interface.h"
@@ -73,8 +73,7 @@ class I2C : public microhal::I2C {
 #if (defined MICROHAL_USE_I2C3_INTERRUPT) || (defined MICROHAL_USE_I2C3_POLLING) || (defined MICROHAL_USE_I2C3_DMA)
     static I2C &i2c3;
 #endif
-    //---------------------------------- functions
-    //----------------------------------
+    //---------------------------------- functions ----------------------------------
     bool init();
 
     Speed speed(Speed speed) noexcept final {
@@ -116,7 +115,7 @@ class I2C : public microhal::I2C {
      *
      * @retval true if analog filter was on
      * @retval false if I2C peripheral is enabled and changing filter state is
-     * unpossible
+     * impossible
      */
     bool analogFilterEnable() {
         if (isEnable() == false) {
@@ -132,7 +131,7 @@ class I2C : public microhal::I2C {
      *
      * @retval true if analog filter was off
      * @retval false if I2C peripheral is enabled and changing filter state is
-     * unpossible
+     * impossible
      */
     bool analogFilterDisable() {
         if (isEnable() == false) {
@@ -223,8 +222,7 @@ public:
 
         return static_cast<I2C::Error>(errors);
     }
-    //----------------------------------------- friends
-    //-----------------------------------------//
+    //----------------------------------------- friends -----------------------------------------//
     friend microhal::I2CDevice;
 };
 
