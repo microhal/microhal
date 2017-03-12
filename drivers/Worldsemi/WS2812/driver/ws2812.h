@@ -51,7 +51,7 @@ class WS2812B {
 
 	void redraw() {
 		fillPixelBuff();
-		spi.writeBuffer(pixelBuff, sizeof(pixelBuff), true);
+		spi.write(pixelBuff, sizeof(pixelBuff), true);
 	}
 
 	Pixel &operator[](size_t i) {

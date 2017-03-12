@@ -36,6 +36,7 @@ using namespace stm32f4xx;
 using namespace diagnostic;
 
 void hardwareConfig(void) {
+	(void)bsp::wsSpi;
 	stm32f4xx::ClockManager::PLL::clockSource(stm32f4xx::ClockManager::PLL::ClockSource::HSI);
     Core::pll_start(8000000, 102400000);
     Core::fpu_enable();

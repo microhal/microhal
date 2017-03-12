@@ -13,6 +13,7 @@ using namespace stm32f4xx;
 using namespace diagnostic;
 
 void hardwareConfig(void) {
+	(void)bsp::wsSpi;
     Core::pll_start(8000000, 102400000);
     Core::fpu_enable();
 
