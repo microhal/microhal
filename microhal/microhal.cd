@@ -10,7 +10,6 @@ DEF := __USES_CXX \
 
 SRC := core/itoa.cpp \
        core/button/Button.cpp \
-       core/I2CDevice/I2CDevice.cpp \
        core/interfaces/serialPort_interface.cpp \
        core/ioDeviceNull/IODeviceNull.cpp \
        core/signalSlot/signalSlot.cpp \
@@ -20,7 +19,6 @@ INC_DIR := . \
            core \
            core/buffers \
            core/button \
-           core/I2CDevice \
            core/interfaces \
            core/signalSlot \
            core/SPIDevice \
@@ -176,6 +174,14 @@ ifneq (, $(findstring nrf52,$(__MAKAO_DEVICE__)))
 			   ports/manager \
 			   ports/manager/Nordic
 	   
+endif
+
+####################### I2C DEVICE ##############################
+ifndef MICROHAL_I2CDEVICE_DISABLE
+	SRC := $(SRC) \
+		   core/I2CDevice/I2CDevice.cpp
+	INC_DIR := $(INC_DIR) \
+		   core/I2CDevice
 endif
 
 ########################## UNITS ################################
