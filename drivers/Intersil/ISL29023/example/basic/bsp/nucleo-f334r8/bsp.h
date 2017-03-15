@@ -33,8 +33,10 @@
 
 #include "microhal.h"
 
-static microhal::SerialPort &serialPort = microhal::stm32f3xx::SerialPort::Serial2;
-
-static microhal::I2C &sensorI2C = microhal::stm32f3xx::I2C::i2c1;
-
+namespace bsp {
+static microhal::SerialPort &debugPort = microhal::stm32f3xx::SerialPort::Serial2;
+namespace isl29023 {
+static microhal::I2C &i2c = microhal::stm32f3xx::I2C::i2c1;
+}
+}  // namespace bsp
 #endif  // NUCLEO_F334F8_H_

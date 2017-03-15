@@ -37,16 +37,16 @@ using namespace diagnostic;
 using namespace std::literals::chrono_literals;
 
 int main(void) {
-    debugPort.setDataBits(SerialPort::Data8);
-    debugPort.setStopBits(SerialPort::OneStop);
-    debugPort.setParity(SerialPort::NoParity);
-    debugPort.open(SerialPort::ReadWrite);
-    debugPort.setBaudRate(SerialPort::Baud115200);
+	bsp::debugPort.setDataBits(SerialPort::Data8);
+	bsp::debugPort.setStopBits(SerialPort::OneStop);
+	bsp::debugPort.setParity(SerialPort::NoParity);
+	bsp::debugPort.open(SerialPort::ReadWrite);
+	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-    debugPort.write("\n\r------------------- SHT21 Demo -------------------------\n\r");
-    diagChannel.setOutputDevice(debugPort);
+	bsp::debugPort.write("\n\r------------------- SHT21 Demo -------------------------\n\r");
+    diagChannel.setOutputDevice(bsp::debugPort);
 
-    SHT21 sht(sensorI2C);
+    SHT21 sht(bsp::sht21::i2c);
 
     char buffer[100] = {};
     std::this_thread::sleep_for(1000ms);
@@ -60,7 +60,7 @@ int main(void) {
         }
 
         sprintf(buffer, "Temperature: %f, Humidity: %f\n\r", temp, humidity);
-        debugPort.write(buffer);
+        bsp::debugPort.write(buffer);
 
         std::this_thread::sleep_for(1000ms);
     }

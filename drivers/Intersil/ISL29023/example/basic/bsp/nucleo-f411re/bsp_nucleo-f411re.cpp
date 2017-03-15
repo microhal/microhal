@@ -36,6 +36,8 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
+	(void)bsp::isl29023::i2c;
+	(void)bsp::debugPort;
    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
@@ -48,7 +50,6 @@ void hardwareConfig(void) {
     stm32f4xx::I2C::i2c1.init();
     stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Fast);
     stm32f4xx::I2C::i2c1.enable();
-
 
     SysTick_Config(84000000/1000);
 }

@@ -32,13 +32,13 @@
 using namespace microhal;
 using namespace diagnostic;
 // create accelerometer sensor object
-LIS302DL lis302(lis302_SPI, lis302_CS);
+LIS302DL lis302(bsp::lis302::spi, bsp::lis302::cs);
 
 int main(void) {
     // show example information
-    debugPort.write("\n\r----- LIS302 Demo -----\n\r");
+    bsp::debugPort.write("\n\r----- LIS302 Demo -----\n\r");
     // set default diagChannel output device.
-    diagChannel.setOutputDevice(debugPort);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
     do {
         if (!lis302.init()) {

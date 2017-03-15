@@ -36,19 +36,19 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-	serialPort.clear();
+	bsp::debugPort.clear();
 
-    serialPort.setDataBits(SerialPort::Data8);
-    serialPort.setStopBits(SerialPort::OneStop);
-    serialPort.setParity(SerialPort::NoParity);
-    serialPort.open(SerialPort::ReadWrite);
-    serialPort.setBaudRate(SerialPort::Baud115200);
+	bsp::debugPort.setDataBits(SerialPort::Data8);
+	bsp::debugPort.setStopBits(SerialPort::OneStop);
+	bsp::debugPort.setParity(SerialPort::NoParity);
+	bsp::debugPort.open(SerialPort::ReadWrite);
+	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-    serialPort.write("\n\r------------------- TMP006 Demo -------------------------\n\r");
+	bsp::debugPort.write("\n\r------------------- TMP006 Demo -------------------------\n\r");
 
-    diagChannel.setOutputDevice(serialPort);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
-    TMP006 tmp(sensorI2C, TMP006::I2C_ADDRESS_1);
+    TMP006 tmp(bsp::tmp006::i2c, TMP006::I2C_ADDRESS_1);
 
     uint16_t id;
 

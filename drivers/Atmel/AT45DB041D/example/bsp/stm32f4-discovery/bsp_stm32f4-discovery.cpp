@@ -13,8 +13,8 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-	(void)serialPort;
-	(void)at45db_spi;
+	(void)bsp::at45db::spi;
+	(void)bsp::debugPort;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 

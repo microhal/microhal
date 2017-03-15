@@ -31,24 +31,24 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-static microhal::SerialPort &communicationPort = microhal::stm32f4xx::SerialPort::Serial6;
-
-// first RF module pins configuration
-static microhal::SPI &rfModule1_SPI = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin rfModule1_csDat(microhal::stm32f4xx::GPIO::Port::PortD, 8);
-constexpr microhal::GPIO::IOPin rfModule1_csCon(microhal::stm32f4xx::GPIO::Port::PortD, 1);
-constexpr microhal::GPIO::IOPin rfModule1_IRQ0(microhal::stm32f4xx::GPIO::Port::PortD, 3);
-constexpr microhal::GPIO::IOPin rfModule1_IRQ1(microhal::stm32f4xx::GPIO::Port::PortD, 10);
-constexpr microhal::GPIO::IOPin rfModule1_RESET(microhal::stm32f4xx::GPIO::Port::PortD, 0);
-
-// second RF module pins configuration
-static microhal::SPI &rfModule2_SPI = microhal::stm32f4xx::SPI::spi2;
-constexpr microhal::GPIO::IOPin rfModule2_csDat(microhal::stm32f4xx::GPIO::Port::PortB, 8);
-constexpr microhal::GPIO::IOPin rfModule2_csCon(microhal::stm32f4xx::GPIO::Port::PortA, 3);
-constexpr microhal::GPIO::IOPin rfModule2_IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 2);
-constexpr microhal::GPIO::IOPin rfModule2_IRQ1(microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin rfModule2_RESET(microhal::stm32f4xx::GPIO::Port::PortA, 1);
-
+namespace moduleA {
+static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+constexpr microhal::GPIO::IOPin csDat(microhal::stm32f4xx::GPIO::Port::PortD, 8);
+constexpr microhal::GPIO::IOPin csCon(microhal::stm32f4xx::GPIO::Port::PortD, 1);
+constexpr microhal::GPIO::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortD, 3);
+constexpr microhal::GPIO::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortD, 10);
+constexpr microhal::GPIO::IOPin RESET(microhal::stm32f4xx::GPIO::Port::PortD, 0);
+}
+namespace moduleB {
+static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi2;
+constexpr microhal::GPIO::IOPin csDat(microhal::stm32f4xx::GPIO::Port::PortB, 8);
+constexpr microhal::GPIO::IOPin csCon(microhal::stm32f4xx::GPIO::Port::PortA, 3);
+constexpr microhal::GPIO::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 2);
+constexpr microhal::GPIO::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortE, 4);
+constexpr microhal::GPIO::IOPin RESET(microhal::stm32f4xx::GPIO::Port::PortA, 1);
+}
+}
 #endif  // NUCLEO_F411RE_H_

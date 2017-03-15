@@ -35,19 +35,19 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-    debugPort.clear();
+    bsp::debugPort.clear();
 
-    debugPort.setDataBits(SerialPort::Data8);
-    debugPort.setStopBits(SerialPort::OneStop);
-    debugPort.setParity(SerialPort::NoParity);
-    debugPort.open(SerialPort::ReadWrite);
-    debugPort.setBaudRate(SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-    debugPort.write("\n\r------------------- DS2786 Demo -------------------------\n\r");
+    bsp::debugPort.write("\n\r------------------- DS2786 Demo -------------------------\n\r");
 
-    diagChannel.setOutputDevice(debugPort);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
-    DS2786 ds2786(sensorI2C, 500000);
+    DS2786 ds2786(bsp::ds2786::i2c, 500000);
 
     while (1) {
         if(ds2786.isCapacityLearningEnabled())

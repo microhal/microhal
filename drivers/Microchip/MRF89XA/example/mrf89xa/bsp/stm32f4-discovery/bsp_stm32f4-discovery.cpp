@@ -37,37 +37,10 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
-microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial1;
-
-microhal::SerialPort &communicationPort = microhal::stm32f4xx::SerialPort::Serial2;
-
-// first RF module pins configuration
-microhal::SPI &rfModule1_SPI = microhal::stm32f4xx::SPI::spi2;
-microhal::GPIO::IOPin rfModule1_csDat(microhal::stm32f4xx::GPIO::Port::PortD, 8);
-microhal::GPIO::IOPin rfModule1_csCon(microhal::stm32f4xx::GPIO::Port::PortD, 1);
-microhal::GPIO::IOPin rfModule1_IRQ0(microhal::stm32f4xx::GPIO::Port::PortD, 3);
-microhal::GPIO::IOPin rfModule1_IRQ1(microhal::stm32f4xx::GPIO::Port::PortD, 10);
-microhal::GPIO::IOPin rfModule1_RESET(microhal::stm32f4xx::GPIO::Port::PortD, 0);
-
-// second RF module pins configuration
-microhal::SPI &rfModule2_SPI = microhal::stm32f4xx::SPI::spi1;
-microhal::GPIO::IOPin rfModule2_csDat(microhal::stm32f4xx::GPIO::Port::PortB, 8);
-microhal::GPIO::IOPin rfModule2_csCon(microhal::stm32f4xx::GPIO::Port::PortA, 3);
-microhal::GPIO::IOPin rfModule2_IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 2);
-microhal::GPIO::IOPin rfModule2_IRQ1(microhal::stm32f4xx::GPIO::Port::PortE, 4);
-microhal::GPIO::IOPin rfModule2_RESET(microhal::stm32f4xx::GPIO::Port::PortA, 1);
-
-microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
-
-microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
-
-microhal::GPIO::IOPin GreenLed = Led4;
-microhal::GPIO::IOPin RedLed = Led3;
-
 void hardwareConfig(void) {
+	(void)bsp::moduleA::spi;
+	(void)bsp::moduleB::spi;
+	(void)bsp::debugPort;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
@@ -86,11 +59,11 @@ void hardwareConfig(void) {
     IOManager::routeSPI<2, MOSI, stm32f4xx::GPIO::PortB, 15>();
 
     // pull down RF modules interrupt pins
-    stm32f4xx::GPIO::setPullType(rfModule1_IRQ0.port, rfModule1_IRQ0.pin, stm32f4xx::GPIO::PullDown);
-    stm32f4xx::GPIO::setPullType(rfModule1_IRQ1.port, rfModule1_IRQ1.pin, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleA::IRQ0.port, bsp::moduleA::IRQ0.pin, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleA::IRQ1.port, bsp::moduleA::IRQ1.pin, stm32f4xx::GPIO::PullDown);
 
-    stm32f4xx::GPIO::setPullType(rfModule2_IRQ0.port, rfModule2_IRQ0.pin, stm32f4xx::GPIO::PullDown);
-    stm32f4xx::GPIO::setPullType(rfModule2_IRQ1.port, rfModule2_IRQ1.pin, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleB::IRQ0.port, bsp::moduleB::IRQ0.pin, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleB::IRQ1.port, bsp::moduleB::IRQ1.pin, stm32f4xx::GPIO::PullDown);
 
     // configure Serial Port interfaces
     stm32f4xx::SerialPort::Serial1.clear();

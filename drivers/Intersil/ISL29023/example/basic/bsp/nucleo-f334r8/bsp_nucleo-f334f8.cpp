@@ -36,6 +36,8 @@ using namespace microhal;
 using namespace stm32f3xx;
 
 void hardwareConfig(void) {
+	(void)bsp::isl29023::i2c;
+	(void)bsp::debugPort;
    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 

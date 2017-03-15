@@ -75,7 +75,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_I2C1_DMA_RX_STREAM 0	//possible streams are 0 and 5
 #define MICROHAL_I2C1_DMA_TX_STREAM 6	//possible streams are 6 and 7
 
-#define MICROHAL_USE_I2C2_INTERRUPT
+//#define MICROHAL_USE_I2C2_INTERRUPT
 #define MICROHAL_I2C2_DMA_RX_STREAM 2	//possible streams are 2 and 3
 //tx stream can be connected only to stream 7
 

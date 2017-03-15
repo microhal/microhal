@@ -36,6 +36,9 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
+	(void)bsp::moduleA::spi;
+	(void)bsp::moduleB::spi;
+	(void)bsp::debugPort;
    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 

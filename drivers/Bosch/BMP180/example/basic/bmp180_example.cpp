@@ -36,22 +36,22 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-	debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+	bsp::debugPort.setDataBits(SerialPort::Data8);
+	bsp::debugPort.setStopBits(SerialPort::OneStop);
+	bsp::debugPort.setParity(SerialPort::NoParity);
+	bsp::debugPort.open(SerialPort::ReadWrite);
+	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-	debugPort.write("\n\r------------------- BMP180 Demo -------------------------\n\r");
+	bsp::debugPort.write("\n\r------------------- BMP180 Demo -------------------------\n\r");
 
     char buffer[100];
-    BMP180 bmp(sensorI2C);
+    BMP180 bmp(bsp::bmp180::i2c);
 
     sprintf(buffer, "ID = 0x%X", bmp.getDeviceID());
-    debugPort.write(buffer);
+    bsp::debugPort.write(buffer);
 
     if (bmp.init() == false) {
-    	debugPort.write("BMP initialize error.\n\r");
+    	bsp::debugPort.write("BMP initialize error.\n\r");
     }
 
     while (1) {

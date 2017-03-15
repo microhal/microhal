@@ -31,11 +31,11 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
-static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial1;
-
-static microhal::SPI &lis302_SPI = microhal::stm32f4xx::SPI::spi1;
-
-constexpr microhal::GPIO::IOPin lis302_CS(microhal::stm32f4xx::GPIO::Port::PortA, 15);
-
+namespace lis302 {
+static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+constexpr microhal::GPIO::IOPin cs(microhal::stm32f4xx::GPIO::Port::PortA, 15);
+}
+}  // namespace bsp
 #endif  // NUCLEO_F411RE_H_

@@ -36,21 +36,21 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-	debugPort.clear();
+	bsp::debugPort.clear();
 
-	debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+	bsp::debugPort.setDataBits(SerialPort::Data8);
+	bsp::debugPort.setStopBits(SerialPort::OneStop);
+	bsp::debugPort.setParity(SerialPort::NoParity);
+	bsp::debugPort.open(SerialPort::ReadWrite);
+	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-	debugPort.write("\n\r------------------- LSM330DL Demo -------------------------\n\r");
+	bsp::debugPort.write("\n\r------------------- LSM330DL Demo -------------------------\n\r");
 
-    diagChannel.setOutputDevice(debugPort);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
-    lsm330::Accelerometer lsm(sensorI2C, lsm330::Accelerometer::I2C_ADDRESS_1);
+    lsm330::Accelerometer lsm(bsp::lsm330::i2c, lsm330::Accelerometer::I2C_ADDRESS_1);
 
-    lsm330::Gyroscope gyro(sensorI2C, lsm330::Gyroscope::I2C_ADDRESS_1);
+    lsm330::Gyroscope gyro(bsp::lsm330::i2c, lsm330::Gyroscope::I2C_ADDRESS_1);
 
 
     lsm.registerDump(diagChannel);

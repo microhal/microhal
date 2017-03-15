@@ -6,21 +6,17 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-  serialPort.setDataBits(SerialPort::Data8);
-  serialPort.setStopBits(SerialPort::OneStop);
-  serialPort.setParity(SerialPort::NoParity);
-  serialPort.open(SerialPort::ReadWrite);
-  serialPort.setBaudRate(SerialPort::Baud115200);
+  bsp::debugPort.setDataBits(SerialPort::Data8);
+  bsp::debugPort.setStopBits(SerialPort::OneStop);
+  bsp::debugPort.setParity(SerialPort::NoParity);
+  bsp::debugPort.open(SerialPort::ReadWrite);
+  bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-  serialPort.write(
-      "\n\r------------------- AT45DB41D Demo -------------------------\n\r");
+  bsp::debugPort.write("\n\r------------------- AT45DB41D Demo -------------------------\n\r");
 
-  diagChannel.setOutputDevice(serialPort);
+  diagChannel.setOutputDevice(bsp::debugPort);
 
-  GPIO led(GreenLed, GPIO::Direction::Output);
-
-  AT45DB041D at45(at45db_spi, at45db_CEpin, at45db_RESETpin, at45db_WPpin,
-                  AT45DB041D::PageSize::Size_256);
+  AT45DB041D at45(bsp::at45db::spi, bsp::at45db::ce, bsp::at45db::reset, bsp::at45db::wp, AT45DB041D::PageSize::Size_256);
 
   at45.init();
 
@@ -44,6 +40,5 @@ int main(void) {
   std::chrono::milliseconds duration(1000);
   while (1) {
     std::this_thread::sleep_for(duration);
-    led.toggle();
   }
 }

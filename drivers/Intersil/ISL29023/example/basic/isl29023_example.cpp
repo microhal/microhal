@@ -37,19 +37,19 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-    serialPort.clear();
+	bsp::debugPort.clear();
 
-    serialPort.setDataBits(SerialPort::Data8);
-    serialPort.setStopBits(SerialPort::OneStop);
-    serialPort.setParity(SerialPort::NoParity);
-    serialPort.open(SerialPort::ReadWrite);
-    serialPort.setBaudRate(SerialPort::Baud115200);
+	bsp::debugPort.setDataBits(SerialPort::Data8);
+	bsp::debugPort.setStopBits(SerialPort::OneStop);
+	bsp::debugPort.setParity(SerialPort::NoParity);
+	bsp::debugPort.open(SerialPort::ReadWrite);
+	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-    serialPort.write("\n\r------------------- ISL29023 Demo -------------------------\n\r");
+	bsp::debugPort.write("\n\r------------------- ISL29023 Demo -------------------------\n\r");
 
-    diagChannel.setOutputDevice(serialPort);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
-    ISL29023 isl(sensorI2C);
+    ISL29023 isl(bsp::isl29023::i2c);
 
    // isl.reset();
 

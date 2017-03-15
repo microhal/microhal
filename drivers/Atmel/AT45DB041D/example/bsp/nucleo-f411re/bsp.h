@@ -32,17 +32,82 @@
 #define NUCLEO_F411RE_H_
 
 #include "microhal.h"
-
-static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial2;
-
-static microhal::SPI &at45db_spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin at45db_CEpin(microhal::stm32f4xx::GPIO::Port::PortC, 10);
-constexpr microhal::GPIO::IOPin at45db_RESETpin(microhal::stm32f4xx::GPIO::Port::PortC, 10);
-constexpr microhal::GPIO::IOPin at45db_WPpin(microhal::stm32f4xx::GPIO::Port::PortC, 11);
-
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortA, 13);
+namespace bsp {
+// microhal extension board for nucleo evaluation boards
+namespace con1 {
+namespace a {
+constexpr microhal::GPIO::IOPin scl (microhal::stm32f4xx::GPIO::Port::PortB, 8);
+constexpr microhal::GPIO::IOPin sda (microhal::stm32f4xx::GPIO::Port::PortB, 9);
+constexpr microhal::GPIO::IOPin mosi (microhal::stm32f4xx::GPIO::Port::PortA, 7);
+constexpr microhal::GPIO::IOPin miso (microhal::stm32f4xx::GPIO::Port::PortA, 6);
+constexpr microhal::GPIO::IOPin sck (microhal::stm32f4xx::GPIO::Port::PortA, 5);
+constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortA, 15);
+constexpr microhal::GPIO::IOPin rxd (microhal::stm32f4xx::GPIO::Port::PortA, 10);
+constexpr microhal::GPIO::IOPin txd (microhal::stm32f4xx::GPIO::Port::PortB, 6);
+constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 11);
+constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 10);
+constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortD, 2);
+constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortB, 13);
+//constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortC, 12);
+}
+namespace b {
+constexpr microhal::GPIO::IOPin scl (microhal::stm32f4xx::GPIO::Port::PortB, 10);
+constexpr microhal::GPIO::IOPin sda (microhal::stm32f4xx::GPIO::Port::PortB, 11);
+constexpr microhal::GPIO::IOPin mosi (microhal::stm32f4xx::GPIO::Port::PortB, 15);
+constexpr microhal::GPIO::IOPin miso (microhal::stm32f4xx::GPIO::Port::PortB, 14);
+constexpr microhal::GPIO::IOPin sck (microhal::stm32f4xx::GPIO::Port::PortC, 7);
+constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortB, 12);
+constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 11);
+constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 10);
+constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortD, 2);
+constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortB, 13);
+}
+namespace c {
+constexpr microhal::GPIO::IOPin scl (microhal::stm32f4xx::GPIO::Port::PortA, 8);
+constexpr microhal::GPIO::IOPin sda (microhal::stm32f4xx::GPIO::Port::PortC, 9);
+constexpr microhal::GPIO::IOPin mosi (microhal::stm32f4xx::GPIO::Port::PortB, 5);
+constexpr microhal::GPIO::IOPin miso (microhal::stm32f4xx::GPIO::Port::PortB, 4);
+constexpr microhal::GPIO::IOPin sck (microhal::stm32f4xx::GPIO::Port::PortB, 3);
+constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortC, 1);
+constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortB, 0);
+constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 2);
+constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortC, 3);
+constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortA, 3);
+}
+}
+namespace con2 {
+namespace a {
+constexpr microhal::GPIO::IOPin scl (microhal::stm32f4xx::GPIO::Port::PortB, 8);
+constexpr microhal::GPIO::IOPin sda (microhal::stm32f4xx::GPIO::Port::PortB, 9);
+constexpr microhal::GPIO::IOPin mosi (microhal::stm32f4xx::GPIO::Port::PortA, 7);
+constexpr microhal::GPIO::IOPin miso (microhal::stm32f4xx::GPIO::Port::PortA, 6);
+constexpr microhal::GPIO::IOPin sck (microhal::stm32f4xx::GPIO::Port::PortA, 5);
+constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortB, 2);
+constexpr microhal::GPIO::IOPin rxd (microhal::stm32f4xx::GPIO::Port::PortA, 12);
+constexpr microhal::GPIO::IOPin txd (microhal::stm32f4xx::GPIO::Port::PortA, 11);
+constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 8);
+constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortD, 8);
+constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortB, 1);
+constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortC, 6);
+constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortC, 5);
+constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortA, 9);
+}
+}
+//constexpr microhal::GPIO::IOPin Led2(microhal::stm32f4xx::GPIO::Port::PortF, 6);
+//constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortF, 7);
+constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortA, 13);
+constexpr microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortA, 14);
 constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+constexpr microhal::GPIO::IOPin Sw2(microhal::stm32f4xx::GPIO::Port::PortC, 4);
+// end of microhal extension board definition
 
-constexpr microhal::GPIO::IOPin GreenLed = Led3;
-
+namespace at45db {
+static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+constexpr microhal::GPIO::IOPin ce = con1::a::ss;
+constexpr microhal::GPIO::IOPin reset = con1::a::io1;
+constexpr microhal::GPIO::IOPin wp = con1::a::io2;
+}
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
+}  // namespace bsp
 #endif  // NUCLEO_F411RE_H_

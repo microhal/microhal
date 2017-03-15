@@ -16,20 +16,19 @@ using namespace microhal;
 using namespace diagnostic;
 //
 int main(void) {
-	debugPort.clear();
+	bsp::debugPort.clear();
 
-	debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+	bsp::debugPort.setDataBits(SerialPort::Data8);
+	bsp::debugPort.setStopBits(SerialPort::OneStop);
+	bsp::debugPort.setParity(SerialPort::NoParity);
+	bsp::debugPort.open(SerialPort::ReadWrite);
+	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-	debugPort.write(
-			"\n\r------------------- DS2782 Demo -------------------------\n\r");
+	bsp::debugPort.write("\n\r------------------- DS2782 Demo -------------------------\n\r");
 
-	diagChannel.setOutputDevice(debugPort);
+	diagChannel.setOutputDevice(bsp::debugPort);
 
-	ds2782::DS2782 ds2782demo(sensorI2C, ds2782::DS2782::DS2782_ADDR);
+	DS2782 ds2782demo(bsp::ds2782::i2c, DS2782::DS2782_ADDR);
 	uint8_t foo;
 	uint8_t bar[2];
 	uint8_t debug1[] = { 12, 34 };

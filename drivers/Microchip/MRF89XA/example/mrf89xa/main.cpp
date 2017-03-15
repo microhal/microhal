@@ -34,8 +34,8 @@ using namespace microhal;
 using namespace diagnostic;
 
 // create RF module objects
-MRF89XA rfMod1(rfModule1_SPI, rfModule1_csCon, rfModule1_csDat, rfModule1_IRQ1);
-MRF89XA rfMod2(rfModule2_SPI, rfModule2_csCon, rfModule2_csDat, rfModule2_IRQ1);
+MRF89XA rfMod1(bsp::moduleA::spi, bsp::moduleA::csCon, bsp::moduleA::csDat, bsp::moduleA::IRQ1);
+MRF89XA rfMod2(bsp::moduleB::spi, bsp::moduleA::csCon, bsp::moduleA::csDat, bsp::moduleA::IRQ1);
 
 bool RFmoduleInit(MRF89XA &rfMod, uint8_t moduleAddress) {
 	// RF channel configuration
@@ -130,16 +130,16 @@ int main(void) {
 	std::this_thread::sleep_for(std::chrono::milliseconds {2000});
 
 	// show example information
-	debugPort.write("\n\r------------------- MRF89XA Demo -------------------------\n\r");
+	bsp::debugPort.write("\n\r------------------- MRF89XA Demo -------------------------\n\r");
 	// set default diagChannel output device.
-	diagChannel.setOutputDevice(debugPort);
+	diagChannel.setOutputDevice(bsp::debugPort);
 
 	// initialize external interrupt controller.
 	ExternalInterrupt::init();
 
 	// configure interrupts for RF modules
-	ExternalInterrupt rfMod1_IRQ0(rfModule1_IRQ0);
-	ExternalInterrupt rfMod2_IRQ0(rfModule2_IRQ0);
+	ExternalInterrupt rfMod1_IRQ0(bsp::moduleA::IRQ0);
+	ExternalInterrupt rfMod2_IRQ0(bsp::moduleA::IRQ0);
 
 	//configure RF modules reset pins
 	//GPIO rfMod1_reset(rfModule1_RESET, GPIO::Direction::Output);
