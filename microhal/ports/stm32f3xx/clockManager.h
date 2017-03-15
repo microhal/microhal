@@ -31,6 +31,7 @@
 #define MICROHAL_PORTS_STM32F3XX_CLOCKMANAGER_H_
 
 #include "microhalPortConfig_stm32f3xx.h"
+#include <cmath>
 #include <type_traits>
 
 #include "device/stm32f3xx.h"
@@ -253,7 +254,7 @@ class ClockManager {
         case PCLK:
         	return APB1Frequency();
         case SYSCLK:
-        	return SYSCLKFrequency();
+        	return SYSCLK::frequency();
         case LSE:
         	//LSE::frequency();
         	while(1);
@@ -305,7 +306,7 @@ class ClockManager {
     static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
         if (&i2c == I2C1)
         	if (RCC->CFGR3 & RCC_CFGR3_I2C1SW) {
-        		return SYSCLKFrequency();
+        		return SYSCLK::frequency();
         	} else {
         		return HSI::frequency();
         	}
@@ -373,21 +374,54 @@ class ClockManager {
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static uint32_t SYSCLKFrequency() noexcept {
-        volatile uint32_t freq = 0;
-        switch (RCC->CFGR & RCC_CFGR_SWS) {
-            case 0:
-                freq = HSI::frequency();
-                break;
-            case RCC_CFGR_SWS_0:
-                freq = HSE::frequency();
-                break;
-            case RCC_CFGR_SWS_1:
-                freq = PLLCLKFrequency();
-                break;
-        }
-        return freq;
+    static void flashLatency(Frequency sysclkFrequency_Hz) {
+    	if (sysclkFrequency_Hz < 24000000) {
+    		FLASH->ACR &= ~FLASH_ACR_LATENCY;
+    	} else if (sysclkFrequency_Hz < 24000000) {
+    		FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_0;
+    	} else {
+    		FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_1;
+    	}
     }
+    struct SYSCLK {
+		enum class Source : decltype(RCC_CFGR_SWS_0) {
+			HSI,
+			HSE = RCC_CFGR_SWS_0,
+			PLL = RCC_CFGR_SWS_1
+		};
+    	static Source source() {
+    		return static_cast<Source>(RCC->CFGR & RCC_CFGR_SWS);
+		}
+    	static void source(Source source) {
+    		switch(source) {
+    		case Source::HSI:
+    			flashLatency(HSI::frequency());
+    			break;
+    		case Source::HSE:
+    			flashLatency(HSE::frequency());
+    			break;
+    		case Source::PLL:
+    			flashLatency(PLL::VCOOutputFrequency());
+    			break;
+    		}
+    		RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | (static_cast<typename std::underlying_type<Source>::type>(source) >> 2);
+    	}
+		static uint32_t frequency() noexcept {
+			volatile uint32_t freq = 0;
+			switch (RCC->CFGR & RCC_CFGR_SWS) {
+				case 0:
+					freq = HSI::frequency();
+					break;
+				case RCC_CFGR_SWS_0:
+					freq = HSE::frequency();
+					break;
+				case RCC_CFGR_SWS_1:
+					freq = PLLCLKFrequency();
+					break;
+			}
+			return freq;
+		}
+    };
 
     static Frequency APB1Frequency() {
         const uint32_t ppre1 = (RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos;
@@ -413,9 +447,9 @@ class ClockManager {
         const uint32_t hpre = (RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
         if (hpre & 0b1000) {
             const uint32_t div[] = {2, 4, 8, 16, 64, 128, 256, 512};
-            return SYSCLKFrequency() / div[hpre & 0b0111];
+            return SYSCLK::frequency() / div[hpre & 0b0111];
         } else {
-            return SYSCLKFrequency();
+            return SYSCLK::frequency();
         }
     }
 
@@ -495,6 +529,23 @@ class ClockManager {
             }
         }
 
+        static uint32_t frequency(uint32_t frequency_Hz) {
+        	if (clockSource() == ClockSource::HSIDiv2) {
+        		// we only can change pll mul
+        		uint32_t mul = round(frequency_Hz / inputFrequency());
+        		if (mul > 16) mul = 16;
+        		if (mul < 2) mul = 2;
+        		PLLMUL(mul);
+        		while (HSI::isReady() == false);
+        	} else {
+
+        	}
+
+        	enable();
+        	while (isReady() == false);
+        	return VCOOutputFrequency();
+        }
+
         static void enable() noexcept { RCC->CR |= RCC_CR_PLLON; }
 
         static void disable() noexcept { RCC->CR &= ~RCC_CR_PLLON; }
@@ -508,6 +559,14 @@ class ClockManager {
         	uint32_t mul = ((RCC->CFGR & RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos);
         	if (mul == 0b1111) return 16;
         	return mul + 2;
+        }
+
+        static bool PLLMUL(uint32_t mul) noexcept {
+        	if (mul >= 2 && mul <=16) {
+        		RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PLLMUL_Msk) | ((mul - 2) << RCC_CFGR_PLLMUL_Pos);
+        		return true;
+        	}
+        	return false;
         }
     };
 };

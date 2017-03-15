@@ -38,16 +38,16 @@
 namespace microhal {
 namespace stm32f3xx {
 
-bool SerialPort::setBaudRate(uint32_t baudRate) {
+bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
     usart.BRR = ClockManager::USARTFrequency(usart) / baudRate;
     return true;
 }
 
-uint32_t SerialPort::getBaudRate() const {
+uint32_t SerialPort::getBaudRate() const noexcept {
     return ClockManager::USARTFrequency(usart) * usart.BRR;
 }
 
-bool SerialPort::setParity(SerialPort::Parity parity) {
+bool SerialPort::setParity(SerialPort::Parity parity) noexcept {
     switch (parity) {
         case SerialPort::NoParity:
             usart.CR1 &= ~USART_CR1_PCE;
@@ -63,7 +63,7 @@ bool SerialPort::setParity(SerialPort::Parity parity) {
     }
     return true;
 }
-bool SerialPort::setStopBits(SerialPort::StopBits stopBits) {
+bool SerialPort::setStopBits(SerialPort::StopBits stopBits) noexcept {
     switch (stopBits) {
         case SerialPort::OneStop:
             usart.CR2 &= ~USART_CR2_STOP;
@@ -80,7 +80,7 @@ bool SerialPort::setStopBits(SerialPort::StopBits stopBits) {
     return true;
 }
 
-bool SerialPort::setDataBits(SerialPort::DataBits dataBits) {
+bool SerialPort::setDataBits(SerialPort::DataBits dataBits) noexcept {
     switch (dataBits) {
         case SerialPort::Data8:
             usart.CR1 &= ~USART_CR1_M;

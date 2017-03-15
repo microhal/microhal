@@ -56,7 +56,7 @@ SerialPort_interrupt SerialPort_interrupt::Serial3(*USART3, rxBufferData_3, txBu
 SerialPort &SerialPort::Serial3 = SerialPort_interrupt::Serial3;
 #endif
 
-bool SerialPort_interrupt::open(OpenMode mode) {
+bool SerialPort_interrupt::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
     usart.CR1 |= (mode << 2) | USART_CR1_UE | USART_CR1_RXNEIE;
     return true;
@@ -70,7 +70,7 @@ bool SerialPort_interrupt::open(OpenMode mode) {
  * @retval true - if buffer was cleared successful
  * @retval false - if an error occurred
  */
-bool SerialPort_interrupt::clear(Direction dir) {
+bool SerialPort_interrupt::clear(Direction dir) noexcept {
     switch (dir) {
         case SerialPort::Input:
             rxBuffer.flush();
