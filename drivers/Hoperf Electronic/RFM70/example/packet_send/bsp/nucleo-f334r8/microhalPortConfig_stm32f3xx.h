@@ -75,11 +75,11 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                        SPI configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_SPI1_INTERRUPT			//available settings are MICROHAL_USE_SPIx_POLLING
+#define MICROHAL_USE_SPI1_DMA			//available settings are MICROHAL_USE_SPIx_POLLING
 										//						 MICROHAL_USE_SPIx_INTERRUPT
 										//						 MICROHAL_USE_SPIx_DMA
 #define MICROHAL_SPI1_DMA_RX_STREAM 2	//possible streams are 0 and 2 this options are valid only when MICROHAL_USE_SPIx_DMA is defined
-#define MICROHAL_SPI1_DMA_TX_STREAM 5   //possible streams are 3 and 5
+#define MICROHAL_SPI1_DMA_TX_STREAM 3   //possible streams are 3 and 5
 
 //#define MICROHAL_USE_SPI2_POLLING
 //SPI 2 DMA can be connected only to stream 3 and 4

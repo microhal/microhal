@@ -256,8 +256,8 @@ class ClockManager {
         case SYSCLK:
         	return SYSCLK::frequency();
         case LSE:
-        	//LSE::frequency();
         	while(1);
+        	return 0;//LSE::frequency();
         	break;
         case HSI:
         	return HSI::frequency();

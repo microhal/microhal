@@ -54,7 +54,7 @@ void hardwareConfig(void) {
     SysTick_Config(8000000/1000);
 }
 
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
 
 extern "C" void SysTick_Handler(void)
 {

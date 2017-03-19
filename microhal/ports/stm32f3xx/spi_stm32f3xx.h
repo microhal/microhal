@@ -78,7 +78,8 @@ class SPI : public microhal::SPI {
         PRESCALER_128 = SPI_CR1_BR_2 | SPI_CR1_BR_1,                 //!< PRESCALER_128
         PRESCALER_256 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,  //!< PRESCALER_256
     } Prescaler;
-//------------------------------------- static reference --------------------------------------//
+
+    //------------------------------------- static reference --------------------------------------//
 #if (defined MICROHAL_USE_SPI1_INTERRUPT) || (defined MICROHAL_USE_SPI1_POLLING) || (defined MICROHAL_USE_SPI1_DMA)
     static SPI &spi1;
 #endif
@@ -102,6 +103,9 @@ class SPI : public microhal::SPI {
     void init(Mode mode, Prescaler prescaler) {
         const uint32_t modeFlags[] = {0x00, SPI_CR1_CPHA, SPI_CR1_CPOL, SPI_CR1_CPHA | SPI_CR1_CPOL};
         spi.CR1 = SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI | modeFlags[mode] | prescaler;
+        dataSize(8);
+        spi.CR2 |= SPI_CR2_FRXTH;
+
     }
 
     void prescaler(Prescaler prescaler) {
@@ -118,6 +122,16 @@ class SPI : public microhal::SPI {
 
     void enable() final { spi.CR1 |= SPI_CR1_SPE; }
     void disable() final { spi.CR1 &= ~SPI_CR1_SPE; }
+
+    uint32_t dataSize(uint32_t size) {
+    	if (size < 4 || size > 16) return 0;
+    	spi.CR2 = (spi.CR2 & ~SPI_CR2_DS_Msk) | ((size - 1) << SPI_CR2_DS_Pos);
+    	return size;
+    }
+
+    uint32_t dataSize() const {
+    	return ((spi.CR2 & SPI_CR2_DS_Msk) >> SPI_CR2_DS_Pos) + 1;
+    }
 
     uint32_t speed(uint32_t speed) final {
     	// TODO
@@ -164,6 +178,14 @@ class SPI : public microhal::SPI {
         //
         // }
         return error;
+    }
+
+    void writeDR(uint8_t data) {
+        *(volatile uint8_t *)&spi.DR = data;
+    }
+
+    uint8_t readDR() const {
+        return *(uint8_t *)&spi.DR;
     }
     //----------------------------------------- friends -----------------------------------------//
     friend microhal::SPIDevice;

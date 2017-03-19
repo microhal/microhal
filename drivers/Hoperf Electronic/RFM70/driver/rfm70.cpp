@@ -133,13 +133,12 @@ void RFM70::switchToTX(void) {
  */
 void RFM70::switchCFG(Cfg cfg) {
     uint8_t status;
-
     //read status register
-    readRegister(STATUS, status);
-
-    //if actual bank is different than bank in cfg parameter
-    if ((status & 0x80) != cfg) {
-        writeRegister(ACTIVATE_CMD, (uint8_t) 0x53);
+    if (readRegister(STATUS, status)) {
+		//if actual bank is different than bank in cfg parameter
+		if ((status & 0x80) != cfg) {
+			writeRegister(ACTIVATE_CMD, (uint8_t) 0x53);
+		}
     }
 } /* switchCFG */
 /**
