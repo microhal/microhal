@@ -1,0 +1,7 @@
+NAME := AT45DB0X1D
+VERSION := 0.1.0
+
+SRC := at45db0x1d.cpp
+	   
+
+INC_DIR := .
