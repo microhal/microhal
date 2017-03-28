@@ -30,7 +30,7 @@
 #define STM32F4DISCOVERY_H_
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
-static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial1;
+static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial2;
 
 static microhal::SPI &leptonSPI = microhal::stm32f4xx::SPI::spi1;
 static microhal::I2C &leptonI2C = microhal::stm32f4xx::I2C::i2c2;

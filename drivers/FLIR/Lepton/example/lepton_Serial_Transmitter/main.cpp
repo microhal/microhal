@@ -69,17 +69,26 @@ int main(void) {
     static PicturePacket picturePacket;
     Picture &picture = picturePacket.payload();
 
+    uint32_t pictureNumber = 0;
+    uint32_t pictureFailureCounter = 0;
     while (1) {
-        if (lepton.isNewPictureAvailable()) {
-            // memcpy(picture.data, lepton.getPicture(), lepton.getPictureSize()/2);
-            for (size_t i = 0; i < 60 * 80; i++) {
-                picture.data[i] = lepton.getPicture()[i * 2 + 1];
-            }
-
-            hostComm.send(picturePacket);
-            std::this_thread::sleep_for(std::chrono::milliseconds{2000});
-        }
-        lepton.timeProc();
+    	auto beginTime = std::chrono::system_clock::now();
+    	while(1) {
+			if (lepton.isNewPictureAvailable()) {
+				picture.pictureNumber = pictureNumber++;
+				memcpy(picture.data, lepton.getPicture(), lepton.getPictureSize());
+				hostComm.send(picturePacket);
+				break;
+			}
+			if (beginTime + 150ms < std::chrono::system_clock::now()) {
+				pictureFailureCounter++;
+				diagChannel << lock << MICROHAL_INFORMATIONAL << "Timeout while receiving Lepton picture. Failures: " << pictureFailureCounter << unlock;
+				break;
+			}
+			lepton.timeProc();
+			std::this_thread::sleep_for(1ms);
+    	}
+    	std::this_thread::sleep_until(beginTime + 300ms);
     }
 
     return 0;

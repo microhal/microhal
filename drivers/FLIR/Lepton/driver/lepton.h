@@ -63,8 +63,7 @@ class Lepton {
     bool verifyCRC() const {
       const uint16_t tmp = 0xFF0F;
       const uint16_t IdCrcField[2] = {(uint16_t)(id & tmp), 0};
-      uint16_t crc =
-          microhal::CRC16::calculate(&IdCrcField, sizeof(IdCrcField), 0);
+      uint16_t crc = microhal::CRC16::calculate(&IdCrcField, sizeof(IdCrcField), 0);
       crc = microhal::CRC16::calculate(data, sizeof(data), crc);
       if (crc != getCRC()) {
         microhal::diagnostic::diagChannel
@@ -106,14 +105,13 @@ class Lepton {
 
   bool shutdown() { return false; }
 
-  static constexpr size_t getPictureSize() { return 80 * 60 * 2; }
+  static constexpr size_t getPictureSize() { return picture_size; }
 
   void timeProc();
 
   bool readImagePacket() {
     cs.reset();
-    microhal::SPI::Error status =
-        spi.read(&imagePacket, sizeof(imagePacket));
+    microhal::SPI::Error status = spi.read(&imagePacket, sizeof(imagePacket));
     cs.set();
     return status == microhal::SPI::NoError;
   }

@@ -26,45 +26,10 @@
 
  *//* ========================================================================================================================== */
 
-#include "microhal.h"
-#include "SPIDevice/SPIDevice.h"
-#include "bsp.h"
+#ifndef STM32F4DISCOVERY_H_
+#define STM32F4DISCOVERY_H_
 
-using namespace microhal;
-using namespace stm32f4xx;
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
+static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-void hardwareConfig(void) {
-	(void)cameraPort;
-	(void)leptonSPI;
-	(void)leptonI2C;
-    Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
-
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
-
-    IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
-
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
-
-    debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
-    debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
-    debugPort.setParity(stm32f4xx::SerialPort::NoParity);
-    debugPort.open(stm32f4xx::SerialPort::ReadWrite);
-    debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
-
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_16);
-    stm32f4xx::SPI::spi1.enable();
-
-    SysTick_Config(168000000 / 1000);
-}
-
-//uint64_t SysTick_time = 0;
-//
-//extern "C" void SysTick_Handler(void)
-//{
-//	SysTick_time++;
-//}
+#endif  // STM32F4DISCOVERY_H_

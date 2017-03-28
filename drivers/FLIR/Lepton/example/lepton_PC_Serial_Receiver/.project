@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>lepton</name>
+	<name>leptonPCSerialReceiver</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -26,29 +26,19 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>FreeRTOS</name>
-			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/third-party/FreeRTOS/FreeRTOS/Source</locationURI>
-		</link>
-		<link>
 			<name>gsl</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/third-party/gsl</locationURI>
-		</link>
-		<link>
-			<name>lepton</name>
-			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/driver</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
 			<name>microhal/hostComm</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/components/hostComm</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/components/hostComm</locationURI>
 		</link>
 		<link>
 			<name>microhal/microhal</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/microhal</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
