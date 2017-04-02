@@ -236,7 +236,7 @@ bool Sd::init() {
 
     cs.reset();
 
-    spi.writeBuffer(ff, sizeof(ff), true);
+    spi.write(ff, sizeof(ff), true);
 
     volatile uint32_t delay = 1000;
     while (delay--) ;
@@ -303,6 +303,7 @@ bool Sd::init() {
     		diagChannel << lock << MICROHAL_ERROR << "Unable to read CSD." << endl << unlock;
     	}
     }
+    //diagnostic::diagChannel << diagnostic::lock << MICROHAL_DEBUG << "sd init result: " << result << diagnostic::unlock;
     return result;
 }
 
@@ -312,8 +313,8 @@ std::experimental::optional<Sd::OCR> Sd::readOCR() {
         if (auto response = readResponseR1(2)) {
             if ((*response == 0x01) | (*response == 0x00)) {
                 uint32_t tmp;
-                spi.readBuffer(&tmp, sizeof(tmp), 0xFF);
-                ocr = static_cast<OCR>(convertEndiannessIfRequired(tmp, Endianness::BigEndian));
+                spi.read(&tmp, sizeof(tmp), 0xFF);
+                ocr = static_cast<OCR>(convertEndiannessIfRequired(tmp, Endianness::Big));
             }
         }
     }
@@ -330,7 +331,7 @@ bool Sd::initialize(bool hcs, std::chrono::milliseconds timeout) {
         if (auto response = readResponseR1(1)) {
             if (*response != 0x01) {
                 uint32_t ocr;
-                spi.readBuffer(&ocr, sizeof(ocr), 0xFF);
+                spi.read(&ocr, sizeof(ocr), 0xFF);
                 return true;
             }
         }
@@ -355,7 +356,6 @@ std::experimental::optional<Sd::CSD> Sd::readCSD() {
             uint8_t crc = CRC7::calculate(tmp, sizeof(tmp) - 1, 0);
             if (((crc << 1) | 1) == tmp[15]) {
                 // crc and always one math
-
             	if (tmp[0] == 0) {
                     // CSD v1
                     CSDv1 csd;
@@ -369,7 +369,7 @@ std::experimental::optional<Sd::CSD> Sd::readCSD() {
                     // CSD v2
                     CSDv2 csd;
                     deserializeCSD(csd, tmp);
-                  //  printCSD(csd);
+                 //   printCSD(csd);
                     CSD tmp;
                     tmp.version = 2;
                     tmp.v2 = csd;
@@ -430,13 +430,13 @@ Sd::DataResponse Sd::readDataResponse(std::chrono::milliseconds timeout) {
 }
 
 bool Sd::writeDataPacket(const gsl::not_null<const void *> data_ptr, uint8_t dataToken, uint16_t blockSize) {
-    const uint16_t crc = convertEndiannessIfRequired(microhal::CRC16::calculate(data_ptr.get(), blockSize, 0x0000), Endianness::BigEndian);
+    const uint16_t crc = convertEndiannessIfRequired(microhal::CRC16::calculate(data_ptr.get(), blockSize, 0x0000), Endianness::Big);
     // write 0xFE to signalizes start of data transmission
     if (spi.write(dataToken, false) != SPI::Error::NoError) return false;
     // write data
-    if (spi.writeBuffer(data_ptr.get(), blockSize, false) != SPI::Error::NoError) return false;
+    if (spi.write(data_ptr.get(), blockSize, false) != SPI::Error::NoError) return false;
     // write crc
-    if (spi.writeBuffer(&crc, sizeof(crc), false) != SPI::Error::NoError) return false;
+    if (spi.write(&crc, sizeof(crc), false) != SPI::Error::NoError) return false;
 
     return true;
 }
@@ -477,7 +477,7 @@ Sd::Error Sd::writeBlock(const gsl::not_null<const void *> data_ptr, uint32_t bl
                     DataResponse response = readDataResponse(100ms);
                     // send eight clocks to begin internal write operation
                     uint8_t tmp[] = {0xFF};
-                    spi.writeBuffer(tmp, sizeof(tmp), true);
+                    spi.write(tmp, sizeof(tmp), true);
 
                     if (response == DataResponse::Accepted) {
                     	error = Error::None;
@@ -520,18 +520,18 @@ Sd::Error Sd::readMultipleBlock(const gsl::not_null<void *> data_ptr, uint32_t a
 						// lets try to synchronize end of CMD12 with end of data packet
 						uint16_t crc;
 						const size_t dataPacketSize = blockSize + sizeof(crc);
-						spi.readBuffer(ptr, dataPacketSize - sizeof(CMD12), 0xFF);
-						uint8_t tmp[sizeof(CMD12)];
+						spi.read(ptr, dataPacketSize - sizeof(CMD12), 0xFF);
+						uint8_t tmp[sizeof(CMD12)+1];
 						// tmp contain last packet data and CRC
 						CMD12 cmd12;
-						spi.readWrite(tmp, &cmd12, sizeof(cmd12) + 1);
+						spi.writeRead(tmp, &cmd12, sizeof(cmd12) + 1);
 						//sendCMD(cmd12);
 						if (auto response = readResponseR1(2)) {
 							if (*response == 0) {
 								memcpy(ptr + dataPacketSize - sizeof(CMD12), tmp, sizeof(tmp) - sizeof(crc));
 								memcpy(&crc, tmp + sizeof(tmp) - sizeof(crc), sizeof(crc));
 
-								crc = convertEndiannessIfRequired(crc, Endianness::BigEndian);
+								crc = convertEndiannessIfRequired(crc, Endianness::Big);
 								error = Error::None;
 							}
 						}
@@ -597,7 +597,7 @@ Sd::Error Sd::writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uin
         		// write stop transmission token for CMD25
         		constexpr uint8_t stopToken = 0b1111'1101;
         		const uint8_t tmp[] = {stopToken, 0xFF};
-        		spi.writeBuffer(tmp, sizeof(tmp), true);
+        		spi.write(tmp, sizeof(tmp), true);
         		result = Error::None;
         	}
         } else {
@@ -626,7 +626,7 @@ bool Sd::sendCMD(const Command &command) {
         } while (!spi.getMISOstate());
     }
     spi.write(0xFF, true);
-    return spi.writeBuffer(&command, sizeof(command), true) == microhal::SPI::Error::NoError;
+    return spi.write(&command, sizeof(command), true) == microhal::SPI::Error::NoError;
 }
 
 std::experimental::optional<Sd::ResponseR1> Sd::readResponseR1(uint8_t retryCount) {
@@ -637,8 +637,8 @@ std::experimental::optional<Sd::ResponseR1> Sd::readResponseR1(uint8_t retryCoun
         if (spi.read(resp, 0xFF) == microhal::SPI::Error::NoError) {
             // if MSB of resp byte is 0 then received R1 response
         	if ((resp & 0b1000'0000) == 0) {
-                microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_DEBUG
-                                                  << "Response: " << microhal::diagnostic::toHex(resp) << microhal::diagnostic::unlock;
+              //  microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_DEBUG
+              //                                    << "Response: " << microhal::diagnostic::toHex(resp) << microhal::diagnostic::unlock;
                 response = static_cast<ResponseR1>(resp);
                 break;
             }
@@ -661,8 +661,8 @@ std::experimental::optional<Sd::ResponseR7> Sd::readResponseR7(uint8_t retryCoun
 		if ((*r1Response & ResponseR1::IllegalCommand) == 0) {
 			// if not illegal command then read R7 response data
 			uint32_t response_data;
-			spi.readBuffer(&response_data, sizeof(response_data), 0xFF);
-			response_data = convertEndiannessIfRequired(response_data, Endianness::BigEndian);
+			spi.read(&response_data, sizeof(response_data), 0xFF);
+			response_data = convertEndiannessIfRequired(response_data, Endianness::Big);
 			r7Response.data = response_data;
 		}
 
@@ -683,10 +683,10 @@ Sd::ReadDataError Sd::readDataPacket(const gsl::not_null<void *> data_ptr, uint1
 	ReadDataError error = ReadDataError::Unknown;
     uint8_t token = readToken(readDataTokenRetryCount);
     if (token == 0xFE) {
-       /*if (*/spi.readBuffer(data_ptr.get(), size, 0xFF);// == size) {
+       /*if (*/spi.read(data_ptr.get(), size, 0xFF);// == size) {
 			uint16_t crc;
-			spi.readBuffer(&crc, sizeof(crc), 0xFF);
-			crc = convertEndiannessIfRequired(crc, Endianness::BigEndian);
+			spi.read(&crc, sizeof(crc), 0xFF);
+			crc = convertEndiannessIfRequired(crc, Endianness::Big);
 			// check crc
 			const uint16_t crc_calculated = CRC16::calculate(data_ptr.get(), size, 0);
 			if (crc_calculated == crc) {

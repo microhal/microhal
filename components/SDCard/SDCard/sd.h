@@ -37,8 +37,9 @@
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
 #include "utils/packed.h"
+#include "ports/manager/hardware.h"
 
-class Sd {
+class Sd final {
  public:
 	struct CSDv1 {
 	    uint8_t CSD_STRUCTURE : 2;
@@ -170,7 +171,7 @@ class Sd {
 	};
 
     Sd(microhal::SPI &spi, microhal::GPIO::IOPin chipSelect) noexcept : spi(spi), cs(chipSelect, microhal::GPIO::Direction::Output) { cs.set(); }
-    virtual ~Sd();
+    ~Sd();
 
 	bool init();
 
@@ -178,8 +179,11 @@ class Sd {
 
 	uint64_t getCardCapacity() const noexcept { return cardCapacity; }
 
+	uint32_t getSecrorCount() const noexcept { return getCardCapacity() / blockSize; }
+
 	uint32_t getLastPageNumber() const noexcept { return getCardCapacity() / 512 - 1; }
 
+	uint32_t getBlockSize() const noexcept { return blockSize; }
 	/**
 	 * @brief This function may be used to set data block size. The function will work only with Standard Capacity
 	 * SC Memory Cards. In different SD Card types data block size is fixed to 512B and can't be adjusted. When working
@@ -188,6 +192,7 @@ class Sd {
 	 * @param blockSize that will be set. Accepted range is from 1 to 512.
 	 */
 	bool setBlockSize(uint32_t blockSize);
+
 
 	Error readBlock(const gsl::not_null<void *> data_ptr, uint32_t address);
 
@@ -214,7 +219,7 @@ class Sd {
      public:
         constexpr Command(uint8_t cmdIndex, uint32_t argument, uint8_t crc) noexcept
         		: startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex),
-				  argument(convertEndiannessIfRequired(argument, microhal::Endianness::BigEndian)),
+				  argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)),
 				  crcAndEndBit(crc) {}
 
         void calculateCRC() {
@@ -223,18 +228,18 @@ class Sd {
         }
 
         void setArgument(uint32_t arg) {
-        	argument = convertEndiannessIfRequired(arg, microhal::Endianness::BigEndian);
+        	argument = convertEndiannessIfRequired(arg, microhal::Endianness::Big);
         	calculateCRC();
         }
 
         uint32_t getArgument() {
-        	return convertEndiannessIfRequired(argument, microhal::Endianness::BigEndian);
+        	return convertEndiannessIfRequired(argument, microhal::Endianness::Big);
         }
 
      protected:
         Command(uint8_t cmdIndex, uint32_t argument) noexcept
 			: startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex),
-			  argument(convertEndiannessIfRequired(argument, microhal::Endianness::BigEndian)) { calculateCRC();}
+			  argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)) { calculateCRC();}
 
      private:
         uint8_t startBitTransmissionBitAndCommandIndex;  // start bit (MSB) always equal 0, transmission bit always equal 1, command index 6 LSB bits
@@ -338,11 +343,11 @@ class Sd {
     };
 
     static constexpr uint32_t convertEndiannessIfRequired(uint32_t a, microhal::Endianness endianness) {
-    	return (endianness == microhal::DeviceEndianness) ? a : microhal::byteswap(a);
+    	return (endianness == microhal::hardware::Device::endianness) ? a : microhal::byteswap(a);
     }
 
     static constexpr uint16_t convertEndiannessIfRequired(uint16_t a, microhal::Endianness endianness) {
-        return (endianness == microhal::DeviceEndianness) ? a : microhal::byteswap(a);
+        return (endianness == microhal::hardware::Device::endianness) ? a : microhal::byteswap(a);
     }
 
     bool sendCMD(const Command &command);
