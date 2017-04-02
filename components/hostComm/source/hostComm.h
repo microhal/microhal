@@ -61,7 +61,7 @@ class HostComm {
           ackSemaphore(),
           sendMutex(),
           ioDevice(ioDevice),
-          log(logHeader, logDevice),
+          log(logHeader, logDevice, diagnostic::EnableTimestamp | diagnostic::EnableFileName | diagnostic::EnableLevelName),
           statistics(),
           receivedPacket(packetBuffer, sizeof(packetBuffer)),
           ACKpacket(),

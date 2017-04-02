@@ -127,7 +127,7 @@ void HostComm::timeProc() {
             << endl
             << unlock;
         if (receivedPacket.checkCRC() == true) {
-            // if need do send ack
+            // send ACK if needed
             if (receivedPacket.requireACK() == true) {
                 // send ack
                 ACKpacket.setPacketToACK(receivedPacket);
@@ -138,7 +138,7 @@ void HostComm::timeProc() {
                 }
             }
 
-            // if packet wasn't received
+            // check for retransmission
             if (receivedPacket.getNumber() != receiveCounter) {
                 receiveCounter = receivedPacket.getNumber();
 
@@ -191,6 +191,7 @@ inline bool HostComm::readPacketInfo() {
             if (longOne != 0xFF) {
                 // some error situation, packet info longOne pool is different than 0xFF
                 log << lock << MICROHAL_CRITICAL << "Packet info longOne: " << longOne << ", but should be equal 0xFF." << endl << unlock;
+                repeat++;
                 continue;
             } else {
                 // found packet begin, set it to packetInfo structure
