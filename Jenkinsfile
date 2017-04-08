@@ -1,10 +1,11 @@
 pipeline {
     agent { node { label 'master' } }
-
+    
+    def labels = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
+    
     stages {
         stage('Build') {
-            steps {
-                def labels = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
+            steps {                
                 for (target in labels) {
                     sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "drivers/AVIA Semiconductor/HX711/example" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "hx711/${target}"'
                 }
