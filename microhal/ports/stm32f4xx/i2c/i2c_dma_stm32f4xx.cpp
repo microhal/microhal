@@ -94,7 +94,7 @@ I2C::Error I2C_dma::write(DeviceAddress address, const uint8_t *dataA, size_t da
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
-};
+}
 /**
  *
  * @param deviceAddress
@@ -147,7 +147,7 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *data, size_t dataLength
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
-};
+}
 
 I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress,
                               const uint8_t * write_data, size_t write_data_size,
