@@ -4,9 +4,10 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "drivers/AVIA Semiconductor/HX711/example" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "hx711/stm32f4-discovery"'
-                sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "drivers/AVIA Semiconductor/HX711/example" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "hx711/NUCLEO-F411RE"'
-                sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "drivers/AVIA Semiconductor/HX711/example" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "hx711/NUCLEO-F334R8"'
+                def labels = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
+                for (target in labels) {
+                    sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "drivers/AVIA Semiconductor/HX711/example" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "hx711/${target}"'
+                }
             }
         }
         stage('Test') {
