@@ -26,6 +26,21 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>FatFs</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/third-party/FatFs</locationURI>
+		</link>
+		<link>
+			<name>FreeRTOS</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC/third-party/FreeRTOS/FreeRTOS/Source</locationURI>
+		</link>
+		<link>
+			<name>SDCard</name>
+			<type>2</type>
+			<locationURI>PARENT-4-PROJECT_LOC../components/SDCard</locationURI>
+		</link>
+		<link>
 			<name>driver</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/driver</locationURI>

@@ -383,7 +383,7 @@ class uCAM_II {
             command = tmp;
         } else {
             microhal::diagnostic::diagChannel << microhal::diagnostic::lock << microhal::diagnostic::Debug << "Unable to read command, received size: " << (uint32_t)size
-                                              << "\n" << microhal::diagnostic::unlock;
+                                              << ", but expected " << (uint32_t)sizeof(tmp) << "\n" << microhal::diagnostic::unlock;
         }
         return command;
     }

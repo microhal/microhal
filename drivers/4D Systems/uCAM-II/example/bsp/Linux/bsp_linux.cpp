@@ -33,8 +33,11 @@
 
 using namespace microhal;
 using namespace diagnostic;
+namespace bsp {
 
 microhal::IODevice &debugPort = linux::consoleIODev;
 microhal::linux::SerialPort serialPortA("/dev/ttyUSB0");
 
 microhal::SerialPort &cameraPort = serialPortA;
+
+}  // namespace bsp

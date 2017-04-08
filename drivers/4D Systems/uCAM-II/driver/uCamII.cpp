@@ -39,12 +39,12 @@ uCAM_II::~uCAM_II() {
 }
 
 bool uCAM_II::sync() {
-	static constexpr uint8_t retryCount = 60;
+	static constexpr uint_fast8_t retryCount = 60;
     Sync sync;
-    for (uint8_t i = 0; i < retryCount; i++) {
-        if (writeCommandWaitForACK(sync, 1ms)) {
+    for (uint_fast8_t i = 0; i < retryCount; i++) {
+        if (writeCommandWaitForACK(sync, 2ms)) {
             // after ACK we should receive SYNC frame
-            if (auto command = readCommand(1ms)) {
+            if (auto command = readCommand(2ms)) {
                 if (command->getID() == Sync::getID()) {
                     // we need to respond with ACK
                     sendACK(*command);
@@ -130,7 +130,7 @@ bool uCAM_II::SetBaudrate::setBaudrate(Baudrate baudrate) {
 }
 bool uCAM_II::getPicture(PictureType pictureType, gsl::span<uint8_t> pictureBuffer, size_t &received) {
     GetPicture picture(pictureType);
-    if (writeCommandWaitForACK(picture, 1ms)) {
+    if (writeCommandWaitForACK(picture, 200ms)) {
         if (auto command = readCommand(200ms)) {
         	if (command->getID() == Data::getID()) {
 				Data &data = static_cast<Data &>(*command);
@@ -175,16 +175,13 @@ bool uCAM_II::readPicturePackage(ImageDataPackage &package) {
 
 bool uCAM_II::receiveRAWPictureData(uint8_t *pictureData, size_t pictureSize) {
     size_t leftToRead = pictureSize;
-    uint32_t timeout = 0;
     do {
-        size_t read = serial.read(reinterpret_cast<char *>(pictureData), leftToRead);
+        size_t read = serial.read(reinterpret_cast<char *>(pictureData), leftToRead > (serial.inputQueueSize() / 2) ? serial.inputQueueSize() / 2 : leftToRead, 1s);
         pictureData += read;
         leftToRead -= read;
         if (leftToRead == 0) return true;
-
-        std::this_thread::sleep_for(std::chrono::milliseconds{5});
-        timeout++;
-    } while (leftToRead && timeout < 10000);
+        if (read == 0) break; // timeout, because we didn't read any data in last 1 second
+    } while (1);
 
     microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_ERROR << "Error, left to read: " << (uint32_t)leftToRead <<
     microhal::diagnostic::unlock;
