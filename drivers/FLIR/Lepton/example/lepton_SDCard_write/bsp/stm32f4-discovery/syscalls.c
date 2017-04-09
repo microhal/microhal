@@ -37,9 +37,6 @@
  *
  * available interrupt handlers:
  ******************************************************************************/
-
-#ifndef VENDOR_ATMEL
-#ifndef LINUX_PORT
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,24 +64,24 @@ extern "C" {
 //#define SYSCALLS_HAVE_UNLINK_R		1
 //#define SYSCALLS_HAVE_WAIT_R		1
 //#define SYSCALLS_HAVE_WRITE_R		1
-#define SYSCALLS_HAVE_CLOSE_R       1
-#define SYSCALLS_HAVE_EXECVE_R      1
-#define SYSCALLS_HAVE_EXIT          1
-#define SYSCALLS_HAVE_FORK_R        1
-#define SYSCALLS_HAVE_FSTAT_R       1
-#define SYSCALLS_HAVE_GETPID_R      1
-#define SYSCALLS_HAVE_ISATTY_R      1
-#define SYSCALLS_HAVE_KILL_R        1
-#define SYSCALLS_HAVE_LINK_R        1
-#define SYSCALLS_HAVE_LSEEK_R       1
-#define SYSCALLS_HAVE_OPEN_R        1
-#define SYSCALLS_HAVE_READ_R        1
-#define SYSCALLS_HAVE_SBRK_R        1
-#define SYSCALLS_HAVE_STAT_R        1
-#define SYSCALLS_HAVE_TIMES_R       1
-#define SYSCALLS_HAVE_UNLINK_R      1
-#define SYSCALLS_HAVE_WAIT_R        1
-#define SYSCALLS_HAVE_WRITE_R       1
+#define SYSCALLS_HAVE_CLOSE_R 1
+#define SYSCALLS_HAVE_EXECVE_R 1
+#define SYSCALLS_HAVE_EXIT 1
+#define SYSCALLS_HAVE_FORK_R 1
+#define SYSCALLS_HAVE_FSTAT_R 1
+#define SYSCALLS_HAVE_GETPID_R 1
+#define SYSCALLS_HAVE_ISATTY_R 1
+#define SYSCALLS_HAVE_KILL_R 1
+#define SYSCALLS_HAVE_LINK_R 1
+#define SYSCALLS_HAVE_LSEEK_R 1
+#define SYSCALLS_HAVE_OPEN_R 1
+#define SYSCALLS_HAVE_READ_R 1
+#define SYSCALLS_HAVE_SBRK_R 1
+#define SYSCALLS_HAVE_STAT_R 1
+#define SYSCALLS_HAVE_TIMES_R 1
+#define SYSCALLS_HAVE_UNLINK_R 1
+#define SYSCALLS_HAVE_WAIT_R 1
+#define SYSCALLS_HAVE_WRITE_R 1
 
 /*
  +=============================================================================+
@@ -93,19 +90,19 @@ extern "C" {
  */
 
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/times.h>
 #include <stdint.h>
+#include <sys/stat.h>
 #include <sys/time.h>
-#include "device/stm32f4xx.h"
+#include <sys/times.h>
+#include <sys/types.h>
+//#include "device/stm32f4xx.h"
 /*
  +=============================================================================+
  | module variables
  +=============================================================================+
  */
 
-char *environ_initial[1] = { 0 };
+char *environ_initial[1] = {0};
 char **environ = environ_initial;
 
 #undef errno
@@ -125,7 +122,7 @@ int native_handle_type;
 
 #if SYSCALLS_HAVE_EXECVE_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Transfer control to a new process.
  * \details Transfer control to a new process.
  *
@@ -139,15 +136,15 @@ int native_handle_type;
  * should contain an array of pointers to character strings, and the array
  * should be terminated by a NULL pointer.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
-int _execve_r(struct _reent *r, const char *path, char * const argv[], char * const envp[]) {
-    r = r;									// suppress warning
-    path = path;							// suppress warning
-    argv = argv;							// suppress warning
-    envp = envp;							// suppress warning
+int _execve_r(struct _reent *r, const char *path, char *const argv[], char *const envp[]) {
+    r = r;        // suppress warning
+    path = path;  // suppress warning
+    argv = argv;  // suppress warning
+    envp = envp;  // suppress warning
 
-    //errno = ENOMEM;
+    // errno = ENOMEM;
     return -1;
 }
 
@@ -155,15 +152,15 @@ int _execve_r(struct _reent *r, const char *path, char * const argv[], char * co
 
 #if SYSCALLS_HAVE_EXIT == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Exit a program.
  * \details Exit a program without cleaning up files.
  *
  * \param [in] status represents the termination status.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 void _exit(int status) {
-    status = status;						// suppress warning
+    status = status;  // suppress warning
 
     while (1)
         ;
@@ -173,17 +170,17 @@ void _exit(int status) {
 
 #if SYSCALLS_HAVE_FORK_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Create a new process.
  * \details Create a new process.
  *
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 pid_t _fork_r(struct _reent *r) {
-    r = r;									// suppress warning
+    r = r;  // suppress warning
 
-    //errno = EAGAIN;
+    // errno = EAGAIN;
     return -1;
 }
 
@@ -191,7 +188,7 @@ pid_t _fork_r(struct _reent *r) {
 
 #if SYSCALLS_HAVE_FSTAT_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Status of an open file.
  * \details Status of an open file.
  *
@@ -200,12 +197,12 @@ pid_t _fork_r(struct _reent *r) {
  * \param [out] st points to a stat structure where status information about the
  * file is to be placed.
  * \return 0 for success.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 int _fstat_r(struct _reent *r, int file, struct stat *st) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
-    st = st;								// suppress warning
+    r = r;        // suppress warning
+    file = file;  // suppress warning
+    st = st;      // suppress warning
 
     st->st_mode = S_IFCHR;
     return 0;
@@ -215,15 +212,15 @@ int _fstat_r(struct _reent *r, int file, struct stat *st) {
 
 #if SYSCALLS_HAVE_GETPID_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Get calling process ID.
  * \details Get calling process ID.
  *
  * \return 1.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 pid_t _getpid_r(struct _reent *r) {
-    r = r;									// suppress warning
+    r = r;  // suppress warning
 
     return 1;
 }
@@ -232,17 +229,17 @@ pid_t _getpid_r(struct _reent *r) {
 
 #if SYSCALLS_HAVE_ISATTY_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Query whether output stream is a terminal.
  * \details Query whether output stream is a terminal.
  *
  * \param [in] file is the file descriptor to test.
  * \return 1.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 int _isatty_r(struct _reent *r, int file) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
+    r = r;        // suppress warning
+    file = file;  // suppress warning
 
     return 1;
 }
@@ -251,21 +248,21 @@ int _isatty_r(struct _reent *r, int file) {
 
 #if SYSCALLS_HAVE_KILL_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Send a signal.
  * \details Send a signal.
  *
  * \param [in] pid is a process ID or process group ID.
  * \param [in] signal specifies the signal to be sent.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 int _kill_r(struct _reent *r, pid_t pid, int signal) {
-    r = r;									// suppress warning
-    pid = pid;								// suppress warning
-    signal = signal;						// suppress warning
+    r = r;            // suppress warning
+    pid = pid;        // suppress warning
+    signal = signal;  // suppress warning
 
-    //errno = EINVAL;
+    // errno = EINVAL;
     return -1;
 }
 
@@ -273,7 +270,7 @@ int _kill_r(struct _reent *r, pid_t pid, int signal) {
 
 #if SYSCALLS_HAVE_LINK_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Establish a new name for an existing file.
  * \details Establish a new name for an existing file.
  *
@@ -281,14 +278,14 @@ int _kill_r(struct _reent *r, pid_t pid, int signal) {
  * \param [in] new points to a path name that names the new directory entry to
  * be created.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 int _link_r(struct _reent *r, const char *old, const char *new) {
-    r = r;									// suppress warning
-    old = old;								// suppress warning
-    new = new;								// suppress warning
+    r = r;      // suppress warning
+    old = old;  // suppress warning
+    new = new;  // suppress warning
 
-    //errno = EMLINK;
+    // errno = EMLINK;
     return -1;
 }
 
@@ -296,7 +293,7 @@ int _link_r(struct _reent *r, const char *old, const char *new) {
 
 #if SYSCALLS_HAVE_LSEEK_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Set position in a file.
  * \details Set position in a file.
  *
@@ -305,13 +302,13 @@ int _link_r(struct _reent *r, const char *old, const char *new) {
  * from a specified file origin.
  * \param [in] whence specifies the location from which to start seeking.
  * \return 0 for success.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 off_t _lseek_r(struct _reent *r, int file, off_t offset, int whence) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
-    offset = offset;						// suppress warning
-    whence = whence;						// suppress warning
+    r = r;            // suppress warning
+    file = file;      // suppress warning
+    offset = offset;  // suppress warning
+    whence = whence;  // suppress warning
 
     return 0;
 }
@@ -320,7 +317,7 @@ off_t _lseek_r(struct _reent *r, int file, off_t offset, int whence) {
 
 #if SYSCALLS_HAVE_SBRK_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Increase program data space.
  * \details Increase program data space. This version of _sbrk_r() requires the
  * heap area to be defined explicitly in linker script with symbols __heap_start
@@ -328,34 +325,34 @@ off_t _lseek_r(struct _reent *r, int file, off_t offset, int whence) {
  *
  * \param [in] size is the requested data space size.
  * \return pointer to new data space.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 caddr_t _sbrk_r(struct _reent *r, int size) {
-    extern char __heap_start;				// imported from linker script
-    extern char __heap_end;					// imported from linker script
+    extern char __heap_start;  // imported from linker script
+    extern char __heap_end;    // imported from linker script
     static char *current_heap_end = &__heap_start;
     char *previous_heap_end;
 
-    r = r;									// suppress warning
+    r = r;  // suppress warning
 
     previous_heap_end = current_heap_end;
 
-    if (current_heap_end + size > &__heap_end)	// is there enough space on the heap left?
-            {
-        errno = ENOMEM;						// not enough memory left
-        return (caddr_t) - 1;				// return immediatelly
+    if (current_heap_end + size > &__heap_end)  // is there enough space on the heap left?
+    {
+        errno = ENOMEM;      // not enough memory left
+        return (caddr_t)-1;  // return immediatelly
     }
 
-    current_heap_end += size;				// increase data space
+    current_heap_end += size;  // increase data space
 
-    return (caddr_t) previous_heap_end;		// return requested data space
+    return (caddr_t)previous_heap_end;  // return requested data space
 }
 
 #endif
 
 #if SYSCALLS_HAVE_STAT_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Status of a file (by name).
  * \details Status of a file (by name).
  *
@@ -363,11 +360,11 @@ caddr_t _sbrk_r(struct _reent *r, int size) {
  * \param [out] st points to a stat structure where status information about the
  * file is to be placed.
  * \return 0 for success.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 int _stat_r(struct _reent *r, const char *pathname, struct stat *st) {
-    r = r;									// suppress warning
-    pathname = pathname;					// suppress warning
+    r = r;                // suppress warning
+    pathname = pathname;  // suppress warning
 
     st->st_mode = S_IFCHR;
     return 0;
@@ -377,18 +374,18 @@ int _stat_r(struct _reent *r, const char *pathname, struct stat *st) {
 
 #if SYSCALLS_HAVE_TIMES_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Timing information for current process.
  * \details Timing information for current process.
  *
  * \param [out] buf points to a tms structure where timing information about the
  * process is to be placed.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 int _times_r(struct _reent *r, struct tms *buf) {
-    r = r;									// suppress warning
-    buf = buf;								// suppress warning
+    r = r;      // suppress warning
+    buf = buf;  // suppress warning
 
     return -1;
 }
@@ -397,20 +394,20 @@ int _times_r(struct _reent *r, struct tms *buf) {
 
 #if SYSCALLS_HAVE_UNLINK_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Remove a file�s directory entry.
  * \details Remove a file�s directory entry.
  *
  * \param [in] pathname points to the path name that names the file to be
  * unlinked.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 int _unlink_r(struct _reent *r, const char *pathname) {
-    r = r;									// suppress warning
-    pathname = pathname;					// suppress warning
+    r = r;                // suppress warning
+    pathname = pathname;  // suppress warning
 
-    //errno = ENOENT;
+    // errno = ENOENT;
     return -1;
 }
 
@@ -418,40 +415,25 @@ int _unlink_r(struct _reent *r, const char *pathname) {
 
 #if SYSCALLS_HAVE_WAIT_R == 1
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Wait for a child process.
  * \details Wait for a child process.
  *
  * \param [in,out] stat_loc specifies the location where the child process' exit
  * status is stored.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 pid_t _wait_r(struct _reent *r, int *stat_loc) {
-    r = r;									// suppress warning
-    stat_loc = stat_loc;					// suppress warning
+    r = r;                // suppress warning
+    stat_loc = stat_loc;  // suppress warning
 
-    //errno = ECHILD;
+    // errno = ECHILD;
     return -1;
 }
 
 #endif
 
-
-extern uint64_t SysTick_time;
-//int _gettimeofday( struct timeval *tv, void *tzvp )
-//{
-//   uint64_t t = SysTick_time;// SysTick->VAL; // get uptime in nanoseconds
-//   tv->tv_sec = t / 1000;  // convert to seconds
-//   tv->tv_usec = ( t % 1000 ) * 1000;  // get remaining microseconds
-//  // tv->tv_sec = 0;//t / 1000000000;  // convert to seconds
-//  // tv->tv_usec = SysTick->VAL;
-//   return 0;  // return non-zero for error
-//}
-
 #ifdef __cplusplus
 }
 #endif
-#endif //LINUX_PORT#endif //VENDOR_ATMEL/******************************************************************************
- * END OF FILE
- ******************************************************************************/
