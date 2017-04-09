@@ -61,22 +61,22 @@ void hardwareConfig(void) {
     IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
     IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
 
-    debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
-    debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
-    debugPort.setParity(stm32f4xx::SerialPort::NoParity);
-    debugPort.open(stm32f4xx::SerialPort::ReadWrite);
-    debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
+    bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
+    bsp::debugPort.setParity(stm32f4xx::SerialPort::NoParity);
+    bsp::debugPort.open(stm32f4xx::SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
 
     stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_128);
     stm32f4xx::SPI::spi3.enable();
 
     TaskHandle_t xHandle = NULL;
-    xTaskCreate(run_main, "NAME", 11.5*1024, NULL, tskIDLE_PRIORITY, &xHandle);
+    xTaskCreate(run_main, "NAME", 11.5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Wait for a child process.
  * \details Wait for a child process.
  *
@@ -84,19 +84,79 @@ void hardwareConfig(void) {
  * \param [in] buf is an array of data to write to the open file.
  * \param [in] nbyte is the number of bytes to write to the file.
  * \return 0 for success.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
-	size_t toWrite = nbyte;
-	do {
-		size_t written = debugPort.write((const char*)buf, toWrite);
-		buf += written;
-		toWrite -= written;
-	} while(toWrite);
-
-	(void)r;									// suppress warning
-    (void)file;							// suppress warning
-
+    (void)r;  // suppress warning
+    // diagChannel << lock << MICROHAL_INFORMATIONAL << "Writing file: " << (int32_t)file << ", size: " << (uint32_t)nbyte << unlock;
+    if (file == 10) {
+        //	UINT count = 0;
+        //	auto res = f_write(&fp, buf, nbyte, &count);
+        //	if (res != FR_OK) {
+        //		diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs write error: "<< printFatFSResult(res) << unlock;
+        //		return -1;
+        //	}
+        //	return count;
+    } else {
+        bsp::debugPort.mutex.lock();
+        size_t toWrite = nbyte;
+        do {
+            size_t written = bsp::debugPort.write((const char *)buf, toWrite);
+            buf += written;
+            toWrite -= written;
+        } while (toWrite);
+        bsp::debugPort.mutex.unlock();
+    }
     return 0;
 }
 
+extern "C" int _open_r(struct _reent *r, const char *pathname, int flags, int mode) {
+    // diagChannel << lock << MICROHAL_INFORMATIONAL << "opening file, pathname: " << pathname << ", flags: " << (int32_t)flags
+    //           << " mode: " << (int32_t)mode << unlock;
+    //    if (f_open(&fp, pathname, FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
+    //        return 10;
+    //    }
+    return -1;
+}
+
+extern "C" int _close_r(struct _reent *r, int file) {
+    // diagChannel << lock << MICROHAL_INFORMATIONAL << "Closing file: " << (int32_t)file << unlock;
+    if (file == 10) {
+        //        auto res = f_close(&fp);
+        //        if (res == FR_OK) {
+        //            return 0;
+        //        } else {
+        //            diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs close error: " << printFatFSResult(res) << unlock;
+        //        }
+    }
+
+    return -1;
+}
+
+extern "C" ssize_t _read_r(struct _reent *r, int file, void *buf, size_t nbyte) {
+    //    diagChannel << lock << MICROHAL_INFORMATIONAL << "reading file: " << (int32_t)file << unlock;
+    //    if (file == 10) {
+    //        UINT count;
+    //        auto res = f_read(&fp, buf, nbyte, &count);
+    //        if (res != FR_OK) {
+    //            diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs read error: " << printFatFSResult(res) << unlock;
+    //            return -1;
+    //        }
+    //        return nbyte - count;
+    //    }
+    return 0;
+}
+
+// extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+//	size_t toWrite = nbyte;
+//	do {
+//		size_t written = debugPort.write((const char*)buf, toWrite);
+//		buf += written;
+//		toWrite -= written;
+//	} while(toWrite);
+//
+//	(void)r;									// suppress warning
+//    (void)file;							// suppress warning
+//
+//    return 0;
+//}

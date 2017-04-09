@@ -327,6 +327,11 @@ class Sd final {
     	explicit ACMD41(uint32_t hcs) : Command(41, 0x40000000) {}
     };
 
+    class ACMD23 : public Command {
+     public:
+    	explicit ACMD23(uint32_t count) : Command(23, count) {}
+    };
+
     enum ResponseR1 : uint8_t {
     	InIdleState = 0b0000'0001,
 		EraseReset = 0b0000'0010,

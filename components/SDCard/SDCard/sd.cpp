@@ -566,6 +566,7 @@ Sd::Error Sd::writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uin
 
     cs.reset();
 
+    sendACMD(ACMD23{blocksCount});	/* Predefine number of sectors */
     sendCMD(CMD25{address});
     if (auto response = readResponseR1(2)) {
         if (*response == 0) {

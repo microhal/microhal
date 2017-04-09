@@ -28,22 +28,27 @@
 		<link>
 			<name>FreeRTOS</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/third-party/FreeRTOS/FreeRTOS/Source</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/third-party/FreeRTOS/FreeRTOS/Source</locationURI>
 		</link>
 		<link>
 			<name>SDCard</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/driver</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/SDCard</locationURI>
+		</link>
+		<link>
+			<name>catch</name>
+			<type>2</type>
+			<locationURI>PARENT-3-PROJECT_LOC/third-party/Catch</locationURI>
 		</link>
 		<link>
 			<name>gsl</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/third-party/gsl</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
 			<name>microhal</name>
 			<type>2</type>
-			<locationURI>PARENT-4-PROJECT_LOC/microhal</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
