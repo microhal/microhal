@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
@@ -34,32 +35,32 @@
 namespace bsp {
 namespace con1 {
 namespace a {
-constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortE, 5);
-constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
-constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortC, 13);
-constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortE, 6);
-constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortE, 2);
-constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortC, 14);
+constexpr microhal::GPIO::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortE, 5);
+constexpr microhal::GPIO::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::GPIO::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+constexpr microhal::GPIO::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortE, 6);
+constexpr microhal::GPIO::IOPin io5(microhal::stm32f4xx::GPIO::Port::PortE, 4);
+constexpr microhal::GPIO::IOPin io6(microhal::stm32f4xx::GPIO::Port::PortE, 2);
+constexpr microhal::GPIO::IOPin ss(microhal::stm32f4xx::GPIO::Port::PortC, 14);
 }
 namespace b {
-constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 5);
-constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortB, 1);
-constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortE, 9);
-constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortE, 11);
-constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortE, 7);
+constexpr microhal::GPIO::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortC, 5);
+constexpr microhal::GPIO::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortB, 1);
+constexpr microhal::GPIO::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortE, 9);
+constexpr microhal::GPIO::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortE, 11);
+constexpr microhal::GPIO::IOPin io5(microhal::stm32f4xx::GPIO::Port::PortE, 4);
+constexpr microhal::GPIO::IOPin ss(microhal::stm32f4xx::GPIO::Port::PortE, 7);
 }
 }
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
-static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial2;;
+static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial2;
 
 namespace sdCard {
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi3;
 constexpr microhal::GPIO::IOPin cs = con1::b::io4;
 }
 
-} // namespace bsp
+}  // namespace bsp
 
 #endif  // STM32F4DISCOVERY_H_

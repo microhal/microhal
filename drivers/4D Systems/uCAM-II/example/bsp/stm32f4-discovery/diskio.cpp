@@ -11,216 +11,67 @@
 #include "sd.h"
 #include "bsp.h"
 
-/* Definitions of physical drive number for each drive */
-#define DEV_RAM		1	/* Example: Map Ramdisk to physical drive 0 */
-#define DEV_MMC		0	/* Example: Map MMC/SD card to physical drive 1 */
-#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
+///* Definitions of physical drive number for each drive */
+//#define DEV_RAM		1	/* Example: Map Ramdisk to physical drive 0 */
+//#define DEV_MMC		0	/* Example: Map MMC/SD card to physical drive 1 */
+//#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
 
 
 using namespace microhal;
 
-volatile DSTATUS stat = STA_NOINIT;
-Sd sdCard(bsp::sdCard::spi, bsp::sdCard::cs);
-/*-----------------------------------------------------------------------*/
-/* Get Drive Status                                                      */
-/*-----------------------------------------------------------------------*/
+class FatFSDisc {
+ public:
+	virtual DSTATUS initialize() { return STA_NOINIT; }
+	virtual DSTATUS status() const { return STA_NODISK; }
+	virtual DRESULT read(BYTE *buff, DWORD sector, UINT count) { return RES_NOTRDY; }
+	virtual DRESULT write(const BYTE *buff, DWORD sector, UINT count) { return RES_NOTRDY; }
+	virtual DRESULT ioctl (BYTE cmd, void *buff) { return RES_NOTRDY; }
+};
 
-DSTATUS disk_status (
-	BYTE pdrv		/* Physical drive nmuber to identify the drive */
-)
-{
-	//int result;
-
-	switch (pdrv) {
-//	case DEV_RAM :
-//		result = RAM_disk_status();
-//
-//		// translate the reslut code here
-//
-//		return stat;
-
-	case DEV_MMC :
-		return stat;
-
-//	case DEV_USB :
-//		result = USB_disk_status();
-//
-//		// translate the reslut code here
-//
-//		return stat;
+class SDSPIDisc : public FatFSDisc {
+ public:
+	SDSPIDisc(microhal::SPI &spi, microhal::GPIO::IOPin cs) : sd(spi, cs) {
 	}
-	return STA_NOINIT;
-}
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Inidialize a Drive                                                    */
-/*-----------------------------------------------------------------------*/
-
-DSTATUS disk_initialize (
-	BYTE pdrv				/* Physical drive nmuber to identify the drive */
-)
-{
-	//DSTATUS stat;
-	//int result;
-
-	switch (pdrv) {
-//	case DEV_RAM :
-//		result = RAM_disk_initialize();
-//
-//		// translate the reslut code here
-//
-//		return stat;
-
-	case DEV_MMC :
-		if (sdCard.init()) {
+	DSTATUS initialize() final {
+		if (sd.init()) {
 			stm32f4xx::SPI::spi3.prescaler(stm32f4xx::SPI::PRESCALER_16);
 			stat &= ~STA_NOINIT;
 			return RES_OK;
 		}
 		return RES_ERROR;
-//	case DEV_USB :
-//		result = USB_disk_initialize();
-//
-//		// translate the reslut code here
-//
-//		return stat;
 	}
-	return STA_NOINIT;
-}
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Read Sector(s)                                                        */
-/*-----------------------------------------------------------------------*/
-
-DRESULT disk_read (
-	BYTE pdrv,		/* Physical drive nmuber to identify the drive */
-	BYTE *buff,		/* Data buffer to store read data */
-	DWORD sector,	/* Start sector in LBA */
-	UINT count		/* Number of sectors to read */
-)
-{
-	DRESULT res;
-
-	switch (pdrv) {
-//	case DEV_RAM :
-//		// translate the arguments here
-//
-//		result = RAM_disk_read(buff, sector, count);
-//
-//		// translate the reslut code here
-//
-//		return res;
-
-	case DEV_MMC :
+	DSTATUS status() const final { return stat; }
+	DRESULT read(BYTE *buff, DWORD sector, UINT count) final {
 		Sd::Error result;
 		if (count == 1) {
-			result = sdCard.readBlock(buff, sector);
+			result = sd.readBlock(buff, sector);
 		} else {
-			result = sdCard.readMultipleBlock(buff, sector, count);
+			result = sd.readMultipleBlock(buff, sector, count);
 		}
 		if (result == Sd::Error::None) return RES_OK;
 		return RES_ERROR;
-
-//	case DEV_USB :
-//		// translate the arguments here
-//
-//		result = USB_disk_read(buff, sector, count);
-//
-//		// translate the reslut code here
-//
-//		return res;
 	}
-
-	return RES_PARERR;
-}
-
-
-
-/*-----------------------------------------------------------------------*/
-/* Write Sector(s)                                                       */
-/*-----------------------------------------------------------------------*/
-
-DRESULT disk_write (
-	BYTE pdrv,			/* Physical drive nmuber to identify the drive */
-	const BYTE *buff,	/* Data to be written */
-	DWORD sector,		/* Start sector in LBA */
-	UINT count			/* Number of sectors to write */
-)
-{
-	DRESULT res;
-	int result;
-
-	switch (pdrv) {
-//	case DEV_RAM :
-//		// translate the arguments here
-//
-//		result = RAM_disk_write(buff, sector, count);
-//
-//		// translate the reslut code here
-//
-//		return res;
-
-	case DEV_MMC :
+	DRESULT write(const BYTE *buff, DWORD sector, UINT count) final {
 		Sd::Error result;
 		if (count == 1)
-			result = sdCard.writeBlock(buff, sector);
+			result = sd.writeBlock(buff, sector);
 		else
-			result = sdCard.writeMultipleBlock(buff, sector, count);
+			result = sd.writeMultipleBlock(buff, sector, count);
 		if (result == Sd::Error::None) return RES_OK;
 		return RES_ERROR;
-
-//	case DEV_USB :
-//		// translate the arguments here
-//
-//		result = USB_disk_write(buff, sector, count);
-//
-//		// translate the reslut code here
-//
-//		return res;
 	}
+	DRESULT ioctl (BYTE cmd, void *buff) final {
+		DRESULT res = RES_ERROR;
 
-	return RES_PARERR;
-}
+		switch (cmd) {
+		case CTRL_SYNC :		/* Wait for end of internal write process of the drive */
+		//	if (sdCard.)
+			res = RES_OK;
+			break;
 
-
-
-/*-----------------------------------------------------------------------*/
-/* Miscellaneous Functions                                               */
-/*-----------------------------------------------------------------------*/
-
-DRESULT disk_ioctl (
-	BYTE pdrv,		/* Physical drive nmuber (0..) */
-	BYTE cmd,		/* Control code */
-	void *buff		/* Buffer to send/receive control data */
-)
-{
-	DRESULT res;
-	int result;
-
-	switch (pdrv) {
-	case DEV_RAM :
-
-		// Process of the command for the RAM drive
-
-		return res;
-
-	case DEV_MMC :
-
-		 res = RES_ERROR;
-
-			switch (cmd) {
-			case CTRL_SYNC :		/* Wait for end of internal write process of the drive */
-			//	if (sdCard.)
-				res = RES_OK;
-				break;
-
-			case GET_SECTOR_COUNT :	/* Get drive capacity in unit of sector (DWORD) */
-				*(DWORD*)buff = sdCard.getSecrorCount();
-				res = RES_OK;
+		case GET_SECTOR_COUNT :	/* Get drive capacity in unit of sector (DWORD) */
+			*(DWORD*)buff = sd.getSecrorCount();
+			res = RES_OK;
 //				if ((send_cmd(CMD9, 0) == 0) && rcvr_datablock(csd, 16)) {
 //					if ((csd[0] >> 6) == 1) {	/* SDC ver 2.00 */
 //						csize = csd[9] + ((WORD)csd[8] << 8) + ((DWORD)(csd[7] & 63) << 16) + 1;
@@ -232,12 +83,12 @@ DRESULT disk_ioctl (
 //					}
 //					res = RES_OK;
 //				}
-				break;
+			break;
 
-			case GET_BLOCK_SIZE :	/* Get erase block size in unit of sector (DWORD) */
-				*(DWORD*)buff = sdCard.getBlockSize();
-				res = RES_OK;
-				//				if (CardType & CT_SD2) {	/* SDC ver 2.00 */
+		case GET_BLOCK_SIZE :	/* Get erase block size in unit of sector (DWORD) */
+			*(DWORD*)buff = sd.getBlockSize();
+			res = RES_OK;
+			//				if (CardType & CT_SD2) {	/* SDC ver 2.00 */
 //					if (send_cmd(ACMD13, 0) == 0) {	/* Read SD status */
 //						xchg_spi(0xFF);
 //						if (rcvr_datablock(csd, 16)) {				/* Read partial block */
@@ -256,7 +107,7 @@ DRESULT disk_ioctl (
 //						res = RES_OK;
 //					}
 //				}
-				break;
+			break;
 //
 //			case CTRL_TRIM :	/* Erase a block of sectors (used when _USE_ERASE == 1) */
 //
@@ -272,23 +123,103 @@ DRESULT disk_ioctl (
 //				}
 //				break;
 //
-			default:
-				res = RES_PARERR;
-			}
-//
-//			deselect();
-
-			return res;
-
-		return res;
-
-	case DEV_USB :
-
-		// Process of the command the USB drive
+		default:
+			res = RES_PARERR;
+		}
 
 		return res;
 	}
+ private:
+	Sd sd;
+	DSTATUS stat = STA_NOINIT;
+};
 
+static FatFSDisc nullDisc;
+static SDSPIDisc sdDisc(bsp::sdCard::spi, bsp::sdCard::cs);
+static FatFSDisc *discs[] = {&sdDisc, &nullDisc, &nullDisc, &nullDisc,};
+/*-----------------------------------------------------------------------*/
+/* Get Drive Status                                                      */
+/*-----------------------------------------------------------------------*/
+
+DSTATUS disk_status (
+	BYTE pdrv		/* Physical drive nmuber to identify the drive */
+)
+{
+	if (pdrv < sizeof(discs)) {
+		return discs[pdrv]->status();
+	}
+	return STA_NOINIT;
+}
+
+
+
+/*-----------------------------------------------------------------------*/
+/* Inidialize a Drive                                                    */
+/*-----------------------------------------------------------------------*/
+
+DSTATUS disk_initialize (
+	BYTE pdrv				/* Physical drive nmuber to identify the drive */
+)
+{
+	if (pdrv < sizeof(discs)) {
+		return discs[pdrv]->initialize();
+	}
+	return STA_NOINIT;
+}
+
+
+
+/*-----------------------------------------------------------------------*/
+/* Read Sector(s)                                                        */
+/*-----------------------------------------------------------------------*/
+
+DRESULT disk_read (
+	BYTE pdrv,		/* Physical drive nmuber to identify the drive */
+	BYTE *buff,		/* Data buffer to store read data */
+	DWORD sector,	/* Start sector in LBA */
+	UINT count		/* Number of sectors to read */
+)
+{
+	if (pdrv < sizeof(discs)) {
+		return discs[pdrv]->read(buff, sector, count);
+	}
+	return RES_PARERR;
+}
+
+
+
+/*-----------------------------------------------------------------------*/
+/* Write Sector(s)                                                       */
+/*-----------------------------------------------------------------------*/
+
+DRESULT disk_write (
+	BYTE pdrv,			/* Physical drive nmuber to identify the drive */
+	const BYTE *buff,	/* Data to be written */
+	DWORD sector,		/* Start sector in LBA */
+	UINT count			/* Number of sectors to write */
+)
+{
+	if (pdrv < sizeof(discs)) {
+		return discs[pdrv]->write(buff, sector, count);
+	}
+	return RES_PARERR;
+}
+
+
+
+/*-----------------------------------------------------------------------*/
+/* Miscellaneous Functions                                               */
+/*-----------------------------------------------------------------------*/
+
+DRESULT disk_ioctl (
+	BYTE pdrv,		/* Physical drive nmuber (0..) */
+	BYTE cmd,		/* Control code */
+	void *buff		/* Buffer to send/receive control data */
+)
+{
+	if (pdrv < sizeof(discs)) {
+		return discs[pdrv]->ioctl(cmd, buff);
+	}
 	return RES_PARERR;
 }
 
