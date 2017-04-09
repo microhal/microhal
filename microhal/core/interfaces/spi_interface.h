@@ -37,7 +37,7 @@ namespace microhal {
 
 class SPI {
  public:
-    typedef enum { NoError, MasterModeFault, OverrunError, CRCError, UnknownError } Error;
+    typedef enum { NoError, MasterModeFault, OverrunError, CRCError, UnknownError, Timeout } Error;
 
     /**
      *

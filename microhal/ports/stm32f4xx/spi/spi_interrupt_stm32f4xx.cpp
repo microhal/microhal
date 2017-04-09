@@ -41,127 +41,131 @@ SPI &SPI::spi6 = SPI_interrupt::spi6;
 #endif
 
 SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
-	readPtr = nullptr;
-	writePtr = (uint8_t *)data;
-	writeEnd = ((uint8_t *)data) + len;
-	//mode = TRANSMIT;
+    readPtr = nullptr;
+    writePtr = (uint8_t *)data;
+    writeEnd = ((uint8_t *)data) + len;
 
-	enableTransmitterEmptyInterrupt();
-	semaphore.wait(std::chrono::milliseconds::max());
-
-	// this is last transaction on SPI bus, so we need to wait until last byte will be send before we exit from function because someone could
-	// change CS signal to high when we will sending last byte
-	if (last) {
-//		while (spi.SR & SPI_SR_TXE) {
-//		}
-		while (spi.SR & SPI_SR_BSY) {
-		}
-		// workaround, I don't know why but BSY flag is cleared in the middle of last bit. This may cause some error when other function will deassert CS pin
-		volatile uint32_t i = 100;
-		while(i--);
-	}
-
-	return SPI::NoError;
+    enableTransmitterEmptyInterrupt();
+    if (semaphore.wait(std::chrono::milliseconds::max())) {
+        // this is last transaction on SPI bus, so we need to wait until last byte will be send before we exit from function because someone could
+        // change CS signal to high when we will sending last byte
+        if (last) {
+            busyWait();
+            // workaround, I don't know why but BSY flag is cleared in the middle of last bit. This may cause some error when other function will
+            // deassert
+            // CS pin
+            volatile uint32_t i = 100;
+            while (i--) {
+            }
+        }
+        return SPI::NoError;
+    }
+    return Error::Timeout;
 }
 
 SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
-	writePtr = nullptr;
-	readPtr = static_cast<uint8_t*>(data);
-	readEnd = static_cast<uint8_t*>(data) + len;
+    writePtr = nullptr;
+    readPtr = static_cast<uint8_t *>(data);
+    readEnd = static_cast<uint8_t *>(data) + len;
+    writeData = write;
 
-	writeData = write;
-	//mode = RECEIVE;
+    busyWait();
+    volatile uint16_t tmp __attribute__((unused)) = spi.DR;
 
-	while (spi.SR & SPI_SR_BSY) {
-	}
-	volatile uint16_t tmp __attribute__((unused)) = spi.DR;
+    enableReceiverNotEmptyInterrupt();
 
-	enableReceiverNotEmptyInterrupt();
-
-	spi.DR = write;
-	semaphore.wait(std::chrono::milliseconds::max());
-
-	return SPI::NoError;
+    spi.DR = write;
+    if (semaphore.wait(std::chrono::milliseconds::max())) return SPI::NoError;
+    return Error::Timeout;
 }
 
 SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) {
-	readPtr = static_cast<uint8_t*>(dataRead);
-	readEnd = static_cast<uint8_t*>(dataRead) + readWriteLength;
-	writePtr = static_cast<const uint8_t*>(dataWrite);
-	writeEnd = static_cast<const uint8_t*>(dataWrite) + readWriteLength;
+    readPtr = static_cast<uint8_t *>(dataRead);
+    readEnd = static_cast<uint8_t *>(dataRead) + readWriteLength;
+    writePtr = static_cast<const uint8_t *>(dataWrite);
+    writeEnd = static_cast<const uint8_t *>(dataWrite) + readWriteLength;
 
-	while (spi.SR & SPI_SR_BSY) {
-	}
-	volatile uint16_t tmp __attribute__((unused)) = spi.DR;
+    busyWait();
+    volatile uint16_t tmp __attribute__((unused)) = spi.DR;
 
-	enableTransmitterEmptyInterrupt();
-	enableReceiverNotEmptyInterrupt();
+    enableTransmitterEmptyInterrupt();
+    enableReceiverNotEmptyInterrupt();
 
-	semaphore.wait(std::chrono::milliseconds::max());
-	return SPI::NoError;
+    if (semaphore.wait(std::chrono::milliseconds::max())) return SPI::NoError;
+    return Error::Timeout;
 }
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
 inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) {
-	uint32_t sr = spi->SR;
+    uint32_t sr = spi->SR;
 
-	if ((object.readPtr != nullptr) && (sr & SPI_SR_RXNE)) {
-		*object.readPtr++ = spi->DR;
-		if (object.readPtr == object.readEnd) {
-			object.readPtr = nullptr;
-	//		object.mode = SPI_interrupt::WAITING;
-			spi->CR2 &= ~(SPI_CR2_RXNEIE);  // fixme maybe bitband
-			bool shouldYeld = object.semaphore.giveFromISR();
-#if defined (HAL_RTOS_FreeRTOS)
-			portYIELD_FROM_ISR( shouldYeld );
+    if ((object.readPtr != nullptr) && (sr & SPI_SR_RXNE)) {
+        *object.readPtr++ = spi->DR;
+        if (object.readPtr == object.readEnd) {
+            object.readPtr = nullptr;
+            spi->CR2 &= ~(SPI_CR2_RXNEIE);  // fixme maybe bitband
+            bool shouldYeld = object.semaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
 #else
-			(void)shouldYeld;
+            (void)shouldYeld;
 #endif
-		} else if (object.writePtr == nullptr) {
-			spi->DR = object.writeData;
-		}
-	}
-	if ((object.writePtr != nullptr) && (sr & SPI_SR_TXE)) {
-		spi->DR = *object.writePtr++;
-		if (object.writePtr == object.writeEnd) {
-			object.writePtr = nullptr;
-			//object.mode = SPI_interrupt::WAITING;
-			spi->CR2 &= ~(SPI_CR2_TXEIE);  // fixme maybe bitband
-			if (object.readPtr == nullptr) {
-				bool shouldYeld = object.semaphore.giveFromISR();
-				#if defined (HAL_RTOS_FreeRTOS)
-				portYIELD_FROM_ISR( shouldYeld );
-				#else
-				(void)shouldYeld;
-				#endif
-			}
-		}
-	}
+        } else if (object.writePtr == nullptr) {
+            spi->DR = object.writeData;
+        }
+    }
+    if ((object.writePtr != nullptr) && (sr & SPI_SR_TXE)) {
+        spi->DR = *object.writePtr++;
+        if (object.writePtr == object.writeEnd) {
+            object.writePtr = nullptr;
+            spi->CR2 &= ~(SPI_CR2_TXEIE);  // fixme maybe bitband
+            if (object.readPtr == nullptr) {
+                bool shouldYeld = object.semaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+                portYIELD_FROM_ISR(shouldYeld);
+#else
+                (void)shouldYeld;
+#endif
+            }
+        }
+    }
 
-	sr = ~sr;
-	spi->SR = sr;
+    sr = ~sr;
+    spi->SR = sr;
 }
 //***********************************************************************************************//
 //                                          IRQHandlers //
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_SPI1_INTERRUPT
-void SPI1_IRQHandler(void) { IRQfunction(SPI_interrupt::spi1, SPI1); }
+void SPI1_IRQHandler(void) {
+    IRQfunction(SPI_interrupt::spi1, SPI1);
+}
 #endif
 #ifdef MICROHAL_USE_SPI2_INTERRUPT
-void SPI2_IRQHandler(void) { IRQfunction(SPI_interrupt::spi2, SPI2); }
+void SPI2_IRQHandler(void) {
+    IRQfunction(SPI_interrupt::spi2, SPI2);
+}
 #endif
 #ifdef MICROHAL_USE_SPI3_INTERRUPT
-void SPI3_IRQHandler(void) { IRQfunction(SPI_interrupt::spi3, SPI3); }
+void SPI3_IRQHandler(void) {
+    IRQfunction(SPI_interrupt::spi3, SPI3);
+}
 #endif
 #ifdef MICROHAL_USE_SPI4_INTERRUPT
-void SPI4_IRQHandler(void) { IRQfunction(SPI_interrupt::spi4, SPI4); }
+void SPI4_IRQHandler(void) {
+    IRQfunction(SPI_interrupt::spi4, SPI4);
+}
 #endif
 #ifdef MICROHAL_USE_SPI5_INTERRUPT
-void SPI5_IRQHandler(void) { IRQfunction(SPI_interrupt::spi5, SPI5); }
+void SPI5_IRQHandler(void) {
+    IRQfunction(SPI_interrupt::spi5, SPI5);
+}
 #endif
 #ifdef MICROHAL_USE_SPI6_INTERRUPT
-void SPI6_IRQHandler(void) { IRQfunction(SPI_interrupt::spi6, SPI6); }
+void SPI6_IRQHandler(void) {
+    IRQfunction(SPI_interrupt::spi6, SPI6);
+}
 #endif
 
 }  // namespace stm32f4xx

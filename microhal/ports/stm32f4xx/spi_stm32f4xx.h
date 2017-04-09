@@ -10,11 +10,11 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include "clockManager.h"
+#include "device/stm32f4xx.h"
 #include "gpio_stm32f4xx.h"
 #include "interfaces/spi_interface.h"
 #include "microhalPortConfig_stm32f4xx.h"
-#include "device/stm32f4xx.h"
-#include "clockManager.h"
 
 namespace microhal {
 class SPIDevice;
@@ -90,13 +90,9 @@ class SPI : public microhal::SPI {
         spi.CR1 = SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI | modeFlags[mode] | prescaler;
     }
 
-    void prescaler(Prescaler prescaler) {
-    	spi.CR1 = (spi.CR1 & ~(SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)) | prescaler;
-    }
+    void prescaler(Prescaler prescaler) { spi.CR1 = (spi.CR1 & ~(SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)) | prescaler; }
 
-    Prescaler prescaler() const {
-    	return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0));
-    }
+    Prescaler prescaler() const { return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)); }
 
     bool getMISOstate() final { return microhal::stm32f4xx::GPIO::get(misoPort, misoPin); }
 
@@ -105,14 +101,15 @@ class SPI : public microhal::SPI {
     void enable() final { spi.CR1 |= SPI_CR1_SPE; }
     void disable() final { spi.CR1 &= ~SPI_CR1_SPE; }
     uint32_t speed(uint32_t speed) final {
-    	// TODO
-    	while(1);
-    	return speed;
+        // TODO
+        while (1)
+            ;
+        return speed;
     }
 
     uint32_t frequency() const {
-    	const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
-    	return ClockManager::SPIFrequency(spi) / prescalerValues[static_cast<uint32_t>(prescaler()) >> 3];
+        const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
+        return ClockManager::SPIFrequency(spi) / prescalerValues[static_cast<uint32_t>(prescaler()) >> 3];
     }
 
  protected:
@@ -120,12 +117,18 @@ class SPI : public microhal::SPI {
     SPI_TypeDef &spi;
     microhal::stm32f4xx::GPIO::Pin misoPin;
     microhal::stm32f4xx::GPIO::Port misoPort;
-    //--------------------------------------- constructors --------------------------------------//
+//--------------------------------------- constructors --------------------------------------//
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
         SPI(SPI_TypeDef &spi, stm32f4xx::GPIO::IOPin misoPin)
         : spi(spi), misoPin(misoPin.pin), misoPort(misoPin.port) {
+    }
+    void busyWait() {
+        while (!(spi.SR & SPI_SR_TXE)) {
+        }
+        while (spi.SR & SPI_SR_BSY) {
+        }
     }
 
     static SPI::Error errorCheck(uint32_t SRregisterValue) {
