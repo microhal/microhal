@@ -80,6 +80,11 @@ public:
     bool setParity(SerialPort::Parity parity) noexcept final;
     bool setStopBits(SerialPort::StopBits stopBits) noexcept final;
     bool setDataBits(SerialPort::DataBits dataBits) noexcept final;
+
+    void priority(uint32_t priority) {
+    	const IRQn_Type irq[] = { USART1_IRQn, USART2_IRQn, USART3_IRQn, UART4_IRQn, UART5_IRQn, USART6_IRQn };
+    	NVIC_SetPriority(irq[this->number() - 1], priority);
+    }
 protected:
 //------------------------------------------- variables -----------------------------------------//
     USART_TypeDef &usart;
@@ -90,40 +95,30 @@ protected:
     SerialPort(USART_TypeDef &usart) noexcept : usart(usart) {}
 
     void enableInterrupt(uint32_t priority) {
+    	const IRQn_Type irq[] = { USART1_IRQn, USART2_IRQn, USART3_IRQn, UART4_IRQn, UART5_IRQn, USART6_IRQn };
+    	NVIC_EnableIRQ(irq[this->number() - 1]);
+        NVIC_SetPriority(irq[this->number() - 1], priority);
+    }
+
+    uint32_t number() {
         switch (reinterpret_cast<uint32_t>(&usart)) {
-        case reinterpret_cast<uint32_t>(USART1):
-            NVIC_EnableIRQ(USART1_IRQn);
-            NVIC_SetPriority(USART1_IRQn, priority);
-            break;
-        case reinterpret_cast<uint32_t>(USART2):
-            NVIC_EnableIRQ(USART2_IRQn);
-            NVIC_SetPriority(USART2_IRQn, priority);
-            break;
+        case reinterpret_cast<uint32_t>(USART1): return 1;
+        case reinterpret_cast<uint32_t>(USART2): return 2;
 #if defined(USART3)
-        case reinterpret_cast<uint32_t>(USART3):
-            NVIC_EnableIRQ (USART3_IRQn);
-            NVIC_SetPriority(USART3_IRQn, priority);
-            break;
+        case reinterpret_cast<uint32_t>(USART3): return 3;
 #endif
 #if defined(UART4)
-        case reinterpret_cast<uint32_t>(UART4):
-            NVIC_EnableIRQ (UART4_IRQn);
-            NVIC_SetPriority(UART4_IRQn, priority);
-            break;
+        case reinterpret_cast<uint32_t>(UART4): return 4;
 #endif
 #if defined(UART5)
-        case reinterpret_cast<uint32_t>(UART5):
-            NVIC_EnableIRQ (UART5_IRQn);
-            NVIC_SetPriority(UART5_IRQn, priority);
-            break;
+        case reinterpret_cast<uint32_t>(UART5): return 5;
 #endif
 #if defined(USART6)
-        case reinterpret_cast<uint32_t>(USART6):
-            NVIC_EnableIRQ (USART6_IRQn);
-            NVIC_SetPriority(USART6_IRQn, priority);
-            break;
+        case reinterpret_cast<uint32_t>(USART6): return 6;
 #endif
         }
+        std::terminate();
+        return 0;
     }
 
    // virtual ~SerialPort(){}
