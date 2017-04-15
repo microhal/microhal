@@ -11,12 +11,10 @@ def eclipseBuild(projName, target) {
 }
 
 pipeline {
-    agent {
-        node { 
-            label 'FX160_HardwareTester'
-            checkout scm
-            sh 'git submodule update --init'
-        }
+    node { 
+        label 'FX160_HardwareTester'
+        checkout scm
+        sh 'git submodule update --init'
     }
     def projects = ['hx711', 'bmp180']
     def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
