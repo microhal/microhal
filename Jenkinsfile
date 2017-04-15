@@ -12,36 +12,35 @@ def eclipseBuild(projName, target) {
      }
 }
 
-//pipeline {   
-   // agent {
-    node('FX160_HardwareTester') {
-        checkout scm
-        sh 'git submodule update --init'
-    }    
-  //  }
-        def projects = ['hx711', 'bmp180']
-        def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
-       
-       // stages {
-            stage('Build devices examples') {
-               // steps {                
-                    for (project in projects) {
-                        for (target in targets) {
-                            eclipseBuild(project, target)                          
-                        }
-                    }
-               // }
+pipeline {   
+    agent {
+        node('FX160_HardwareTester') {
+            checkout scm
+            sh 'git submodule update --init'
+        }    
+    }
+    // def projects = ['hx711', 'bmp180']
+    // def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
+    stages {
+        stage('Build devices examples') {
+            steps {                
+             //       for (project in projects) {
+             //           for (target in targets) {
+               //             eclipseBuild(project, target)
+                    eclipseBuild('hx711', 'stm32f4-discovery')
+             //           }
+             //       }
             }
-            stage('Test') {
-               // steps {
+        }
+        stage('Test') {
+            steps {
                     echo 'Testing..'
-               // }
             }
-            stage('Deploy') {
-               // steps {
-                    echo 'Deploying....'
-               // }
-            }
-       // }
-    //}
-//}
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }       
+        }
+    }
+}
