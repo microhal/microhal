@@ -1,3 +1,6 @@
+
+#!groovy
+
 def eclipseBuild(projName, target) {
     def projDirMap = [
         'at45db' : 'drivers/Atmel/AT45DB041D/example',
