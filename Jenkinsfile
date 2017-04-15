@@ -23,8 +23,10 @@ pipeline {
     // def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
     stages {
         stage('Prepare') {
-            checkout scm
-            sh 'git submodule update --init'
+            steps { 
+                checkout scm
+                sh 'git submodule update --init'
+            }
         }
         stage('Build devices examples') {
             steps {                
