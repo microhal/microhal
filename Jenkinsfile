@@ -24,23 +24,23 @@ def eclipseBuild(projName, target) {
        
        // stages {
             stage('Build devices examples') {
-                steps {                
+               // steps {                
                     for (project in projects) {
                         for (target in targets) {
                             eclipseBuild(project, target)                          
                         }
                     }
-                }
+               // }
             }
             stage('Test') {
-                steps {
+               // steps {
                     echo 'Testing..'
-                }
+               // }
             }
             stage('Deploy') {
-                steps {
+               // steps {
                     echo 'Deploying....'
-                }
+               // }
             }
        // }
     //}
