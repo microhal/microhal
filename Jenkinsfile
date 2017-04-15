@@ -10,7 +10,7 @@ def eclipseBuild(projName, target) {
     sh 'eclipse --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
 }
 
-pipeline {
+//pipeline {
     def projects = ['hx711', 'bmp180']
     def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
     
@@ -43,4 +43,4 @@ pipeline {
             }
         }
     }
-}
+//}
