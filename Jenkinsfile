@@ -15,14 +15,17 @@ def eclipseBuild(projName, target) {
 pipeline {   
     agent {
         node {
-            label 'FX160_HardwareTester'
-            checkout scm
-            sh 'git submodule update --init'
+            label 'FX160_HardwareTester'           
         }    
     }
+    
     // def projects = ['hx711', 'bmp180']
     // def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
     stages {
+        stage('Prepare') {
+            checkout scm
+            sh 'git submodule update --init'
+        }
         stage('Build devices examples') {
             steps {                
              //       for (project in projects) {
