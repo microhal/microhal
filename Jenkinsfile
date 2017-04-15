@@ -1,6 +1,3 @@
-
-#!groovy
-
 def eclipseBuild(projName, target) {
     def projDirMap = [
         'at45db' : 'drivers/Atmel/AT45DB041D/example',
@@ -14,35 +11,35 @@ def eclipseBuild(projName, target) {
 }
 
 pipeline {
+    def projects = ['hx711', 'bmp180']
+    def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
+    
     node { 
         label 'FX160_HardwareTester'
         checkout scm
         sh 'git submodule update --init'
-    }
-    def projects = ['hx711', 'bmp180']
-    def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
-    
-    
-    stages {
-        stage('Build devices examples') {
-            withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
-                steps {                
-                    for (project in projects) {
-                        for (target in targets) {
-                            eclipseBuild(project, target)
+       
+        stages {
+            stage('Build devices examples') {
+                withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
+                    steps {                
+                        for (project in projects) {
+                            for (target in targets) {
+                                eclipseBuild(project, target)
+                            }
                         }
                     }
                 }
             }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
+            stage('Test') {
+                steps {
+                    echo 'Testing..'
+                }
             }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
+            stage('Deploy') {
+                steps {
+                    echo 'Deploying....'
+                }
             }
         }
     }
