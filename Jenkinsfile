@@ -14,7 +14,8 @@ def eclipseBuild(projName, target) {
 
 pipeline {   
     agent {
-        node('FX160_HardwareTester') {
+        node {
+            label 'FX160_HardwareTester'
             checkout scm
             sh 'git submodule update --init'
         }    
