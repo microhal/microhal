@@ -12,7 +12,7 @@ def eclipseBuild(projName, target) {
      }
 }
 
-pipeline {   
+//pipeline {   
     agent {
     node('FX160_HardwareTester') {
         checkout scm
@@ -22,7 +22,7 @@ pipeline {
         def projects = ['hx711', 'bmp180']
         def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
        
-        stages {
+       // stages {
             stage('Build devices examples') {
                 steps {                
                     for (project in projects) {
@@ -42,6 +42,6 @@ pipeline {
                     echo 'Deploying....'
                 }
             }
-        }
+       // }
     //}
-}
+//}
