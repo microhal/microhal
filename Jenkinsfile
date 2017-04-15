@@ -23,11 +23,10 @@ pipeline {
        
         stages {
             stage('Build devices examples') {
-                   steps {                
-                        for (project in projects) {
-                            for (target in targets) {
-                                eclipseBuild(project, target)
-                            }
+                steps {                
+                    for (project in projects) {
+                        for (target in targets) {
+                            eclipseBuild(project, target)                          
                         }
                     }
                 }
