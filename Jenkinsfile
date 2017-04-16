@@ -29,14 +29,16 @@ pipeline {
             }
         }
         stage('Build devices examples') {
-            steps {                
+            //steps {                
                 for (project in projects) {
                     for (target in targets) {
+                     steps { 
                         eclipseBuild(project, target)
-                    //eclipseBuild('hx711', 'stm32f4-discovery')
+                     }
+                         //eclipseBuild('hx711', 'stm32f4-discovery')
                     }
                 }
-            }
+            //}
         }
         stage('Test') {
             steps {
