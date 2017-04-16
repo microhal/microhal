@@ -1,11 +1,19 @@
 def eclipseBuild(projName, target) {
     def projDirMap = [
-        'at45db' : 'drivers/Atmel/AT45DB041D/example',
-        'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
+        'at45db' : 'drivers/Atmel/AT45DB041D/example',        
         'bmp180' : 'drivers/Bosch/BMP180/example',
-        'ds2782' : 'drivers/MaximDallas/DS2782/example'
+        'ds2782' : 'drivers/MaximDallas/DS2782/example',
+        'ds2786' : 'drivers/MaximDallas/DS2786/example',        
+        'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
+        'isl29023' : 'drivers/Intersil/ISL29023/example',
+        'lepton' : 'drivers/FLIR/Lepton/example',
+        'lis302' : 'drivers/STMicroelectronics/LIS302/example',
+        'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
+        'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
+        'pcf8563' : 'drivers/NXP/PCF8563/example',
+        'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send'
     ]
-
+    
     //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
      withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
          sh 'eclipse --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
@@ -13,7 +21,7 @@ def eclipseBuild(projName, target) {
 }
 
 def buildAllDevExamples() {
-    def projects = ['hx711', 'bmp180']
+    def projects = [ 'bmp180', 'ds2782', 'ds2786', 'hx711', 'isl29023', 'lepton', 'lis302', 'm24c16', 'mrf89xa', 'pcf8563', 'rfm70']
     def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
     for (project in projects) {
         for (target in targets) {
