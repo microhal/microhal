@@ -32,7 +32,7 @@ def eclipseBuild(projName, target) {
     
     //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
      withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
-         sh 'eclipse --launcher.suppressErrors -nosplash -data "workspace/test" -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+         sh 'eclipse --launcher.suppressErrors -nosplash -data "workspace/' + projName + '" -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
      }
 }
 
@@ -74,29 +74,30 @@ pipeline {
                                             eclipseBuild('externalInterrupt', 'NUCLEO-F411RE')
                                             eclipseBuild('externalInterrupt', 'NUCLEO-F334R8')// },
                 
-                   // gpio : { eclipseBuild('gpio', 'stm32f4-discovery')
-                   //         eclipseBuild('gpio', 'NUCLEO-F411RE')
-                   //         eclipseBuild('gpio', 'NUCLEO-F334R8')// },
+                   // gpio : { 
+                eclipseBuild('gpio', 'stm32f4-discovery')
+                            eclipseBuild('gpio', 'NUCLEO-F411RE')
+                            eclipseBuild('gpio', 'NUCLEO-F334R8')// },
                 
                    // os : { 
-                   //     eclipseBuild('os', 'stm32f4-discovery')
-                   //         eclipseBuild('os', 'NUCLEO-F411RE')
-                    //        eclipseBuild('os', 'NUCLEO-F334R8')// },
+                        eclipseBuild('os', 'stm32f4-discovery')
+                            eclipseBuild('os', 'NUCLEO-F411RE')
+                            eclipseBuild('os', 'NUCLEO-F334R8')// },
                 
                    // serialPort : {
-                   //     eclipseBuild('serialPort', 'stm32f4-discovery')
-                   //                 eclipseBuild('serialPort', 'NUCLEO-F411RE')
-                   //                 eclipseBuild('serialPort', 'NUCLEO-F334R8')// },
+                        eclipseBuild('serialPort', 'stm32f4-discovery')
+                                   eclipseBuild('serialPort', 'NUCLEO-F411RE')
+                                    eclipseBuild('serialPort', 'NUCLEO-F334R8')// },
                 
                     //signalSlot : {
-                   //     eclipseBuild('signal slot', 'stm32f4-discovery') 
-                    //                eclipseBuild('signal slot', 'NUCLEO-F411RE')
-                    //                eclipseBuild('signal slot', 'NUCLEO-F334R8')// },
+                        eclipseBuild('signal slot', 'stm32f4-discovery') 
+                                    eclipseBuild('signal slot', 'NUCLEO-F411RE')
+                                    eclipseBuild('signal slot', 'NUCLEO-F334R8')// },
                 
                    // ticToc : {  
-                    //    eclipseBuild('ticToc', 'stm32f4-discovery')
-                     //           eclipseBuild('ticToc', 'NUCLEO-F411RE')
-                     //           eclipseBuild('ticToc', 'NUCLEO-F334R8')// }
+                        eclipseBuild('ticToc', 'stm32f4-discovery')
+                                eclipseBuild('ticToc', 'NUCLEO-F411RE')
+                                eclipseBuild('ticToc', 'NUCLEO-F334R8')// }
               //  )
             }
         }
