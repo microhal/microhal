@@ -46,7 +46,7 @@ def buildAllDevExamples() {
         eclipseBuild(project, targets)        
     }
 }
-
+def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
 pipeline {   
     agent {
         node {
@@ -64,11 +64,11 @@ pipeline {
         stage('Build microhal examples') {
             steps {
                 parallel(
-                    diagnostic : {  eclipseBuild('diagnostic', (String[])['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']) }
+                    diagnostic : {  eclipseBuild('diagnostic', targets) }
                                    // eclipseBuild('diagnostic', 'NUCLEO-F411RE')
                                    // eclipseBuild('diagnostic', 'NUCLEO-F334R8') },
                         
-                    externalInterrupt : {   eclipseBuild('externalInterrupt', (String[])['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']) }
+                    externalInterrupt : {   eclipseBuild('externalInterrupt', targets) }
                                             //eclipseBuild('externalInterrupt', 'NUCLEO-F411RE')
                                             //eclipseBuild('externalInterrupt', 'NUCLEO-F334R8') },
                 
