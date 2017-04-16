@@ -63,42 +63,48 @@ pipeline {
         }
         stage('Build microhal examples') {
             steps {
-                parallel(
-                    diagnostic : {  eclipseBuild('diagnostic', 'stm32f4-discovery')
+              //  parallel(
+                  //  diagnostic : {
+                        eclipseBuild('diagnostic', 'stm32f4-discovery')
                                     eclipseBuild('diagnostic', 'NUCLEO-F411RE')
-                                    eclipseBuild('diagnostic', 'NUCLEO-F334R8') },
+                                    eclipseBuild('diagnostic', 'NUCLEO-F334R8')// },
                         
-                    externalInterrupt : {   eclipseBuild('externalInterrupt', 'stm32f4-discovery')
+                   // externalInterrupt : {
+                        eclipseBuild('externalInterrupt', 'stm32f4-discovery')
                                             eclipseBuild('externalInterrupt', 'NUCLEO-F411RE')
-                                            eclipseBuild('externalInterrupt', 'NUCLEO-F334R8') },
+                                            eclipseBuild('externalInterrupt', 'NUCLEO-F334R8')// },
                 
-                    gpio : {eclipseBuild('gpio', 'stm32f4-discovery')
-                            eclipseBuild('gpio', 'NUCLEO-F411RE')
-                            eclipseBuild('gpio', 'NUCLEO-F334R8') },
+                   // gpio : { eclipseBuild('gpio', 'stm32f4-discovery')
+                   //         eclipseBuild('gpio', 'NUCLEO-F411RE')
+                   //         eclipseBuild('gpio', 'NUCLEO-F334R8')// },
                 
-                    os : {  eclipseBuild('os', 'stm32f4-discovery')
-                            eclipseBuild('os', 'NUCLEO-F411RE')
-                            eclipseBuild('os', 'NUCLEO-F334R8') },
+                   // os : { 
+                   //     eclipseBuild('os', 'stm32f4-discovery')
+                   //         eclipseBuild('os', 'NUCLEO-F411RE')
+                    //        eclipseBuild('os', 'NUCLEO-F334R8')// },
                 
-                    serialPort : {  eclipseBuild('serialPort', 'stm32f4-discovery')
-                                    eclipseBuild('serialPort', 'NUCLEO-F411RE')
-                                    eclipseBuild('serialPort', 'NUCLEO-F334R8') },
+                   // serialPort : {
+                   //     eclipseBuild('serialPort', 'stm32f4-discovery')
+                   //                 eclipseBuild('serialPort', 'NUCLEO-F411RE')
+                   //                 eclipseBuild('serialPort', 'NUCLEO-F334R8')// },
                 
-                    signalSlot : {  eclipseBuild('signal slot', 'stm32f4-discovery') 
-                                    eclipseBuild('signal slot', 'NUCLEO-F411RE')
-                                    eclipseBuild('signal slot', 'NUCLEO-F334R8') },
+                    //signalSlot : {
+                   //     eclipseBuild('signal slot', 'stm32f4-discovery') 
+                    //                eclipseBuild('signal slot', 'NUCLEO-F411RE')
+                    //                eclipseBuild('signal slot', 'NUCLEO-F334R8')// },
                 
-                    ticToc : {  eclipseBuild('ticToc', 'stm32f4-discovery')
-                                eclipseBuild('ticToc', 'NUCLEO-F411RE')
-                                eclipseBuild('ticToc', 'NUCLEO-F334R8') }
-                )
+                   // ticToc : {  
+                    //    eclipseBuild('ticToc', 'stm32f4-discovery')
+                     //           eclipseBuild('ticToc', 'NUCLEO-F411RE')
+                     //           eclipseBuild('ticToc', 'NUCLEO-F334R8')// }
+              //  )
             }
         }
         stage('Build components examples') {
-            steps {                
-               eclipseBuild('cli', 'stm32f4-discovery')
-                           
-               eclipseBuild('hostComm', 'stm32f4-discovery')
+            steps {  
+                parallel( cli : { eclipseBuild('cli', 'stm32f4-discovery') },
+                          hostComm : { eclipseBuild('hostComm', 'stm32f4-discovery') }
+                         )
             }
         }
         stage('Build devices examples') {
