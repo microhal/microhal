@@ -30,12 +30,12 @@ pipeline {
         }
         stage('Build devices examples') {
             steps {                
-             //       for (project in projects) {
-             //           for (target in targets) {
-               //             eclipseBuild(project, target)
-                    eclipseBuild('hx711', 'stm32f4-discovery')
-             //           }
-             //       }
+                for (project in projects) {
+                    for (target in targets) {
+                        eclipseBuild(project, target)
+                    //eclipseBuild('hx711', 'stm32f4-discovery')
+                    }
+                }
             }
         }
         stage('Test') {
