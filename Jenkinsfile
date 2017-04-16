@@ -11,15 +11,23 @@ def eclipseBuild(projName, target) {
          sh 'eclipse --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
      }
 }
+
+def buildAllDevExamples() {
     def projects = ['hx711', 'bmp180']
     def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
+    for (project in projects) {
+        for (target in targets) {
+            eclipseBuild(project, target)
+        }
+    }
+}
+
 pipeline {   
     agent {
         node {
             label 'FX160_HardwareTester'           
         }    
-    }
-    
+    }   
 
     stages {
         stage('Prepare') {
@@ -29,16 +37,9 @@ pipeline {
             }
         }
         stage('Build devices examples') {
-            //steps {                
-                for (project in projects) {
-                    for (target in targets) {
-                     steps { 
-                        eclipseBuild(project, target)
-                     }
-                         //eclipseBuild('hx711', 'stm32f4-discovery')
-                    }
-                }
-            //}
+            steps {                
+               buildAllDevExamples()
+            }
         }
         stage('Test') {
             steps {
