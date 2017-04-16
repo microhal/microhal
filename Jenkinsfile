@@ -64,11 +64,11 @@ pipeline {
         stage('Build microhal examples') {
             steps {
                 parallel(
-                    diagnostic : {  eclipseBuild('diagnostic', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']) }
+                    diagnostic : {  eclipseBuild('diagnostic', (String[])['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']) }
                                    // eclipseBuild('diagnostic', 'NUCLEO-F411RE')
                                    // eclipseBuild('diagnostic', 'NUCLEO-F334R8') },
                         
-                    externalInterrupt : {   eclipseBuild('externalInterrupt', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']) }
+                    externalInterrupt : {   eclipseBuild('externalInterrupt', (String[])['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']) }
                                             //eclipseBuild('externalInterrupt', 'NUCLEO-F411RE')
                                             //eclipseBuild('externalInterrupt', 'NUCLEO-F334R8') },
                 
