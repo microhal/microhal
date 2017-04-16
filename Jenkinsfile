@@ -59,16 +59,14 @@ pipeline {
                eclipseBuild('diagnostic', 'stm32f4-discovery')
                eclipseBuild('diagnostic', 'NUCLEO-F411RE')
                eclipseBuild('diagnostic', 'NUCLEO-F334R8')
-            }
-            steps {                
+                        
                eclipseBuild('externalInterrupt', 'stm32f4-discovery')
             }
         }
         stage('Build components examples') {
             steps {                
                eclipseBuild('cli', 'stm32f4-discovery')
-            }
-            steps {                
+                           
                eclipseBuild('hostComm', 'stm32f4-discovery')
             }
         }
