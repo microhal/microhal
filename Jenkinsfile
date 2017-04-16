@@ -17,11 +17,17 @@ def eclipseBuild(projName, target) {
         'isl29023' : 'drivers/Intersil/ISL29023/example',
         'lepton' : 'drivers/FLIR/Lepton/example',
         'lis302' : 'drivers/STMicroelectronics/LIS302/example',
+        'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
         'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
+        'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
+        'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
         'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
         'pcf8563' : 'drivers/NXP/PCF8563/example',
         'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
-        
+        'sht21' : 'drivers/Sensirion/SHT21/example/basic',
+        'tmp006' : 'drivers/Texas Instruments/TMP006/example',
+        'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
+        'ws2812' : 'drivers/Worldsemi/WS2812/example',
     ]
     
     //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
@@ -31,7 +37,8 @@ def eclipseBuild(projName, target) {
 }
 
 def buildAllDevExamples() {
-    def projects = [ 'bmp180', 'ds2782', 'ds2786', 'hx711', 'isl29023', 'lepton', 'lis302', 'm24c16', 'mrf89xa', 'pcf8563', 'rfm70']
+    def projects = ['bmp180', 'ds2782', 'ds2786', 'hx711', 'isl29023', 'lepton', 'lis302', 'lsm330dl', 'm24c16', 'mpl115a1',
+                    'mpl115a2', 'mrf89xa', 'pcf8563', 'rfm70', 'sht21', 'tmp006']
     def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
     for (project in projects) {
         for (target in targets) {
@@ -56,11 +63,33 @@ pipeline {
         }
         stage('Build microhal examples') {
             steps {                
-               eclipseBuild('diagnostic', 'stm32f4-discovery')
-               eclipseBuild('diagnostic', 'NUCLEO-F411RE')
-               eclipseBuild('diagnostic', 'NUCLEO-F334R8')
+                eclipseBuild('diagnostic', 'stm32f4-discovery')
+                eclipseBuild('diagnostic', 'NUCLEO-F411RE')
+                eclipseBuild('diagnostic', 'NUCLEO-F334R8')
                         
-               eclipseBuild('externalInterrupt', 'stm32f4-discovery')
+                eclipseBuild('externalInterrupt', 'stm32f4-discovery')
+                eclipseBuild('externalInterrupt', 'NUCLEO-F411RE')
+                eclipseBuild('externalInterrupt', 'NUCLEO-F334R8')
+                
+                eclipseBuild('gpio', 'stm32f4-discovery')
+                eclipseBuild('gpio', 'NUCLEO-F411RE')
+                eclipseBuild('gpio', 'NUCLEO-F334R8')
+                
+                eclipseBuild('os', 'stm32f4-discovery')
+                eclipseBuild('os', 'NUCLEO-F411RE')
+                eclipseBuild('os', 'NUCLEO-F334R8')
+                
+                eclipseBuild('serialPort', 'stm32f4-discovery')
+                eclipseBuild('serialPort', 'NUCLEO-F411RE')
+                eclipseBuild('serialPort', 'NUCLEO-F334R8')
+                
+                eclipseBuild('signal slot', 'stm32f4-discovery')
+                eclipseBuild('signal slot', 'NUCLEO-F411RE')
+                eclipseBuild('signal slot', 'NUCLEO-F334R8')
+                
+                eclipseBuild('ticToc', 'stm32f4-discovery')
+                eclipseBuild('ticToc', 'NUCLEO-F411RE')
+                eclipseBuild('ticToc', 'NUCLEO-F334R8')               
             }
         }
         stage('Build components examples') {
