@@ -1,5 +1,14 @@
 def eclipseBuild(projName, target) {
     def projDirMap = [
+        'diagnostic' : 'examples/diagnostic',
+        'externalInterrupt' : 'examples/externalInterrupt',
+        'gpio' : 'examples/gpio',
+        'os' : 'examples/os',
+        'serialPort' : 'examples/serialPort',
+        'signal slot' : 'examples/signalSlot',
+        'ticToc' : 'examples/ticToc',
+        'cli' : 'components/cli/examples',
+        'hostComm' : 'components/hostComm/examples',
         'at45db' : 'drivers/Atmel/AT45DB041D/example',        
         'bmp180' : 'drivers/Bosch/BMP180/example',
         'ds2782' : 'drivers/MaximDallas/DS2782/example',
@@ -11,7 +20,8 @@ def eclipseBuild(projName, target) {
         'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
         'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
         'pcf8563' : 'drivers/NXP/PCF8563/example',
-        'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send'
+        'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
+        
     ]
     
     //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
@@ -42,6 +52,24 @@ pipeline {
             steps { 
                 checkout scm
                 sh 'git submodule update --init'
+            }
+        }
+        stage('Build microhal examples') {
+            steps {                
+               eclipseBuild('diagnostic', 'stm32f4-discovery')
+               eclipseBuild('diagnostic', 'NUCLEO-F411RE')
+               eclipseBuild('diagnostic', 'NUCLEO-F334R8')
+            }
+            steps {                
+               eclipseBuild('externalInterrupt', 'stm32f4-discovery')
+            }
+        }
+        stage('Build components examples') {
+            steps {                
+               eclipseBuild('cli', 'stm32f4-discovery')
+            }
+            steps {                
+               eclipseBuild('hostComm', 'stm32f4-discovery')
             }
         }
         stage('Build devices examples') {
