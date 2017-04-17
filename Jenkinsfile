@@ -64,22 +64,10 @@ pipeline {
         stage('Build microhal examples') {
             steps {
                 parallel(
-                    diagnostic : {  eclipseBuild('diagnostic', targets) },
-                                   // eclipseBuild('diagnostic', 'NUCLEO-F411RE')
-                                   // eclipseBuild('diagnostic', 'NUCLEO-F334R8') },
-                        
-                    externalInterrupt : {   eclipseBuild('externalInterrupt', targets) },
-                                            //eclipseBuild('externalInterrupt', 'NUCLEO-F411RE')
-                                            //eclipseBuild('externalInterrupt', 'NUCLEO-F334R8') },
-                
-                   // gpio : {eclipseBuild('gpio', 'stm32f4-discovery')
-                   //         eclipseBuild('gpio', 'NUCLEO-F411RE')
-                   //         eclipseBuild('gpio', 'NUCLEO-F334R8') },
-                
-                   // os : {  eclipseBuild('os', 'stm32f4-discovery')
-                   //         eclipseBuild('os', 'NUCLEO-F411RE')
-                   //         eclipseBuild('os', 'NUCLEO-F334R8') },
-                
+                    diagnostic :        { eclipseBuild('diagnostic', targets) },                                  
+                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+                    gpio :              { eclipseBuild('gpio', targets) },
+                    os :                { eclipseBuild('os', targets) },                
                  //   serialPort : { eclipseBuild('serialPort', 'stm32f4-discovery')
                  //                  eclipseBuild('serialPort', 'NUCLEO-F411RE')
                  //                   eclipseBuild('serialPort', 'NUCLEO-F334R8') },
@@ -103,8 +91,24 @@ pipeline {
             }
         }
         stage('Build devices examples') {
-            steps {                
-               buildAllDevExamples()
+            steps {
+                parallel(
+                    bmp180 : {  eclipseBuild('bmp180', targets) },
+                    ds2782 : {  eclipseBuild('ds2782', targets) },
+                    ds2786 : {  eclipseBuild('ds2786', targets) },
+                    hx711 : {  eclipseBuild('hx711', targets) },
+                    isl29023 : {  eclipseBuild('isl29023', targets) },
+                    lis302 : {  eclipseBuild('lis302', targets) },
+                    lsm330dl : {  eclipseBuild('lsm330dl', targets) },
+                    m24c16 : {  eclipseBuild('m24c16', targets) },
+                    mpl115a1 : {  eclipseBuild('mpl115a1', targets) },
+                    mrf89xa : {  eclipseBuild('mrf89xa', targets) },
+                    pcf8563 : {  eclipseBuild('pcf8563', targets) },
+                    rfm70 : {  eclipseBuild('rfm70', targets) },
+                    sht21 : {  eclipseBuild('sht21', targets) },
+                    tmp006 : {  eclipseBuild('tmp006', targets) },
+                )
+               //buildAllDevExamples()
             }
         }
         stage('Test') {
