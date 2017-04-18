@@ -50,7 +50,8 @@ def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
 pipeline {   
     agent {
         node {
-            label 'FX160_HardwareTester'           
+            label 'FX160_HardwareTester'    
+            properties([disableConcurrentBuilds()])
         }    
     }   
 
