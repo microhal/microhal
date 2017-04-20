@@ -39,6 +39,12 @@ def eclipseBuild(projName, targets) {
      }
 }
 
+def flash(board, image) {
+    withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/tools/openocd/0.10.0/bin']) {
+            sh 'openocd -f board/' + board + '-c init -c targets -c "reset halt" -c "sleep 100" -c "flash write_image erase ' + image + '" -c "verify_image ' + image + '" -c "reset run" -c shutdown'
+    }
+}
+
 def buildAllDevExamples() {
     def projects = ['bmp180', 'ds2782', 'ds2786', 'hx711', 'isl29023', 'lepton', 'lis302', 'lsm330dl', 'm24c16', 'mpl115a1',
                     'mpl115a2', 'mrf89xa', 'pcf8563', 'rfm70', 'sht21', 'tmp006']
@@ -66,7 +72,7 @@ pipeline {
             steps {
                 parallel(
                     diagnostic :        { eclipseBuild('diagnostic', targets) },                                  
-                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+                   // externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
                     //gpio :              { eclipseBuild('gpio', targets) },
                     //os :                { eclipseBuild('os', targets) },                
                    // serialPort :        { eclipseBuild('serialPort', targets) },              
@@ -87,7 +93,7 @@ pipeline {
             steps {
                 parallel(
                     bmp180 : {  eclipseBuild('bmp180', targets) },
-                    ds2782 : {  eclipseBuild('ds2782', targets) },
+                  //  ds2782 : {  eclipseBuild('ds2782', targets) },
                   //  ds2786 : {  eclipseBuild('ds2786', targets) },
                   //  hx711 : {  eclipseBuild('hx711', targets) },
                   //  isl29023 : {  eclipseBuild('isl29023', targets) },
@@ -107,7 +113,10 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing..'
-                eclipseBuild('serialPort_test', targets)
+                eclipseBuild('serialPort_test', ['stm32f4-discovery'])
+                retry(4) {
+                    flash('stm32f4discovery.cfg', 'stm32f4-discovery/serialPort_test.elf')
+                }                
             }
         }
         stage('Deploy') {
