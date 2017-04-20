@@ -65,16 +65,16 @@ pipeline {
 
     stages {
         stage('Prepare') {
-            timeout(time:5, unit:'MINUTES') {
-                steps { 
+            steps { 
+                timeout(time:5, unit:'MINUTES') {
                     checkout scm
                     sh 'git submodule update --init'
                 }
             }
         }
         stage('Build microhal examples') {
-            timeout(time:1, unit:'HOURS') {
-                steps {
+            steps {
+                timeout(time:1, unit:'HOURS') {
                     parallel(
                         diagnostic :        { eclipseBuild('diagnostic', targets) },
                         externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
@@ -88,8 +88,8 @@ pipeline {
             }
         }
         stage('Build components examples') {
-            timeout(time:1, unit:'HOURS') {
-                steps {  
+            steps {
+                timeout(time:1, unit:'HOURS') {
                     parallel(
                         cli : { eclipseBuild('cli', ['stm32f4-discovery']) },
                         hostComm : { eclipseBuild('hostComm', ['stm32f4-discovery']) }
@@ -98,8 +98,8 @@ pipeline {
             }
         }
         stage('Build devices examples') {
-            timeout(time:1, unit:'HOURS') {
-                steps {
+            steps {
+                timeout(time:1, unit:'HOURS') {
                     parallel(
                         bmp180 : {  eclipseBuild('bmp180', targets) },
                         ds2782 : {  eclipseBuild('ds2782', targets) },
@@ -120,8 +120,8 @@ pipeline {
             }
         }
         stage('Test') {
-            timeout(time:1, unit:'HOURS') {
-                steps {
+            steps {
+                timeout(time:1, unit:'HOURS') {
                     echo 'Testing..'
                     eclipseBuild('serialPort_test', ['stm32f4-discovery'])
                     //retry(4) {
