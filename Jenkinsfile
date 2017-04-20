@@ -117,7 +117,7 @@ pipeline {
             steps {
                 timeout(time:1, unit:'HOURS') {
                     echo 'Testing..'
-                    eclipseBuild('serialPort_test', ['stm32f4-discovery'])
+                    //eclipseBuild('serialPort_test', ['stm32f4-discovery'])
                     //retry(4) {
                     //    flash('stm32f4discovery.cfg', 'stm32f4-discovery/serialPort_test.elf')
                     //}                
