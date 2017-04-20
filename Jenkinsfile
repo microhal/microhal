@@ -35,7 +35,9 @@ def eclipseBuild(projName, targets) {
      lock('eclipseBuild') {
          withEnv(['PATH+WHATEVER=/home/microide/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/microide/eclipse']) {
              for (target in targets) {
-                sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                 timeout(time:5, unit:'MINUTES') {
+                    sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                 }
              }
          }
      }
@@ -73,8 +75,8 @@ pipeline {
         stage('Build microhal examples') {
             steps {
                 parallel(
-                    diagnostic :        { eclipseBuild('diagnostic', targets) },
-                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+                    //diagnostic :        { eclipseBuild('diagnostic', targets) },
+                    //externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
                     gpio :              { eclipseBuild('gpio', targets) },
                     os :                { eclipseBuild('os', targets) },
                     serialPort :        { eclipseBuild('serialPort', targets) },
@@ -126,6 +128,14 @@ pipeline {
             steps {
                 echo 'Deploying....'
             }       
+        }
+    }
+    post {
+        always {
+            deleteDir()
+        }
+        failure {
+            //mail to: team@example.com, subject: 'The Pipeline failed :('
         }
     }
 }
