@@ -134,8 +134,5 @@ pipeline {
         always {
             deleteDir()
         }
-        failure {
-            //mail to: team@example.com, subject: 'The Pipeline failed :('
-        }
     }
 }
