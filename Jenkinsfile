@@ -28,6 +28,7 @@ def eclipseBuild(projName, targets) {
         'tmp006' : 'drivers/Texas Instruments/TMP006/example',
         'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
         'ws2812' : 'drivers/Worldsemi/WS2812/example',
+        'serialPort_test' : 'tests/serialPort',
     ]
     
     //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
@@ -105,7 +106,8 @@ pipeline {
         }
         stage('Test') {
             steps {
-                    echo 'Testing..'
+                echo 'Testing..'
+                eclipseBuild('serialPort_test', targets)
             }
         }
         stage('Deploy') {
