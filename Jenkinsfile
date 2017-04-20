@@ -32,9 +32,11 @@ def eclipseBuild(projName, targets) {
     ]
     
     //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
-     withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
-         for (target in targets) {
-            sh 'eclipse --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+     lock('eclipseBuild') {
+         withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
+             for (target in targets) {
+                sh 'eclipse --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+             }
          }
      }
 }
@@ -63,60 +65,69 @@ pipeline {
 
     stages {
         stage('Prepare') {
-            steps { 
-                checkout scm
-                sh 'git submodule update --init'
+            timeout(time:5, unit:'MINUTES') {
+                steps { 
+                    checkout scm
+                    sh 'git submodule update --init'
+                }
             }
         }
         stage('Build microhal examples') {
-            steps {
-                parallel(
-                    diagnostic :        { eclipseBuild('diagnostic', targets) },                                  
-                   // externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-                    //gpio :              { eclipseBuild('gpio', targets) },
-                    //os :                { eclipseBuild('os', targets) },                
-                   // serialPort :        { eclipseBuild('serialPort', targets) },              
-                   // signalSlot :        { eclipseBuild('signal slot', targets) },             
-                   // ticToc :            { eclipseBuild('ticToc', targets) },                 
-                )
+            timeout(time:1, unit:'HOURS') {
+                steps {
+                    parallel(
+                        diagnostic :        { eclipseBuild('diagnostic', targets) },
+                        externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+                        gpio :              { eclipseBuild('gpio', targets) },
+                        os :                { eclipseBuild('os', targets) },
+                        serialPort :        { eclipseBuild('serialPort', targets) },
+                        signalSlot :        { eclipseBuild('signal slot', targets) },
+                        ticToc :            { eclipseBuild('ticToc', targets) },
+                    )
+                }
             }
         }
         stage('Build components examples') {
-            steps {  
-                parallel(
-                    cli : { eclipseBuild('cli', ['stm32f4-discovery']) },
-                    hostComm : { eclipseBuild('hostComm', ['stm32f4-discovery']) }
-                )
+            timeout(time:1, unit:'HOURS') {
+                steps {  
+                    parallel(
+                        cli : { eclipseBuild('cli', ['stm32f4-discovery']) },
+                        hostComm : { eclipseBuild('hostComm', ['stm32f4-discovery']) }
+                    )
+                }
             }
         }
         stage('Build devices examples') {
-            steps {
-                parallel(
-                    bmp180 : {  eclipseBuild('bmp180', targets) },
-                  //  ds2782 : {  eclipseBuild('ds2782', targets) },
-                  //  ds2786 : {  eclipseBuild('ds2786', targets) },
-                  //  hx711 : {  eclipseBuild('hx711', targets) },
-                  //  isl29023 : {  eclipseBuild('isl29023', targets) },
-                  //  lis302 : {  eclipseBuild('lis302', targets) },
-                 //   lsm330dl : {  eclipseBuild('lsm330dl', targets) },
-                   // m24c16 : {  eclipseBuild('m24c16', targets) },
-                 //   mpl115a1 : {  eclipseBuild('mpl115a1', targets) },
-                  //  mrf89xa : {  eclipseBuild('mrf89xa', targets) },
-                  //  pcf8563 : {  eclipseBuild('pcf8563', targets) },
-                 //   rfm70 : {  eclipseBuild('rfm70', targets) },
-                 //   sht21 : {  eclipseBuild('sht21', targets) },
-                 //   tmp006 : {  eclipseBuild('tmp006', targets) },
-                )
-               //buildAllDevExamples()
+            timeout(time:1, unit:'HOURS') {
+                steps {
+                    parallel(
+                        bmp180 : {  eclipseBuild('bmp180', targets) },
+                        ds2782 : {  eclipseBuild('ds2782', targets) },
+                        ds2786 : {  eclipseBuild('ds2786', targets) },
+                        hx711 : {  eclipseBuild('hx711', targets) },
+                        isl29023 : {  eclipseBuild('isl29023', targets) },
+                        lis302 : {  eclipseBuild('lis302', targets) },
+                        lsm330dl : {  eclipseBuild('lsm330dl', targets) },
+                        m24c16 : {  eclipseBuild('m24c16', targets) },
+                        mpl115a1 : {  eclipseBuild('mpl115a1', targets) },
+                        mrf89xa : {  eclipseBuild('mrf89xa', targets) },
+                        pcf8563 : {  eclipseBuild('pcf8563', targets) },
+                        rfm70 : {  eclipseBuild('rfm70', targets) },
+                        sht21 : {  eclipseBuild('sht21', targets) },
+                        tmp006 : {  eclipseBuild('tmp006', targets) },
+                    )
+                }
             }
         }
         stage('Test') {
-            steps {
-                echo 'Testing..'
-                eclipseBuild('serialPort_test', ['stm32f4-discovery'])
-                retry(4) {
-                    flash('stm32f4discovery.cfg', 'stm32f4-discovery/serialPort_test.elf')
-                }                
+            timeout(time:1, unit:'HOURS') {
+                steps {
+                    echo 'Testing..'
+                    eclipseBuild('serialPort_test', ['stm32f4-discovery'])
+                    //retry(4) {
+                    //    flash('stm32f4discovery.cfg', 'stm32f4-discovery/serialPort_test.elf')
+                    //}                
+                }
             }
         }
         stage('Deploy') {
