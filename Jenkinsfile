@@ -35,11 +35,22 @@ def eclipseBuild(projName, targets) {
     
     //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
      lock('eclipseBuild') {
-         withEnv(['PATH+WHATEVER=/home/microide/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/microide/eclipse']) {
-             echo "Building on ${env.NODE_NAME}"
-             for (target in targets) {
-                 timeout(time:5, unit:'MINUTES') {
-                    sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+         echo "Building on ${env.NODE_NAME}"
+         if (env.NODE_NAME == 'master') {
+             withEnv(['PATH+WHATEVER=/home/microide/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/microide/eclipse']) {
+                 for (target in targets) {
+                     timeout(time:5, unit:'MINUTES') {
+                        sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                     }
+                 }
+             }
+         }
+         if (env.NODE_NAME == 'FX160_HardwareTester') {
+             withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
+                 for (target in targets) {
+                     timeout(time:5, unit:'MINUTES') {
+                        sh 'eclipse --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                     }
                  }
              }
          }
