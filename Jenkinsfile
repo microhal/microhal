@@ -67,8 +67,8 @@ pipeline {
 
     stages {
         stage('Prepare') {
-            steps { 
-                println "CAUSE ${currentBuild.rawBuild.getCauses()}"
+            steps {                 
+                println "CAUSE ${currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause).properties}"
                 checkout scm
                 sh 'git submodule update --init'
             }
