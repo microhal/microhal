@@ -121,7 +121,9 @@ pipeline {
         }
         stage('Test') {
             steps {
-                node('FX160_HardwareTester') {                    
+                node('FX160_HardwareTester') {      
+                    checkout scm
+                    sh 'git submodule update --init'
                     timeout(time:1, unit:'HOURS') {
                         echo 'Testing..'
                         eclipseBuild('serialPort_test', ['stm32f4-discovery'])
