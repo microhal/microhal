@@ -32,8 +32,7 @@ def eclipseBuild(projName, targets) {
         'ws2812' : 'drivers/Worldsemi/WS2812/example',
         'serialPort_test' : 'tests/serialPort',
     ]
-    
-    //sh '/home/microide/microide_build.sh --launcher.suppressErrors -nosplash -data workspace -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+     
      lock('eclipseBuild') {
          echo "Building on ${env.NODE_NAME}"
          if (env.NODE_NAME == 'master') {
@@ -65,11 +64,12 @@ def flash(board, image) {
 
 def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
 pipeline {   
-    agent {
-        node {
-            label 'master'
-        }    
-    }   
+    agent any 
+    //{
+    //    node {
+    //        label 'master'
+    //    }    
+    //}   
 
     stages {
         stage('Prepare') {
