@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 def eclipseBuild(projName, targets) {
     def projDirMap = [
         'diagnostic' : 'examples/diagnostic',
