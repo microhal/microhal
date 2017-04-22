@@ -68,6 +68,7 @@ pipeline {
     stages {
         stage('Prepare') {
             steps { 
+                println "CAUSE ${currentBuild.rawBuild.getCauses()}"
                 checkout scm
                 sh 'git submodule update --init'
             }
