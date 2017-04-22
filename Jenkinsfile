@@ -74,20 +74,26 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                checkout scm
-                sh 'git submodule update --init'
+               node('FX160_HardwareTester') {    
+                   checkout scm
+                   sh 'git submodule update --init'
+               }
+               node('master') {    
+                   checkout scm
+                   sh 'git submodule update --init'
+               }
             }
         }
         stage('Build microhal examples') {
             steps {
                 parallel(
-                    diagnostic :        { eclipseBuild('diagnostic', targets) },
-                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-                    gpio :              { eclipseBuild('gpio', targets) },
-                    os :                { eclipseBuild('os', targets) },
-                    serialPort :        { eclipseBuild('serialPort', targets) },
-                    signalSlot :        { eclipseBuild('signal slot', targets) },
-                    ticToc :            { eclipseBuild('ticToc', targets) },
+                    diagnostic :        { node { eclipseBuild('diagnostic', targets) } },
+                    externalInterrupt : { node { eclipseBuild('externalInterrupt', targets) } },
+                    gpio :              { node { eclipseBuild('gpio', targets) } },
+                    os :                { node { eclipseBuild('os', targets) } },
+                    serialPort :        { node { eclipseBuild('serialPort', targets) } },
+                    signalSlot :        { node { eclipseBuild('signal slot', targets) } },
+                    ticToc :            { node { eclipseBuild('ticToc', targets) } },
                 )
             }
         }
@@ -102,34 +108,32 @@ pipeline {
         stage('Build devices examples') {
             steps {
                 parallel(
-                    bmp180 : {  eclipseBuild('bmp180', targets) },
-                    ds2782 : {  eclipseBuild('ds2782', targets) },
-                    ds2786 : {  eclipseBuild('ds2786', targets) },
-                    hx711 : {  eclipseBuild('hx711', targets) },
-                    isl29023 : {  eclipseBuild('isl29023', targets) },
-                    lis302 : {  eclipseBuild('lis302', targets) },
-                    lsm330dl : {  eclipseBuild('lsm330dl', targets) },
-                    m24c16 : {  eclipseBuild('m24c16', targets) },
-                    mpl115a1 : {  eclipseBuild('mpl115a1', targets) },
-                    mrf89xa : {  eclipseBuild('mrf89xa', targets) },
-                    pcf8563 : {  eclipseBuild('pcf8563', targets) },
-                    rfm70 : {  eclipseBuild('rfm70', targets) },
-                    sht21 : {  eclipseBuild('sht21', targets) },
-                    tmp006 : {  eclipseBuild('tmp006', targets) },
+                    bmp180 : { node { eclipseBuild('bmp180', targets) } },
+                    ds2782 : { node { eclipseBuild('ds2782', targets) } },
+                    ds2786 : { node { eclipseBuild('ds2786', targets) } },
+                    hx711 : {  node { eclipseBuild('hx711', targets) } },
+                    isl29023 : {  node { eclipseBuild('isl29023', targets) } },
+                    lis302 : {  node { eclipseBuild('lis302', targets) } },
+                    lsm330dl : {  node { eclipseBuild('lsm330dl', targets) } },
+                    m24c16 : {  node { eclipseBuild('m24c16', targets) } },
+                    mpl115a1 : {  node { eclipseBuild('mpl115a1', targets) } },
+                    mrf89xa : {  node { eclipseBuild('mrf89xa', targets) } },
+                    pcf8563 : {  node { eclipseBuild('pcf8563', targets) } },
+                    rfm70 : {  node { eclipseBuild('rfm70', targets) } },
+                    sht21 : {  node { eclipseBuild('sht21', targets) } },
+                    tmp006 : {  node { eclipseBuild('tmp006', targets) } },
                 )
             }
         }
         stage('Test') {
             steps {
-                node('FX160_HardwareTester') {      
-                    checkout scm
-                    sh 'git submodule update --init'
+                node('FX160_HardwareTester') {                         
                     timeout(time:1, unit:'HOURS') {
                         echo 'Testing..'
                         eclipseBuild('serialPort_test', ['stm32f4-discovery'])
-                        //retry(4) {
-                        //    flash('stm32f4discovery.cfg', 'stm32f4-discovery/serialPort_test.elf')
-                        //}                
+                        retry(4) {
+                            flash('stm32f4discovery.cfg', 'stm32f4-discovery/serialPort_test.elf')
+                        }                
                     }
                 }
             }
