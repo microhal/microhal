@@ -12,7 +12,7 @@ class SerialPortTest(unittest.TestCase):
 		self.serial.append(serial.Serial('/dev/ttyFTDI2', 115200, timeout=1))
 
 	def testOne(self):
-		subprocess.call(shlex.split('./flash.sh stm32f4-discovery'))
+		#subprocess.call(shlex.split('./flash.sh stm32f4-discovery'))
 
 		txt = "----------------------------- SerialPort Test -----------------------------\n"
 		self.serial[0].readline() # discard first line becouse may be incomplette

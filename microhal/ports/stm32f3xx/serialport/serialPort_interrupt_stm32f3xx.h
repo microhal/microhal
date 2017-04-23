@@ -220,6 +220,8 @@ SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxD
             NVIC_EnableIRQ(USART3_IRQn);
 
             break;
+        default:
+        	std::terminate();
     }
     if (reinterpret_cast<uint32_t>(&usart) == reinterpret_cast<uint32_t>(USART1)) {
         RCC->APB2ENR |= rccEnableFlag;

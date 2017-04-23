@@ -41,18 +41,24 @@ void configureSerialPort(SerialPort &serial) {
 	serial.setParity(SerialPort::NoParity);
 }
 
-int main(void) {
-	for (auto serial : serialPorts) {
-		configureSerialPort(*serial);
-	}
-
-
-    while (1) {
+void sendTest() {
+    for(uint_fast8_t i = 0; i < 10; i++) {
     	for (auto serial : serialPorts) {
     		serial->write("----------------------------- SerialPort Test -----------------------------\n");
     	}
     	std::this_thread::sleep_for(std::chrono::milliseconds {500});
     }
+}
+
+int main(int argc, char *argv[]) {
+#if defined(LINUX)
+	initialize(argc, argv);
+#endif
+	for (auto serial : serialPorts) {
+		configureSerialPort(*serial);
+	}
+
+	sendTest();
 
     return 0;
 }

@@ -2,10 +2,10 @@
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
- @brief      board support package for linux os
+ @brief      board support package for stm32f4Discovery board
 
- @authors    Paweł Okas
- created on: 21-04-2016
+ @authors    Pawel Okas
+ created on: 16-04-2014
  last modification: <DD-MM-YYYY>
 
  @copyright Copyright (c) 2014, microHAL
@@ -26,13 +26,32 @@
 
  *//* ========================================================================================================================== */
 
-#ifndef _LINUX_BSP_H_
-#define _LINUX_BSP_H_
+#include "microhal.h"
+#include "SPIDevice/SPIDevice.h"
 
-bool BSP_Init(void);
-bool BSP_Deinit(void);
+#include "bsp.h"
 
-void initialize(int argc, char *argv[]);
-extern  microhal::SerialPort &serialPort;
+using namespace microhal;
+using namespace stm32f3xx;
 
-#endif  // _LINUX_BSP_H_
+void hardwareConfig(void) {
+    //Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
+
+    IOManager::routeSerial<1, Txd, stm32f3xx::GPIO::PortA, 9>();
+    IOManager::routeSerial<1, Rxd, stm32f3xx::GPIO::PortA, 10>();
+
+    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 14>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 15>();
+
+    IOManager::routeSerial<3, Txd, stm32f3xx::GPIO::PortC, 10>();
+    IOManager::routeSerial<3, Rxd, stm32f3xx::GPIO::PortC, 11>();
+
+    SysTick_Config(168000000/1000);
+}
+
+uint64_t SysTick_time = 0;;
+
+extern "C" void SysTick_Handler(void) {
+	SysTick_time++;
+}

@@ -36,3 +36,7 @@ using namespace diagnostic;
 microhal::linux::SerialPort serialPortA("tty1");
 
 microhal::SerialPort &serialPort = serialPortA;
+
+void initialize(int argc, char *argv[]) {
+
+}

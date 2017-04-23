@@ -67,14 +67,14 @@ class IOManager {
         // clang-format off
 
           // assert for Serial1
-          static_assert( (serial != 1 || serialType != Txd || ((port == GPIO::PortA && pinNr == 9) || (port == GPIO::PortB && pinNr == 6))), "Serial1 Txd can be conected only to: PortA.9 or PortB.6.");
-          static_assert( (serial != 1 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 10) || (port == GPIO::PortB && pinNr == 7))), "Serial0 Rxd can be conected only to: PortA.10 or PortB.7.");
+          static_assert( (serial != 1 || serialType != Txd || ((port == GPIO::PortA && pinNr == 9) || (port == GPIO::PortB && pinNr == 6) || (port == GPIO::PortC && pinNr == 4))), "Serial1 Txd can be connected only to: PortA.9, PortB.6 or PortC.4.");
+          static_assert( (serial != 1 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 10) || (port == GPIO::PortB && pinNr == 7) || (port == GPIO::PortC && pinNr == 5))), "Serial1 Rxd can be connected only to: PortA.10, PortB.7 or PortC.5.");
           // assert for Serial2
-          static_assert( (serial != 2 || serialType != Txd || ((port == GPIO::PortA && pinNr == 2) || (port == GPIO::PortD && pinNr == 5))), "Serial2 Txd can be conected only to: PortA.2 or PortD.5.");
-          static_assert( (serial != 2 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 3) || (port == GPIO::PortD && pinNr == 6))), "Serial2 Rxd can be conected only to: PortA.3 or PortD.6.");
+          static_assert( (serial != 2 || serialType != Txd || ((port == GPIO::PortA && pinNr == 2) || (port == GPIO::PortA && pinNr == 14) || (port == GPIO::PortB && pinNr == 3))), "Serial2 Txd can be connected only to: PortA.2, PortA.14 or PortB.3.");
+          static_assert( (serial != 2 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 3) || (port == GPIO::PortA && pinNr == 15) || (port == GPIO::PortB && pinNr == 4))), "Serial2 Rxd can be connected only to: PortA.3, PortA.15 or PortB.4.");
           // assert for Serial3
-          static_assert( (serial != 3 || serialType != Txd || ((port == GPIO::PortB && pinNr == 10) || (port == GPIO::PortC && pinNr == 10)|| (port == GPIO::PortD && pinNr == 8))), "Serial3 Txd can be conected only to: PortB.10 or PortC.10 or PortD.8.");
-          static_assert( (serial != 3 || serialType != Rxd || ((port == GPIO::PortB && pinNr == 9) || (port == GPIO::PortC && pinNr == 11)|| (port == GPIO::PortD && pinNr == 9))), "Serial3 Rxd can be conected only to: PortB.11 or PortC.11 or PortD.9.");
+          static_assert( (serial != 3 || serialType != Txd || ((port == GPIO::PortB && pinNr == 9) || (port == GPIO::PortB && pinNr == 10) || (port == GPIO::PortC && pinNr == 10))), "Serial3 Txd can be connected only to: PortB.9, PortB.10, PortC.10.");
+          static_assert( (serial != 3 || serialType != Rxd || ((port == GPIO::PortB && pinNr == 8) || (port == GPIO::PortB && pinNr == 9) || (port == GPIO::PortC && pinNr == 11))), "Serial3 Rxd can be connected only to: PortB.8, PortB.11, PortC.11.");
 
 
           GPIO::setAlternateFunction(port, pinNr, GPIO::Serial, pull, type);

@@ -2,10 +2,10 @@
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
- @brief      board support package for linux os
+ @brief      board support package for stm32f4Discovery board
 
- @authors    Paweł Okas
- created on: 21-04-2016
+ @authors    Pawel Okas
+ created on: 16-04-2014
  last modification: <DD-MM-YYYY>
 
  @copyright Copyright (c) 2014, microHAL
@@ -26,13 +26,15 @@
 
  *//* ========================================================================================================================== */
 
-#ifndef _LINUX_BSP_H_
-#define _LINUX_BSP_H_
+#ifndef STM32F3DISCOVERY_H_
+#define STM32F3DISCOVERY_H_
 
-bool BSP_Init(void);
-bool BSP_Deinit(void);
+#include "microhal.h"
 
-void initialize(int argc, char *argv[]);
-extern  microhal::SerialPort &serialPort;
+static microhal::SerialPort *serialPorts[] = {
+		&microhal::stm32f3xx::SerialPort::Serial1,
+		&microhal::stm32f3xx::SerialPort::Serial2,
+	    &microhal::stm32f3xx::SerialPort::Serial3,
+};
 
-#endif  // _LINUX_BSP_H_
+#endif // STM32F3DISCOVERY_H_
