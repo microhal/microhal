@@ -72,12 +72,11 @@ def flash(board, image) {
 
 def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
 pipeline {   
-    agent any 
-    //{
-    //    node {
-    //        label 'master'
-    //    }    
-    //}   
+    agent {
+        node {
+            label 'master'
+        }    
+    }   
 
     stages {
         stage('Prepare') {
