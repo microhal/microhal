@@ -16,8 +16,10 @@ def eclipseBuild(projName, targets) {
         'ds2782' : 'drivers/MaximDallas/DS2782/example',
         'ds2786' : 'drivers/MaximDallas/DS2786/example',        
         'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
-        'isl29023' : 'drivers/Intersil/ISL29023/example',
-        'lepton' : 'drivers/FLIR/Lepton/example',
+        'isl29023' : 'drivers/Intersil/ISL29023/example',        
+        'leptonPCSerialReceiver' : 'drivers/FLIR/Lepton/example/lepton_PC_Serial_Receiver',
+        'leptonSDCardWrite' : 'drivers/FLIR/Lepton/example/lepton_SDCard_write',
+        'leptonSerialTransmitter' : 'drivers/FLIR/Lepton/example/lepton_Serial_Transmitter',
         'lis302' : 'drivers/STMicroelectronics/LIS302/example',
         'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
         'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
@@ -33,36 +35,38 @@ def eclipseBuild(projName, targets) {
         'serialPort_test' : 'tests/serialPort',
     ]
      
-     lock('eclipseBuild') {
-         echo "Building on ${env.NODE_NAME}"
-         if (env.NODE_NAME == 'master') {
+    echo "Building on ${env.NODE_NAME}"
+    if (env.NODE_NAME == 'master') {
+         lock('eclipseBuild_master') {
              withEnv(['PATH+WHATEVER=/home/microide/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/microide/eclipse']) {
                  for (target in targets) {
                      retry(2) {
                         timeout(time:10, unit:'MINUTES') {
                             sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
                         }
-                     }
-                 }
-             }
-         }
-         if (env.NODE_NAME == 'FX160_HardwareTester') {
-             withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
-                 for (target in targets) {
-                     retry(2) {
-                         timeout(time:10, unit:'MINUTES') {
-                             sh 'eclipse --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
-                         }
-                     }
-                 }
-             }
-         }
-     }
+                    }
+                }
+            }
+        }
+    }
+    if (env.NODE_NAME == 'FX160_HardwareTester') {
+        lock('eclipseBuild_FX160') {
+            withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
+                for (target in targets) {
+                    retry(2) {
+                        timeout(time:10, unit:'MINUTES') {
+                            sh 'eclipse --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 def flash(board, image) {
     withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/tools/openocd/0.10.0/bin']) {
-            sh 'openocd -f board/' + board + '-c init -c targets -c "reset halt" -c "sleep 100" -c "flash write_image erase ' + image + '" -c "verify_image ' + image + '" -c "reset run" -c shutdown'
+            sh 'openocd -f board/' + board + ' -c init -c targets -c "reset halt" -c "sleep 100" -c "flash write_image erase ' + image + '" -c "verify_image ' + image + '" -c "reset run" -c shutdown'
     }
 }
 
@@ -108,20 +112,27 @@ pipeline {
         stage('Build devices examples') {
             steps {
                 parallel(
+                    at45db : { eclipseBuild('at45db', targets) },
                     bmp180 : { eclipseBuild('bmp180', targets) },
                     ds2782 : { eclipseBuild('ds2782', targets) },
                     ds2786 : { eclipseBuild('ds2786', targets) },
                     hx711 : { eclipseBuild('hx711', targets) },
                     isl29023 : { eclipseBuild('isl29023', targets) },
+                    lepton : { eclipseBuild('leptonPCSerialReceiver', ['reader linux'])
+                               eclipseBuild('leptonSDCardWrite', targets)
+                               eclipseBuild('leptonSerialTransmitter', targets) },
                     lis302 : { eclipseBuild('lis302', targets) },
                     lsm330dl : { eclipseBuild('lsm330dl', targets) },
                     m24c16 : { eclipseBuild('m24c16', targets) },
                     mpl115a1 : { eclipseBuild('mpl115a1', targets) },
+                    mpl115a2 : { eclipseBuild('mpl115a2', targets) },
                     mrf89xa : { eclipseBuild('mrf89xa', targets) },
                     pcf8563 : { eclipseBuild('pcf8563', targets) },
                     rfm70 : { eclipseBuild('rfm70', targets) },
                     sht21 : { eclipseBuild('sht21', targets) },
                     tmp006 : { eclipseBuild('tmp006', targets) },
+                    uCamII : { eclipseBuild('uCAM-II', ['stm32f4-discovery']) },
+                    ws2812 : { eclipseBuild('ws2812', targets) },                    
                 )
             }
         }
