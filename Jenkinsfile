@@ -101,23 +101,15 @@ def sa(projName, targets) {
      
     lock('eclipseBuild_FX160') {
         withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
-            for (target in targets) {
-                retry(2) {
-                    timeout(time:10, unit:'MINUTES') {
-                        sh '''source /var/jenkins/tools/codechecker/venv/bin/activate 
+            for (target in targets) {               
+                timeout(time:10, unit:'MINUTES') {
+                    sh '''source /var/jenkins/tools/codechecker/venv/bin/activate 
                             export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
                             export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
-                            CodeChecker check -n ''' + projName.replaceAll("\\s","_") + '_${target} -b "cd''' + projDirMap[projName] + '/' + target +' && make clean && make all"'
-                    }
+                            CodeChecker check -n ''' + projName.replaceAll("\\s","_") + '_${target} -b "cd''' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
                 }        
             }
         }
-    }
-}
-
-def flash(board, image) {
-    withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/tools/openocd/0.10.0/bin']) {
-            sh 'openocd -f board/' + board + ' -c init -c targets -c "reset halt" -c "sleep 100" -c "flash write_image erase ' + image + '" -c "verify_image ' + image + '" -c "reset run" -c shutdown'
     }
 }
 
@@ -164,7 +156,7 @@ pipeline {
                 )
             }
         }
-     
+    } 
     post {
         always {
             deleteDir()
