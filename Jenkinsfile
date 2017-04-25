@@ -119,7 +119,7 @@ pipeline {
                     isl29023 : { eclipseBuild('isl29023', targets) },
                     lepton : { eclipseBuild('leptonPCSerialReceiver', ['reader linux'])
                                eclipseBuild('leptonSDCardWrite', ['stm32f4-discovery'])
-                               eclipseBuild('leptonSerialTransmitter', targets) },
+                               eclipseBuild('leptonSerialTransmitter', ['stm32f4-discovery']) },
                     lis302 : { eclipseBuild('lis302', targets) },
                     lsm330dl : { eclipseBuild('lsm330dl', targets) },
                     m24c16 : { eclipseBuild('m24c16', targets) },
