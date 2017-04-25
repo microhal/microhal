@@ -107,7 +107,7 @@ def sa(projName, targets) {
                     source /var/jenkins/tools/codechecker/venv/bin/activate 
                     export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
                     export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
-                    CodeChecker check -n ''' + projName.replaceAll("\\s","_") + '_${target} -b "cd''' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+                    CodeChecker check -n ''' + projName.replaceAll("\\s","_") + '_${target} -b "cd' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
                 }        
             }
         }
