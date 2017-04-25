@@ -23,6 +23,7 @@ def eclipseBuild(projName, targets) {
         'lis302' : 'drivers/STMicroelectronics/LIS302/example',
         'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
         'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
+	'mcp9800' : 'drivers/Microchip/MCP9800',
         'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
         'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
         'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
@@ -64,12 +65,6 @@ def eclipseBuild(projName, targets) {
     }
 }
 
-def flash(board, image) {
-    withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/tools/openocd/0.10.0/bin']) {
-            sh 'openocd -f board/' + board + ' -c init -c targets -c "reset halt" -c "sleep 100" -c "flash write_image erase ' + image + '" -c "verify_image ' + image + '" -c "reset run" -c shutdown'
-    }
-}
-
 def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
 pipeline {   
     agent {
@@ -79,12 +74,10 @@ pipeline {
     }   
 
     stages {
-        stage('Prepare') {
-            steps {  
-               //node('master') {    
-                   checkout scm
-                   sh 'git submodule update --init'
-               //}
+        stage('Checkout') {
+            steps {
+               	checkout scm
+                sh 'git submodule update --init'               
             }
         }
         stage('Build microhal examples') {
@@ -123,7 +116,7 @@ pipeline {
                     lis302 : { eclipseBuild('lis302', targets) },
                     lsm330dl : { eclipseBuild('lsm330dl', targets) },
                     m24c16 : { eclipseBuild('m24c16', targets) },
-                    mpl115a1 : { eclipseBuild('mpl115a1', targets) },
+                    mcp9800 : { eclipseBuild('mcp9800', ['stm32f4-discovery']) },		    
                     mpl115a2 : { eclipseBuild('mpl115a2', targets) },
                     mrf89xa : { eclipseBuild('mrf89xa', targets) },
                     pcf8563 : { eclipseBuild('pcf8563', targets) },
@@ -134,28 +127,7 @@ pipeline {
                     ws2812 : { eclipseBuild('ws2812', targets) },                    
                 )
             }
-        }
-        stage('Test') {
-            steps {
-                node('FX160_HardwareTester') {                       
-                   checkout scm
-                   sh 'git submodule update --init'
-               
-                    timeout(time:1, unit:'HOURS') {
-                        echo 'Testing..'
-                        eclipseBuild('serialPort_test', ['stm32f4-discovery'])
-                        retry(4) {
-                            flash('stm32f4discovery.cfg', 'stm32f4-discovery/serialPort_test.elf')
-                        }                
-                    }
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-            }       
-        }
+        }          
     }
     post {
         always {
