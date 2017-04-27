@@ -78,6 +78,7 @@ class I2C : public microhal::I2C {
     bool init();
 
     Speed speed(Speed speed) noexcept final {
+    	std::terminate();
 //    	bool fastMode = false;
 //    	bool dutyCycle = false;
 //

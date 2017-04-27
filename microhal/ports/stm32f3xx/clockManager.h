@@ -33,6 +33,7 @@
 #include "microhalPortConfig_stm32f3xx.h"
 #include <cmath>
 #include <type_traits>
+#include <exception>
 
 #include "device/stm32f3xx.h"
 
@@ -273,6 +274,7 @@ class ClockManager {
         case HSI:
         	return HSI::frequency();
         }
+        std::terminate();
     }
     /**
      * @brief This function return SPI clock
