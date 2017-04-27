@@ -34,6 +34,7 @@ def eclipseBuild(projName, targets) {
         'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
         'ws2812' : 'drivers/Worldsemi/WS2812/example',
         'serialPort_test' : 'tests/serialPort',
+	'stm32f3xx_allMCU' : 'tests/stm32f3xx_AllMCU',
     ]
      
     echo "Building on ${env.NODE_NAME}"
@@ -43,7 +44,7 @@ def eclipseBuild(projName, targets) {
                  for (target in targets) {
                      retry(2) {
                         timeout(time:10, unit:'MINUTES') {
-                            sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                            sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
                         }
                     }
                 }
@@ -127,7 +128,10 @@ pipeline {
                     ws2812 : { eclipseBuild('ws2812', targets) },                    
                 )
             }
-        }          
+        }
+	stage('Test') {
+		eclipseBuild('stm32f3xx_allMCU', ['all']) 
+	}          
     }
     post {
         always {
