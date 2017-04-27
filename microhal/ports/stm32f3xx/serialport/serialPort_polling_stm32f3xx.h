@@ -140,7 +140,7 @@ class SerialPort_polling : public stm32f3xx::SerialPort {
      * @retval false - if an error occurred
      */
     bool clear(Direction dir) noexcept final {
-        dir = dir;
+        (void)dir;
         return true;
     }
     /**

@@ -42,9 +42,13 @@ def eclipseBuild(projName, targets) {
          lock('eclipseBuild_master') {
              withEnv(['PATH+WHATEVER=/home/microide/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/microide/eclipse']) {
                  for (target in targets) {
+                     def buildTarget = projName + '/' + target
+		     if (target == 'all') {
+		         buildTarget = 'all'
+                     }
                      retry(2) {
-                        timeout(time:10, unit:'MINUTES') {
-                            sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                        timeout(time:10, unit:'MINUTES') {			
+                            sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + buildTarget + '"'
                         }
                     }
                 }
