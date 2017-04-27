@@ -129,9 +129,11 @@ pipeline {
                 )
             }
         }
-	stage('Test') {
+        stage('Test') {
+            steps {
 		eclipseBuild('stm32f3xx_allMCU', ['all']) 
-	}          
+            }
+        }          
     }
     post {
         always {
