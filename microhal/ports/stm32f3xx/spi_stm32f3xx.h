@@ -180,6 +180,31 @@ class SPI : public microhal::SPI {
         return error;
     }
 
+    void priority(uint32_t priority) {
+    	switch (reinterpret_cast<uint32_t>(&spi)) {
+#if defined(SPI1)
+    	case reinterpret_cast<uint32_t>(SPI1):
+        	NVIC_EnableIRQ(SPI1_IRQn);
+        	NVIC_SetPriority(SPI1_IRQn, priority);
+        	break;
+#endif
+#if defined(SPI2)
+    	case reinterpret_cast<uint32_t>(SPI2):
+        	NVIC_EnableIRQ(SPI2_IRQn);
+        	NVIC_SetPriority(SPI2_IRQn, priority);
+        	break;
+#endif
+#if defined(SPI3)
+        case reinterpret_cast<uint32_t>(SPI3):
+        	NVIC_EnableIRQ (SPI3_IRQn);
+        	NVIC_SetPriority(SPI3_IRQn, priority);
+        	break;
+#endif
+        default:
+        	std::terminate();
+    	}
+    }
+
     void writeDR(uint8_t data) {
         *(volatile uint8_t *)&spi.DR = data;
     }

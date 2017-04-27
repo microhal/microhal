@@ -106,8 +106,12 @@ class ClockManager {
         }
     }
     static void enable(const SPI_TypeDef &spi) {
-        if (&spi == SPI1)
+#if defined(SPI1)
+    	if (&spi == SPI1)
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+#else
+    	if (false) {}
+#endif
 #if defined(SPI2)
         else if (&spi == SPI2)
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
@@ -133,12 +137,19 @@ class ClockManager {
         }
     }
     static void enable(const TIM_TypeDef &timer) {
+
+#if defined(TIM1)
     	if (&timer == TIM1) {
     		RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+#else
+    	if (false) {
+#endif
     	} else if (&timer == TIM2) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+#if defined (TIM3)
 		} else if (&timer == TIM3) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+#endif
 #if defined(TIM4)
 		} else if (&timer == TIM4) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
@@ -270,8 +281,12 @@ class ClockManager {
      * @return
      */
     static uint32_t SPIFrequency(const SPI_TypeDef &spi) {
+#if defined(SPI1)
         if (&spi == SPI1)
             return APB2Frequency();
+#else
+        if (false) {}
+#endif
 #if defined(SPI2)
         else if (&spi == SPI2)
             return APB1Frequency();
@@ -316,12 +331,18 @@ class ClockManager {
         }
     }
     static uint32_t TimerFrequency(const TIM_TypeDef &tim) {
-        if (&tim == TIM1)
+#if defined(TIM1)
+    	if (&tim == TIM1)
             return APB2Frequency();
+#else
+    	if (false) {}
+#endif
         else if (&tim == TIM2)
             return APB1Frequency();
+#if defined (TIM3)
         else if (&tim == TIM3)
             return APB1Frequency();
+#endif
 #if defined(TIM4)
         else if (&tim == TIM4)
             return APB1Frequency();

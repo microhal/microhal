@@ -49,28 +49,10 @@ private:
             SPI(spi, misoPin), semaphore() {
     	ClockManager::enable(spi);
 #if defined(HAL_RTOS_FreeRTOS)
-    	const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
+    	priority(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #else
-    	const uint32_t priority = 0;
+    	priority(0);
 #endif
-        switch (reinterpret_cast<uint32_t>(&spi)) {
-        case reinterpret_cast<uint32_t>(SPI1):
-            NVIC_EnableIRQ(SPI1_IRQn);
-            NVIC_SetPriority(SPI1_IRQn, priority);
-            break;
-#if defined(SPI2)
-        case reinterpret_cast<uint32_t>(SPI2):
-            NVIC_EnableIRQ(SPI2_IRQn);
-            NVIC_SetPriority(SPI2_IRQn, priority);
-            break;
-#endif
-#if defined(SPI3)
-        case reinterpret_cast<uint32_t>(SPI3):
-            NVIC_EnableIRQ (SPI3_IRQn);
-            NVIC_SetPriority(SPI3_IRQn, priority);
-            break;
-#endif
-        }
     }
 
     SPI_interrupt& operator=(const SPI_interrupt&);

@@ -293,8 +293,8 @@ void I2C1_ER_IRQHandler(void) {
 #endif
 #ifdef MICROHAL_USE_I2C2_INTERRUPT
 void I2C2_ER_IRQHandler(void) {
-    I2C2->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c2.error = I2C::errorCheckAndClear(I2C2, I2C2->SR1);
+    I2C2->CR2 |= I2C_CR2_STOP;
+    I2C_interrupt::i2c2.error = I2C::errorCheckAndClear(I2C2, I2C2->ISR);
 	auto shouldYeld = I2C_interrupt::i2c2.semaphore.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
 	portYIELD_FROM_ISR(shouldYeld);
@@ -305,8 +305,8 @@ void I2C2_ER_IRQHandler(void) {
 #endif
 #ifdef MICROHAL_USE_I2C3_INTERRUPT
 void I2C3_ER_IRQHandler(void) {
-    I2C3->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c3.error = I2C::errorCheckAndClear(I2C3, I2C3->SR1);
+    I2C3->CR2 |= I2C_CR2_STOP;
+    I2C_interrupt::i2c3.error = I2C::errorCheckAndClear(I2C3, I2C3->ISR);
 	auto shouldYeld = I2C_interrupt::i2c3.semaphore.giveFromISR();
 #if defined (HAL_RTOS_FreeRTOS)
 	portYIELD_FROM_ISR(shouldYeld);
