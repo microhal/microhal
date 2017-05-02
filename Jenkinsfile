@@ -38,13 +38,13 @@ def projDirMap = [
 ]
 
 def eclipseRun(project, target, defines) {
-    def workspace = 'workspace_' + projName.replaceAll("\\s","_")
+    def workspace = 'workspace_' + project.replaceAll("\\s","_")
     if (env.NODE_NAME == 'master') {
         lock('eclipseBuild_master') {
             withEnv(['PATH+WHATEVER=/home/microide/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/microide/eclipse']) {
                 retry(2) {
                     timeout(time:10, unit:'MINUTES') {			
-                        sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -D ' + defines + ' -data ' + workspace + ' -importAll "' + projName + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'
+                        sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -D ' + defines + ' -data ' + workspace + ' -importAll "' + project + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'
                     }
                 }  
             }	
