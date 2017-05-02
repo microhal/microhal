@@ -39,12 +39,16 @@ def projDirMap = [
 
 def eclipseRun(project, target, defines) {
     def workspace = 'workspace_' + project.replaceAll("\\s","_")
+    def defs = ''
+    for (define in defines) {
+        defs = defs + ' -D ' + define
+    }		
     if (env.NODE_NAME == 'master') {
         lock('eclipseBuild_master') {
             withEnv(['PATH+WHATEVER=/home/microide/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/microide/eclipse']) {
                 retry(2) {
                     timeout(time:10, unit:'MINUTES') {			
-                        sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -D ' + defines + ' -data ' + workspace + ' -importAll "' + project + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'
+                        sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer' + defs + ' -data ' + workspace + ' -importAll "' + project + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'
                     }
                 }  
             }	
@@ -189,14 +193,14 @@ pipeline {
             steps {
 		parallel(
 			stm32f3xx : { eclipseBuild('stm32f3xx_allMCU', ['all']) },
-			STM32F405xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F405xx']) },
-			STM32F415xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F415xx']) },
-			STM32F407xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F407xx']) },
-			STM32F417xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F417xx']) },
-			STM32F427xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F427xx']) },
-			STM32F437xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F437xx']) },
-			STM32F429xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F429xx']) },
-			STM32F439xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F439xx']) },
+			STM32F405xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F405xx']) },
+			STM32F415xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F415xx']) },
+			STM32F407xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F407xx']) },
+			STM32F417xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F417xx']) },
+			STM32F427xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F427xx']) },
+			STM32F437xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F437xx']) },
+			STM32F429xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F429xx']) },
+			STM32F439xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'interrupt', ['STM32F439xx']) },
 		)		
             }
         }          
