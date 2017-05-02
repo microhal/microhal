@@ -53,6 +53,42 @@ def eclipseRun(project, target, defines) {
 }
 
 def eclipseBuild(projName, targets) {     
+	def projDirMap = [
+	'diagnostic' : 'examples/diagnostic',
+	'externalInterrupt' : 'examples/externalInterrupt',
+	'gpio' : 'examples/gpio',
+	'os' : 'examples/os',
+	'serialPort' : 'examples/serialPort',
+	'signal slot' : 'examples/signalSlot',
+	'ticToc' : 'examples/ticToc',
+	'cli' : 'components/cli/examples',
+	'hostComm' : 'components/hostComm/examples',
+	'at45db' : 'drivers/Atmel/AT45DB041D/example',        
+	'bmp180' : 'drivers/Bosch/BMP180/example',
+	'ds2782' : 'drivers/MaximDallas/DS2782/example',
+	'ds2786' : 'drivers/MaximDallas/DS2786/example',        
+	'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
+	'isl29023' : 'drivers/Intersil/ISL29023/example',        
+	'leptonPCSerialReceiver' : 'drivers/FLIR/Lepton/example/lepton_PC_Serial_Receiver',
+	'leptonSDCardWrite' : 'drivers/FLIR/Lepton/example/lepton_SDCard_write',
+	'leptonSerialTransmitter' : 'drivers/FLIR/Lepton/example/lepton_Serial_Transmitter',
+	'lis302' : 'drivers/STMicroelectronics/LIS302/example',
+	'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
+	'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
+	'mcp9800' : 'drivers/Microchip/MCP9800',
+	'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
+	'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
+	'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
+	'pcf8563' : 'drivers/NXP/PCF8563/example',
+	'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
+	'sht21' : 'drivers/Sensirion/SHT21/example/basic',
+	'tmp006' : 'drivers/Texas Instruments/TMP006/example',
+	'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
+	'ws2812' : 'drivers/Worldsemi/WS2812/example',
+	'serialPort_test' : 'tests/serialPort',
+	'stm32f3xx_allMCU' : 'tests/stm32f3xx_AllMCU',
+	'stm32f4xx_allMCU' : 'tests/stm32f4xx_AllMCU',
+]
     echo "Building on ${env.NODE_NAME}"
     if (env.NODE_NAME == 'master') {
          lock('eclipseBuild_master') {
