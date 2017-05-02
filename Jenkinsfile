@@ -152,16 +152,16 @@ pipeline {
         stage('Test') {
             steps {
 		parallel(
-		    eclipseBuild('stm32f3xx_allMCU', ['all']) 
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F405xx'])
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F415xx'])
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F407xx'])
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F417xx'])
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F427xx'])
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F437xx'])
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F429xx'])
-		    eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F439xx'])
-		}
+			stm32f3xx : { eclipseBuild('stm32f3xx_allMCU', ['all']) },
+			STM32F405xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F405xx']) },
+			STM32F415xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F415xx']) },
+			STM32F417xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F407xx']) },
+			STM32F417xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F417xx']) },
+			STM32F427xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F427xx']) },
+			STM32F437xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F437xx']) },
+			STM32F429xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F429xx']) },
+			STM32F439xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], ['interrupt'], ['STM32F439xx']) },
+		)		
             }
         }          
     }
