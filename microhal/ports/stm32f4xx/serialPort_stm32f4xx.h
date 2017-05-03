@@ -99,45 +99,39 @@ protected:
     }
 
     uint32_t number() {
-        switch (reinterpret_cast<uint32_t>(&usart)) {
-        case reinterpret_cast<uint32_t>(USART1): return 1;
-        case reinterpret_cast<uint32_t>(USART2): return 2;
+    	if (&usart == USART1) return 1;
+    	if (&usart == USART2) return 2;
 #if defined(USART3)
-        case reinterpret_cast<uint32_t>(USART3): return 3;
+    	if (&usart == USART3) return 3;
 #endif
 #if defined(UART4)
-        case reinterpret_cast<uint32_t>(UART4): return 4;
+    	if (&usart == UART4) return 4;
 #endif
 #if defined(UART5)
-        case reinterpret_cast<uint32_t>(UART5): return 5;
+    	if (&usart == UART5) return 5;
 #endif
 #if defined(USART6)
-        case reinterpret_cast<uint32_t>(USART6): return 6;
+    	if (&usart == USART6) return 6;
 #endif
-        }
         std::terminate();
-        return 0;
     }
 
     IRQn_Type irq() {
-        switch (reinterpret_cast<uint32_t>(&usart)) {
-        case reinterpret_cast<uint32_t>(USART1): return USART1_IRQn;
-        case reinterpret_cast<uint32_t>(USART2): return USART2_IRQn;
+        if (&usart == USART1) return USART1_IRQn;
+        if (&usart == USART2) return USART2_IRQn;
 #if defined(USART3)
-        case reinterpret_cast<uint32_t>(USART3): return USART3_IRQn;
+        if (&usart == USART3) return USART3_IRQn;
 #endif
 #if defined(UART4)
-        case reinterpret_cast<uint32_t>(UART4): return UART4_IRQn;
+        if (&usart == UART4) return UART4_IRQn;
 #endif
 #if defined(UART5)
-        case reinterpret_cast<uint32_t>(UART5): return UART5_IRQn;
+        if (&usart == UART5) return UART5_IRQn;
 #endif
 #if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
-        case reinterpret_cast<uint32_t>(USART6): return USART6_IRQn;
+        if (&usart == USART6) return USART6_IRQn;
 #endif
-        }
         std::terminate();
-        return USART1_IRQn; // this is only to suppress warnings
     }
 
    // virtual ~SerialPort(){}

@@ -227,8 +227,10 @@ DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c) {
         case reinterpret_cast<uint32_t>(I2C2):
             // in stream 2 and 3 the same channel
             return DMA::Stream::Channel::Channel7;
+#if defined(I2C3)
         case reinterpret_cast<uint32_t>(I2C3):
             return DMA::Stream::Channel::Channel3;
+#endif
     }
     // error
     while (1) {

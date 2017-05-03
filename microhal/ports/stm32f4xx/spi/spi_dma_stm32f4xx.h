@@ -77,43 +77,10 @@ class SPI_dma : public stm32f4xx::SPI {
         : SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
         ClockManager::enable(spi);
 #if defined(HAL_RTOS_FreeRTOS)
-        const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
+        enableInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #else
-        const uint32_t priority = 0;
+        enableInterrupt(0);
 #endif
-        switch (reinterpret_cast<uint32_t>(&spi)) {
-            case reinterpret_cast<uint32_t>(SPI1):
-                NVIC_EnableIRQ(SPI1_IRQn);
-                NVIC_SetPriority(SPI1_IRQn, priority);
-                break;
-            case reinterpret_cast<uint32_t>(SPI2):
-                NVIC_EnableIRQ(SPI2_IRQn);
-                NVIC_SetPriority(SPI2_IRQn, priority);
-                break;
-            case reinterpret_cast<uint32_t>(SPI3):
-                NVIC_EnableIRQ(SPI3_IRQn);
-                NVIC_SetPriority(SPI3_IRQn, priority);
-                break;
-#ifdef SPI4_IRQn
-            case reinterpret_cast<uint32_t>(SPI4):
-                NVIC_EnableIRQ(SPI4_IRQn);
-                NVIC_SetPriority(SPI4_IRQn, priority);
-                break;
-#endif
-#ifdef SPI5_IRQn
-            case reinterpret_cast<uint32_t>(SPI5):
-                NVIC_EnableIRQ(SPI5_IRQn);
-                NVIC_SetPriority(SPI5_IRQn, priority);
-                break;
-#endif
-#ifdef SPI6_IRQn
-            case reinterpret_cast<uint32_t>(SPI6):
-                NVIC_EnableIRQ(SPI6_IRQn);
-                NVIC_SetPriority(SPI6_IRQn, priority);
-                break;
-#endif
-        }
-
         init();
     }
 

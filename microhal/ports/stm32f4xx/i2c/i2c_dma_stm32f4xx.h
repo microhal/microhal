@@ -101,12 +101,14 @@ class I2C_dma : public stm32f4xx::I2C {
                 NVIC_EnableIRQ(I2C2_ER_IRQn);
                 NVIC_SetPriority(I2C2_ER_IRQn, 0);
                 break;
+#if defined(I2C3)
             case reinterpret_cast<uint32_t>(I2C3):
                 NVIC_EnableIRQ(I2C3_EV_IRQn);
                 NVIC_SetPriority(I2C3_EV_IRQn, 0);
                 NVIC_EnableIRQ(I2C3_ER_IRQn);
                 NVIC_SetPriority(I2C3_ER_IRQn, 0);
                 break;
+#endif
         }
     }
 

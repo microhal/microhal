@@ -131,6 +131,32 @@ class SPI : public microhal::SPI {
         }
     }
 
+    void enableInterrupt(uint32_t priority) {
+    	NVIC_EnableIRQ(irq());
+        NVIC_SetPriority(irq(), priority);
+    }
+
+    IRQn_Type irq() {
+        if (&spi == SPI1) return SPI1_IRQn;
+#if defined(SPI2)
+        else if (&spi == SPI2) return SPI2_IRQn;
+#endif
+#if defined(SPI3)
+        else if (&spi == SPI3) return SPI3_IRQn;
+#endif
+#if defined(SPI4)
+        else if (&spi == SPI4) return SPI4_IRQn;
+#endif
+#if defined(SPI5)
+        else if (&spi == SPI5) return SPI5_IRQn;
+#endif
+#if defined(SPI6)
+        else if (&spi == SPI6) return SPI6_IRQn;
+#endif
+        std::terminate();
+    }
+
+
     static SPI::Error errorCheck(uint32_t SRregisterValue) {
         SPI::Error error = NoError;
 

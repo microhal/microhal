@@ -74,10 +74,14 @@ static DMA::Stream::Channel getRxChannalNumber(SPI_TypeDef &spi) {
     switch (reinterpret_cast<uint32_t>(&spi)) {
         case reinterpret_cast<uint32_t>(SPI1):
             return DMA::Stream::Channel::Channel3;
+#if defined(SPI2)
         case reinterpret_cast<uint32_t>(SPI2):
         // intentionally lack of break
+#endif
+#if defined(SPI3)
         case reinterpret_cast<uint32_t>(SPI3):
             return DMA::Stream::Channel::Channel0;
+#endif
 #ifdef SPI4_IRQn
         case reinterpret_cast<uint32_t>(SPI4):
             return DMA::Stream::Channel::Channel4;
@@ -103,10 +107,14 @@ static DMA::Stream::Channel getTxChannalNumber(SPI_TypeDef &spi) {
     switch (reinterpret_cast<uint32_t>(&spi)) {
         case reinterpret_cast<uint32_t>(SPI1):
             return DMA::Stream::Channel::Channel3;
+#if defined(SPI2)
         case reinterpret_cast<uint32_t>(SPI2):
         // intentionally lack of break
+#endif
+#if defined(SPI3)
         case reinterpret_cast<uint32_t>(SPI3):
             return DMA::Stream::Channel::Channel0;
+#endif
 #ifdef SPI4_IRQn
         case reinterpret_cast<uint32_t>(SPI4):
             return DMA::Stream::Channel::Channel4;
@@ -223,10 +231,13 @@ void SPI_dma::init() {
             txIRQ = DMA2_Stream5_IRQn;
 #endif
             break;
+#if defined(SPI2)
         case reinterpret_cast<uint32_t>(SPI2):
             rxIRQ = DMA1_Stream3_IRQn;
             txIRQ = DMA1_Stream4_IRQn;
             break;
+#endif
+#if defined(SPI3)
         case reinterpret_cast<uint32_t>(SPI3):
 #if MICROHAL_SPI3_DMA_RX_STREAM == 0
             rxIRQ = DMA1_Stream0_IRQn;
@@ -239,6 +250,7 @@ void SPI_dma::init() {
             txIRQ = DMA1_Stream7_IRQn;
 #endif
             break;
+#endif
 #ifdef SPI4_IRQn
         case reinterpret_cast<uint32_t>(SPI4):
             rxIRQ = DMA2_Stream0_IRQn;

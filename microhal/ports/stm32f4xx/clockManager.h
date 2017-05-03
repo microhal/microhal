@@ -88,8 +88,7 @@ class ClockManager {
             RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
 #endif
         else {
-            while (1)
-                ;  // Error should newer go there
+        	std::terminate(); // Error should newer go there
         }
     }
     static void enable(const SPI_TypeDef &spi) {
@@ -116,7 +115,7 @@ class ClockManager {
             RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
 #endif
         else {
-        	while (1); // Error should newer go there
+        	std::terminate(); // Error should newer go there
         }
     }
     static void enable(const TIM_TypeDef &timer) {
@@ -169,8 +168,7 @@ class ClockManager {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
 #endif
 		} else {
-			while (1)
-				;  // Error should newer go there
+			std::terminate(); // Error should newer go there
 		}
     }
 	static void enable(const GPIO_TypeDef &gpio) {
@@ -193,7 +191,7 @@ class ClockManager {
 			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
 #endif
 	else {
-		while (1);
+		std::terminate();
 	}
 }
     //--------------------------------------------------------------------------------------------------------------
@@ -232,8 +230,7 @@ class ClockManager {
         else if (&usart == UART8)
             return APB1Frequency();
 #endif
-        while (1)
-            ;  // Error should newer go there
+        std::terminate(); // Error should newer go there
     }
     /**
      * @brief This function return SPI clock
@@ -334,10 +331,7 @@ class ClockManager {
         else if (&tim == TIM14)
             return APB1Frequency();
 #endif
-        else {
-            while (1)
-                ;  // Error should newer go there
-        }
+        std::terminate();
     }
 
     static uint32_t SYSCLKFrequency() noexcept {

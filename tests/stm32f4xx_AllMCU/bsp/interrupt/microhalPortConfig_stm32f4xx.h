@@ -88,10 +88,10 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_USE_I2C2_INTERRUPT
 #define MICROHAL_I2C2_DMA_RX_STREAM 3	//possible streams are 2 and 3
 //tx stream can be connected only to stream 7
-
+#if !defined(STM32F410Tx)
 #define MICROHAL_USE_I2C3_INTERRUPT
 //I2C 3 DMA can be connected only to stream 2 and 4
-
+#endif
 //***********************************************************************************************//
 //                                        SPI configurations                                     //
 //***********************************************************************************************//
@@ -101,23 +101,32 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SPI1_DMA_RX_STREAM 2	//possible streams are 0 and 2 this options are valid only when MICROHAL_USE_SPIx_DMA is defined
 #define MICROHAL_SPI1_DMA_TX_STREAM 5   //possible streams are 3 and 5
 
+#if !defined(STM32F410Tx)
 #define MICROHAL_USE_SPI2_INTERRUPT
 //SPI 2 DMA can be connected only to stream 3 and 4
+#endif
 
+#if !defined(STM32F410Tx)
 #define MICROHAL_USE_SPI3_INTERRUPT
 #define MICROHAL_SPI3_DMA_RX_STREAM 0	//possible streams are 0 and 2
 #define MICROHAL_SPI3_DMA_TX_STREAM 7	//possible streams are 5 and 7
+#endif
 
+#if !defined(STM32F405xx) && !defined(STM32F410Tx)
 #define MICROHAL_USE_SPI4_INTERRUPT
 #define MICROHAL_SPI4_DMA_RX_STREAM 0	//possible streams are 0 and 3
 #define MICROHAL_SPI4_DMA_TX_STREAM 1	//possible streams are 1 and 4
+#endif
 
+#if !defined(STM32F405xx) && !defined(STM32F410Tx)
 #define MICROHAL_USE_SPI5_INTERRUPT
 #define MICROHAL_SPI5_DMA_RX_STREAM 3	//possible streams are 3 and 5
 #define MICROHAL_SPI5_DMA_TX_STREAM 4 //possible streams are 4 and 6
+#endif
 
-//#define MICROHAL_USE_SPI6_DMA
+#if !defined(STM32F405xx) && !defined(STM32F410Tx)
+#define MICROHAL_USE_SPI6_INTERRUPT
 //SPI 6 DMA can be connected only to stream 5 and 6
-
+#endif
 
 #endif /* MICROHALPORTCONFIG_H_ */
