@@ -32,6 +32,7 @@
 
 #include "microhalPortConfig_stm32f4xx.h"
 #include <type_traits>
+#include <exception>
 
 #include "device/stm32f4xx.h"
 
@@ -63,11 +64,12 @@ class ClockManager {
         else if (&usart == UART5)
             rccEnableFlag = RCC_APB1ENR_UART5EN;
 #endif
+#if defined(USART6)
         else if (&usart == USART6)
             rccEnableFlag = RCC_APB2ENR_USART6EN;
+#endif
         else {
-            while (1)
-                ;  // Error should newer go there
+            std::terminate();  // Error should newer go there
         }
 
         if (&usart == USART1 || &usart == USART6) {
@@ -242,10 +244,14 @@ class ClockManager {
     static uint32_t SPIFrequency(const SPI_TypeDef &spi) {
         if (&spi == SPI1)
             return APB2Frequency();
+#if defined(SPI2)
         else if (&spi == SPI2)
             return APB1Frequency();
+#endif
+#if defined(SPI3)
         else if (&spi == SPI3)
             return APB1Frequency();
+#endif
 #if defined(SPI4)
         else if (&spi == SPI4)
             return APB2Frequency();
@@ -258,10 +264,7 @@ class ClockManager {
         else if (&spi == SPI6)
             return APB2Frequency();
 #endif
-        else {
-            while (1)
-                ;  // Error should newer go there
-        }
+        std::terminate();  // Error should newer go there
     }
     /**
      * @brief This function return I2C clock
@@ -274,12 +277,11 @@ class ClockManager {
             return APB1Frequency();
         else if (&i2c == I2C2)
             return APB1Frequency();
+#if defined(I2C3)
         else if (&i2c == I2C3)
             return APB1Frequency();
-        else {
-            while (1)
-                ;  // Error should newer go there
-        }
+#endif
+        std::terminate();  // Error should newer go there
     }
     static uint32_t TimerFrequency(const TIM_TypeDef &tim) {
         if (&tim == TIM1)
