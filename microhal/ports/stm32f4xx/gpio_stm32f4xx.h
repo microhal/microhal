@@ -58,7 +58,7 @@ class GPIO {
         PortE = GPIOE_BASE,     //!< PortE
 #endif
 #if defined(GPIOF_BASE)
-        PortF = GPIOF_BASE      //!< PortF
+        PortF = GPIOF_BASE,      //!< PortF
 #endif
 #if defined(GPIOH_BASE)
 		PortH = GPIOH_BASE
