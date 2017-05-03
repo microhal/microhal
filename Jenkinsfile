@@ -104,10 +104,11 @@ def sa(projName, targets) {
             for (target in targets) {               
                 timeout(time:10, unit:'MINUTES') {
                     sh '''#!/bin/bash
+                    echo -target arm-none-eabi > extra_clang_options
                     source /var/jenkins/tools/codechecker/venv/bin/activate 
                     export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
                     export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
-                    CodeChecker check -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+                    CodeChecker check --saargs extra_clang_options -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
                 }        
             }
         }
@@ -137,9 +138,9 @@ pipeline {
                     diagnostic :        { eclipseBuild('diagnostic', targets) },
                     externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
                     gpio :              { eclipseBuild('gpio', targets) },
-                    os :                { eclipseBuild('os', targets) },
-                    serialPort :        { eclipseBuild('serialPort', targets) },
-                    signalSlot :        { eclipseBuild('signal slot', targets) },
+                   // os :                { eclipseBuild('os', targets) },
+                   // serialPort :        { eclipseBuild('serialPort', targets) },
+                   // signalSlot :        { eclipseBuild('signal slot', targets) },
                    // ticToc :            { eclipseBuild('ticToc', targets) },
                 )
             }
@@ -150,9 +151,9 @@ pipeline {
                     diagnostic :        { sa('diagnostic', targets) },
                     externalInterrupt : { sa('externalInterrupt', targets) },
                     gpio :              { sa('gpio', targets) },
-                    os :                { sa('os', targets) },
-                    serialPort :        { sa('serialPort', targets) },
-                    signalSlot :        { sa('signal slot', targets) },
+                  //  os :                { sa('os', targets) },
+                   // serialPort :        { sa('serialPort', targets) },
+                    //signalSlot :        { sa('signal slot', targets) },
                    // ticToc :            { sa('ticToc', targets) },
                 )
             }
