@@ -64,7 +64,7 @@ class ClockManager {
         else if (&usart == UART5)
             rccEnableFlag = RCC_APB1ENR_UART5EN;
 #endif
-#if defined(USART6)
+#if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
         else if (&usart == USART6)
             rccEnableFlag = RCC_APB2ENR_USART6EN;
 #endif

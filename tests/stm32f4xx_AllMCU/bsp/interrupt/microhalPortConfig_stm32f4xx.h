@@ -53,27 +53,29 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
 
-#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx)
+#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F410Cx) && !defined(STM32F410Rx) && !defined(STM32F410Tx)
 #define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
 #define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 128
 #endif
 
-#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F412Rx)
+#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F412Rx) && !defined(STM32F410Cx) && !defined(STM32F410Rx) && !defined(STM32F410Tx)
 #define MICROHAL_USE_SERIAL_PORT4_INTERRUPT
 #define MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE 128
 #endif
 
-#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F412Rx)
+#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F412Rx) && !defined(STM32F410Cx) && !defined(STM32F410Rx) && !defined(STM32F410Tx)
 #define MICROHAL_USE_SERIAL_PORT5_INTERRUPT
 #define MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE 128
 #endif
 
+#if !defined(STM32F410Tx)
 #define MICROHAL_USE_SERIAL_PORT6_INTERRUPT
 #define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 128
+#endif
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//

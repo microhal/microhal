@@ -132,7 +132,7 @@ protected:
 #if defined(UART5)
         case reinterpret_cast<uint32_t>(UART5): return UART5_IRQn;
 #endif
-#if defined(USART6)
+#if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
         case reinterpret_cast<uint32_t>(USART6): return USART6_IRQn;
 #endif
         }
