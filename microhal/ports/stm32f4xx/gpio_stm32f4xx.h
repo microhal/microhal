@@ -60,6 +60,9 @@ class GPIO {
 #if defined(GPIOF_BASE)
         PortF = GPIOF_BASE      //!< PortF
 #endif
+#if defined(GPIOH_BASE)
+		PortH = GPIOH_BASE
+#endif
     } Port;
 	/**
 	 *

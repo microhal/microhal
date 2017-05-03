@@ -55,17 +55,31 @@ public:
 		static_assert( (serial != 1 || serialType != Txd || ((port == GPIO::PortA && pinNr == 9) || (port == GPIO::PortB && pinNr == 6))), "Serial1 Txd can be connected only to: PortA.9 or PortB.6.");
 		static_assert( (serial != 1 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 10) || (port == GPIO::PortB && pinNr == 7))), "Serial1 Rxd can be connected only to: PortA.10 or PortB.7.");
 //assert for Serial2
+#if !defined(STM32F410Tx) && !defined(STM32F410Cx) && !defined(STM32F410Rx)
 		static_assert( (serial != 2 || serialType != Txd || ((port == GPIO::PortA && pinNr == 2) || (port == GPIO::PortD && pinNr == 5))), "Serial2 Txd can be connected only to: PortA.2 or PortD.5.");
 		static_assert( (serial != 2 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 3) || (port == GPIO::PortD && pinNr == 6))), "Serial2 Rxd can be connected only to: PortA.3 or PortD.6.");
+#else
+		static_assert( (serial != 2 || serialType != Txd || ((port == GPIO::PortA && pinNr == 2) )), "Serial2 Txd can be connected only to: PortA.2.");
+		static_assert( (serial != 2 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 3) )), "Serial2 Rxd can be connected only to: PortA.3.");
+#endif
 //assert for Serial3
-		static_assert( (serial != 3 || serialType != Txd || ((port == GPIO::PortB && pinNr == 10) || (port == GPIO::PortC && pinNr == 10)|| (port == GPIO::PortD && pinNr == 8))), "Serial3 Txd can be conected only to: PortB.10 or PortC.10 or PortD.8.");
-		static_assert( (serial != 3 || serialType != Rxd || ((port == GPIO::PortB && pinNr == 11) || (port == GPIO::PortC && pinNr == 11)|| (port == GPIO::PortD && pinNr == 9))), "Serial3 Rxd can be conected only to: PortB.11 or PortC.11 or PortD.9.");
+#if !defined(STM32F410Tx) && !defined(STM32F410Cx) && !defined(STM32F410Rx)
+		static_assert( (serial != 3 || serialType != Txd || ((port == GPIO::PortB && pinNr == 10) || (port == GPIO::PortC && pinNr == 10) || (port == GPIO::PortD && pinNr == 8))), "Serial3 Txd can be connected only to: PortB.10 or PortC.10 or PortD.8.");
+		static_assert( (serial != 3 || serialType != Rxd || ((port == GPIO::PortB && pinNr == 11) || (port == GPIO::PortC && pinNr == 11) || (port == GPIO::PortD && pinNr == 9))), "Serial3 Rxd can be connected only to: PortB.11 or PortC.11 or PortD.9.");
+#else
+		static_assert( (serial != 3 || serialType != Txd || ((port == GPIO::PortB && pinNr == 10) || (port == GPIO::PortC && pinNr == 10))), "Serial3 Txd can be connected only to: PortB.10 or PortC.10.");
+		static_assert( (serial != 3 || serialType != Rxd || ((port == GPIO::PortB && pinNr == 11) || (port == GPIO::PortC && pinNr == 11))), "Serial3 Rxd can be connected only to: PortB.11 or PortC.11.");
+#endif
 //assert for Serial4
 		static_assert( (serial != 4 || serialType != Txd || (port == GPIO::PortA && pinNr == 0) || (port == GPIO::PortC && pinNr == 10)), "Serial4 Txd can be connected to: PortA.0 or PortC.10.");
 		static_assert( (serial != 4 || serialType != Rxd || (port == GPIO::PortA && pinNr == 1) || (port == GPIO::PortC && pinNr == 11)), "Serial4 Rxd can be connected to: PortA.1 or PortC.11.");
 //assert for Serial5
 		static_assert( (serial != 5 || serialType != Txd || ((port == GPIO::PortC && pinNr == 12) || (port == GPIO::PortC && pinNr == 3))), "Serial5 Txd can be connected only to: PortC.12 or PortC.3.");
-		static_assert( (serial != 5 || serialType != Rxd || ((port == GPIO::PortD && pinNr == 2) || (port == GPIO::PortD && pinNr == 2))), "Serial5 Rxd can be connected only to: PortD.2, PortA.3.");
+#if !defined(STM32F410Tx) && !defined(STM32F410Cx) && !defined(STM32F410Rx)
+		static_assert( (serial != 5 || serialType != Rxd || ((port == GPIO::PortD && pinNr == 2) || (port == GPIO::PortA && pinNr == 3))), "Serial5 Rxd can be connected only to: PortD.2, PortA.3.");
+#else
+		static_assert( (serial != 5 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 2))), "Serial5 Rxd can be connected only to: PortA.3.");
+#endif
 //assert for Serial6
 		static_assert( (serial != 6 || serialType != Txd || ((port == GPIO::PortC && pinNr == 6))), "Serial6 Txd can be connected only to: PortC.6.");
 		static_assert( (serial != 6 || serialType != Rxd || ((port == GPIO::PortC && pinNr == 7))), "Serial6 Rxd can be connected only to: PortC.7.");
