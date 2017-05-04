@@ -112,19 +112,19 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SPI3_DMA_TX_STREAM 7	//possible streams are 5 and 7
 #endif
 
-#if !defined(STM32F405xx) && !defined(STM32F410Tx)
+#if !defined(STM32F405xx) && !defined(STM32F407xx) && !defined(STM32F410Tx) && !defined(STM32F415xx) && !defined(STM32F417xx)
 #define MICROHAL_USE_SPI4_INTERRUPT
 #define MICROHAL_SPI4_DMA_RX_STREAM 0	//possible streams are 0 and 3
 #define MICROHAL_SPI4_DMA_TX_STREAM 1	//possible streams are 1 and 4
 #endif
 
-#if !defined(STM32F405xx) && !defined(STM32F410Tx)
+#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F405xx) && !defined(STM32F407xx) && !defined(STM32F410Tx) && !defined(STM32F415xx) && !defined(STM32F417xx) && !defined(STM32F446xx)
 #define MICROHAL_USE_SPI5_INTERRUPT
 #define MICROHAL_SPI5_DMA_RX_STREAM 3	//possible streams are 3 and 5
 #define MICROHAL_SPI5_DMA_TX_STREAM 4 //possible streams are 4 and 6
 #endif
 
-#if !defined(STM32F405xx) && !defined(STM32F410Tx)
+#if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F405xx) && !defined(STM32F407xx) && !defined(STM32F410Tx) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Rx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F415xx) && !defined(STM32F417xx) && !defined(STM32F446xx)
 #define MICROHAL_USE_SPI6_INTERRUPT
 //SPI 6 DMA can be connected only to stream 5 and 6
 #endif
