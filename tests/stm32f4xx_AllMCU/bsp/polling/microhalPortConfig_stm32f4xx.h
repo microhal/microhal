@@ -88,7 +88,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_USE_I2C2_POLLING
 #define MICROHAL_I2C2_DMA_RX_STREAM 3	//possible streams are 2 and 3
 //tx stream can be connected only to stream 7
-#if !defined(STM32F410Tx)
+#if !defined(STM32F410Cx) && !defined(STM32F410Rx) && !defined(STM32F410Tx)
 #define MICROHAL_USE_I2C3_POLLING
 //I2C 3 DMA can be connected only to stream 2 and 4
 #endif
