@@ -214,6 +214,29 @@ pipeline {
 			STM32F412Zx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/interrupt', ['STM32F412Zx']) },
 			STM32F412Vx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/interrupt', ['STM32F412Vx']) },
 			STM32F412Rx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/interrupt', ['STM32F412Rx']) },
+		)	
+		parallel(
+			STM32F405xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F405xx']) },
+			STM32F415xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F415xx']) },
+			STM32F407xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F407xx']) },
+			STM32F417xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F417xx']) },
+			STM32F427xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F427xx']) },
+			STM32F437xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F437xx']) },
+			STM32F429xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F429xx']) },
+			STM32F439xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F439xx']) },
+			STM32F401xC : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F401xC']) },
+			STM32F401xE : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F401xE']) },
+			STM32F410Tx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F410Tx']) },
+			STM32F410Cx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F410Cx']) },
+			STM32F410Rx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F410Rx']) },
+			STM32F411xE : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F411xE']) },
+			STM32F446xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F446xx']) },
+			STM32F469xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F469xx']) },
+			STM32F479xx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F479xx']) },
+			STM32F412Cx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Cx']) },
+			STM32F412Zx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Zx']) },
+			STM32F412Vx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Vx']) },
+			STM32F412Rx : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Rx']) },
 		)		
             }
         }          

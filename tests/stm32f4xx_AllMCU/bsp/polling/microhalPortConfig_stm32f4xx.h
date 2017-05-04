@@ -43,89 +43,89 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
+#define MICROHAL_USE_SERIAL_PORT1_POLLING			//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
 													//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
 													//						 MICROHAL_USE_SERIAL_PORTx_DMA
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
 
-#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT2_POLLING
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
 
 #if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F410Cx) && !defined(STM32F410Rx) && !defined(STM32F410Tx)
-#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT3_POLLING
 #define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 128
 #endif
 
 #if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F412Rx) && !defined(STM32F410Cx) && !defined(STM32F410Rx) && !defined(STM32F410Tx)
-#define MICROHAL_USE_SERIAL_PORT4_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT4_POLLING
 #define MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE 128
 #endif
 
 #if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F412Rx) && !defined(STM32F410Cx) && !defined(STM32F410Rx) && !defined(STM32F410Tx)
-#define MICROHAL_USE_SERIAL_PORT5_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT5_POLLING
 #define MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE 128
 #endif
 
 #if !defined(STM32F410Tx)
-#define MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT6_POLLING
 #define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 128
 #endif
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_I2C1_INTERRUPT		//available settings are MICROHAL_USE_I2Cx_POLLING
+#define MICROHAL_USE_I2C1_POLLING		//available settings are MICROHAL_USE_I2Cx_POLLING
 										//						 MICROHAL_USE_I2Cx_INTERRUPT
 										//						 MICROHAL_USE_I2Cx_DMA
 #define MICROHAL_I2C1_DMA_RX_STREAM 0	//possible streams are 0 and 5
 #define MICROHAL_I2C1_DMA_TX_STREAM 6	//possible streams are 6 and 7
 
-#define MICROHAL_USE_I2C2_INTERRUPT
+#define MICROHAL_USE_I2C2_POLLING
 #define MICROHAL_I2C2_DMA_RX_STREAM 3	//possible streams are 2 and 3
 //tx stream can be connected only to stream 7
 #if !defined(STM32F410Tx)
-#define MICROHAL_USE_I2C3_INTERRUPT
+#define MICROHAL_USE_I2C3_POLLING
 //I2C 3 DMA can be connected only to stream 2 and 4
 #endif
 //***********************************************************************************************//
 //                                        SPI configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_SPI1_INTERRUPT			//available settings are MICROHAL_USE_SPIx_POLLING
+#define MICROHAL_USE_SPI1_POLLING			//available settings are MICROHAL_USE_SPIx_POLLING
 										//						 MICROHAL_USE_SPIx_INTERRUPT
 										//						 MICROHAL_USE_SPIx_DMA
 #define MICROHAL_SPI1_DMA_RX_STREAM 2	//possible streams are 0 and 2 this options are valid only when MICROHAL_USE_SPIx_DMA is defined
 #define MICROHAL_SPI1_DMA_TX_STREAM 5   //possible streams are 3 and 5
 
 #if !defined(STM32F410Tx)
-#define MICROHAL_USE_SPI2_INTERRUPT
+#define MICROHAL_USE_SPI2_POLLING
 //SPI 2 DMA can be connected only to stream 3 and 4
 #endif
 
 #if !defined(STM32F410Tx) && !defined(STM32F410Cx)
-#define MICROHAL_USE_SPI3_INTERRUPT
+#define MICROHAL_USE_SPI3_POLLING
 #define MICROHAL_SPI3_DMA_RX_STREAM 0	//possible streams are 0 and 2
 #define MICROHAL_SPI3_DMA_TX_STREAM 7	//possible streams are 5 and 7
 #endif
 
 #if !defined(STM32F405xx) && !defined(STM32F407xx) && !defined(STM32F410Cx) && !defined(STM32F410Tx) && !defined(STM32F415xx) && !defined(STM32F417xx)
-#define MICROHAL_USE_SPI4_INTERRUPT
+#define MICROHAL_USE_SPI4_POLLING
 #define MICROHAL_SPI4_DMA_RX_STREAM 0	//possible streams are 0 and 3
 #define MICROHAL_SPI4_DMA_TX_STREAM 1	//possible streams are 1 and 4
 #endif
 
 #if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F405xx) && !defined(STM32F407xx) && !defined(STM32F410Tx) && !defined(STM32F415xx) && !defined(STM32F417xx) && !defined(STM32F446xx)
-#define MICROHAL_USE_SPI5_INTERRUPT
+#define MICROHAL_USE_SPI5_POLLING
 #define MICROHAL_SPI5_DMA_RX_STREAM 3	//possible streams are 3 and 5
 #define MICROHAL_SPI5_DMA_TX_STREAM 4 //possible streams are 4 and 6
 #endif
 
 #if !defined(STM32F401xC) && !defined(STM32F401xE) && !defined(STM32F405xx) && !defined(STM32F407xx) && !defined(STM32F410Cx) && !defined(STM32F410Tx) && !defined(STM32F411xE) && !defined(STM32F412Cx) && !defined(STM32F412Rx) && !defined(STM32F412Zx) && !defined(STM32F412Vx) && !defined(STM32F415xx) && !defined(STM32F417xx) && !defined(STM32F446xx)
-#define MICROHAL_USE_SPI6_INTERRUPT
+#define MICROHAL_USE_SPI6_POLLING
 //SPI 6 DMA can be connected only to stream 5 and 6
 #endif
 
