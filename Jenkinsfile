@@ -300,6 +300,22 @@ pipeline {
                 sh 'git submodule update --init'		                
             }
 	}
+        stage('Build on tester') {
+	    agent { 
+                label 'FX160_HardwareTester'
+            }
+            steps {
+                parallel(
+                    diagnostic :        { eclipseBuild('diagnostic', targets) },
+                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+                    gpio :              { eclipseBuild('gpio', targets) },
+                    os :                { eclipseBuild('os', targets) },
+                    serialPort :        { eclipseBuild('serialPort', targets) },
+                    signalSlot :        { eclipseBuild('signal slot', targets) },
+                    ticToc :            { eclipseBuild('ticToc', targets) },
+                )
+            }
+}
 	stage('Analyze microhal examples') {
 	    agent { 
                 label 'FX160_HardwareTester'
