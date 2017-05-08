@@ -290,18 +290,21 @@ pipeline {
 		)		
             }
         }  
-        stage('Analyze microhal examples') {
-		steps {
-            stage('Checkout') {
-                steps {
-		    node('FX160_HardwareTester') {    
-               	        checkout scm
-                        sh 'git submodule update --init'               
-		    }
-                }
-            }    
-	    stage('Analyze') {
-		steps {
+        
+        stage('Checkout tester') {
+	    agent { 
+                label 'FX160_HardwareTester'
+            }
+            steps {
+		checkout scm
+                sh 'git submodule update --init'		                
+            }
+	}
+	stage('Analyze microhal examples') {
+	    agent { 
+                label 'FX160_HardwareTester'
+            }
+	    steps {
                 parallel(
                     diagnostic :        { sa('diagnostic', targets) },
                     externalInterrupt : { sa('externalInterrupt', targets) },
@@ -311,8 +314,6 @@ pipeline {
                     signalSlot :        { sa('signal slot', targets) },
                     ticToc :            { sa('ticToc', targets) },
                 )
-		}
-	    }
             }	    
         }
     }
