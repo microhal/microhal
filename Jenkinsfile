@@ -291,6 +291,7 @@ pipeline {
             }
         }  
         stage('Analyze microhal examples') {
+		steps {
             stage('Checkout') {
                 steps {
 		    node('FX160_HardwareTester') {    
@@ -300,6 +301,7 @@ pipeline {
                 }
             }    
 	    stage('Analyze') {
+		steps {
                 parallel(
                     diagnostic :        { sa('diagnostic', targets) },
                     externalInterrupt : { sa('externalInterrupt', targets) },
@@ -309,6 +311,8 @@ pipeline {
                     signalSlot :        { sa('signal slot', targets) },
                     ticToc :            { sa('ticToc', targets) },
                 )
+		}
+	    }
             }	    
         }
     }
