@@ -214,6 +214,7 @@ pipeline {
             }
         }
         stage('Build devices examples') {
+		
             steps {
                 parallel(
                     at45db : { eclipseBuild('at45db', targets) },
@@ -290,21 +291,25 @@ pipeline {
             }
         }  
         stage('Analyze microhal examples') {
-            steps {
-	        node('FX160_HardwareTester') {    
-                    checkout scm
-                    sh 'git submodule update --init'
-                    parallel(
-                        diagnostic :        { sa('diagnostic', targets) },
-                        externalInterrupt : { sa('externalInterrupt', targets) },
-                        gpio :              { sa('gpio', targets) },
-                        os :                { sa('os', targets) },
-                        serialPort :        { sa('serialPort', targets) },
-                        signalSlot :        { sa('signal slot', targets) },
-                        ticToc :            { sa('ticToc', targets) },
-                    )
+            stage('Checkout') {
+                steps {
+		    node('FX160_HardwareTester') {    
+               	        checkout scm
+                        sh 'git submodule update --init'               
+		    }
                 }
-	    }	    
+            }    
+	    stage('Analyze') {
+                parallel(
+                    diagnostic :        { sa('diagnostic', targets) },
+                    externalInterrupt : { sa('externalInterrupt', targets) },
+                    gpio :              { sa('gpio', targets) },
+                    os :                { sa('os', targets) },
+                    serialPort :        { sa('serialPort', targets) },
+                    signalSlot :        { sa('signal slot', targets) },
+                    ticToc :            { sa('ticToc', targets) },
+                )
+            }	    
         }
     }
     post {
