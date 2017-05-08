@@ -126,6 +126,57 @@ def eclipseBuild(projName, targets) {
     }
 }
 
+def sa(projName, targets) {
+    def projDirMap = [
+        'diagnostic' : 'examples/diagnostic',
+        'externalInterrupt' : 'examples/externalInterrupt',
+        'gpio' : 'examples/gpio',
+        'os' : 'examples/os',
+        'serialPort' : 'examples/serialPort',
+        'signal slot' : 'examples/signalSlot',
+        'ticToc' : 'examples/ticToc',
+        'cli' : 'components/cli/examples',
+        'hostComm' : 'components/hostComm/examples',
+        'at45db' : 'drivers/Atmel/AT45DB041D/example',        
+        'bmp180' : 'drivers/Bosch/BMP180/example',
+        'ds2782' : 'drivers/MaximDallas/DS2782/example',
+        'ds2786' : 'drivers/MaximDallas/DS2786/example',        
+        'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
+        'isl29023' : 'drivers/Intersil/ISL29023/example',        
+        'leptonPCSerialReceiver' : 'drivers/FLIR/Lepton/example/lepton_PC_Serial_Receiver',
+        'leptonSDCardWrite' : 'drivers/FLIR/Lepton/example/lepton_SDCard_write',
+        'leptonSerialTransmitter' : 'drivers/FLIR/Lepton/example/lepton_Serial_Transmitter',
+        'lis302' : 'drivers/STMicroelectronics/LIS302/example',
+        'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
+        'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
+        'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
+        'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
+        'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
+        'pcf8563' : 'drivers/NXP/PCF8563/example',
+        'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
+        'sht21' : 'drivers/Sensirion/SHT21/example/basic',
+        'tmp006' : 'drivers/Texas Instruments/TMP006/example',
+        'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
+        'ws2812' : 'drivers/Worldsemi/WS2812/example',
+        'serialPort_test' : 'tests/serialPort',
+    ]
+     
+    lock('eclipseBuild_FX160') {
+        withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
+            for (target in targets) {               
+                timeout(time:10, unit:'MINUTES') {
+                    sh '''#!/bin/bash
+                    echo -target arm-none-eabi > extra_clang_options
+                    source /var/jenkins/tools/codechecker/venv/bin/activate 
+                    export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
+                    export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
+                    CodeChecker check --saargs extra_clang_options -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+                }        
+            }
+        }
+    }
+}
+
 def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
 pipeline {   
     agent {
@@ -237,7 +288,20 @@ pipeline {
 			STM32F412Rxp : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Rx']) },
 		)		
             }
-        }          
+        }  
+        stage('Analyze microhal examples') {
+            steps {
+                parallel(
+                    diagnostic :        { sa('diagnostic', targets) },
+                    externalInterrupt : { sa('externalInterrupt', targets) },
+                    gpio :              { sa('gpio', targets) },
+                    os :                { sa('os', targets) },
+                    serialPort :        { sa('serialPort', targets) },
+                    signalSlot :        { sa('signal slot', targets) },
+                    ticToc :            { sa('ticToc', targets) },
+                )
+            }
+}
     }
     post {
         always {
