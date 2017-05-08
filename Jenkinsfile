@@ -291,17 +291,21 @@ pipeline {
         }  
         stage('Analyze microhal examples') {
             steps {
-                parallel(
-                    diagnostic :        { sa('diagnostic', targets) },
-                    externalInterrupt : { sa('externalInterrupt', targets) },
-                    gpio :              { sa('gpio', targets) },
-                    os :                { sa('os', targets) },
-                    serialPort :        { sa('serialPort', targets) },
-                    signalSlot :        { sa('signal slot', targets) },
-                    ticToc :            { sa('ticToc', targets) },
-                )
-            }
-}
+	        node('FX160_HardwareTester') {    
+                    checkout scm
+                    sh 'git submodule update --init'
+                    parallel(
+                        diagnostic :        { sa('diagnostic', targets) },
+                        externalInterrupt : { sa('externalInterrupt', targets) },
+                        gpio :              { sa('gpio', targets) },
+                        os :                { sa('os', targets) },
+                        serialPort :        { sa('serialPort', targets) },
+                        signalSlot :        { sa('signal slot', targets) },
+                        ticToc :            { sa('ticToc', targets) },
+                    )
+                }
+	    }	    
+        }
     }
     post {
         always {
