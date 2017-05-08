@@ -85,7 +85,7 @@ class SerialPort_Dma: public SerialPort_BufferedBase<SerialPort_Dma> {
 #ifdef MICROHAL_USE_SERIAL_PORT4_DMA
     static SerialPort_Dma Serial4;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT5DMA
+#ifdef MICROHAL_USE_SERIAL_PORT5_DMA
     static SerialPort_Dma Serial5;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT6_DMA

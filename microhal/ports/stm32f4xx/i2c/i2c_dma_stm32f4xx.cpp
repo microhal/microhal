@@ -293,43 +293,62 @@ void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_I2C1_DMA
 //***********************************************************************************************//
+#if MICROHAL_I2C1_DMA_RX_STREAM == 0 || MICROHAL_I2C1_DMA_RX_STREAM == 5
 #if MICROHAL_I2C1_DMA_RX_STREAM == 0
 void DMA1_Stream0_IRQHandler(void) {
-    // I2C rx
-    I2C2->CR1 |= I2C_CR1_STOP;
-
-    DMA1_Stream0->CR &= ~DMA_SxCR_EN;
-    DMA1->LIFCR = DMA_LIFCR_CTCIF0;
-
-    I2C_dma::i2c1.errorSemaphore = I2C_dma::NoError;
-}
+	DMA1_Stream0->CR &= ~DMA_SxCR_EN;
+	DMA1->LIFCR = DMA_LIFCR_CTCIF0;
 #endif
-//***********************************************************************************************//
 #if MICROHAL_I2C1_DMA_RX_STREAM == 5
 void DMA1_Stream5_IRQHandler(void) {
-    // I2C tx
     DMA1_Stream5->CR &= ~DMA_SxCR_EN;
     DMA1->HIFCR = DMA_LIFCR_HTCIF5;
+#endif
+
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c1;
+
+	if (i2c.transfer.mode == Mode::Receive) {
+		I2C1->CR1 |= I2C_CR1_STOP;
+		auto shouldYeld = i2c.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+		portYIELD_FROM_ISR(shouldYeld);
+#else
+		(void)shouldYeld;
+#endif
+	} else {
+		// we are in double buffer mode
+		i2c.rxStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+		i2c.rxStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+		if (i2c.transfer.bufferB.length == 1) {
+			i2c.i2c.CR1 &= ~I2C_CR1_ACK;
+		}
+		i2c.i2c.CR2 |= I2C_CR2_LAST;
+		i2c.rxStream.enable();
+		i2c.transfer.mode = Mode::Receive;
+	}
 }
 #endif
 //***********************************************************************************************//
 #if MICROHAL_I2C1_DMA_TX_STREAM == 6
 void DMA1_Stream6_IRQHandler(void) {
-    // I2C rx
     DMA1_Stream6->CR &= ~DMA_SxCR_EN;
-    DMA1->HIFCR = DMA_HIFCR_CTCIF6;
-
-    I2C2->CR1 |= I2C_CR1_STOP;
-
-    I2C_dma::i2c1.errorSemaphore = I2C_dma::NoError;
-}
-#endif
-//***********************************************************************************************//
-#if MICROHAL_I2C1_DMA_TX_STREAM == 6
+    DMA1->HIFCR = DMA_HIFCR_CTCIF6 | DMA_HIFCR_CTEIF6;
+#elif MICROHAL_I2C1_DMA_TX_STREAM == 7
 void DMA1_Stream7_IRQHandler(void) {
-    // I2C tx
     DMA1_Stream7->CR &= ~DMA_SxCR_EN;
-    DMA1->HIFCR = DMA_LIFCR_HTCIF7;
+    DMA1->HIFCR = DMA_HIFCR_CTCIF7 | DMA_HIFCR_CTEIF7;
+#endif
+#if MICROHAL_I2C1_DMA_TX_STREAM == 6 || MICROHAL_I2C1_DMA_TX_STREAM == 7
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c1;
+
+    if (i2c.transfer.mode == Mode::TransmitDoubleBuffer) {
+    	i2c.txStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+    	i2c.txStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+    	i2c.txStream.enable();
+    	i2c.transfer.mode = Mode::Transmit;
+    }
 }
 #endif
 #endif
@@ -414,26 +433,54 @@ void DMA1_Stream7_IRQHandler(void) { // tx
 #ifdef MICROHAL_USE_I2C3_DMA
 //***********************************************************************************************//
 void DMA1_Stream2_IRQHandler(void) {
-    // rx
-    I2C2->CR1 |= I2C_CR1_STOP;
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c3;
 
-    DMA1_Stream2->CR &= ~DMA_SxCR_EN;
-    DMA1->LIFCR = DMA_LIFCR_CTCIF2;
+	DMA1_Stream2->CR &= ~DMA_SxCR_EN;
+	DMA1->LIFCR = DMA_LIFCR_CTCIF2 | DMA_LIFCR_CTEIF2;
 
-    I2C_dma::i2c3.errorSemaphore = I2C_dma::NoError;
+	if (i2c.transfer.mode == Mode::Receive) {
+		I2C3->CR1 |= I2C_CR1_STOP;
+		//i2c.errorSemaphore = I2C_dma::NoError;
+		auto shouldYeld = i2c.semaphore.giveFromISR();
+#if defined (HAL_RTOS_FreeRTOS)
+		portYIELD_FROM_ISR(shouldYeld);
+#else
+		(void)shouldYeld;
+#endif
+	} else {
+		// we are in double buffer mode
+		i2c.rxStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+		i2c.rxStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+		if (i2c.transfer.bufferB.length == 1) {
+			i2c.i2c.CR1 &= ~I2C_CR1_ACK;
+		}
+		i2c.i2c.CR2 |= I2C_CR2_LAST;
+		i2c.rxStream.enable();
+		i2c.transfer.mode = Mode::Receive;
+	}
 }
 //***********************************************************************************************//
 void DMA1_Stream4_IRQHandler(void) {
-    // tx
+	using Mode = I2C_dma::Mode;
+	auto & i2c = I2C_dma::i2c3;
+
     DMA1_Stream4->CR &= ~DMA_SxCR_EN;
-    DMA1->LIFCR = DMA_LIFCR_CTCIF4;
+    DMA1->HIFCR = DMA_HIFCR_CTCIF4 | DMA_HIFCR_CTEIF4;
+
+    if (i2c.transfer.mode == Mode::TransmitDoubleBuffer) {
+    	i2c.txStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
+    	i2c.txStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
+    	i2c.txStream.enable();
+    	i2c.transfer.mode = Mode::Transmit;
+    }
 }
 #endif
 //***********************************************************************************************//
 //                                          IRQHandlers //
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_I2C1_DMA
-void I2C2_EV_IRQHandler(void) {
+void I2C1_EV_IRQHandler(void) {
     I2C_dma::IRQFunction(I2C_dma::i2c1, I2C1);
 }
 #endif
