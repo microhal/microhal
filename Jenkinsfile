@@ -167,10 +167,11 @@ def sa(projName, targets) {
                 timeout(time:10, unit:'MINUTES') {
                     sh '''#!/bin/bash
                     echo -target arm-none-eabi > extra_clang_options
+                    echo -/third-party/* > skipfile
                     source /var/jenkins/tools/codechecker/venv/bin/activate 
                     export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
                     export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
-                    CodeChecker check --saargs extra_clang_options -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+                    CodeChecker check --saargs extra_clang_options --skip skipfile -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
                 }        
             }
         }
@@ -303,7 +304,7 @@ pipeline {
             steps {
 //	checkout scm
                 sh 'git submodule update --init'
-                unstash 'makefiles'		                
+//                unstash 'makefiles'		                
             }
 	}
        stage('Build on tester') {
