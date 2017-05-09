@@ -117,7 +117,7 @@ def eclipseBuild(projName, targets) {
                 for (target in targets) {
                     retry(2) {
                         timeout(time:10, unit:'MINUTES') {
-                            sh 'eclipse --launcher.suppressErrors -nosplash -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                            sh 'eclipse --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
                         }
                     }
                 }
@@ -203,6 +203,11 @@ pipeline {
                     signalSlot :        { eclipseBuild('signal slot', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
                     ticToc :            { eclipseBuild('ticToc', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
                 )
+            }
+            post {
+                success {
+                    stash includes: 'examples/**/*.mk, examples/**/makefile', name: 'makefiles'
+                }
             }
         }
         stage('Build components examples') {
@@ -296,31 +301,32 @@ pipeline {
                 label 'FX160_HardwareTester'
             }
             steps {
-		checkout scm
-                sh 'git submodule update --init'		                
+#		checkout scm
+                sh 'git submodule update --init'
+                unstash 'makefiles'		                
             }
 	}
-        stage('Build on tester') {
-	    agent { 
-                label 'FX160_HardwareTester'
-            }
-            steps {
-                parallel(
-                    diagnostic :        { eclipseBuild('diagnostic', targets) },
-                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-                    gpio :              { eclipseBuild('gpio', targets) },
-                    os :                { eclipseBuild('os', targets) },
-                    serialPort :        { eclipseBuild('serialPort', targets) },
-                    signalSlot :        { eclipseBuild('signal slot', targets) },
-                    ticToc :            { eclipseBuild('ticToc', targets) },
-                )
-            }
-}
+#        stage('Build on tester') {
+#	    agent { 
+#                label 'FX160_HardwareTester'
+#            }
+#            steps {
+#                parallel(
+#                    diagnostic :        { eclipseBuild('diagnostic', targets) },
+#                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+#                    gpio :              { eclipseBuild('gpio', targets) },
+#                    os :                { eclipseBuild('os', targets) },
+#                    serialPort :        { eclipseBuild('serialPort', targets) },
+#                    signalSlot :        { eclipseBuild('signal slot', targets) },
+#                    ticToc :            { eclipseBuild('ticToc', targets) },
+#                )
+#            }
+#       }
 	stage('Analyze microhal examples') {
 	    agent { 
                 label 'FX160_HardwareTester'
             }
-	    steps {
+	    steps {		
                 parallel(
                     diagnostic :        { sa('diagnostic', targets) },
                     externalInterrupt : { sa('externalInterrupt', targets) },
