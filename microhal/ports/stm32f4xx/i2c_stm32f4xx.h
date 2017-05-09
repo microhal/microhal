@@ -86,6 +86,7 @@ class I2C : public microhal::I2C {
 //    	}
 //
 //    	return configure(getSCLfreq(mode), getMaxRiseTime(mode), fastMode, dutyCycle);
+    	std::terminate();
     }
     Speed speed() noexcept final;
     void busReset() noexcept final { i2c.CR1 |= I2C_CR1_STOP;}
@@ -186,12 +187,38 @@ class I2C : public microhal::I2C {
         explicit I2C(I2C_TypeDef &i2c)
         : i2c(i2c) {
     }
-    //    virtual ~I2C() {
-    //    }
+
     void start() {
     	i2c.CR1 |= I2C_CR1_START;
     }
 
+    void enableErrorInterrupt(uint32_t priority) {
+    	NVIC_EnableIRQ(errorIrq());
+        NVIC_SetPriority(errorIrq(), priority);
+    }
+
+    void enableEventInterrupt(uint32_t priority) {
+    	NVIC_EnableIRQ(eventIrq());
+    	NVIC_SetPriority(eventIrq(), priority);
+    }
+
+    IRQn_Type errorIrq() {
+        if (&i2c == I2C1) return I2C1_ER_IRQn;
+        else if (&i2c == I2C2) return I2C2_ER_IRQn;
+#if defined(I2C3)
+        else if (&i2c == I2C3) return I2C3_ER_IRQn;
+#endif
+        std::terminate();
+    }
+
+    IRQn_Type eventIrq() {
+            if (&i2c == I2C1) return I2C1_EV_IRQn;
+            else if (&i2c == I2C2) return I2C2_EV_IRQn;
+    #if defined(I2C3)
+            else if (&i2c == I2C3) return I2C3_EV_IRQn;
+    #endif
+            std::terminate();
+        }
 public:
     static I2C::Error errorCheckAndClear(I2C_TypeDef *i2c, uint16_t sr1) {
         uint32_t errors = I2C::NoError;

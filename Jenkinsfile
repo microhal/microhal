@@ -204,11 +204,11 @@ pipeline {
                     ticToc :            { eclipseBuild('ticToc', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
                 )
             }
-            post {
-                success {
-                    stash includes: 'examples/**/*.mk, examples/**/makefile', name: 'makefiles'
-                }
-            }
+//            post {
+//                success {
+//                    stash includes: 'examples/**/*.mk, examples/**/makefile', name: 'makefiles'
+//                }
+//            }
         }
         stage('Build components examples') {
             steps {
@@ -306,22 +306,22 @@ pipeline {
                 unstash 'makefiles'		                
             }
 	}
-//       stage('Build on tester') {
-//	    agent { 
-//                label 'FX160_HardwareTester'
-//            }
-//           steps {
-//                parallel(
-//                    diagnostic :        { eclipseBuild('diagnostic', targets) },
-//                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-//                    gpio :              { eclipseBuild('gpio', targets) },
-//                    os :                { eclipseBuild('os', targets) },
-//                    serialPort :        { eclipseBuild('serialPort', targets) },
-//                    signalSlot :        { eclipseBuild('signal slot', targets) },
-//                    ticToc :            { eclipseBuild('ticToc', targets) },
-//                )
-//            }
-//       }
+       stage('Build on tester') {
+	    agent { 
+                label 'FX160_HardwareTester'
+            }
+           steps {
+                parallel(
+                    diagnostic :        { eclipseBuild('diagnostic', targets) },
+                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+                    gpio :              { eclipseBuild('gpio', targets) },
+                    os :                { eclipseBuild('os', targets) },
+                    serialPort :        { eclipseBuild('serialPort', targets) },
+                    signalSlot :        { eclipseBuild('signal slot', targets) },
+                    ticToc :            { eclipseBuild('ticToc', targets) },
+                )
+            }
+       }
 	stage('Analyze microhal examples') {
 	    agent { 
                 label 'FX160_HardwareTester'

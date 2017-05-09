@@ -88,28 +88,9 @@ class I2C_dma : public stm32f4xx::I2C {
     I2C_dma(I2C_TypeDef &i2c, DMA::Stream &rxStream, DMA::Stream &txStream)
         : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), transfer() {
         init();
-        switch (reinterpret_cast<uint32_t>(&i2c)) {
-            case reinterpret_cast<uint32_t>(I2C1):
-                NVIC_EnableIRQ(I2C1_EV_IRQn);
-                NVIC_SetPriority(I2C1_EV_IRQn, 0);
-                NVIC_EnableIRQ(I2C1_ER_IRQn);
-                NVIC_SetPriority(I2C1_ER_IRQn, 0);
-                break;
-            case reinterpret_cast<uint32_t>(I2C2):
-                NVIC_EnableIRQ(I2C2_EV_IRQn);
-                NVIC_SetPriority(I2C2_EV_IRQn, 0);
-                NVIC_EnableIRQ(I2C2_ER_IRQn);
-                NVIC_SetPriority(I2C2_ER_IRQn, 0);
-                break;
-#if defined(I2C3)
-            case reinterpret_cast<uint32_t>(I2C3):
-                NVIC_EnableIRQ(I2C3_EV_IRQn);
-                NVIC_SetPriority(I2C3_EV_IRQn, 0);
-                NVIC_EnableIRQ(I2C3_ER_IRQn);
-                NVIC_SetPriority(I2C3_ER_IRQn, 0);
-                break;
-#endif
-        }
+        const uint32_t priority = 0;
+        enableEventInterrupt(priority);
+        enableErrorInterrupt(priority);
     }
 
     //---------------------------------- functions ----------------------------------

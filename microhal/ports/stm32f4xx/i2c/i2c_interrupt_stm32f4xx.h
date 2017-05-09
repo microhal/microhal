@@ -72,29 +72,9 @@ private:
     I2C_interrupt(I2C_TypeDef &i2c) :
             I2C(i2c), transfer(), error() {
     	ClockManager::enable(i2c);
-
-        switch (reinterpret_cast<uint32_t>(&i2c)) {
-        case reinterpret_cast<uint32_t>(I2C1):
-            NVIC_EnableIRQ (I2C1_EV_IRQn);
-            NVIC_SetPriority(I2C1_EV_IRQn, 0);
-            NVIC_EnableIRQ (I2C1_ER_IRQn);
-            NVIC_SetPriority(I2C1_ER_IRQn, 0);
-            break;
-        case reinterpret_cast<uint32_t>(I2C2):
-            NVIC_EnableIRQ (I2C2_EV_IRQn);
-            NVIC_SetPriority(I2C2_EV_IRQn, 0);
-            NVIC_EnableIRQ (I2C2_ER_IRQn);
-            NVIC_SetPriority(I2C2_ER_IRQn, 0);
-            break;
-#if defined(I2C3)
-        case reinterpret_cast<uint32_t>(I2C3):
-            NVIC_EnableIRQ (I2C3_EV_IRQn);
-            NVIC_SetPriority(I2C3_EV_IRQn, 0);
-            NVIC_EnableIRQ (I2C3_ER_IRQn);
-            NVIC_SetPriority(I2C3_ER_IRQn, 0);
-            break;
-#endif
-        }
+    	const uint32_t priority = 0;
+    	enableEventInterrupt(priority);
+    	enableErrorInterrupt(priority);
     }
 //---------------------------------------- functions ----------------------------------------//
     Error writeRead(DeviceAddress address, const uint8_t *write, size_t writeLength, uint8_t *read_, size_t readLength) noexcept final;
