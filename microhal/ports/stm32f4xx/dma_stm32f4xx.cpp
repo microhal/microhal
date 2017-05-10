@@ -51,7 +51,9 @@ Stream::Channel DMA::getChannelForDma1Stream1(const void *devicePtr) const {
 	if (devicePtr == UART7) return Stream::Channel::Channel5;
 #endif
 	if (devicePtr == TIM5) return Stream::Channel::Channel6;
+#if defined(TIM6)
 	if (devicePtr == TIM6) return Stream::Channel::Channel7;
+#endif
 	std::terminate();
 }
 Stream::Channel DMA::getChannelForDma1Stream2(const void *devicePtr) const {

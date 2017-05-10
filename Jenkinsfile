@@ -167,11 +167,11 @@ def sa(projName, targets) {
                 timeout(time:10, unit:'MINUTES') {
                     sh '''#!/bin/bash
                     echo -target arm-none-eabi > extra_clang_options
-                    echo -/third-party/* > skipfile
+                    echo -/third-party* > skipfile
                     source /var/jenkins/tools/codechecker/venv/bin/activate 
                     export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
                     export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
-                    CodeChecker check --saargs extra_clang_options --skip skipfile -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+                    CodeChecker check --saargs extra_clang_options --skip skipfile -j 2 -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
                 }        
             }
         }
@@ -293,6 +293,28 @@ pipeline {
 			STM32F412Zxp : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Zx']) },
 			STM32F412Vxp : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Vx']) },
 			STM32F412Rxp : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/polling', ['STM32F412Rx']) },
+			STM32F405xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F405xx']) },
+			STM32F415xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F415xx']) },
+			STM32F407xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F407xx']) },
+			STM32F417xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F417xx']) },
+			STM32F427xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F427xx']) },
+			STM32F437xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F437xx']) },
+			STM32F429xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F429xx']) },
+			STM32F439xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F439xx']) },
+			STM32F401xCd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F401xC']) },
+			STM32F401xEd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F401xE']) },
+			STM32F410Txd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F410Tx']) },
+			STM32F410Cxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F410Cx']) },
+			STM32F410Rxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F410Rx']) },
+			STM32F411xEd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F411xE']) },
+			STM32F446xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F446xx']) },
+			STM32F469xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F469xx']) },
+			STM32F479xxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F479xx']) },
+			STM32F412Cxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F412Cx']) },
+			STM32F412Zxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F412Zx']) },
+			STM32F412Vxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F412Vx']) },
+			STM32F412Rxd : { eclipseRun(projDirMap['stm32f4xx_allMCU'], 'stm32f4xx_allMCU/dma', ['STM32F412Rx']) },
+
 		)		
             }
         }  
