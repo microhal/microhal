@@ -9,6 +9,7 @@
 #define DMA_STM32F4XX_H_
 
 #include <cstddef>
+#include <exception>
 #include "device/stm32f4xx.h"
 
 namespace microhal {
@@ -193,37 +194,38 @@ public:
 			RCC->AHB1ENR &= ~RCC_AHB1ENR_DMA2EN;
 	}
 
-	Stream::Channel channel(const Stream &stream, const USART_TypeDef &devicePtr) {
-		if(this == reinterpret_cast<DMA*>(DMA1)) return DMA1Channel(stream, devicePtr);
-		if(this == reinterpret_cast<DMA*>(DMA2)) return DMA2Channel(stream, devicePtr);
-		while(1);
-	}
-
-//	Stream::Channel getChannel(Stream &stream, void *devicePtr){
-//		if(this == reinterpret_cast<DMA*>(DMA1)){
-//			switch(calculateStreamNumber(stream)){
-//			case 0: return getChannelForDma1Stream0(devicePtr);
-//			case 1: return getChannelForDma1Stream1(devicePtr);
-//			case 2: return getChannelForDma1Stream2(devicePtr);
-//			case 3: return getChannelForDma1Stream3(devicePtr);
-//			case 4: return getChannelForDma1Stream4(devicePtr);
-//			case 5: return getChannelForDma1Stream5(devicePtr);
-//			case 6: return getChannelForDma1Stream6(devicePtr);
-//			case 7: return getChannelForDma1Stream7(devicePtr);
-//			}
-//		} else {
-//			switch(calculateStreamNumber(stream)){
-//			case 0: return getChannelForDma2Stream0(devicePtr);
-//			case 1: return getChannelForDma2Stream1(devicePtr);
-//			case 2: return getChannelForDma2Stream2(devicePtr);
-//			case 3: return getChannelForDma2Stream3(devicePtr);
-//			case 4: return getChannelForDma2Stream4(devicePtr);
-//			case 5: return getChannelForDma2Stream5(devicePtr);
-//			case 6: return getChannelForDma2Stream6(devicePtr);
-//			case 7: return getChannelForDma2Stream7(devicePtr);
-//			}
-//		}
+//	Stream::Channel channel(const Stream &stream, const USART_TypeDef &devicePtr) {
+//		if(this == reinterpret_cast<DMA*>(DMA1)) return DMA1Channel(stream, devicePtr);
+//		if(this == reinterpret_cast<DMA*>(DMA2)) return DMA2Channel(stream, devicePtr);
+//		while(1);
 //	}
+
+	Stream::Channel channel(const Stream &stream, const void *devicePtr) const {
+		if(this == reinterpret_cast<DMA*>(DMA1)){
+			switch(calculateStreamNumber(stream)){
+			case 0: return getChannelForDma1Stream0(devicePtr);
+			case 1: return getChannelForDma1Stream1(devicePtr);
+			case 2: return getChannelForDma1Stream2(devicePtr);
+			case 3: return getChannelForDma1Stream3(devicePtr);
+			case 4: return getChannelForDma1Stream4(devicePtr);
+			case 5: return getChannelForDma1Stream5(devicePtr);
+			case 6: return getChannelForDma1Stream6(devicePtr);
+			case 7: return getChannelForDma1Stream7(devicePtr);
+			}
+		} else {
+			switch(calculateStreamNumber(stream)){
+			case 0: return getChannelForDma2Stream0(devicePtr);
+			case 1: return getChannelForDma2Stream1(devicePtr);
+			case 2: return getChannelForDma2Stream2(devicePtr);
+			case 3: return getChannelForDma2Stream3(devicePtr);
+			case 4: return getChannelForDma2Stream4(devicePtr);
+			case 5: return getChannelForDma2Stream5(devicePtr);
+			case 6: return getChannelForDma2Stream6(devicePtr);
+			case 7: return getChannelForDma2Stream7(devicePtr);
+			}
+		}
+		std::terminate();
+	}
 
 private:
 	uint32_t calculateStreamNumber(const Stream &stream) const noexcept {
@@ -237,105 +239,105 @@ private:
 		return 0;
 	}
 
-	Stream::Channel DMA1Channel(const Stream &stream, const USART_TypeDef &devicePtr) noexcept {
-		const uint32_t streamNumber = calculateStreamNumber(stream);
-		switch (streamNumber) {
-		case 0:
-#if defined(UART5)
-			if (&devicePtr == UART5) return Stream::Channel::Channel4;
-#endif
-#if defined(UART8)
-			if (&devicePtr == UART8) return Stream::Channel::Channel5;
-#endif
-			break;
-		case 1:
-#if defined(USART3)
-			if (&devicePtr == USART3) return Stream::Channel::Channel4;
-#endif
-#if defined(UART8)
-			if (&devicePtr == UART7) return Stream::Channel::Channel5;
-#endif
-			break;
-#if defined(UART4)
-		case 2:
-			if (&devicePtr == UART4) return Stream::Channel::Channel4;
-			break;
-#endif
-		case 3:
-#if defined(USART3)
-			if (&devicePtr == USART3) return Stream::Channel::Channel4;
-#endif
-#if defined(UART8)
-			if (&devicePtr == UART7) return Stream::Channel::Channel5;
-#endif
-			break;
-		case 4:
-#if defined(UART4)
-			if (&devicePtr == UART4) return Stream::Channel::Channel4;
-#endif
-#if defined(USART3)
-			if (&devicePtr == USART3) return Stream::Channel::Channel7;
-#endif
-			break;
-		case 5:
-			if (&devicePtr == USART2) return Stream::Channel::Channel4;
-			break;
-		case 6:
-			if (&devicePtr == USART2) return Stream::Channel::Channel4;
-#if defined(UART8)
-			if (&devicePtr == UART8) return Stream::Channel::Channel5;
-#endif
-			break;
-#if defined(UART5)
-		case 7:
-			if (&devicePtr == UART5) return Stream::Channel::Channel4;
-			break;
-#endif
-		}
-		while(1) {}
-	}
-
-	Stream::Channel DMA2Channel(const Stream &stream, const USART_TypeDef &devicePtr) {
-		auto stremNumber = calculateStreamNumber(stream);
-		switch (stremNumber) {
-		case 1:
-			if (&devicePtr == USART6) return Stream::Channel::Channel5;
-			break;
-		case 2:
-			if (&devicePtr == USART1) return Stream::Channel::Channel4;
-			if (&devicePtr == USART6) return Stream::Channel::Channel5;
-			break;
-		case 5:
-			if (&devicePtr == USART1) return Stream::Channel::Channel4;
-			break;
-		case 6:
-			if (&devicePtr == USART6) return Stream::Channel::Channel5;
-			break;
-		case 7:
-			if (&devicePtr == USART1) return Stream::Channel::Channel4;
-			if (&devicePtr == USART6) return Stream::Channel::Channel5;
-			break;
-		}
-		while(1) {}
-	}
-
-//	Stream::Channel getChannelForDma1Stream0(void *devicePtr);
-//	Stream::Channel getChannelForDma1Stream1(void *devicePtr);
-//	Stream::Channel getChannelForDma1Stream2(void *devicePtr);
-//	Stream::Channel getChannelForDma1Stream3(void *devicePtr);
-//	Stream::Channel getChannelForDma1Stream4(void *devicePtr);
-//	Stream::Channel getChannelForDma1Stream5(void *devicePtr);
-//	Stream::Channel getChannelForDma1Stream6(void *devicePtr);
-//	Stream::Channel getChannelForDma1Stream7(void *devicePtr);
+//	Stream::Channel DMA1Channel(const Stream &stream, const USART_TypeDef &devicePtr) noexcept {
+//		const uint32_t streamNumber = calculateStreamNumber(stream);
+//		switch (streamNumber) {
+//		case 0:
+//#if defined(UART5)
+//			if (&devicePtr == UART5) return Stream::Channel::Channel4;
+//#endif
+//#if defined(UART8)
+//			if (&devicePtr == UART8) return Stream::Channel::Channel5;
+//#endif
+//			break;
+//		case 1:
+//#if defined(USART3)
+//			if (&devicePtr == USART3) return Stream::Channel::Channel4;
+//#endif
+//#if defined(UART8)
+//			if (&devicePtr == UART7) return Stream::Channel::Channel5;
+//#endif
+//			break;
+//#if defined(UART4)
+//		case 2:
+//			if (&devicePtr == UART4) return Stream::Channel::Channel4;
+//			break;
+//#endif
+//		case 3:
+//#if defined(USART3)
+//			if (&devicePtr == USART3) return Stream::Channel::Channel4;
+//#endif
+//#if defined(UART8)
+//			if (&devicePtr == UART7) return Stream::Channel::Channel5;
+//#endif
+//			break;
+//		case 4:
+//#if defined(UART4)
+//			if (&devicePtr == UART4) return Stream::Channel::Channel4;
+//#endif
+//#if defined(USART3)
+//			if (&devicePtr == USART3) return Stream::Channel::Channel7;
+//#endif
+//			break;
+//		case 5:
+//			if (&devicePtr == USART2) return Stream::Channel::Channel4;
+//			break;
+//		case 6:
+//			if (&devicePtr == USART2) return Stream::Channel::Channel4;
+//#if defined(UART8)
+//			if (&devicePtr == UART8) return Stream::Channel::Channel5;
+//#endif
+//			break;
+//#if defined(UART5)
+//		case 7:
+//			if (&devicePtr == UART5) return Stream::Channel::Channel4;
+//			break;
+//#endif
+//		}
+//		while(1) {}
+//	}
 //
-//	Stream::Channel getChannelForDma2Stream0(void *devicePtr);
-//	Stream::Channel getChannelForDma2Stream1(void *devicePtr);
-//	Stream::Channel getChannelForDma2Stream2(void *devicePtr);
-//	Stream::Channel getChannelForDma2Stream3(void *devicePtr);
-//	Stream::Channel getChannelForDma2Stream4(void *devicePtr);
-//	Stream::Channel getChannelForDma2Stream5(void *devicePtr);
-//	Stream::Channel getChannelForDma2Stream6(void *devicePtr);
-//	Stream::Channel getChannelForDma2Stream7(void *devicePtr);
+//	Stream::Channel DMA2Channel(const Stream &stream, const USART_TypeDef &devicePtr) {
+//		auto stremNumber = calculateStreamNumber(stream);
+//		switch (stremNumber) {
+//		case 1:
+//			if (&devicePtr == USART6) return Stream::Channel::Channel5;
+//			break;
+//		case 2:
+//			if (&devicePtr == USART1) return Stream::Channel::Channel4;
+//			if (&devicePtr == USART6) return Stream::Channel::Channel5;
+//			break;
+//		case 5:
+//			if (&devicePtr == USART1) return Stream::Channel::Channel4;
+//			break;
+//		case 6:
+//			if (&devicePtr == USART6) return Stream::Channel::Channel5;
+//			break;
+//		case 7:
+//			if (&devicePtr == USART1) return Stream::Channel::Channel4;
+//			if (&devicePtr == USART6) return Stream::Channel::Channel5;
+//			break;
+//		}
+//		while(1) {}
+//	}
+
+	Stream::Channel getChannelForDma1Stream0(const void *devicePtr) const;
+	Stream::Channel getChannelForDma1Stream1(const void *devicePtr) const;
+	Stream::Channel getChannelForDma1Stream2(const void *devicePtr) const;
+	Stream::Channel getChannelForDma1Stream3(const void *devicePtr) const;
+	Stream::Channel getChannelForDma1Stream4(const void *devicePtr) const;
+	Stream::Channel getChannelForDma1Stream5(const void *devicePtr) const;
+	Stream::Channel getChannelForDma1Stream6(const void *devicePtr) const;
+	Stream::Channel getChannelForDma1Stream7(const void *devicePtr) const;
+
+	Stream::Channel getChannelForDma2Stream0(const void *devicePtr) const;
+	Stream::Channel getChannelForDma2Stream1(const void *devicePtr) const;
+	Stream::Channel getChannelForDma2Stream2(const void *devicePtr) const;
+	Stream::Channel getChannelForDma2Stream3(const void *devicePtr) const;
+	Stream::Channel getChannelForDma2Stream4(const void *devicePtr) const;
+	Stream::Channel getChannelForDma2Stream5(const void *devicePtr) const;
+	Stream::Channel getChannelForDma2Stream6(const void *devicePtr) const;
+	Stream::Channel getChannelForDma2Stream7(const void *devicePtr) const;
 };
 
 constexpr DMA *dma1 = reinterpret_cast<DMA*>(DMA1);

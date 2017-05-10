@@ -154,7 +154,7 @@ SerialPort_Dma::SerialPort_Dma(USART_TypeDef &usart, char * const rxData, char *
     // tx
     txStream.deinit();
     txStream.init(
-    	dma.channel(txStream, usart), DMA::Stream::MemoryBurst::SingleTransfer,
+    	dma.channel(txStream, &usart), DMA::Stream::MemoryBurst::SingleTransfer,
         DMA::Stream::PeripheralBurst::SingleTransfer,
         DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte,
         DMA::Stream::MemoryIncrementMode::PointerIncremented,
@@ -165,7 +165,7 @@ SerialPort_Dma::SerialPort_Dma(USART_TypeDef &usart, char * const rxData, char *
     // rx
     rxStream.deinit();
     rxStream.init(
-    	dma.channel(rxStream, usart), DMA::Stream::MemoryBurst::SingleTransfer,
+    	dma.channel(rxStream, &usart), DMA::Stream::MemoryBurst::SingleTransfer,
         DMA::Stream::PeripheralBurst::SingleTransfer,
         DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte,
         DMA::Stream::MemoryIncrementMode::PointerIncremented,

@@ -70,71 +70,71 @@ SPI &SPI::spi6 = SPI_dma::spi6;
 //***********************************************************************************************//
 //                                         Functions //
 //***********************************************************************************************//
-static DMA::Stream::Channel getRxChannalNumber(SPI_TypeDef &spi) {
-    switch (reinterpret_cast<uint32_t>(&spi)) {
-        case reinterpret_cast<uint32_t>(SPI1):
-            return DMA::Stream::Channel::Channel3;
-#if defined(SPI2)
-        case reinterpret_cast<uint32_t>(SPI2):
-		    return DMA::Stream::Channel::Channel0;
-#endif
-#if defined(SPI3)
-        case reinterpret_cast<uint32_t>(SPI3):
-            return DMA::Stream::Channel::Channel0;
-#endif
-#if defined(SPI4)
-        case reinterpret_cast<uint32_t>(SPI4):
-            return DMA::Stream::Channel::Channel4;
-            return DMA::Stream::Channel::Channel5;
-            break;
-#endif
-#if defined(SPI5)
-        case reinterpret_cast<uint32_t>(SPI5):
-            return DMA::Stream::Channel::Channel2;
-            return DMA::Stream::Channel::Channel7;
-#endif
-#if defined(SPI6)
-        case reinterpret_cast<uint32_t>(SPI6):
-            return DMA::Stream::Channel::Channel1;
-#endif
-    }
-    while (1)
-        ;
-    return DMA::Stream::Channel::Channel0;
-}
-
-static DMA::Stream::Channel getTxChannalNumber(SPI_TypeDef &spi) {
-    switch (reinterpret_cast<uint32_t>(&spi)) {
-        case reinterpret_cast<uint32_t>(SPI1):
-            return DMA::Stream::Channel::Channel3;
-#if defined(SPI2)
-        case reinterpret_cast<uint32_t>(SPI2):
-			return DMA::Stream::Channel::Channel0;
-#endif
-#if defined(SPI3)
-        case reinterpret_cast<uint32_t>(SPI3):
-            return DMA::Stream::Channel::Channel0;
-#endif
-#if defined(SPI4)
-        case reinterpret_cast<uint32_t>(SPI4):
-            return DMA::Stream::Channel::Channel4;
-            return DMA::Stream::Channel::Channel5;
-            break;
-#endif
-#if defined(SPI5)
-        case reinterpret_cast<uint32_t>(SPI5):
-            return DMA::Stream::Channel::Channel2;
-            return DMA::Stream::Channel::Channel7;
-#endif
-#if defined(SPI6)
-        case reinterpret_cast<uint32_t>(SPI6):
-            return DMA::Stream::Channel::Channel1;
-#endif
-    }
-    while (1)
-        ;
-    return DMA::Stream::Channel::Channel0;
-}
+//static DMA::Stream::Channel getRxChannalNumber(SPI_TypeDef &spi) {
+//    switch (reinterpret_cast<uint32_t>(&spi)) {
+//        case reinterpret_cast<uint32_t>(SPI1):
+//            return DMA::Stream::Channel::Channel3;
+//#if defined(SPI2)
+//        case reinterpret_cast<uint32_t>(SPI2):
+//		    return DMA::Stream::Channel::Channel0;
+//#endif
+//#if defined(SPI3)
+//        case reinterpret_cast<uint32_t>(SPI3):
+//            return DMA::Stream::Channel::Channel0;
+//#endif
+//#if defined(SPI4)
+//        case reinterpret_cast<uint32_t>(SPI4):
+//            return DMA::Stream::Channel::Channel4;
+//            return DMA::Stream::Channel::Channel5;
+//            break;
+//#endif
+//#if defined(SPI5)
+//        case reinterpret_cast<uint32_t>(SPI5):
+//            return DMA::Stream::Channel::Channel2;
+//            return DMA::Stream::Channel::Channel7;
+//#endif
+//#if defined(SPI6)
+//        case reinterpret_cast<uint32_t>(SPI6):
+//            return DMA::Stream::Channel::Channel1;
+//#endif
+//    }
+//    while (1)
+//        ;
+//    return DMA::Stream::Channel::Channel0;
+//}
+//
+//static DMA::Stream::Channel getTxChannalNumber(SPI_TypeDef &spi) {
+//    switch (reinterpret_cast<uint32_t>(&spi)) {
+//        case reinterpret_cast<uint32_t>(SPI1):
+//            return DMA::Stream::Channel::Channel3;
+//#if defined(SPI2)
+//        case reinterpret_cast<uint32_t>(SPI2):
+//			return DMA::Stream::Channel::Channel0;
+//#endif
+//#if defined(SPI3)
+//        case reinterpret_cast<uint32_t>(SPI3):
+//            return DMA::Stream::Channel::Channel0;
+//#endif
+//#if defined(SPI4)
+//        case reinterpret_cast<uint32_t>(SPI4):
+//            return DMA::Stream::Channel::Channel4;
+//            return DMA::Stream::Channel::Channel5;
+//            break;
+//#endif
+//#if defined(SPI5)
+//        case reinterpret_cast<uint32_t>(SPI5):
+//            return DMA::Stream::Channel::Channel2;
+//            return DMA::Stream::Channel::Channel7;
+//#endif
+//#if defined(SPI6)
+//        case reinterpret_cast<uint32_t>(SPI6):
+//            return DMA::Stream::Channel::Channel1;
+//#endif
+//    }
+//    while (1)
+//        ;
+//    return DMA::Stream::Channel::Channel0;
+//}
 
 inline SPI::Error SPI_dma::write(const void *data, size_t len, bool last) {
     txStream.setMemoryIncrement(DMA::Stream::MemoryIncrementMode::PointerIncremented);
@@ -203,14 +203,14 @@ void SPI_dma::init() {
     dma.clockEnable();
     // rx
     rxStream.deinit();
-    rxStream.init(getRxChannalNumber(spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
+    rxStream.init(dma.channel(rxStream, &spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::PerToMem);
     rxStream.setPeripheralAddress(&spi.DR);
     rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
     // tx
     txStream.deinit();
-    txStream.init(getTxChannalNumber(spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
+    txStream.init(dma.channel(txStream, &spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::MemToPer);
     txStream.setPeripheralAddress(&spi.DR);

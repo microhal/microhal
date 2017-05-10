@@ -185,7 +185,7 @@ void I2C_dma::init(void) {
 
     // rx
     rxStream.deinit();
-    rxStream.init(DMA::Stream::Channel::Channel7, DMA::Stream::MemoryBurst::SingleTransfer,
+    rxStream.init(dma.channel(rxStream, &i2c), DMA::Stream::MemoryBurst::SingleTransfer,
                 DMA::Stream::PeripheralBurst::SingleTransfer,
                 DMA::Stream::MemoryDataSize::Byte,
                 DMA::Stream::PeripheralDataSize::Byte,
@@ -197,7 +197,7 @@ void I2C_dma::init(void) {
 
     // tx
     txStream.deinit();
-    txStream.init(getChannalNumber(i2c), DMA::Stream::MemoryBurst::SingleTransfer,
+    txStream.init(dma.channel(txStream, &i2c), DMA::Stream::MemoryBurst::SingleTransfer,
                 DMA::Stream::PeripheralBurst::SingleTransfer,
                 DMA::Stream::MemoryDataSize::Byte,
                 DMA::Stream::PeripheralDataSize::Byte,
@@ -214,30 +214,30 @@ void I2C_dma::init(void) {
 
     i2c.CR1 |= I2C_CR1_PE;
 }
-/**
- *
- * @param i2c
- * @return
- */
-DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c) {
-    switch (reinterpret_cast<uint32_t>(&i2c)) {
-        case reinterpret_cast<uint32_t>(I2C1):
-            // in stream 0 and 5 the same channel
-            return DMA::Stream::Channel::Channel1;
-        case reinterpret_cast<uint32_t>(I2C2):
-            // in stream 2 and 3 the same channel
-            return DMA::Stream::Channel::Channel7;
-#if defined(I2C3)
-        case reinterpret_cast<uint32_t>(I2C3):
-            return DMA::Stream::Channel::Channel3;
-#endif
-    }
-    // error
-    while (1) {
-    }
-    // return for avoid warning
-    return DMA::Stream::Channel::Channel0;
-}
+///**
+// *
+// * @param i2c
+// * @return
+// */
+//DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c) {
+//    switch (reinterpret_cast<uint32_t>(&i2c)) {
+//        case reinterpret_cast<uint32_t>(I2C1):
+//            // in stream 0 and 5 the same channel
+//            return DMA::Stream::Channel::Channel1;
+//        case reinterpret_cast<uint32_t>(I2C2):
+//            // in stream 2 and 3 the same channel
+//            return DMA::Stream::Channel::Channel7;
+//#if defined(I2C3)
+//        case reinterpret_cast<uint32_t>(I2C3):
+//            return DMA::Stream::Channel::Channel3;
+//#endif
+//    }
+//    // error
+//    while (1) {
+//    }
+//    // return for avoid warning
+//    return DMA::Stream::Channel::Channel0;
+//}
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
