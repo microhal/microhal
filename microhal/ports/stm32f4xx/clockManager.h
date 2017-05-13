@@ -335,7 +335,7 @@ class ClockManager {
     }
 
     static uint32_t SYSCLKFrequency() noexcept {
-        volatile uint32_t freq = 0;
+        uint32_t freq = 0;
         switch (RCC->CFGR & RCC_CFGR_SWS) {
             case 0:
                 freq = HSI::frequency();
@@ -380,10 +380,9 @@ class ClockManager {
         }
     }
 
-    static constexpr Frequency LSEFrequency() noexcept {
+    static Frequency LSEFrequency() noexcept {
         if (externalLSEPresent == false) {
-            while (1)
-                ;
+            std::terminate();
         }
         return externalLSEFrequency;
     }
@@ -411,12 +410,11 @@ class ClockManager {
          *
          * @return HSE frequency in [Hz]
          */
-        static constexpr Frequency frequency() noexcept {
+        static Frequency frequency() noexcept {
             static_assert(externalClockFrequency >= 4000000 && externalClockFrequency <= 26000000,
                           "External HSE frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
             if (externalClockPresent == false) {
-                while (1)
-                    ;
+            	std::terminate();
             }
             return externalClockFrequency;
         }

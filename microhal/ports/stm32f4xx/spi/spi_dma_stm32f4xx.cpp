@@ -216,74 +216,11 @@ void SPI_dma::init() {
     txStream.setPeripheralAddress(&spi.DR);
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
-    IRQn_Type rxIRQ = DMA2_Stream2_IRQn, txIRQ = DMA2_Stream2_IRQn;
-
-    switch (reinterpret_cast<uint32_t>(&spi)) {
-        case reinterpret_cast<uint32_t>(SPI1):
-#if MICROHAL_SPI1_DMA_RX_STREAM == 0
-            rxIRQ = DMA2_Stream0_IRQn;
-#elif (MICROHAL_SPI1_DMA_RX_STREAM == 2)
-            rxIRQ = DMA2_Stream2_IRQn;
-#endif
-#if MICROHAL_SPI1_DMA_TX_STREAM == 3
-            txIRQ = DMA2_Stream3_IRQn;
-#elif MICROHAL_SPI1_DMA_TX_STREAM == 5
-            txIRQ = DMA2_Stream5_IRQn;
-#endif
-            break;
-#if defined(SPI2)
-        case reinterpret_cast<uint32_t>(SPI2):
-            rxIRQ = DMA1_Stream3_IRQn;
-            txIRQ = DMA1_Stream4_IRQn;
-            break;
-#endif
-#if defined(SPI3)
-        case reinterpret_cast<uint32_t>(SPI3):
-#if MICROHAL_SPI3_DMA_RX_STREAM == 0
-            rxIRQ = DMA1_Stream0_IRQn;
-#elif MICROHAL_SPI3_DMA_RX_STREAM == 2
-            rxIRQ = DMA1_Stream2_IRQn;
-#endif
-#if MICROHAL_SPI3_DMA_TX_STREAM == 4
-            txIRQ = DMA1_Stream4_IRQn;
-#elif MICROHAL_SPI3_DMA_TX_STREAM == 7
-            txIRQ = DMA1_Stream7_IRQn;
-#endif
-            break;
-#endif
-#ifdef SPI4_IRQn
-        case reinterpret_cast<uint32_t>(SPI4):
-            rxIRQ = DMA2_Stream0_IRQn;
-            rxIRQ = DMA2_Stream3_IRQn;
-
-            txIRQ = DMA2_Stream1_IRQn;
-            txIRQ = DMA2_Stream4_IRQn;
-            break;
-#endif
-#ifdef SPI5_IRQn
-        case reinterpret_cast<uint32_t>(SPI5):
-            rxIRQ = DMA2_Stream3_IRQn;
-            rxIRQ = DMA2_Stream5_IRQn;
-
-            txIRQ = DMA2_Stream4_IRQn;
-            txIRQ = DMA2_Stream6_IRQn;
-            break;
-#endif
-#ifdef SPI6_IRQn
-        case reinterpret_cast<uint32_t>(SPI6):
-            rxIRQ = DMA2_Stream5_IRQn;
-            txIRQ = DMA2_Stream6_IRQn;
-            break;
-#endif
-    }
-
     dma.clearInterruptFlag(rxStream, DMA::Stream::Interrupt::TransferComplete);
-    NVIC_EnableIRQ(rxIRQ);
-    NVIC_SetPriority(rxIRQ, 6);
+    dma.enableInterrupt(rxStream, 6);
 
     dma.clearInterruptFlag(txStream, DMA::Stream::Interrupt::TransferComplete);
-    NVIC_EnableIRQ(txIRQ);
-    NVIC_SetPriority(txIRQ, 6);
+    dma.enableInterrupt(txStream, 6);
 }
 
 //***********************************************************************************************//
