@@ -218,5 +218,5 @@ void SPI2_IRQHandler(void) { SPI_dma::IRQfunction(SPI_dma::spi2, SPI2); }
 void SPI3_IRQHandler(void) { SPI_dma::IRQfunction(SPI_dma::spi3, SPI3); }
 #endif
 
-} // namespace stm32f4xx
+} // namespace stm32f3xx
 } // namespace microhal
