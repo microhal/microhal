@@ -32,11 +32,11 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include "clockManager.h"
+#include "device/stm32f3xx.h"
 #include "gpio_stm32f3xx.h"
 #include "interfaces/spi_interface.h"
-#include "device/stm32f3xx.h"
 #include "microhalPortConfig_stm32f3xx.h"
-#include "clockManager.h"
 
 /* **************************************************************************************************************************************************
  * CLASS
@@ -69,17 +69,17 @@ class SPI : public microhal::SPI {
      *
      */
     typedef enum {
-        PRESCALER_2 = 0x00,                                          //!< PRESCALER_2
-        PRESCALER_4 = SPI_CR1_BR_0,                                  //!< PRESCALER_4
-        PRESCALER_8 = SPI_CR1_BR_1,                                  //!< PRESCALER_8
-        PRESCALER_16 = SPI_CR1_BR_1 | SPI_CR1_BR_0,                  //!< PRESCALER_16
-        PRESCALER_32 = SPI_CR1_BR_2,                                 //!< PRESCALER_32
-        PRESCALER_64 = SPI_CR1_BR_2 | SPI_CR1_BR_0,                  //!< PRESCALER_64
-        PRESCALER_128 = SPI_CR1_BR_2 | SPI_CR1_BR_1,                 //!< PRESCALER_128
-        PRESCALER_256 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,  //!< PRESCALER_256
+        Prescaler2 = 0x00,                                          //!< Prescaler2
+        Prescaler4 = SPI_CR1_BR_0,                                  //!< Prescaler4
+        Prescaler8 = SPI_CR1_BR_1,                                  //!< Prescaler8
+        Prescaler16 = SPI_CR1_BR_1 | SPI_CR1_BR_0,                  //!< Prescaler16
+        Prescaler32 = SPI_CR1_BR_2,                                 //!< Prescaler32
+        Prescaler64 = SPI_CR1_BR_2 | SPI_CR1_BR_0,                  //!< Prescaler64
+        Prescaler128 = SPI_CR1_BR_2 | SPI_CR1_BR_1,                 //!< Prescaler128
+        Prescaler256 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,  //!< Prescaler256
     } Prescaler;
 
-    //------------------------------------- static reference --------------------------------------//
+//------------------------------------- static reference --------------------------------------//
 #if (defined MICROHAL_USE_SPI1_INTERRUPT) || (defined MICROHAL_USE_SPI1_POLLING) || (defined MICROHAL_USE_SPI1_DMA)
     static SPI &spi1;
 #endif
@@ -105,16 +105,11 @@ class SPI : public microhal::SPI {
         spi.CR1 = SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI | modeFlags[mode] | prescaler;
         dataSize(8);
         spi.CR2 |= SPI_CR2_FRXTH;
-
     }
 
-    void prescaler(Prescaler prescaler) {
-    	spi.CR1 = (spi.CR1 & ~(SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)) | prescaler;
-    }
+    void prescaler(Prescaler prescaler) { spi.CR1 = (spi.CR1 & ~(SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)) | prescaler; }
 
-    Prescaler prescaler() const {
-    	return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0));
-    }
+    Prescaler prescaler() const { return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)); }
 
     bool getMISOstate() final { return microhal::stm32f3xx::GPIO::get(misoPort, misoPin); }
 
@@ -124,23 +119,21 @@ class SPI : public microhal::SPI {
     void disable() final { spi.CR1 &= ~SPI_CR1_SPE; }
 
     uint32_t dataSize(uint32_t size) {
-    	if (size < 4 || size > 16) return 0;
-    	spi.CR2 = (spi.CR2 & ~SPI_CR2_DS_Msk) | ((size - 1) << SPI_CR2_DS_Pos);
-    	return size;
+        if (size < 4 || size > 16) return 0;
+        spi.CR2 = (spi.CR2 & ~SPI_CR2_DS_Msk) | ((size - 1) << SPI_CR2_DS_Pos);
+        return size;
     }
 
-    uint32_t dataSize() const {
-    	return ((spi.CR2 & SPI_CR2_DS_Msk) >> SPI_CR2_DS_Pos) + 1;
-    }
+    uint32_t dataSize() const { return ((spi.CR2 & SPI_CR2_DS_Msk) >> SPI_CR2_DS_Pos) + 1; }
 
     uint32_t speed(uint32_t speed) final {
-    	// TODO
-    	return speed;
+        // TODO
+        return speed;
     }
 
-    uint32_t frequency() const {
-    	const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
-    	return ClockManager::SPIFrequency(spi) / prescalerValues[static_cast<uint32_t>(prescaler()) >> 3];
+    uint32_t speed() const final {
+        const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
+        return ClockManager::SPIFrequency(spi) / prescalerValues[static_cast<uint32_t>(prescaler()) >> 3];
     }
 
  protected:
@@ -159,19 +152,19 @@ class SPI : public microhal::SPI {
     //}
 
     static SPI::Error errorCheck(uint32_t SRregisterValue) {
-        SPI::Error error = NoError;
+        SPI::Error error = Error::None;
 
         // Master Mode fault event
         if (SRregisterValue & SPI_SR_MODF) {
-            error = MasterModeFault;
+            error = Error::MasterModeFault;
         }
         // Overrun error
         if (SRregisterValue & SPI_SR_OVR) {
-            error = OverrunError;
+            error = Error::Overrun;
         }
         // CRC error flag
         if (SRregisterValue & SPI_SR_CRCERR) {
-            error = CRCError;
+            error = Error::Crc;
         }
         // TI frame format error
         // if (SRregisterValue & SPI_SR_FRE) {
@@ -181,37 +174,33 @@ class SPI : public microhal::SPI {
     }
 
     void priority(uint32_t priority) {
-    	switch (reinterpret_cast<uint32_t>(&spi)) {
+        switch (reinterpret_cast<uint32_t>(&spi)) {
 #if defined(SPI1)
-    	case reinterpret_cast<uint32_t>(SPI1):
-        	NVIC_EnableIRQ(SPI1_IRQn);
-        	NVIC_SetPriority(SPI1_IRQn, priority);
-        	break;
+            case reinterpret_cast<uint32_t>(SPI1):
+                NVIC_EnableIRQ(SPI1_IRQn);
+                NVIC_SetPriority(SPI1_IRQn, priority);
+                break;
 #endif
 #if defined(SPI2)
-    	case reinterpret_cast<uint32_t>(SPI2):
-        	NVIC_EnableIRQ(SPI2_IRQn);
-        	NVIC_SetPriority(SPI2_IRQn, priority);
-        	break;
+            case reinterpret_cast<uint32_t>(SPI2):
+                NVIC_EnableIRQ(SPI2_IRQn);
+                NVIC_SetPriority(SPI2_IRQn, priority);
+                break;
 #endif
 #if defined(SPI3)
-        case reinterpret_cast<uint32_t>(SPI3):
-        	NVIC_EnableIRQ (SPI3_IRQn);
-        	NVIC_SetPriority(SPI3_IRQn, priority);
-        	break;
+            case reinterpret_cast<uint32_t>(SPI3):
+                NVIC_EnableIRQ(SPI3_IRQn);
+                NVIC_SetPriority(SPI3_IRQn, priority);
+                break;
 #endif
-        default:
-        	std::terminate();
-    	}
+            default:
+                std::terminate();
+        }
     }
 
-    void writeDR(uint8_t data) {
-        *(volatile uint8_t *)&spi.DR = data;
-    }
+    void writeDR(uint8_t data) { *(volatile uint8_t *)&spi.DR = data; }
 
-    uint8_t readDR() const {
-        return *(uint8_t *)&spi.DR;
-    }
+    uint8_t readDR() const { return *(uint8_t *)&spi.DR; }
     //----------------------------------------- friends -----------------------------------------//
     friend microhal::SPIDevice;
 };

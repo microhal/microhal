@@ -84,6 +84,7 @@ class SPI_interrupt : public stm32f4xx::SPI {
     friend void SPI5_IRQHandler(void);
     friend void SPI6_IRQHandler(void);
 };
+
 }  // namespace stm32f4xx
 }  // namespace microhal
 

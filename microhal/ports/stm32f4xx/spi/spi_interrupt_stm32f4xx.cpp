@@ -61,7 +61,7 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
             while (i--) {
             }
         }
-        return SPI::NoError;
+        return Error::None;
     }
     return Error::Timeout;
 }
@@ -78,7 +78,7 @@ SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
     enableReceiverNotEmptyInterrupt();
 
     spi.DR = write;
-    if (semaphore.wait(std::chrono::milliseconds::max())) return SPI::NoError;
+    if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
 }
 
@@ -94,7 +94,7 @@ SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_
     enableTransmitterEmptyInterrupt();
     enableReceiverNotEmptyInterrupt();
 
-    if (semaphore.wait(std::chrono::milliseconds::max())) return SPI::NoError;
+    if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
 }
 //***********************************************************************************************//

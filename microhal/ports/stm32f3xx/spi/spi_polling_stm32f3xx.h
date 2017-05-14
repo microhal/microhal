@@ -3,8 +3,8 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "../spi_stm32f3xx.h"
 #include "../clockManager.h"
+#include "../spi_stm32f3xx.h"
 
 namespace microhal {
 namespace stm32f3xx {
@@ -23,26 +23,29 @@ class SPI_polling : public stm32f3xx::SPI {
 #ifdef MICROHAL_USE_SPI3_POLLING
     static SPI_polling spi3;
 #endif
-  	//---------------------------------------- functions ----------------------------------------//
+    //---------------------------------------- functions ----------------------------------------//
     SPI::Error write(const void *data, const size_t len, bool last) final {
         for (size_t i = 0; i < len; i++) {
-        	SPI::Error error = writeNoRead(((uint8_t *)(data))[i]);
-            if (error != NoError && error != Error::OverrunError) return error; // because we are don't reading data overrun error is normal
+            SPI::Error error = writeNoRead(((uint8_t *)(data))[i]);
+            if (error != Error::None && error != Error::Overrun) return error;  // because we are don't reading data overrun error is normal
         }
         if (last) {
-            while (spi.SR & SPI_SR_FTLVL_Msk){}
-            while (spi.SR & SPI_SR_BSY);
+            while (spi.SR & SPI_SR_FTLVL_Msk) {
+            }
+            while (spi.SR & SPI_SR_BSY)
+                ;
         }
         spi.SR &= ~SPI_SR_OVR;
-        return NoError;
+        return Error::None;
     }
     SPI::Error read(void *data, const size_t len, const uint8_t write = 0x00) final {
         uint32_t sr;
-        while (spi.SR & SPI_SR_FTLVL_Msk) {}
+        while (spi.SR & SPI_SR_FTLVL_Msk) {
+        }
         do {
             sr = spi.SR;
             SPI::Error error = errorCheck(sr);
-            if (error != NoError && error != Error::OverrunError) return error; // because we are don't reading data overrun error may occur
+            if (error != Error::None && error != Error::Overrun) return error;  // because we are don't reading data overrun error may occur
         } while (sr & SPI_SR_BSY);
         while (spi.SR & SPI_SR_FRLVL_Msk) {
             volatile uint16_t tmp __attribute__((unused)) = spi.DR;
@@ -50,18 +53,19 @@ class SPI_polling : public stm32f3xx::SPI {
         SPI::Error error;
         for (size_t i = 0; i < len; i++) {
             error = writeRead(write, static_cast<uint8_t *>(data)[i]);
-            if (error != NoError) break;
+            if (error != Error::None) break;
         }
         return error;
     }
     SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final {
         uint32_t sr;
         SPI::Error error;
-        while (spi.SR & SPI_SR_FTLVL_Msk){}
+        while (spi.SR & SPI_SR_FTLVL_Msk) {
+        }
         do {
             sr = spi.SR;
             error = errorCheck(sr);
-            if (error != NoError) return error;
+            if (error != Error::None) return error;
         } while (sr & SPI_SR_BSY);
         while (spi.SR & SPI_SR_FRLVL_Msk) {
             volatile uint16_t tmp __attribute__((unused)) = spi.DR;
@@ -69,26 +73,23 @@ class SPI_polling : public stm32f3xx::SPI {
 
         for (size_t i = 0; i < readWriteLength; i++) {
             error = writeRead(static_cast<const uint8_t *>(dataWrite)[i], static_cast<uint8_t *>(dataRead)[i]);
-            if (error != NoError) break;
+            if (error != Error::None) break;
         }
         return error;
     }
 
  private:
     //---------------------------------------- constructors ---------------------------------------
-    SPI_polling(SPI_TypeDef &spi, stm32f3xx::GPIO::IOPin misoPin)
-      : SPI(spi, misoPin) {
-        ClockManager::enable(spi);
-    }
+    SPI_polling(SPI_TypeDef &spi, stm32f3xx::GPIO::IOPin misoPin) : SPI(spi, misoPin) { ClockManager::enable(spi); }
     //---------------------------------------- functions ----------------------------------------//
     SPI::Error writeNoRead(const uint8_t data) {
         uint32_t sr;
-        SPI::Error error = NoError;
+        SPI::Error error = Error::None;
 
         do {
-        	sr = spi.SR;
-        	error = errorCheck(sr);
-        	if(error != NoError && error != Error::OverrunError) return error;
+            sr = spi.SR;
+            error = errorCheck(sr);
+            if (error != Error::None && error != Error::Overrun) return error;
         } while (!(sr & SPI_SR_TXE));
 
         writeDR(data);
@@ -101,15 +102,15 @@ class SPI_polling : public stm32f3xx::SPI {
         do {
             sr = spi.SR;
             error = errorCheck(sr);
-            if (error != NoError) return error;
+            if (error != Error::None) return error;
         } while (!(sr & SPI_SR_TXE));
 
         writeDR(data);
 
         do {
-        	sr = spi.SR;
-        	error = errorCheck(sr);
-        	if (error != NoError) return error;
+            sr = spi.SR;
+            error = errorCheck(sr);
+            if (error != Error::None) return error;
         } while (!(spi.SR & SPI_SR_RXNE));
 
         receivedData = readDR();

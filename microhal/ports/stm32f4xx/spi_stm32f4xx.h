@@ -10,6 +10,8 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include <cmath>
+#include <limits>
 #include "clockManager.h"
 #include "device/stm32f4xx.h"
 #include "gpio_stm32f4xx.h"
@@ -46,14 +48,14 @@ class SPI : public microhal::SPI {
      *
      */
     typedef enum {
-        PRESCALER_2 = 0x00,                                          //!< PRESCALER_2
-        PRESCALER_4 = SPI_CR1_BR_0,                                  //!< PRESCALER_4
-        PRESCALER_8 = SPI_CR1_BR_1,                                  //!< PRESCALER_8
-        PRESCALER_16 = SPI_CR1_BR_1 | SPI_CR1_BR_0,                  //!< PRESCALER_16
-        PRESCALER_32 = SPI_CR1_BR_2,                                 //!< PRESCALER_32
-        PRESCALER_64 = SPI_CR1_BR_2 | SPI_CR1_BR_0,                  //!< PRESCALER_64
-        PRESCALER_128 = SPI_CR1_BR_2 | SPI_CR1_BR_1,                 //!< PRESCALER_128
-        PRESCALER_256 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,  //!< PRESCALER_256
+        Prescaler2 = 0x00,                                          //!< Prescaler2
+        Prescaler4 = SPI_CR1_BR_0,                                  //!< Prescaler4
+        Prescaler8 = SPI_CR1_BR_1,                                  //!< Prescaler8
+        Prescaler16 = SPI_CR1_BR_1 | SPI_CR1_BR_0,                  //!< Prescaler16
+        Prescaler32 = SPI_CR1_BR_2,                                 //!< Prescaler32
+        Prescaler64 = SPI_CR1_BR_2 | SPI_CR1_BR_0,                  //!< Prescaler64
+        Prescaler128 = SPI_CR1_BR_2 | SPI_CR1_BR_1,                 //!< Prescaler128
+        Prescaler256 = SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0,  //!< Prescaler256
     } Prescaler;
 //------------------------------------- static reference --------------------------------------//
 #if (defined MICROHAL_USE_SPI1_INTERRUPT) || (defined MICROHAL_USE_SPI1_POLLING) || (defined MICROHAL_USE_SPI1_DMA)
@@ -100,14 +102,20 @@ class SPI : public microhal::SPI {
 
     void enable() final { spi.CR1 |= SPI_CR1_SPE; }
     void disable() final { spi.CR1 &= ~SPI_CR1_SPE; }
+    /**@brief Set SPI CLK frequency.
+     *
+     * @param speed - CLK frequency in Hz
+     * @return speed value that was set, this is closest value that was possible to set with current bus speed.
+     */
     uint32_t speed(uint32_t speed) final {
-        // TODO
-        while (1)
-            ;
-        return speed;
+        auto freq = ClockManager::SPIFrequency(spi);
+        auto requiredPrescaler = freq / speed;
+        prescaler(findClosestPrescaler(requiredPrescaler));
+
+        return this->speed();
     }
 
-    uint32_t frequency() const {
+    uint32_t speed() const final {
         const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
         return ClockManager::SPIFrequency(spi) / prescalerValues[static_cast<uint32_t>(prescaler()) >> 3];
     }
@@ -131,46 +139,64 @@ class SPI : public microhal::SPI {
         }
     }
 
+    Prescaler findClosestPrescaler(uint32_t prescaler) {
+        const uint32_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
+        uint32_t bestMatch = std::numeric_limits<uint32_t>::max();
+        size_t bestPos = 0;
+        for (size_t i = 0; i < sizeof(prescalerValues) / sizeof(prescalerValues[0]); i++) {
+            auto distance = std::abs(prescalerValues[i] - prescaler);
+            if (bestMatch > distance) {
+                bestMatch = distance;
+                bestPos = i;
+            }
+        }
+        return static_cast<Prescaler>(bestPos << 3);
+    }
+
     void enableInterrupt(uint32_t priority) {
-    	NVIC_EnableIRQ(irq());
+        NVIC_EnableIRQ(irq());
         NVIC_SetPriority(irq(), priority);
     }
 
     IRQn_Type irq() {
         if (&spi == SPI1) return SPI1_IRQn;
 #if defined(SPI2)
-        else if (&spi == SPI2) return SPI2_IRQn;
+        else if (&spi == SPI2)
+            return SPI2_IRQn;
 #endif
 #if defined(SPI3)
-        else if (&spi == SPI3) return SPI3_IRQn;
+        else if (&spi == SPI3)
+            return SPI3_IRQn;
 #endif
 #if defined(SPI4)
-        else if (&spi == SPI4) return SPI4_IRQn;
+        else if (&spi == SPI4)
+            return SPI4_IRQn;
 #endif
 #if defined(SPI5)
-        else if (&spi == SPI5) return SPI5_IRQn;
+        else if (&spi == SPI5)
+            return SPI5_IRQn;
 #endif
 #if defined(SPI6)
-        else if (&spi == SPI6) return SPI6_IRQn;
+        else if (&spi == SPI6)
+            return SPI6_IRQn;
 #endif
         std::terminate();
     }
 
-
     static SPI::Error errorCheck(uint32_t SRregisterValue) {
-        SPI::Error error = NoError;
+        SPI::Error error = Error::None;
 
         // Master Mode fault event
         if (SRregisterValue & SPI_SR_MODF) {
-            error = MasterModeFault;
+            error = Error::MasterModeFault;
         }
         // Overrun error
         if (SRregisterValue & SPI_SR_OVR) {
-            error = OverrunError;
+            error = Error::Overrun;
         }
         // CRC error flag
         if (SRregisterValue & SPI_SR_CRCERR) {
-            error = CRCError;
+            error = Error::Crc;
         }
         // TI frame format error
         // if (SRregisterValue & SPI_SR_FRE) {
