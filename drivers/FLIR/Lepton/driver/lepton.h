@@ -45,94 +45,86 @@
 #include "spi.h"
 
 class Lepton {
-  class VoSPIPacket {
-    uint16_t id;
-    uint16_t crc;
-    uint8_t data[160];
+    class VoSPIPacket {
+        uint16_t id;
+        uint16_t crc;
+        uint8_t data[160];
 
-    uint16_t getCRC() const { return microhal::byteswap(crc); }
+        uint16_t getCRC() const { return microhal::byteswap(crc); }
 
-   public:
-    uint16_t getNumber() const { return microhal::byteswap(id) & 0x0FFF; }
+     public:
+        uint16_t getNumber() const { return microhal::byteswap(id) & 0x0FFF; }
 
-    bool isDiscard() const {
-      // return (id & 0x0F00) == 0x0F00;
-      return (id & 0x000F) == 0x000F;
-    }
+        bool isDiscard() const {
+            // return (id & 0x0F00) == 0x0F00;
+            return (id & 0x000F) == 0x000F;
+        }
 
-    bool verifyCRC() const {
-      const uint16_t tmp = 0xFF0F;
-      const uint16_t IdCrcField[2] = {(uint16_t)(id & tmp), 0};
-      uint16_t crc = microhal::CRC16::calculate(&IdCrcField, sizeof(IdCrcField), 0);
-      crc = microhal::CRC16::calculate(data, sizeof(data), crc);
-      if (crc != getCRC()) {
-        microhal::diagnostic::diagChannel
-            << microhal::diagnostic::lock << microhal::diagnostic::Debug
-            << "Frame number = " << getNumber()
-            << ", calculated CRC: " << microhal::diagnostic::toHex(crc)
-            << " expected: " << microhal::diagnostic::toHex(getCRC())
-            << microhal::diagnostic::endl
-            << microhal::diagnostic::unlock;
-        //				asm volatile("BKPT #01");
-      }
-      return crc == getCRC();
-    }
+        bool verifyCRC() const {
+            const uint16_t tmp = 0xFF0F;
+            const uint16_t IdCrcField[2] = {(uint16_t)(id & tmp), 0};
+            uint16_t crc = microhal::CRC16::calculate(&IdCrcField, sizeof(IdCrcField), 0);
+            crc = microhal::CRC16::calculate(data, sizeof(data), crc);
+            if (crc != getCRC()) {
+                microhal::diagnostic::diagChannel << microhal::diagnostic::lock << microhal::diagnostic::Debug << "Frame number = " << getNumber()
+                                                  << ", calculated CRC: " << microhal::diagnostic::toHex(crc)
+                                                  << " expected: " << microhal::diagnostic::toHex(getCRC()) << microhal::diagnostic::endl
+                                                  << microhal::diagnostic::unlock;
+                //				asm volatile("BKPT #01");
+            }
+            return crc == getCRC();
+        }
 
-    constexpr const uint8_t *getImageDataPtr() const noexcept { return data; }
+        constexpr const uint8_t *getImageDataPtr() const noexcept { return data; }
 
-    static constexpr size_t size() noexcept { return 160; }
-  };
-  static_assert(sizeof(VoSPIPacket) == 164, "");
+        static constexpr size_t size() noexcept { return 160; }
+    };
+    static_assert(sizeof(VoSPIPacket) == 164, "");
 
  public:
-  Lepton(microhal::SPI &spi, microhal::I2C &i2c,
-         microhal::GPIO::IOPin SPIChipSelect, microhal::GPIO::IOPin power,
-         microhal::GPIO::IOPin reset)
-      : spi(spi),
-        i2c(i2c, 0xFF),
-        cs(SPIChipSelect, microhal::GPIO::Direction::Output),
-        imagePacket() {
-    cs.set();
-  }
+    Lepton(microhal::SPI &spi, microhal::I2C &i2c, microhal::GPIO::IOPin SPIChipSelect, microhal::GPIO::IOPin power, microhal::GPIO::IOPin reset)
+        : spi(spi), i2c(i2c, 0xFF), cs(SPIChipSelect, microhal::GPIO::Direction::Output), imagePacket() {
+        cs.set();
+    }
 
-  void startup() {
-    cs.set();
-    cs.reset();
-    cs.set();
+    void startup() {
+        cs.set();
+        cs.reset();
+        cs.set();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds{185});
-  }
+        std::this_thread::sleep_for(std::chrono::milliseconds{185});
+    }
 
-  bool shutdown() { return false; }
+    bool shutdown() { return false; }
 
-  static constexpr size_t getPictureSize() { return picture_size; }
+    static constexpr size_t getPictureSize() { return picture_size; }
 
-  void timeProc();
+    void timeProc();
 
-  bool readImagePacket() {
-    cs.reset();
-    microhal::SPI::Error status = spi.read(&imagePacket, sizeof(imagePacket));
-    cs.set();
-    return status == microhal::SPI::NoError;
-  }
+    bool readImagePacket() {
+        cs.reset();
+        microhal::SPI::Error status = spi.read(&imagePacket, sizeof(imagePacket));
+        cs.set();
+        return status == microhal::SPI::Error::None;
+    }
 
-  bool isNewPictureAvailable() {
-    bool tmp = pictureReady;
-    pictureReady = false;
-    return tmp;
-  }
+    bool isNewPictureAvailable() {
+        bool tmp = pictureReady;
+        pictureReady = false;
+        return tmp;
+    }
 
-  const uint8_t *getPicture() const { return pictureBuffer; }
+    const uint8_t *getPicture() const { return pictureBuffer; }
 
  private:
-  microhal::SPI &spi;
-  microhal::I2CDevice i2c;
-  microhal::GPIO cs;
-  VoSPIPacket imagePacket;
-  uint16_t lastImageNumber = 0xFFFF;
-  static constexpr size_t picture_size = 80 * 60 * 2;
-  uint8_t pictureBuffer[picture_size];
-  bool pictureReady = false;
+    microhal::SPI &spi;
+    microhal::I2CDevice i2c;
+    microhal::GPIO cs;
+    VoSPIPacket imagePacket;
+    uint16_t lastImageNumber = 0xFFFF;
+    static constexpr size_t picture_size = 80 * 60 * 2;
+    uint8_t pictureBuffer[picture_size];
+    bool pictureReady = false;
 };
 
 #endif  // LEPTON_H_
