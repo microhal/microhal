@@ -5,16 +5,16 @@
  *      Author: pawel
  */
 #include "bsp.h"
-#include "microhal.h"
 #include "SPIDevice/SPIDevice.h"
 #include "i2c.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-	(void)bsp::at45db::spi;
-	(void)bsp::debugPort;
+    (void)bsp::at45db::spi;
+    (void)bsp::debugPort;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
@@ -25,15 +25,14 @@ void hardwareConfig(void) {
     IOManager::routeSPI<Spi1, MISO, stm32f4xx::GPIO::PortA, 6>();
     IOManager::routeSPI<Spi1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_16);
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::Prescaler16);
     stm32f4xx::SPI::spi1.enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

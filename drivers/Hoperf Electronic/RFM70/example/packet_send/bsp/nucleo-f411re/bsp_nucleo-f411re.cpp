@@ -36,9 +36,9 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-	(void)bsp::rfm70::spi;
-	(void)bsp::debugPort;
-   // Core::pll_start(8000000, 168000000);
+    (void)bsp::rfm70::spi;
+    (void)bsp::debugPort;
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
@@ -48,14 +48,13 @@ void hardwareConfig(void) {
     stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
     stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_8);
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler8);
     stm32f4xx::SPI::spi1.enable();
 
-    SysTick_Config(84000000/1000);
+    SysTick_Config(84000000 / 1000);
 }
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

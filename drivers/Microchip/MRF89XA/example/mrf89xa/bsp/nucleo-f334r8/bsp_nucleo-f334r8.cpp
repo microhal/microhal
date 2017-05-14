@@ -28,22 +28,23 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
 #include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
 
 void hardwareConfig(void) {
-	(void)bsp::moduleA::spi;
-	(void)bsp::moduleB::spi;
-	(void)bsp::debugPort;
-	Core::fpu_enable();
-	stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
-	stm32f3xx::ClockManager::PLL::frequency(51200000);
-	stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
-	while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL);
+    (void)bsp::moduleA::spi;
+    (void)bsp::moduleB::spi;
+    (void)bsp::debugPort;
+    Core::fpu_enable();
+    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
+    stm32f3xx::ClockManager::PLL::frequency(51200000);
+    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
+    while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
+        ;
 
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
@@ -59,7 +60,6 @@ void hardwareConfig(void) {
     stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
     stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
 
-    stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::PRESCALER_8);
+    stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
     stm32f3xx::SPI::spi1.enable();
 }
-
