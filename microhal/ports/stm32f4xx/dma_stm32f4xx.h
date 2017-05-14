@@ -340,8 +340,8 @@ private:
 	Stream::Channel getChannelForDma2Stream7(const void *devicePtr) const;
 };
 
-constexpr DMA *dma1 = reinterpret_cast<DMA*>(DMA1);
-constexpr DMA *dma2 = reinterpret_cast<DMA*>(DMA2);
+static DMA *dma1 = reinterpret_cast<DMA*>(DMA1);
+static DMA *dma2 = reinterpret_cast<DMA*>(DMA2);
 } // namespace DMA
 } // namespace stm32f4xx
 } // namespace microhal
