@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,23 +24,24 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
-#include "microhal.h"
-#include "SPIDevice/SPIDevice.h"
 #include "bsp.h"
+#include "SPIDevice/SPIDevice.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
-extern "C" int main(int, void*);
+extern "C" int main(int, void *);
 static void run_main(void *) {
-	main(0, nullptr);
+    main(0, nullptr);
 }
 
 void hardwareConfig(void) {
-	(void)leptonSPI;
-	(void)leptonI2C;
+    (void)leptonSPI;
+    (void)leptonI2C;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
@@ -69,11 +70,10 @@ void hardwareConfig(void) {
     cameraPort.open(stm32f4xx::SerialPort::ReadWrite);
     cameraPort.setBaudRate(500000);
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::PRESCALER_8);
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::Prescaler8);
     stm32f4xx::SPI::spi1.enable();
 
     TaskHandle_t xHandle = NULL;
-    xTaskCreate(run_main, "NAME", 256, NULL, tskIDLE_PRIORITY, &xHandle );
+    xTaskCreate(run_main, "NAME", 256, NULL, tskIDLE_PRIORITY, &xHandle);
     vTaskStartScheduler();
 }
-

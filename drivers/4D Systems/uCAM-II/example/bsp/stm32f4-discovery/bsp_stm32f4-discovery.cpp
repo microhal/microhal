@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,30 +24,32 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
-#include "microhal.h"
-#include "SPIDevice/SPIDevice.h"
 #include "bsp.h"
-#include "ff.h"
 #include <ctime>
+#include "SPIDevice/SPIDevice.h"
+#include "ff.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 using namespace diagnostic;
 
-#define 	NVIC_PriorityGroup_4   ((uint32_t)0x300)
+#define NVIC_PriorityGroup_4 ((uint32_t)0x300)
 #define AIRCR_VECTKEY_MASK ((uint32_t)0x05FA0000)
 
-extern "C" int main(int, char**);
+extern "C" int main(int, char **);
 static void run_main(void *) {
-	static FATFS FS;
-	diagChannel << lock << MICROHAL_DEBUG << "Mounting FAT system."	<< unlock;
-	f_mount(&FS, "", 1);
-	main(0, nullptr);
-	diagChannel << lock << MICROHAL_DEBUG << "Unmounting FAT system." << unlock;
+    static FATFS FS;
+    diagChannel << lock << MICROHAL_DEBUG << "Mounting FAT system." << unlock;
+    f_mount(&FS, "", 1);
+    main(0, nullptr);
+    diagChannel << lock << MICROHAL_DEBUG << "Unmounting FAT system." << unlock;
     f_mount(NULL, "", 1);
-	while(1);
+    while (1)
+        ;
 }
 
 void hardwareConfig(void) {
@@ -79,64 +81,63 @@ void hardwareConfig(void) {
 
     diagnostic::diagChannel.setOutputDevice(bsp::debugPort);
 
-    stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_128);
+    stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
     stm32f4xx::SPI::spi3.enable();
 
     TaskHandle_t xHandle = NULL;
-    xTaskCreate(run_main, "NAME", 5*1024, NULL, tskIDLE_PRIORITY, &xHandle );
+    xTaskCreate(run_main, "NAME", 5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
     SCB->AIRCR = AIRCR_VECTKEY_MASK | NVIC_PriorityGroup_4;
     vTaskStartScheduler();
 }
 
-
-const char* printFatFSResult(FRESULT result) {
-	switch (result) {
-	case FR_OK:
-		return "OK";
-	case FR_DISK_ERR:
-		return "Disk Error";
-	case FR_INT_ERR:
-		   return "internal error";
-	case FR_NOT_READY:
-		return "Not ready";
-	case FR_NO_FILE:
-		return "Could not find the file.";
-	case FR_NO_PATH:
-		return "Could not find the path.";
-	case  FR_INVALID_NAME:
-		return "he given string is invalid as the path name.";
-	case FR_DENIED:
-		return "The required access was denied";
-	case FR_EXIST:
-		return "Name collision. An object with the same name is already existing.";
-	case FR_INVALID_OBJECT:
-		return "The file/directory object is invalid or a null pointer is given.";
-	case FR_WRITE_PROTECTED:
-		return "A write mode operation against the write-protected media.";
-	case FR_INVALID_DRIVE:
-		return "Invalid drive number is specified in the path name.";
-	case FR_NOT_ENABLED:
-		return "Work area for the logical drive has not been registered by f_mount function.";
-	case FR_NO_FILESYSTEM:
-		return "There is no valid FAT volume on the drive.";
-	case FR_MKFS_ABORTED:
-		return "The f_mkfs function aborted.";
-	case FR_TIMEOUT:
-		return "The function was canceled due to a timeout of thread-safe control.";
-	case FR_LOCKED:
-		return "The operation to the object was rejected by file sharing control.";
-	case FR_NOT_ENOUGH_CORE:
-		return "Not enough memory for the operation.";
-	case FR_TOO_MANY_OPEN_FILES:
-		return "Number of open objects has been reached maximum value and no more object can be opened.";
-	case FR_INVALID_PARAMETER:
-		return "The given parameter is invalid or there is an inconsistent for the volume.";
-	default:
-		return "Undefined result code";
-	}
+const char *printFatFSResult(FRESULT result) {
+    switch (result) {
+        case FR_OK:
+            return "OK";
+        case FR_DISK_ERR:
+            return "Disk Error";
+        case FR_INT_ERR:
+            return "internal error";
+        case FR_NOT_READY:
+            return "Not ready";
+        case FR_NO_FILE:
+            return "Could not find the file.";
+        case FR_NO_PATH:
+            return "Could not find the path.";
+        case FR_INVALID_NAME:
+            return "he given string is invalid as the path name.";
+        case FR_DENIED:
+            return "The required access was denied";
+        case FR_EXIST:
+            return "Name collision. An object with the same name is already existing.";
+        case FR_INVALID_OBJECT:
+            return "The file/directory object is invalid or a null pointer is given.";
+        case FR_WRITE_PROTECTED:
+            return "A write mode operation against the write-protected media.";
+        case FR_INVALID_DRIVE:
+            return "Invalid drive number is specified in the path name.";
+        case FR_NOT_ENABLED:
+            return "Work area for the logical drive has not been registered by f_mount function.";
+        case FR_NO_FILESYSTEM:
+            return "There is no valid FAT volume on the drive.";
+        case FR_MKFS_ABORTED:
+            return "The f_mkfs function aborted.";
+        case FR_TIMEOUT:
+            return "The function was canceled due to a timeout of thread-safe control.";
+        case FR_LOCKED:
+            return "The operation to the object was rejected by file sharing control.";
+        case FR_NOT_ENOUGH_CORE:
+            return "Not enough memory for the operation.";
+        case FR_TOO_MANY_OPEN_FILES:
+            return "Number of open objects has been reached maximum value and no more object can be opened.";
+        case FR_INVALID_PARAMETER:
+            return "The given parameter is invalid or there is an inconsistent for the volume.";
+        default:
+            return "Undefined result code";
+    }
 }
 
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Open a file.
  * \details Open a file.
  *
@@ -145,91 +146,89 @@ const char* printFatFSResult(FRESULT result) {
  * file status flags.
  * \param [in] mode specifies what permissions the file has when it is created.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 FIL fp;
 extern "C" int _open_r(struct _reent *r, const char *pathname, int flags, int mode) {
-	diagChannel << lock << MICROHAL_INFORMATIONAL << "opening file, pathname: " << pathname  << ", flags: " << (int32_t)flags << " mode: " << (int32_t)mode << unlock;
-	if (f_open(&fp, pathname, FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
-		return 10;
-	}
-	return -1;
+    diagChannel << lock << MICROHAL_INFORMATIONAL << "opening file, pathname: " << pathname << ", flags: " << (int32_t)flags
+                << " mode: " << (int32_t)mode << unlock;
+    if (f_open(&fp, pathname, FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
+        return 10;
+    }
+    return -1;
 }
 
-
-/*------------------------------------------------------------------------*//**
+/*------------------------------------------------------------------------*/ /**
  * \brief Close a file.
  * \details Close a file.
  *
  * \param [in] file indicates the file descriptor to close.
  * \return -1 for failure.
- *//*-------------------------------------------------------------------------*/
+ */ /*-------------------------------------------------------------------------*/
 
 extern "C" int _close_r(struct _reent *r, int file) {
-	diagChannel << lock << MICROHAL_INFORMATIONAL << "Closing file: " << (int32_t)file << unlock;
-	if (file == 10) {
-		auto res = f_close(&fp);
-		if (res == FR_OK) {
-			return 0;
-		} else {
-			diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs close error: "<< printFatFSResult(res) << unlock;
-		}
-	}
+    diagChannel << lock << MICROHAL_INFORMATIONAL << "Closing file: " << (int32_t)file << unlock;
+    if (file == 10) {
+        auto res = f_close(&fp);
+        if (res == FR_OK) {
+            return 0;
+        } else {
+            diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs close error: " << printFatFSResult(res) << unlock;
+        }
+    }
 
     return -1;
 }
 
 extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
-	//diagChannel << lock << MICROHAL_INFORMATIONAL << "Writing file: " << (int32_t)file << ", size: " << (uint32_t)nbyte << unlock;
-	if (file == 10) {
-		UINT count = 0;
-		auto res = f_write(&fp, buf, nbyte, &count);
-		if (res != FR_OK) {
-			diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs write error: "<< printFatFSResult(res) << unlock;
-			return -1;
-		}
-		return count;
-	} else {
-		bsp::debugPort.mutex.lock();
-		size_t toWrite = nbyte;
-		do {
-			size_t written = bsp::debugPort.write((const char*)buf, toWrite);
-			buf += written;
-			toWrite -= written;
-		} while(toWrite);
-		bsp::debugPort.mutex.unlock();
-		(void)r;									// suppress warning
-	}
+    // diagChannel << lock << MICROHAL_INFORMATIONAL << "Writing file: " << (int32_t)file << ", size: " << (uint32_t)nbyte << unlock;
+    if (file == 10) {
+        UINT count = 0;
+        auto res = f_write(&fp, buf, nbyte, &count);
+        if (res != FR_OK) {
+            diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs write error: " << printFatFSResult(res) << unlock;
+            return -1;
+        }
+        return count;
+    } else {
+        bsp::debugPort.mutex.lock();
+        size_t toWrite = nbyte;
+        do {
+            size_t written = bsp::debugPort.write((const char *)buf, toWrite);
+            buf += written;
+            toWrite -= written;
+        } while (toWrite);
+        bsp::debugPort.mutex.unlock();
+        (void)r;  // suppress warning
+    }
     return 0;
 }
 
 extern "C" ssize_t _read_r(struct _reent *r, int file, void *buf, size_t nbyte) {
-	diagChannel << lock << MICROHAL_INFORMATIONAL << "reading file: " << (int32_t)file << unlock;
-	if (file == 10) {
-		UINT count;
-		auto res = f_read(&fp, buf, nbyte, &count);
-		if (res != FR_OK) {
-			diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs read error: "<< printFatFSResult(res) << unlock;
-			return -1;
-		}
-		return nbyte - count;
-	}
+    diagChannel << lock << MICROHAL_INFORMATIONAL << "reading file: " << (int32_t)file << unlock;
+    if (file == 10) {
+        UINT count;
+        auto res = f_read(&fp, buf, nbyte, &count);
+        if (res != FR_OK) {
+            diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs read error: " << printFatFSResult(res) << unlock;
+            return -1;
+        }
+        return nbyte - count;
+    }
     return 0;
 }
 
-extern "C" DWORD get_fattime (void) {
-	std::time_t t = std::time(nullptr);
-	const auto time = std::gmtime(&t);
+extern "C" DWORD get_fattime(void) {
+    std::time_t t = std::time(nullptr);
+    const auto time = std::gmtime(&t);
 
-	uint_fast8_t sec = time->tm_sec / 2;
-	uint_fast8_t min = time->tm_min;
-	uint_fast8_t hour = time->tm_hour;
-	uint_fast8_t day = time->tm_mday;
-	uint_fast8_t month = time->tm_mon;
-	uint_fast8_t year = time->tm_year >= 80 ? time->tm_year - 80 : 0;
+    uint_fast8_t sec = time->tm_sec / 2;
+    uint_fast8_t min = time->tm_min;
+    uint_fast8_t hour = time->tm_hour;
+    uint_fast8_t day = time->tm_mday;
+    uint_fast8_t month = time->tm_mon;
+    uint_fast8_t year = time->tm_year >= 80 ? time->tm_year - 80 : 0;
 
-	uint32_t fattime = (year << 25) | (month << 21) | (day << 16) | (hour << 11) | (min << 5) | (sec);
-	return fattime;
+    uint32_t fattime = (year << 25) | (month << 21) | (day << 16) | (hour << 11) | (min << 5) | (sec);
+    return fattime;
 }
-
-

@@ -1,4 +1,4 @@
-/* =========================================================================================== *//**
+/* =========================================================================================== */ /**
  @file        STM32F4Discovery.h
  @authors     Michal Karwatowski
  @version     $Id$
@@ -8,33 +8,34 @@
  @copyright   $Copyright$
  @details
 
- *//* ============================================================================================ */
+ */ /* ============================================================================================
+                                                                                                         */
 /* Created on: 20 sty 2014 */
 
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
-//#include "i2c.h"
+#include "microhal.h"
 
 namespace bsp {
 
 namespace con1 {
 namespace a {
-constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortE, 5);
-constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
-constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortC, 13);
-constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortE, 6);
-constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortE, 2);
-constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortC, 14);
+constexpr microhal::GPIO::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortE, 5);
+constexpr microhal::GPIO::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::GPIO::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+constexpr microhal::GPIO::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortE, 6);
+constexpr microhal::GPIO::IOPin io5(microhal::stm32f4xx::GPIO::Port::PortE, 4);
+constexpr microhal::GPIO::IOPin io6(microhal::stm32f4xx::GPIO::Port::PortE, 2);
+constexpr microhal::GPIO::IOPin ss(microhal::stm32f4xx::GPIO::Port::PortC, 14);
 }
 namespace b {
-constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 5);
-constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortB, 1);
-constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortE, 9);
-constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortE, 11);
-constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin ss (microhal::stm32f4xx::GPIO::Port::PortE, 7);
+constexpr microhal::GPIO::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortC, 5);
+constexpr microhal::GPIO::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortB, 1);
+constexpr microhal::GPIO::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortE, 9);
+constexpr microhal::GPIO::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortE, 11);
+constexpr microhal::GPIO::IOPin io5(microhal::stm32f4xx::GPIO::Port::PortE, 4);
+constexpr microhal::GPIO::IOPin ss(microhal::stm32f4xx::GPIO::Port::PortE, 7);
 }
 }
 
