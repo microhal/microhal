@@ -41,7 +41,7 @@ class SPI_polling : public stm32f4xx::SPI {
 #endif
   //---------------------------------------- functions ----------------------------------------//
     SPI::Error write(const void *data, const size_t len, bool last) final {
-        SPI::Error error;
+        SPI::Error error = NoError;
 
         for (uint16_t i = 0; i < len; i++) {
             error = writeNoRead(((uint8_t *)(data))[i]);
