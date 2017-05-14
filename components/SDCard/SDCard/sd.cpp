@@ -134,7 +134,7 @@ Sd::~Sd() {
 }
 
 Sd::Error operator|=(Sd::Error &a, Sd::Error b) {
-	a = static_cast<Sd::Error>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+    a = static_cast<Sd::Error>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
     return a;
 }
 
@@ -231,7 +231,7 @@ void printCSD(Sd::CSDv2 &csd) {
 }
 
 bool Sd::init() {
-	bool result = false;
+    bool result = false;
     static const uint8_t ff[10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
     cs.reset();
@@ -239,7 +239,8 @@ bool Sd::init() {
     spi.write(ff, sizeof(ff), true);
 
     volatile uint32_t delay = 1000;
-    while (delay--) ;
+    while (delay--)
+        ;
 
     // send CMD0 to reset SD card and set the card into SPI communication mode
     if (sendCMD(CMD0{})) {
@@ -247,33 +248,40 @@ bool Sd::init() {
             if (*response == ResponseR1::InIdleState) {
                 if (sendCMD(CMD8{CMD8::VoltageSupplied::Voltage2_7To3_6})) {
                     if (auto response = readResponseR7(2)) {
-                    	if (response->response & ResponseR1::IllegalCommand) {
-                    		// CMD8 is illegal command, this means that we work with SD Memory Card in version 1.X or Not SD Memory Card
-                    		auto ocr = readOCR();
+                        if (response->response & ResponseR1::IllegalCommand) {
+                            // CMD8 is illegal command, this means that we work with SD Memory Card in version 1.X or Not SD Memory Card
+                            auto ocr = readOCR();
 
-                    		initialize(false, 10s);
-                    		result = true;
-                    		cardType = CardType::StandardCapacityVer1;
-                    	} else {
-                    		// got response for CMD8, our card is SD Memory card version 2 or later.
-                    		const uint32_t cmd8_response_data = response->data;
+                            initialize(false, 10s);
+                            result = true;
+                            cardType = CardType::StandardCapacityVer1;
+                        } else {
+                            // got response for CMD8, our card is SD Memory card version 2 or later.
+                            const uint32_t cmd8_response_data = response->data;
                             diagChannel << lock << MICROHAL_DEBUG << "CMD8 response data: " << toHex(cmd8_response_data) << endl << unlock;
                             if (cmd8_response_data == 0x000001AA) {
-                            	enableCRC();
+                                enableCRC();
                                 initialize(true, 10s);
                                 if (auto ocr = readOCR()) {
                                     diagChannel << lock << MICROHAL_DEBUG << "OCR: " << toHex(ocr->getRawForDebug()) << endl << unlock;
                                     if (ocr->isCCSbitValid()) {
-                                    	if (ocr->getCCS()) {
-                                    		result = true;
-                                    		cardType = CardType::HighCapacityOrExtendedCapacity;
-                                    		diagChannel << lock << MICROHAL_DEBUG << "CCS bit in OCR register set. Detected High Capacity or Extended Capacity SD card version 2 or later." << endl << unlock;
-                                    	} else {
-                                    		cardType = CardType::StandardCapacityVer2;
-                                    		// this driver supports only 512 bytes blocks, so we need to change block size in standard Capacity card to 512 bytes
-                                    		result = setBlockSize(512);
-                                    		diagChannel << lock << MICROHAL_DEBUG << "CCS bit in OCR register equal 0. Detected Standard Capacity SD card version 2 or later." << endl << unlock;
-                                    	}
+                                        if (ocr->getCCS()) {
+                                            result = true;
+                                            cardType = CardType::HighCapacityOrExtendedCapacity;
+                                            diagChannel << lock << MICROHAL_DEBUG << "CCS bit in OCR register set. Detected High Capacity or "
+                                                                                     "Extended Capacity SD card version 2 or later."
+                                                        << endl
+                                                        << unlock;
+                                        } else {
+                                            cardType = CardType::StandardCapacityVer2;
+                                            // this driver supports only 512 bytes blocks, so we need to change block size in standard Capacity card
+                                            // to 512 bytes
+                                            result = setBlockSize(512);
+                                            diagChannel << lock << MICROHAL_DEBUG
+                                                        << "CCS bit in OCR register equal 0. Detected Standard Capacity SD card version 2 or later."
+                                                        << endl
+                                                        << unlock;
+                                        }
                                     }
                                 }
                             }
@@ -286,24 +294,24 @@ bool Sd::init() {
     cs.set();
 
     if (result) {
-    	// card was initialized successfully, we need also to read card capacity
-    	if (auto csd = readCSD()) {
-    		if (csd->version == 1) {
-//    			uint32_t MULT = 2 (csd->v1.C_SIZE_MULT+2);// (csd->v1.C_SIZE_MULT < 8);
-//    			uint32_t BLOCKNR = (csd->v1.C_SIZE+1) * MULT;
-//    			uint32_t BLOCK_LEN = 2 csd->v1.READ_BL_LEN;// ,	(csd->v1.READ_BL_LEN < 12);
-//
-    			cardCapacity = 0;//BLOCKNR * BLOCK_LEN;
-    		} else if (csd->version == 2) {
-    			cardCapacity = ((uint64_t)csd->v2.C_SIZE + 1) * 512 * 1024;
-    		} else {
-        		diagChannel << lock << MICROHAL_ERROR << "Unsupported CSD version." << endl << unlock;
-    		}
-    	} else {
-    		diagChannel << lock << MICROHAL_ERROR << "Unable to read CSD." << endl << unlock;
-    	}
+        // card was initialized successfully, we need also to read card capacity
+        if (auto csd = readCSD()) {
+            if (csd->version == 1) {
+                //    			uint32_t MULT = 2 (csd->v1.C_SIZE_MULT+2);// (csd->v1.C_SIZE_MULT < 8);
+                //    			uint32_t BLOCKNR = (csd->v1.C_SIZE+1) * MULT;
+                //    			uint32_t BLOCK_LEN = 2 csd->v1.READ_BL_LEN;// ,	(csd->v1.READ_BL_LEN < 12);
+                //
+                cardCapacity = 0;  // BLOCKNR * BLOCK_LEN;
+            } else if (csd->version == 2) {
+                cardCapacity = ((uint64_t)csd->v2.C_SIZE + 1) * 512 * 1024;
+            } else {
+                diagChannel << lock << MICROHAL_ERROR << "Unsupported CSD version." << endl << unlock;
+            }
+        } else {
+            diagChannel << lock << MICROHAL_ERROR << "Unable to read CSD." << endl << unlock;
+        }
     }
-    //diagnostic::diagChannel << diagnostic::lock << MICROHAL_DEBUG << "sd init result: " << result << diagnostic::unlock;
+    // diagnostic::diagChannel << diagnostic::lock << MICROHAL_DEBUG << "sd init result: " << result << diagnostic::unlock;
     return result;
 }
 
@@ -343,7 +351,7 @@ bool Sd::initialize(bool hcs, std::chrono::milliseconds timeout) {
 }
 
 std::experimental::optional<Sd::CSD> Sd::readCSD() {
-	std::experimental::optional<Sd::CSD> result;
+    std::experimental::optional<Sd::CSD> result;
 
     cs.reset();
     sendCMD(CMD9{});
@@ -356,11 +364,11 @@ std::experimental::optional<Sd::CSD> Sd::readCSD() {
             uint8_t crc = CRC7::calculate(tmp, sizeof(tmp) - 1, 0);
             if (((crc << 1) | 1) == tmp[15]) {
                 // crc and always one math
-            	if (tmp[0] == 0) {
+                if (tmp[0] == 0) {
                     // CSD v1
                     CSDv1 csd;
                     deserializeCSD(csd, tmp);
-                   // printCSD(csd);
+                    // printCSD(csd);
                     CSD tmp;
                     tmp.version = 1;
                     tmp.v1 = csd;
@@ -369,7 +377,7 @@ std::experimental::optional<Sd::CSD> Sd::readCSD() {
                     // CSD v2
                     CSDv2 csd;
                     deserializeCSD(csd, tmp);
-                 //   printCSD(csd);
+                    //   printCSD(csd);
                     CSD tmp;
                     tmp.version = 2;
                     tmp.v2 = csd;
@@ -432,11 +440,11 @@ Sd::DataResponse Sd::readDataResponse(std::chrono::milliseconds timeout) {
 bool Sd::writeDataPacket(const gsl::not_null<const void *> data_ptr, uint8_t dataToken, uint16_t blockSize) {
     const uint16_t crc = convertEndiannessIfRequired(microhal::CRC16::calculate(data_ptr.get(), blockSize, 0x0000), Endianness::Big);
     // write 0xFE to signalizes start of data transmission
-    if (spi.write(dataToken, false) != SPI::Error::NoError) return false;
+    if (spi.write(dataToken, false) != SPI::Error::None) return false;
     // write data
-    if (spi.write(data_ptr.get(), blockSize, false) != SPI::Error::NoError) return false;
+    if (spi.write(data_ptr.get(), blockSize, false) != SPI::Error::None) return false;
     // write crc
-    if (spi.write(&crc, sizeof(crc), false) != SPI::Error::NoError) return false;
+    if (spi.write(&crc, sizeof(crc), false) != SPI::Error::None) return false;
 
     return true;
 }
@@ -447,19 +455,19 @@ Sd::Error Sd::readBlock(const gsl::not_null<void *> data_ptr, uint32_t address) 
     if (sendCMD(CMD17{address})) {
         if (auto response = readResponseR1(2)) {
             if (*response == 0) {
-            	ReadDataError response = readDataPacket(data_ptr, blockSize);
+                ReadDataError response = readDataPacket(data_ptr, blockSize);
                 if (response == ReadDataError::None) {
-                	error = Error::None;
+                    error = Error::None;
                 } else {
-                	if ((response & ReadDataError::CRCMismatch) == ReadDataError::CRCMismatch) error |= Error::DataCRC;
-                	if ((response & ReadDataError::OutOfRange) == ReadDataError::OutOfRange) error |= Error::OutOfRange;
+                    if ((response & ReadDataError::CRCMismatch) == ReadDataError::CRCMismatch) error |= Error::DataCRC;
+                    if ((response & ReadDataError::OutOfRange) == ReadDataError::OutOfRange) error |= Error::OutOfRange;
                 }
             } else {
-            	error = convertResponseR1ToError(*response);
-            	if(error == Error::None) error = Error::Unknown;
+                error = convertResponseR1ToError(*response);
+                if (error == Error::None) error = Error::Unknown;
             }
         } else {
-        	diagChannel << lock << MICROHAL_ERROR << "DUPA." << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "DUPA." << unlock;
         }
     }
     cs.set();
@@ -480,16 +488,16 @@ Sd::Error Sd::writeBlock(const gsl::not_null<const void *> data_ptr, uint32_t bl
                     spi.write(tmp, sizeof(tmp), true);
 
                     if (response == DataResponse::Accepted) {
-                    	error = Error::None;
+                        error = Error::None;
                     } else {
-                    	error = Error::None;
-                    	if (response == DataResponse::CRCError) error |= Error::DataCRC;
-                    	if (response == DataResponse::WriteError) error |= Error::DataWriteError;
+                        error = Error::None;
+                        if (response == DataResponse::CRCError) error |= Error::DataCRC;
+                        if (response == DataResponse::WriteError) error |= Error::DataWriteError;
                     }
                 }
             } else {
-            	error = convertResponseR1ToError(*response);
-            	if(error == Error::None) error = Error::Unknown;
+                error = convertResponseR1ToError(*response);
+                if (error == Error::None) error = Error::Unknown;
             }
         }
     }
@@ -503,57 +511,57 @@ Sd::Error Sd::readMultipleBlock(const gsl::not_null<void *> data_ptr, uint32_t a
     if (sendCMD(CMD18{address})) {
         if (auto response = readResponseR1(2)) {
             if (*response == 0) {
-                uint8_t *ptr = static_cast<uint8_t*>(data_ptr.get());
+                uint8_t *ptr = static_cast<uint8_t *>(data_ptr.get());
                 for (uint32_t i = 0; i < (blocksCount - 1); i++) {
                     ReadDataError response = readDataPacket(ptr, blockSize);
                     ptr += blockSize;
                     if (response != ReadDataError::None) {
-                    	if ((response & ReadDataError::CRCMismatch) == ReadDataError::CRCMismatch) error |= Error::DataCRC;
-                    	if ((response & ReadDataError::OutOfRange) == ReadDataError::OutOfRange) error |= Error::OutOfRange;
-                    	break;
+                        if ((response & ReadDataError::CRCMismatch) == ReadDataError::CRCMismatch) error |= Error::DataCRC;
+                        if ((response & ReadDataError::OutOfRange) == ReadDataError::OutOfRange) error |= Error::OutOfRange;
+                        break;
                     }
                 }
                 // receive last block
                 if (error == Error::Unknown) {
-					uint8_t token = readToken(readDataTokenRetryCount);
-					if (token == 0xFE) {
-						// lets try to synchronize end of CMD12 with end of data packet
-						uint16_t crc;
-						const size_t dataPacketSize = blockSize + sizeof(crc);
-						spi.read(ptr, dataPacketSize - sizeof(CMD12), 0xFF);
-						uint8_t tmp[sizeof(CMD12)+1];
-						// tmp contain last packet data and CRC
-						CMD12 cmd12;
-						spi.writeRead(tmp, &cmd12, sizeof(cmd12) + 1);
-						//sendCMD(cmd12);
-						if (auto response = readResponseR1(2)) {
-							if (*response == 0) {
-								memcpy(ptr + dataPacketSize - sizeof(CMD12), tmp, sizeof(tmp) - sizeof(crc));
-								memcpy(&crc, tmp + sizeof(tmp) - sizeof(crc), sizeof(crc));
+                    uint8_t token = readToken(readDataTokenRetryCount);
+                    if (token == 0xFE) {
+                        // lets try to synchronize end of CMD12 with end of data packet
+                        uint16_t crc;
+                        const size_t dataPacketSize = blockSize + sizeof(crc);
+                        spi.read(ptr, dataPacketSize - sizeof(CMD12), 0xFF);
+                        uint8_t tmp[sizeof(CMD12) + 1];
+                        // tmp contain last packet data and CRC
+                        CMD12 cmd12;
+                        spi.writeRead(tmp, &cmd12, sizeof(cmd12) + 1);
+                        // sendCMD(cmd12);
+                        if (auto response = readResponseR1(2)) {
+                            if (*response == 0) {
+                                memcpy(ptr + dataPacketSize - sizeof(CMD12), tmp, sizeof(tmp) - sizeof(crc));
+                                memcpy(&crc, tmp + sizeof(tmp) - sizeof(crc), sizeof(crc));
 
-								crc = convertEndiannessIfRequired(crc, Endianness::Big);
-								error = Error::None;
-							}
-						}
-					} else {
-				        // an error occurred, and error token was received
-				        if ((token & 0b1110'0000) == 0) {
-				            // received error token
-				        	ReadDataError response = static_cast<ReadDataError>(token);
+                                crc = convertEndiannessIfRequired(crc, Endianness::Big);
+                                error = Error::None;
+                            }
+                        }
+                    } else {
+                        // an error occurred, and error token was received
+                        if ((token & 0b1110'0000) == 0) {
+                            // received error token
+                            ReadDataError response = static_cast<ReadDataError>(token);
 
-				        	diagChannel << lock << MICROHAL_ERROR << "Received error data token: " << toBin(token) << unlock;
-				        	if (response != ReadDataError::None) {
-				        		error = Error::None;
-				        		if ((response & ReadDataError::CRCMismatch) == ReadDataError::CRCMismatch) error |= Error::DataCRC;
-				        		if ((response & ReadDataError::OutOfRange) == ReadDataError::OutOfRange) error |= Error::OutOfRange;
-				        		if (error == Error::None) error = Error::Unknown;
-				        	}
-						}
-				    }
+                            diagChannel << lock << MICROHAL_ERROR << "Received error data token: " << toBin(token) << unlock;
+                            if (response != ReadDataError::None) {
+                                error = Error::None;
+                                if ((response & ReadDataError::CRCMismatch) == ReadDataError::CRCMismatch) error |= Error::DataCRC;
+                                if ((response & ReadDataError::OutOfRange) == ReadDataError::OutOfRange) error |= Error::OutOfRange;
+                                if (error == Error::None) error = Error::Unknown;
+                            }
+                        }
+                    }
                 }
             } else {
-            	error = convertResponseR1ToError(*response);
-            	if(error == Error::None) error = Error::Unknown;
+                error = convertResponseR1ToError(*response);
+                if (error == Error::None) error = Error::Unknown;
             }
         }
     }
@@ -566,44 +574,44 @@ Sd::Error Sd::writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uin
 
     cs.reset();
 
-    sendACMD(ACMD23{blocksCount});	/* Predefine number of sectors */
+    sendACMD(ACMD23{blocksCount}); /* Predefine number of sectors */
     sendCMD(CMD25{address});
     if (auto response = readResponseR1(2)) {
         if (*response == 0) {
             // send one byte, required by standard
             spi.write(0xFF, false);
             // start sending data
-            const uint8_t *ptr = static_cast<const uint8_t*>(data_ptr.get());
+            const uint8_t *ptr = static_cast<const uint8_t *>(data_ptr.get());
             bool errorOccurred = false;
             for (uint32_t block = 0; block < blocksCount; block++) {
-            	if (writeDataPacket(ptr, 0b1111'1100, blockSize)) {
+                if (writeDataPacket(ptr, 0b1111'1100, blockSize)) {
                     ptr += blockSize;
                     DataResponse response = readDataResponse(100ms);
                     if (response != DataResponse::Accepted) {
-                    	result = Error::None;
+                        result = Error::None;
                         if (response & DataResponse::CRCError) result |= Error::DataCRC;
                         if (response & DataResponse::WriteError) result |= Error::DataWriteError;
                         errorOccurred = true;
                         break;
                     }
                 }
-            	// busy wait
-        		if (!spi.getMISOstate()) {
-        			do {
-        				spi.write(0xFF, true);
-        			} while (!spi.getMISOstate());
-        		}
+                // busy wait
+                if (!spi.getMISOstate()) {
+                    do {
+                        spi.write(0xFF, true);
+                    } while (!spi.getMISOstate());
+                }
             }
-        	if (errorOccurred == false) {
-        		// write stop transmission token for CMD25
-        		constexpr uint8_t stopToken = 0b1111'1101;
-        		const uint8_t tmp[] = {stopToken, 0xFF};
-        		spi.write(tmp, sizeof(tmp), true);
-        		result = Error::None;
-        	}
+            if (errorOccurred == false) {
+                // write stop transmission token for CMD25
+                constexpr uint8_t stopToken = 0b1111'1101;
+                const uint8_t tmp[] = {stopToken, 0xFF};
+                spi.write(tmp, sizeof(tmp), true);
+                result = Error::None;
+            }
         } else {
-        	result = convertResponseR1ToError(*response);
-        	if(result == Error::None) result = Error::Unknown;
+            result = convertResponseR1ToError(*response);
+            if (result == Error::None) result = Error::Unknown;
         }
     }
 
@@ -612,10 +620,10 @@ Sd::Error Sd::writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uin
 }
 
 Sd::Error Sd::convertResponseR1ToError(ResponseR1 response) {
-	Error error = Error::None;
-	if (response & ResponseR1::InIdleState) error |= Error::WrongState;
-	if (response & ResponseR1::ParameterError) error |= Error::OutOfRange;
-	return error;
+    Error error = Error::None;
+    if (response & ResponseR1::InIdleState) error |= Error::WrongState;
+    if (response & ResponseR1::ParameterError) error |= Error::OutOfRange;
+    return error;
 }
 
 bool Sd::sendCMD(const Command &command) {
@@ -627,7 +635,7 @@ bool Sd::sendCMD(const Command &command) {
         } while (!spi.getMISOstate());
     }
     spi.write(0xFF, true);
-    return spi.write(&command, sizeof(command), true) == microhal::SPI::Error::NoError;
+    return spi.write(&command, sizeof(command), true) == microhal::SPI::Error::None;
 }
 
 std::experimental::optional<Sd::ResponseR1> Sd::readResponseR1(uint8_t retryCount) {
@@ -635,11 +643,11 @@ std::experimental::optional<Sd::ResponseR1> Sd::readResponseR1(uint8_t retryCoun
 
     do {
         uint8_t resp;
-        if (spi.read(resp, 0xFF) == microhal::SPI::Error::NoError) {
+        if (spi.read(resp, 0xFF) == microhal::SPI::Error::None) {
             // if MSB of resp byte is 0 then received R1 response
-        	if ((resp & 0b1000'0000) == 0) {
-              //  microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_DEBUG
-              //                                    << "Response: " << microhal::diagnostic::toHex(resp) << microhal::diagnostic::unlock;
+            if ((resp & 0b1000'0000) == 0) {
+                //  microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_DEBUG
+                //                                    << "Response: " << microhal::diagnostic::toHex(resp) << microhal::diagnostic::unlock;
                 response = static_cast<ResponseR1>(resp);
                 break;
             }
@@ -654,22 +662,22 @@ std::experimental::optional<Sd::ResponseR1> Sd::readResponseR1(uint8_t retryCoun
  * @return
  */
 std::experimental::optional<Sd::ResponseR7> Sd::readResponseR7(uint8_t retryCount) {
-	std::experimental::optional<Sd::ResponseR7> response;
+    std::experimental::optional<Sd::ResponseR7> response;
 
-	if (auto r1Response = readResponseR1(retryCount)) {
-		ResponseR7 r7Response;
-		r7Response.response = *r1Response;
-		if ((*r1Response & ResponseR1::IllegalCommand) == 0) {
-			// if not illegal command then read R7 response data
-			uint32_t response_data;
-			spi.read(&response_data, sizeof(response_data), 0xFF);
-			response_data = convertEndiannessIfRequired(response_data, Endianness::Big);
-			r7Response.data = response_data;
-		}
+    if (auto r1Response = readResponseR1(retryCount)) {
+        ResponseR7 r7Response;
+        r7Response.response = *r1Response;
+        if ((*r1Response & ResponseR1::IllegalCommand) == 0) {
+            // if not illegal command then read R7 response data
+            uint32_t response_data;
+            spi.read(&response_data, sizeof(response_data), 0xFF);
+            response_data = convertEndiannessIfRequired(response_data, Endianness::Big);
+            r7Response.data = response_data;
+        }
 
-		response = r7Response;
-	}
-	return response;
+        response = r7Response;
+    }
+    return response;
 }
 
 uint8_t Sd::readToken(uint8_t retryCount) {
@@ -681,34 +689,34 @@ uint8_t Sd::readToken(uint8_t retryCount) {
 }
 
 Sd::ReadDataError Sd::readDataPacket(const gsl::not_null<void *> data_ptr, uint16_t size) {
-	ReadDataError error = ReadDataError::Unknown;
+    ReadDataError error = ReadDataError::Unknown;
     uint8_t token = readToken(readDataTokenRetryCount);
     if (token == 0xFE) {
-       /*if (*/spi.read(data_ptr.get(), size, 0xFF);// == size) {
-			uint16_t crc;
-			spi.read(&crc, sizeof(crc), 0xFF);
-			crc = convertEndiannessIfRequired(crc, Endianness::Big);
-			// check crc
-			const uint16_t crc_calculated = CRC16::calculate(data_ptr.get(), size, 0);
-			if (crc_calculated == crc) {
-				error = ReadDataError::None;
-			} else {
-				diagChannel << lock << MICROHAL_ERROR << "CRC mismatch while reading data, CRC received: " << toHex(crc)
-							<< ", calculated: " << toHex(crc_calculated) << unlock;
+        /*if (*/ spi.read(data_ptr.get(), size, 0xFF);  // == size) {
+        uint16_t crc;
+        spi.read(&crc, sizeof(crc), 0xFF);
+        crc = convertEndiannessIfRequired(crc, Endianness::Big);
+        // check crc
+        const uint16_t crc_calculated = CRC16::calculate(data_ptr.get(), size, 0);
+        if (crc_calculated == crc) {
+            error = ReadDataError::None;
+        } else {
+            diagChannel << lock << MICROHAL_ERROR << "CRC mismatch while reading data, CRC received: " << toHex(crc)
+                        << ", calculated: " << toHex(crc_calculated) << unlock;
 
-				error = ReadDataError::CRCMismatch;
-			}
+            error = ReadDataError::CRCMismatch;
+        }
         //}
     } else {
         // an error occurred, and error token was received
         if ((token & 0b1110'0000) == 0) {
             // received error token
-        	error = static_cast<ReadDataError>(token);
+            error = static_cast<ReadDataError>(token);
 
-        	diagChannel << lock << MICROHAL_ERROR << "Received error data token: " << toBin(token) << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Received error data token: " << toBin(token) << unlock;
         } else {
-        	error = ReadDataError::Unknown;
-        	diagChannel << lock << MICROHAL_ERROR << "Unable to receive data tocken." << toBin(token) << unlock;
+            error = ReadDataError::Unknown;
+            diagChannel << lock << MICROHAL_ERROR << "Unable to receive data tocken." << toBin(token) << unlock;
         }
     }
     return error;
