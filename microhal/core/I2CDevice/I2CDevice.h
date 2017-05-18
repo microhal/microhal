@@ -71,7 +71,7 @@ namespace microhal {
  */
 class I2CDevice {
  public:
-	using DeviceAddress = I2C::DeviceAddress;
+    using DeviceAddress = I2C::DeviceAddress;
     /**
      * Class copying was disabled by deleting copy constructor and assigning operator.
      */
@@ -83,10 +83,11 @@ class I2CDevice {
      *
      * @param i2c - reference to I2C controller object
      * @param meAddress - address of device connected to I2C data buss. This address is in 8bit form @a aaaaaaax where @a a are address bits and
-     * 					  @a x bit changes when you want to write or read from device. When you passing device address @a x have to be 0.
+     * 					  @a x bit changes when you want to write or read from device. When you passing device address @a x have to be
+     * 0.
      */
-    explicit constexpr I2CDevice(I2C &i2c, DeviceAddress meAddress) : i2c(i2c), deviceAddress(meAddress), lastError(I2C::NoError) {}
-//    virtual ~I2CDevice() = default;
+    explicit constexpr I2CDevice(I2C &i2c, DeviceAddress meAddress) : i2c(i2c), deviceAddress(meAddress), lastError(I2C::Error::None) {}
+    //    virtual ~I2CDevice() = default;
     //------------------------------------------ functions ----------------------------------------
     /**
      * @brief This function return address of the device.
@@ -114,7 +115,7 @@ class I2CDevice {
         i2c.lock();
         I2C::Error status = i2c.write(deviceAddress, &data, 1);
         i2c.unlock();
-        if (status == I2C::NoError) {
+        if (status == I2C::Error::None) {
             return true;
         } else {
             lastError = status;
@@ -135,7 +136,7 @@ class I2CDevice {
         i2c.lock();
         I2C::Error status = i2c.read(deviceAddress, &data, 1);
         i2c.unlock();
-        if (status == I2C::NoError) {
+        if (status == I2C::Error::None) {
             return true;
         } else {
             lastError = status;
@@ -155,7 +156,7 @@ class I2CDevice {
     //        i2c.lock();
     //        I2C::Error status = i2c.read(deviceAddress, data, size);
     //        i2c.unlock();
-    //        if (status == I2C::NoError) {
+    //        if (status == I2C::Error::None) {
     //            return true;
     //        } else {
     //            lastError = status;
@@ -246,7 +247,8 @@ class I2CDevice {
     inline bool writeRegister(uint8_t address, int32_t data, Endianness endianness) __attribute__((always_inline)) {
         return writeRegister(address, static_cast<uint32_t>(data), endianness);
     }
-    // ---------------------------------------------------------------------------- read unsigned types -------------------------------------------------
+    // ---------------------------------------------------------------------------- read unsigned types
+    // -------------------------------------------------
     /**@brief This function read 8 bit unsigned data from register or memory cell at specified address of the I2C device.
      * @remark This function is thread-safe.
      *
@@ -288,7 +290,8 @@ class I2CDevice {
      */
     inline bool readRegister(uint8_t address, uint32_t &data, Endianness endianness) { return readRegister_impl(address, data, endianness); }
     inline bool readRegister(uint8_t address, uint64_t &data, Endianness endianness) { return readRegister_impl(address, data, endianness); }
-    // ---------------------------------------------------------------------------- read signed types ---------------------------------------------------
+    // ---------------------------------------------------------------------------- read signed types
+    // ---------------------------------------------------
     /**@brief This function work same as readRegister(uint8_t address, uint8_t &data) but takes signed parameter.
          * @remark This function is thread-safe.
          *
@@ -325,7 +328,8 @@ class I2CDevice {
     inline bool readRegister(uint8_t address, int32_t &data, Endianness endianness) __attribute__((always_inline)) {
         return readRegister(address, (uint32_t &)data, endianness);
     }
-    // ---------------------------------------------------------------------------- write unsigned types ------------------------------------------------
+    // ---------------------------------------------------------------------------- write unsigned types
+    // ------------------------------------------------
     /**@brief This function write data to 8 bit registers.
      *
      * @param address address of first register where data will be written
@@ -342,7 +346,7 @@ class I2CDevice {
 
         i2c.unlock();
 
-        if (status == I2C::NoError) {
+        if (status == I2C::Error::None) {
             return true;
         } else {
             lastError = status;
@@ -373,7 +377,8 @@ class I2CDevice {
     bool writeRegisters(uint8_t address, const uint32_t *buff, size_t size) {
         return writeRegisters(address, reinterpret_cast<const uint8_t *>(buff), 4 * size);
     }
-    // ---------------------------------------------------------------------------- read unsigned types -------------------------------------------------
+    // ---------------------------------------------------------------------------- read unsigned types
+    // -------------------------------------------------
     /**@brief This function read 8 bit registers.
      *
      * @param[in] address - address of first register
@@ -390,7 +395,7 @@ class I2CDevice {
 
         i2c.unlock();
 
-        if (status == I2C::NoError) {
+        if (status == I2C::Error::None) {
             return true;
         } else {
             lastError = status;
@@ -400,7 +405,8 @@ class I2CDevice {
 
     bool readRegisters(uint8_t address, uint16_t *buffer, size_t size, Endianness endianness);
     bool readRegisters(uint8_t address, uint32_t *buffer, size_t size, Endianness endianness);
-    // ---------------------------------------------------------------------------- set bits in register ------------------------------------------------
+    // ---------------------------------------------------------------------------- set bits in register
+    // ------------------------------------------------
     /**@brief This function set bits in 8 bit register.
      * @remark This function is thread-safe.
      *
@@ -447,7 +453,8 @@ class I2CDevice {
      * @retval false if an error occurred.
      */
     bool setBitsInRegister(uint8_t address, uint32_t bits, Endianness endianness);
-    // ---------------------------------------------------------------------------- clear bits in register ----------------------------------------------
+    // ---------------------------------------------------------------------------- clear bits in register
+    // ----------------------------------------------
     /**@brief This function clears bits in 8 bit register.
      * @remark This function is thread-safe.
      *
@@ -494,7 +501,8 @@ class I2CDevice {
      * @retval false if an error occurred.
      */
     bool clearBitsInRegister(const uint8_t address, uint32_t bits, Endianness endianness);
-    // ---------------------------------------------------------------------------- write bits in register with mask ------------------------------------
+    // ---------------------------------------------------------------------------- write bits in register with mask
+    // ------------------------------------
     /**@brief This function write bits from data parameter to 8bit register but only bits set to one in mask parameter are changed.
      * @remark This function is thread-safe.
      *
@@ -615,7 +623,7 @@ class I2CDevice {
     inline bool readRegister_noLock(uint8_t address, uint8_t &data) {
         I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, &data, 1);
 
-        if (status == I2C::NoError) {
+        if (status == I2C::Error::None) {
             return true;
         } else {
             lastError = status;
@@ -625,7 +633,7 @@ class I2CDevice {
     inline bool writeRegister_noLock(uint8_t address, const uint8_t data) {
         I2C::Error status = i2c.write(deviceAddress, &address, sizeof(address), &data, 1);
 
-        if (status == I2C::NoError) {
+        if (status == I2C::Error::None) {
             return true;
         }
         lastError = status;

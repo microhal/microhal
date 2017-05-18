@@ -43,7 +43,7 @@ namespace stm32f3xx {
 #if MICROHAL_I2C1_DMA_TX_STREAM != 6 && MICROHAL_I2C1_DMA_TX_STREAM != 7
 #error I2C TX DMA channel can be confugured as 6 or 7 only
 #endif
-I2C_dma I2C_dma::i2c1(*I2C1, DMA::dma1->stream[MICROHAL_I2C1_DMA_RX_STREAM-1], DMA::dma1->stream[MICROHAL_I2C1_DMA_TX_STREAM-1]);
+I2C_dma I2C_dma::i2c1(*I2C1, DMA::dma1->stream[MICROHAL_I2C1_DMA_RX_STREAM - 1], DMA::dma1->stream[MICROHAL_I2C1_DMA_TX_STREAM - 1]);
 I2C &I2C::i2c1 = I2C_dma::i2c1;
 #endif
 #ifdef MICROHAL_USE_I2C2_DMA
@@ -68,23 +68,23 @@ I2C &I2C::i2c3 = I2C_dma::i2c3;
 /* ************************************************************************************************
  *                                 		  Functions
  * ***********************************************************************************************/
-I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t * data, size_t size) noexcept {
+I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *data, size_t size) noexcept {
     // configure DMA
-	txStream.numberOfItemsToTransfer(size);
-    txStream.memoryAddress(const_cast<uint8_t*>(data));
+    txStream.numberOfItemsToTransfer(size);
+    txStream.memoryAddress(const_cast<uint8_t *>(data));
     txStream.enable();
 
     // configure I2C
-	uint32_t cr2 = i2c.CR2;
+    uint32_t cr2 = i2c.CR2;
     // clear device address and number of bytes and read flag
     cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RD_WRN;
     // set new device address, set number of bytes to transfer, set transfer direction to transmit
     if (size > 255) {
-    	cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RELOAD;
-    	size -= 255;
+        cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RELOAD;
+        size -= 255;
     } else {
-    	cr2 |= deviceAddress | (size << I2C_CR2_NBYTES_Pos);
-    	size = 0;
+        cr2 |= deviceAddress | (size << I2C_CR2_NBYTES_Pos);
+        size = 0;
     }
 
     transfer.mode = Mode::Transmit;
@@ -93,7 +93,7 @@ I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t * data, siz
     i2c.CR1 |= I2C_CR1_TCIE | I2C_CR1_TXDMAEN;
     i2c.CR2 = cr2 | I2C_CR2_START;
 
-    error = NoError;
+    error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
@@ -101,30 +101,30 @@ I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t * data, siz
 
 I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *dataA, size_t dataASize, const uint8_t *dataB, size_t dataBSize) noexcept {
     txStream.numberOfItemsToTransfer(dataASize);
-    txStream.memoryAddress(const_cast<uint8_t*>(dataA));
+    txStream.memoryAddress(const_cast<uint8_t *>(dataA));
     txStream.enable();
 
-	uint32_t cr2 = i2c.CR2;
-	// clear device address and number of bytes and read flag
-	cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RD_WRN;
-	// set new device address, set number of bytes to transfer, set transfer direction to transmit
-	if (dataASize > 255) {
-		cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos);
-		dataASize -= 255;
-	} else {
-		cr2 |= deviceAddress | (dataASize << I2C_CR2_NBYTES_Pos);
-		dataASize = 0;
-	}
+    uint32_t cr2 = i2c.CR2;
+    // clear device address and number of bytes and read flag
+    cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RD_WRN;
+    // set new device address, set number of bytes to transfer, set transfer direction to transmit
+    if (dataASize > 255) {
+        cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos);
+        dataASize -= 255;
+    } else {
+        cr2 |= deviceAddress | (dataASize << I2C_CR2_NBYTES_Pos);
+        dataASize = 0;
+    }
 
-	transfer.mode = Mode::TransmitDoubleBuffer;
-	transfer.txLength = dataASize;
-	transfer.bufferB.ptr = const_cast<uint8_t*>(dataB);
-	transfer.bufferB.length = dataBSize;
+    transfer.mode = Mode::TransmitDoubleBuffer;
+    transfer.txLength = dataASize;
+    transfer.bufferB.ptr = const_cast<uint8_t *>(dataB);
+    transfer.bufferB.length = dataBSize;
 
     i2c.CR1 |= I2C_CR1_TCIE | I2C_CR1_TXDMAEN;
-    i2c.CR2 = cr2 | I2C_CR2_RELOAD | I2C_CR2_START ;
+    i2c.CR2 = cr2 | I2C_CR2_RELOAD | I2C_CR2_START;
 
-    error = NoError;
+    error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
@@ -135,16 +135,16 @@ I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t *data, size_t size
     rxStream.memoryAddress(data);
     rxStream.enable();
 
-	uint32_t cr2 = i2c.CR2;
-	// clear device address and number of bytes
-	cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk;
-	// set new device address, set number of bytes to transfer, set transfer direction to receive
+    uint32_t cr2 = i2c.CR2;
+    // clear device address and number of bytes
+    cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk;
+    // set new device address, set number of bytes to transfer, set transfer direction to receive
     if (size > 255) {
-    	cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN | I2C_CR2_RELOAD;
-    	size -= 255;
+        cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN | I2C_CR2_RELOAD;
+        size -= 255;
     } else {
-    	cr2 |= deviceAddress | (size << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN;
-    	size = 0;
+        cr2 |= deviceAddress | (size << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN;
+        size = 0;
     }
 
     transfer.mode = Mode::Receive;
@@ -153,7 +153,7 @@ I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t *data, size_t size
     i2c.CR1 |= I2C_CR1_TCIE | I2C_CR1_RXDMAEN;
     i2c.CR2 = cr2 | I2C_CR2_START;
 
-    error = NoError;
+    error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
@@ -164,19 +164,19 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *dataA, size_t dataASize
     rxStream.memoryAddress(dataA);
     rxStream.enable();
 
-	uint32_t cr2 = i2c.CR2;
-	// clear device address and number of bytes and read flag
-	cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk;
-	// set new device address, set number of bytes to transfer, set transfer direction to receive
-	if (dataASize > 255) {
-		cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN;
-		dataASize -= 255;
-	} else {
-		cr2 |= deviceAddress | (dataASize << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN;
-		dataASize = 0;
-	}
+    uint32_t cr2 = i2c.CR2;
+    // clear device address and number of bytes and read flag
+    cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk;
+    // set new device address, set number of bytes to transfer, set transfer direction to receive
+    if (dataASize > 255) {
+        cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN;
+        dataASize -= 255;
+    } else {
+        cr2 |= deviceAddress | (dataASize << I2C_CR2_NBYTES_Pos) | I2C_CR2_RD_WRN;
+        dataASize = 0;
+    }
 
-	transfer.mode = Mode::ReceiveDoubleBuffer;
+    transfer.mode = Mode::ReceiveDoubleBuffer;
     transfer.rxLength = dataASize;
     transfer.bufferB.length = dataBSize;
     transfer.bufferB.ptr = dataB;
@@ -184,33 +184,31 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *dataA, size_t dataASize
     i2c.CR1 |= I2C_CR1_TCIE | I2C_CR1_RXDMAEN;
     i2c.CR2 = cr2 | I2C_CR2_RELOAD | I2C_CR2_START;
 
-    error = NoError;
+    error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
 };
 
-I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress,
-                              const uint8_t * writeData, size_t writeSize,
-							  uint8_t * readData, size_t readSize) noexcept {
+I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress, const uint8_t *writeData, size_t writeSize, uint8_t *readData, size_t readSize) noexcept {
     txStream.numberOfItemsToTransfer(writeSize);
-    txStream.memoryAddress(const_cast<uint8_t*>(writeData));
+    txStream.memoryAddress(const_cast<uint8_t *>(writeData));
     txStream.enable();
 
     rxStream.numberOfItemsToTransfer(readSize);
     rxStream.memoryAddress(readData);
     rxStream.enable();
 
-	uint32_t cr2 = i2c.CR2;
+    uint32_t cr2 = i2c.CR2;
     // clear device address and number of bytes and read flag
     cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RD_WRN;
     // set new device address, set number of bytes to transfer, set transfer direction to transmit
     if (writeSize > 255) {
-    	cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RELOAD;
-    	writeSize -= 255;
+        cr2 |= deviceAddress | (255 << I2C_CR2_NBYTES_Pos) | I2C_CR2_RELOAD;
+        writeSize -= 255;
     } else {
-    	cr2 |= deviceAddress | (writeSize << I2C_CR2_NBYTES_Pos);
-    	writeSize = 0;
+        cr2 |= deviceAddress | (writeSize << I2C_CR2_NBYTES_Pos);
+        writeSize = 0;
     }
 
     transfer.mode = Mode::TransmitReceive;
@@ -221,7 +219,7 @@ I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress,
     i2c.CR1 |= I2C_CR1_TCIE | I2C_CR1_RXDMAEN | I2C_CR1_TXDMAEN;
     i2c.CR2 = cr2 | I2C_CR2_START;
 
-    error = NoError;
+    error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
@@ -230,101 +228,95 @@ I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress,
  *
  */
 void I2C_dma::init(void) {
-	DMA::DMA &dma = *DMA::dma1;
+    DMA::DMA &dma = *DMA::dma1;
     dma.clockEnable();
 
     // rx
     rxStream.deinit();
-    rxStream.init(DMA::Channel::MemoryDataSize::Byte,
-                DMA::Channel::PeripheralDataSize::Byte,
-                DMA::Channel::MemoryIncrementMode::PointerIncremented,
-                DMA::Channel::PeripheralIncrementMode::PointerFixed,
-                DMA::Channel::TransmisionDirection::PerToMem);
+    rxStream.init(DMA::Channel::MemoryDataSize::Byte, DMA::Channel::PeripheralDataSize::Byte, DMA::Channel::MemoryIncrementMode::PointerIncremented,
+                  DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
     rxStream.peripheralAddress(&i2c.RXDR);
 
     // tx
     txStream.deinit();
-    txStream.init(DMA::Channel::MemoryDataSize::Byte,
-                DMA::Channel::PeripheralDataSize::Byte,
-                DMA::Channel::MemoryIncrementMode::PointerIncremented,
-                DMA::Channel::PeripheralIncrementMode::PointerFixed,
-                DMA::Channel::TransmisionDirection::MemToPer);
+    txStream.init(DMA::Channel::MemoryDataSize::Byte, DMA::Channel::PeripheralDataSize::Byte, DMA::Channel::MemoryIncrementMode::PointerIncremented,
+                  DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::MemToPer);
     txStream.peripheralAddress(&i2c.TXDR);
 }
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
-void  I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
-	using Mode = I2C_dma::Mode;
+void I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
+    using Mode = I2C_dma::Mode;
 
     uint32_t isr = i2c->ISR;
 
     if (isr & I2C_ISR_TC) {
-    	if (obj.transfer.mode == Mode::TransmitReceive) {
-    		obj.transfer.mode = Mode::Receive;
+        if (obj.transfer.mode == Mode::TransmitReceive) {
+            obj.transfer.mode = Mode::Receive;
 
-    		const size_t toWrite = obj.transfer.rxLength > 255 ? 255 : obj.transfer.rxLength;
-    		obj.transfer.rxLength -= toWrite;
+            const size_t toWrite = obj.transfer.rxLength > 255 ? 255 : obj.transfer.rxLength;
+            obj.transfer.rxLength -= toWrite;
 
-    	    uint32_t cr2 = i2c->CR2;
-    	    // clear number of bytes
-    	    cr2 &= ~I2C_CR2_NBYTES_Msk;
-    	    // set number of bytes to transfer, set transfer direction to receive
-    	    cr2 |=  I2C_CR2_RD_WRN | (toWrite << I2C_CR2_NBYTES_Pos);
-    	    i2c->CR2 = cr2;
+            uint32_t cr2 = i2c->CR2;
+            // clear number of bytes
+            cr2 &= ~I2C_CR2_NBYTES_Msk;
+            // set number of bytes to transfer, set transfer direction to receive
+            cr2 |= I2C_CR2_RD_WRN | (toWrite << I2C_CR2_NBYTES_Pos);
+            i2c->CR2 = cr2;
 
-    	    i2c->CR2 |= I2C_CR2_START;
-    	} else {
-    		i2c->CR2 |= I2C_CR2_STOP;
-    		obj.rxStream.disable();
-    		obj.txStream.disable();
-    		// maybe it is better to enable stop interrupt and give semaphore in when stop interrupt occurs
-    		auto shouldYeld = obj.semaphore.giveFromISR();
-#if defined (HAL_RTOS_FreeRTOS)
-    		portYIELD_FROM_ISR(shouldYeld);
+            i2c->CR2 |= I2C_CR2_START;
+        } else {
+            i2c->CR2 |= I2C_CR2_STOP;
+            obj.rxStream.disable();
+            obj.txStream.disable();
+            // maybe it is better to enable stop interrupt and give semaphore in when stop interrupt occurs
+            auto shouldYeld = obj.semaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
 #else
-    		(void)shouldYeld;
+            (void)shouldYeld;
 #endif
-    	}
+        }
     }
 
     if (isr & I2C_ISR_TCR) {
-       	uint32_t cr2 = i2c->CR2;
-       	bool receive = cr2 & I2C_CR2_RD_WRN;
-       	auto &transferLength = receive ? obj.transfer.rxLength : obj.transfer.txLength;
+        uint32_t cr2 = i2c->CR2;
+        bool receive = cr2 & I2C_CR2_RD_WRN;
+        auto &transferLength = receive ? obj.transfer.rxLength : obj.transfer.txLength;
 
-       	// clear number of bytes
-       	cr2 &= ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RELOAD;
+        // clear number of bytes
+        cr2 &= ~I2C_CR2_NBYTES_Msk & ~I2C_CR2_RELOAD;
 
-       	size_t toWrite = transferLength;
-       	if (toWrite != 0) {
-       		if (toWrite > 255) {
-       			toWrite = 255;
-       			cr2 |= I2C_CR2_RELOAD;
-       		}
-       		transferLength -= toWrite;
-       	} else {
-       		DMA::Channel &stream = receive ? obj.rxStream : obj.txStream;
-       		// we are in double buffer mode
-       		// switch buffers
-       		transferLength = obj.transfer.bufferB.length;
-       		toWrite = transferLength;
-       		if (toWrite > 255) {
-       			toWrite = 255;
-       			cr2 |= I2C_CR2_RELOAD;
-       		}
-       		transferLength -= toWrite;
+        size_t toWrite = transferLength;
+        if (toWrite != 0) {
+            if (toWrite > 255) {
+                toWrite = 255;
+                cr2 |= I2C_CR2_RELOAD;
+            }
+            transferLength -= toWrite;
+        } else {
+            DMA::Channel &stream = receive ? obj.rxStream : obj.txStream;
+            // we are in double buffer mode
+            // switch buffers
+            transferLength = obj.transfer.bufferB.length;
+            toWrite = transferLength;
+            if (toWrite > 255) {
+                toWrite = 255;
+                cr2 |= I2C_CR2_RELOAD;
+            }
+            transferLength -= toWrite;
 
-       		stream.disable();
-       		stream.memoryAddress(obj.transfer.bufferB.ptr);
-       		stream.numberOfItemsToTransfer(obj.transfer.bufferB.length);
-       		stream.enable();
-       	}
+            stream.disable();
+            stream.memoryAddress(obj.transfer.bufferB.ptr);
+            stream.numberOfItemsToTransfer(obj.transfer.bufferB.length);
+            stream.enable();
+        }
 
-       	// set number of bytes to transfer, set transfer direction to transmit
-       	cr2 |=  (toWrite << I2C_CR2_NBYTES_Pos);
-       	i2c->CR2 = cr2;
-       }
+        // set number of bytes to transfer, set transfer direction to transmit
+        cr2 |= (toWrite << I2C_CR2_NBYTES_Pos);
+        i2c->CR2 = cr2;
+    }
 }
 
 void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
@@ -335,11 +327,11 @@ void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
     i2c->CR2 |= I2C_CR2_STOP;
     // read error and store it in variable
     obj.error = I2C::errorCheckAndClear(i2c, i2c->ISR);
-	auto shouldYeld = obj.semaphore.giveFromISR();
-#if defined (HAL_RTOS_FreeRTOS)
-	portYIELD_FROM_ISR(shouldYeld);
+    auto shouldYeld = obj.semaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+    portYIELD_FROM_ISR(shouldYeld);
 #else
-	(void)shouldYeld;
+    (void)shouldYeld;
 #endif
 }
 //***********************************************************************************************//

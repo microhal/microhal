@@ -4,10 +4,10 @@
  *  Created on: 16 kwi 2014
  *      Author: pawel
  */
-#include "microhal.h"
+#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
 #include "i2c.h"
-#include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
@@ -24,13 +24,13 @@ void hardwareConfig(void) {
 
     // configure Serial Port interfaces
     stm32f4xx::SerialPort::Serial3.setDataBits(stm32f4xx::SerialPort::Data8);
-	stm32f4xx::SerialPort::Serial3.setStopBits(stm32f4xx::SerialPort::OneStop);
-	stm32f4xx::SerialPort::Serial3.setParity(stm32f4xx::SerialPort::NoParity);
-	stm32f4xx::SerialPort::Serial3.setBaudRate(stm32f4xx::SerialPort::Baud115200);
-	stm32f4xx::SerialPort::Serial3.open(stm32f4xx::SerialPort::ReadWrite);
+    stm32f4xx::SerialPort::Serial3.setStopBits(stm32f4xx::SerialPort::OneStop);
+    stm32f4xx::SerialPort::Serial3.setParity(stm32f4xx::SerialPort::NoParity);
+    stm32f4xx::SerialPort::Serial3.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    stm32f4xx::SerialPort::Serial3.open(stm32f4xx::SerialPort::ReadWrite);
 
     stm32f4xx::I2C::i2c2.init();
-    stm32f4xx::I2C::i2c2.setMode(microhal::I2C::Mode::Standard);
+    stm32f4xx::I2C::i2c2.speed(100000, microhal::I2C::Mode::Standard);
     stm32f4xx::I2C::i2c2.enable();
 
     SysTick_Config(168000000 / 1000);
@@ -39,5 +39,5 @@ void hardwareConfig(void) {
 uint64_t SysTick_time = 0;
 
 extern "C" void SysTick_Handler(void) {
-	SysTick_time++;
+    SysTick_time++;
 }

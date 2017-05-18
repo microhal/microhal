@@ -36,7 +36,7 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
@@ -47,22 +47,21 @@ void hardwareConfig(void) {
 
     // configure Serial Port interfaces
     stm32f4xx::SerialPort::Serial2.setDataBits(stm32f4xx::SerialPort::Data8);
-	stm32f4xx::SerialPort::Serial2.setStopBits(stm32f4xx::SerialPort::OneStop);
-	stm32f4xx::SerialPort::Serial2.setParity(stm32f4xx::SerialPort::NoParity);
-	stm32f4xx::SerialPort::Serial2.setBaudRate(stm32f4xx::SerialPort::Baud115200);
-	stm32f4xx::SerialPort::Serial2.open(stm32f4xx::SerialPort::ReadWrite);
+    stm32f4xx::SerialPort::Serial2.setStopBits(stm32f4xx::SerialPort::OneStop);
+    stm32f4xx::SerialPort::Serial2.setParity(stm32f4xx::SerialPort::NoParity);
+    stm32f4xx::SerialPort::Serial2.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    stm32f4xx::SerialPort::Serial2.open(stm32f4xx::SerialPort::ReadWrite);
 
     stm32f4xx::I2C::i2c1.init();
-    stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Standard);
+    stm32f4xx::I2C::i2c1.speed(100000, microhal::I2C::Mode::Standard);
     stm32f4xx::I2C::i2c1.enable();
 
-
-    SysTick_Config(84000000/1000);
+    SysTick_Config(84000000 / 1000);
 }
 
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
+;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

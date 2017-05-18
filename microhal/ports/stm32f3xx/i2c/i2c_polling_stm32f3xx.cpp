@@ -57,10 +57,10 @@ static I2C::Error sendStart(I2C_TypeDef &i2c) {
     do {
         status = i2c.ISR;
         const I2C::Error error = I2C::errorCheckAndClear(&i2c, status);
-        if (error != I2C::NoError) return error;
+        if (error != I2C::Error::None) return error;
     } while (i2c.CR2 & I2C_CR2_START);
 
-    return I2C::NoError;
+    return I2C::Error::None;
 }
 /**
  *
@@ -69,16 +69,17 @@ static I2C::Error sendStart(I2C_TypeDef &i2c) {
  * @param data pointer to buffer where data will be stored
  * @param length number of bytes to read
  *
- * @return NoError if data was read successfully or error code if an error occurred, see @ref I2C::Error.
+ * @return Error::None if data was read successfully or error code if an error occurred, see @ref I2C::Error.
  */
-I2C::Error I2C_polling::writeRead(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size, uint8_t *data_read, size_t read_size) noexcept {
+I2C::Error I2C_polling::writeRead(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size, uint8_t *data_read,
+                                  size_t read_size) noexcept {
     I2C::Error error = write_implementation(deviceAddress, write, write_size, write, 0);
-    if (error == NoError) {
+    if (error == Error::None) {
         volatile uint16_t status;
         do {
             status = i2c.ISR;
             error = errorCheckAndClear(&i2c, status);
-            if (error != NoError) return error;
+            if (error != Error::None) return error;
         } while (!(status & I2C_ISR_TC));
 
         error = read(deviceAddress, (uint8_t *)data_read, read_size);
@@ -92,18 +93,18 @@ I2C::Error I2C_polling::writeRead(DeviceAddress deviceAddress, const uint8_t *wr
  * @param data pointer to data buffer
  * @param length number of bytes to write
  *
- * @return NoError if data was send successfully or error code if an error occurred, see @ref I2C::Error.
+ * @return Error::None if data was send successfully or error code if an error occurred, see @ref I2C::Error.
  */
 I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size) noexcept {
-    if (write_size == 0) return NoError;
+    if (write_size == 0) return Error::None;
 
     const I2C::Error error = write_implementation(deviceAddress, write, write_size, write, 0);
-    if (error == NoError) {
+    if (error == Error::None) {
         uint16_t status;
         do {
             status = i2c.ISR;
             const I2C::Error error = errorCheckAndClear(&i2c, status);
-            if (error != NoError) return error;
+            if (error != Error::None) return error;
         } while (!(status & I2C_ISR_TC));
     }
     // Send I2Cx STOP Condition
@@ -115,12 +116,12 @@ I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write,
 I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size, const uint8_t *write_dataB,
                               size_t write_data_sizeB) noexcept {
     const I2C::Error error = write_implementation(deviceAddress, write_data, write_data_size, write_dataB, write_data_sizeB);
-    if (error == NoError) {
+    if (error == Error::None) {
         uint16_t status;
         do {
             status = i2c.ISR;
             const I2C::Error error = errorCheckAndClear(&i2c, status);
-            if (error != NoError) return error;
+            if (error != Error::None) return error;
         } while (!(status & I2C_ISR_TC));
     }
     // Send I2Cx STOP Condition
@@ -136,16 +137,16 @@ I2C::Error I2C_polling::write(uint8_t data) {
     do {
         status = i2c.ISR;
         error = errorCheckAndClear(&i2c, status);
-        if (error != NoError) return error;
+        if (error != Error::None) return error;
     } while (!(status & I2C_ISR_TXE));
     i2c.TXDR = data;
 
-    return NoError;
+    return Error::None;
 }
 
 I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
                                              size_t write_data_sizeB) {
-    if (write_data_size == 0) return NoError;
+    if (write_data_size == 0) return Error::None;
 
     I2C::Error error;
 
@@ -158,24 +159,25 @@ I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const 
 
     // Generate the Start condition
     const I2C::Error startError = sendStart(i2c);
-    if (startError != I2C::NoError) return startError;
+    if (startError != I2C::Error::None) return startError;
 
     const uint8_t *ptr = static_cast<const uint8_t *>(write_data);
     while (write_data_size--) {
         error = write(*ptr++);
-        if (error != NoError) return error;
+        if (error != Error::None) return error;
     }
 
     const uint8_t *ptrB = static_cast<const uint8_t *>(write_dataB);
     while (write_data_sizeB--) {
         error = write(*ptrB++);
-        if (error != NoError) return error;
+        if (error != Error::None) return error;
     }
 
-    return NoError;
+    return Error::None;
 }
 
-I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
+I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB,
+                                            size_t dataBLength) noexcept {
     uint32_t cr2 = i2c.CR2;
     // clear device address and number of bytes
     cr2 &= ~I2C_CR2_SADD_Msk & ~I2C_CR2_NBYTES_Msk;
@@ -183,29 +185,29 @@ I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t
     cr2 |= deviceAddress | I2C_CR2_RD_WRN | ((dataLength + dataBLength) << I2C_CR2_NBYTES_Pos);
     i2c.CR2 = cr2;
 
-	// Generate the Start condition
+    // Generate the Start condition
     const I2C::Error restartError = sendStart(i2c);
-    if (restartError != I2C::NoError) return restartError;
+    if (restartError != I2C::Error::None) return restartError;
 
     I2C::Error error;
     volatile uint16_t status;
 
     for (size_t i = 0; i < dataLength; i++) {
-    	do {
-    		status = i2c.ISR;
-    		error = errorCheckAndClear(&i2c, status);
-    		if (error != NoError) return error;
-    	} while (!(status & I2C_ISR_RXNE));
-    	((uint8_t *)data)[i] = i2c.RXDR;
+        do {
+            status = i2c.ISR;
+            error = errorCheckAndClear(&i2c, status);
+            if (error != Error::None) return error;
+        } while (!(status & I2C_ISR_RXNE));
+        ((uint8_t *)data)[i] = i2c.RXDR;
     }
     // buffer B
     size_t i = 0;
     if (dataBLength > 1) {
-    	for (; i < dataBLength - 1; i++) {
+        for (; i < dataBLength - 1; i++) {
             do {
                 status = i2c.ISR;
                 error = errorCheckAndClear(&i2c, status);
-                if (error != NoError) return error;
+                if (error != Error::None) return error;
             } while (!(status & I2C_ISR_RXNE));
             ((uint8_t *)dataB)[i] = i2c.RXDR;
         }
@@ -217,11 +219,11 @@ I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t
     do {
         status = i2c.ISR;
         error = errorCheckAndClear(&i2c, status);
-        if (error != NoError) return error;
+        if (error != Error::None) return error;
     } while (!(status & I2C_ISR_RXNE));
     // read data from I2C data register
     ((uint8_t *)dataB)[i] = i2c.RXDR;
-    return NoError;
+    return Error::None;
 };
 
 }  // namespace stm32f3xx

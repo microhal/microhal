@@ -35,9 +35,9 @@
 #include <cstdint>
 
 #include "core_stm32f4xx.h"
+#include "device/stm32f4xx.h"
 #include "interfaces/i2c_interface.h"
 #include "microhalPortConfig_stm32f4xx.h"
-#include "device/stm32f4xx.h"
 
 namespace microhal {
 class I2CDevice;
@@ -75,30 +75,14 @@ class I2C : public microhal::I2C {
 #endif
     //---------------------------------- functions ----------------------------------
     bool init();
-
-    Speed speed(Speed speed) noexcept final {
-//    	bool fastMode = false;
-//    	bool dutyCycle = false;
-//
-//    	if (speed > 100000) {
-//    		fastMode = true;
-//    		dutyCycle = true;
-//    	}
-//
-//    	return configure(getSCLfreq(mode), getMaxRiseTime(mode), fastMode, dutyCycle);
-    	std::terminate();
-    }
-    Speed speed() noexcept final;
-    void busReset() noexcept final { i2c.CR1 |= I2C_CR1_STOP;}
-
     /**
-     * @brief This function change I2C peripheral mode. Changing mode is only
+     * @brief This function change I2C peripheral speed and mode. Changing mode is only
      * possible when I2C peripheral is disabled.
      *
      * @retval true if mode was set.
      * @retval false if I2C is enabled and mode can't be changed.
      */
-    bool setMode(Mode mode) noexcept final {
+    bool speed(Speed speed, Mode mode) noexcept final {
         bool fastMode = false;
         bool dutyCycle = false;
 
@@ -107,8 +91,10 @@ class I2C : public microhal::I2C {
             dutyCycle = true;
         }
 
-        return configure(getSCLfreq(mode), getMaxRiseTime(mode), fastMode, dutyCycle);
+        return configure(speed, getMaxRiseTime(mode), fastMode, dutyCycle);
     }
+    Speed speed() noexcept final;
+    void busReset() noexcept final { i2c.CR1 |= I2C_CR1_STOP; }
     /**
      * @brief This function enable analog filter. Changing filter state is only
      * possible when I2C peripheral is inactive.
@@ -173,9 +159,7 @@ class I2C : public microhal::I2C {
      */
     void disable() { i2c.CR1 &= ~I2C_CR1_PE; }
 
-    void stop() {
-    	i2c.CR1 |= I2C_CR1_STOP;
-    }
+    void stop() { i2c.CR1 |= I2C_CR1_STOP; }
 
     bool configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty);
 
@@ -188,62 +172,67 @@ class I2C : public microhal::I2C {
         : i2c(i2c) {
     }
 
-    void start() {
-    	i2c.CR1 |= I2C_CR1_START;
-    }
+    void start() { i2c.CR1 |= I2C_CR1_START; }
 
     void enableErrorInterrupt(uint32_t priority) {
-    	NVIC_EnableIRQ(errorIrq());
+        NVIC_EnableIRQ(errorIrq());
         NVIC_SetPriority(errorIrq(), priority);
     }
 
     void enableEventInterrupt(uint32_t priority) {
-    	NVIC_EnableIRQ(eventIrq());
-    	NVIC_SetPriority(eventIrq(), priority);
+        NVIC_EnableIRQ(eventIrq());
+        NVIC_SetPriority(eventIrq(), priority);
     }
 
     IRQn_Type errorIrq() {
-        if (&i2c == I2C1) return I2C1_ER_IRQn;
-        else if (&i2c == I2C2) return I2C2_ER_IRQn;
+        if (&i2c == I2C1)
+            return I2C1_ER_IRQn;
+        else if (&i2c == I2C2)
+            return I2C2_ER_IRQn;
 #if defined(I2C3)
-        else if (&i2c == I2C3) return I2C3_ER_IRQn;
+        else if (&i2c == I2C3)
+            return I2C3_ER_IRQn;
 #endif
         std::terminate();
     }
 
     IRQn_Type eventIrq() {
-            if (&i2c == I2C1) return I2C1_EV_IRQn;
-            else if (&i2c == I2C2) return I2C2_EV_IRQn;
-    #if defined(I2C3)
-            else if (&i2c == I2C3) return I2C3_EV_IRQn;
-    #endif
-            std::terminate();
-        }
-public:
+        if (&i2c == I2C1)
+            return I2C1_EV_IRQn;
+        else if (&i2c == I2C2)
+            return I2C2_EV_IRQn;
+#if defined(I2C3)
+        else if (&i2c == I2C3)
+            return I2C3_EV_IRQn;
+#endif
+        std::terminate();
+    }
+
+ public:
     static I2C::Error errorCheckAndClear(I2C_TypeDef *i2c, uint16_t sr1) {
-        uint32_t errors = I2C::NoError;
+        auto errors = I2C::Error::None;
 
         if (sr1 & I2C_SR1_TIMEOUT) {
-            errors |= I2C::Timeout;
+            errors |= I2C::Error::Timeout;
             i2c->SR1 &= ~I2C_SR1_TIMEOUT;
         }
         if (sr1 & I2C_SR1_PECERR) {
             i2c->SR1 &= ~I2C_SR1_PECERR;
         }
         if (sr1 & I2C_SR1_OVR) {
-            errors |= I2C::OverrunError;
+            errors |= I2C::Error::Overrun;
             i2c->SR1 &= ~I2C_SR1_OVR;
         }
         if (sr1 & I2C_SR1_AF) {
-            errors |= I2C::AcknowledgeFailure;
+            errors |= I2C::Error::AcknowledgeFailure;
             i2c->SR1 &= ~I2C_SR1_AF;
         }
         if (sr1 & I2C_SR1_ARLO) {
-            errors |= I2C::ArbitrationLost;
+            errors |= I2C::Error::ArbitrationLost;
             i2c->SR1 &= ~I2C_SR1_ARLO;
         }
         if (sr1 & I2C_SR1_BERR) {
-            errors |= I2C::BusError;
+            errors |= I2C::Error::Bus;
             i2c->SR1 &= ~I2C_SR1_BERR;
         }
 

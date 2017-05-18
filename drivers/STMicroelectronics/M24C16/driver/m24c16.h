@@ -33,79 +33,67 @@
 #include <cstdint>
 #include <experimental/optional>
 
-#include "microhal.h"
 #include "I2CDevice/I2CDevice.h"
 #include "gsl/gsl"
+#include "microhal.h"
 
 class M24C16 {
-	using Endianness = microhal::Endianness;
-	using Error  = microhal::I2C::Error;
-
+    using Endianness = microhal::Endianness;
+    using Error = microhal::I2C::Error;
 
  public:
-	/**
-	* @brief This enum contain I2C address
-	*/
-	enum : microhal::I2C::DeviceAddress {
-		I2CAddress = 0b1010'000'0
-	};
-	static constexpr size_t pageSize = 16;
-	static constexpr size_t memorySize = 2048; // in Bytes
-	static constexpr size_t beginAddress = 0;
-	static constexpr size_t endAddress = memorySize;
+    /**
+    * @brief This enum contain I2C address
+    */
+    enum : microhal::I2C::DeviceAddress { I2CAddress = 0b1010'000'0 };
+    static constexpr size_t pageSize = 16;
+    static constexpr size_t memorySize = 2048;  // in Bytes
+    static constexpr size_t beginAddress = 0;
+    static constexpr size_t endAddress = memorySize;
 
-	M24C16(microhal::I2C &i2c) : i2c(i2c) {
-	}
-	virtual ~M24C16();
+    M24C16(microhal::I2C &i2c) : i2c(i2c) {}
+    virtual ~M24C16();
 
-	bool write(size_t address, const gsl::not_null<const void *> data, size_t data_size);
+    bool write(size_t address, const gsl::not_null<const void *> data, size_t data_size);
 
-	bool read(size_t address, gsl::not_null<void *> data, size_t data_size) {
-		Error error = sequentealRandomRead(address, data, data_size);
-		if (error == Error::NoError) {
-			return true;
-		}
-		return false;
-	}
+    bool read(size_t address, gsl::not_null<void *> data, size_t data_size) {
+        Error error = sequentealRandomRead(address, data, data_size);
+        if (error == Error::None) {
+            return true;
+        }
+        return false;
+    }
 
  private:
-	microhal::I2C &i2c;
-	// reading functions
-	Error currentAddressRead(uint8_t &data) {
-		return i2c.read(I2CAddress, &data, 1);
-	}
+    microhal::I2C &i2c;
+    // reading functions
+    Error currentAddressRead(uint8_t &data) { return i2c.read(I2CAddress, &data, 1); }
 
-	Error randomAddressRead(size_t address, gsl::not_null<void*> data, size_t data_size) {
-		uint8_t lowAddress = getAddrLowByte(address);
-		return i2c.writeRead(I2CAddress | getAddrHighByte(address), &lowAddress , sizeof(lowAddress), static_cast<uint8_t*>(data.get()), data_size);
-	}
+    Error randomAddressRead(size_t address, gsl::not_null<void *> data, size_t data_size) {
+        uint8_t lowAddress = getAddrLowByte(address);
+        return i2c.writeRead(I2CAddress | getAddrHighByte(address), &lowAddress, sizeof(lowAddress), static_cast<uint8_t *>(data.get()), data_size);
+    }
 
-	Error sequentialCurrentRead(gsl::not_null<void*> data, size_t data_size) {
-		return i2c.read(I2CAddress, (uint8_t*)data.get(), data_size);
-	}
+    Error sequentialCurrentRead(gsl::not_null<void *> data, size_t data_size) { return i2c.read(I2CAddress, (uint8_t *)data.get(), data_size); }
 
-	Error sequentealRandomRead(size_t address, gsl::not_null<void*> data, size_t data_size) {
-		uint8_t lowAddress = getAddrLowByte(address);
-		return i2c.writeRead(I2CAddress | getAddrHighByte(address), &lowAddress , sizeof(lowAddress), static_cast<uint8_t*>(data.get()), data_size);
-	}
-	// writing functions
-	Error byteWrite(size_t address, uint8_t data) {
-		uint8_t tmp[] = {getAddrLowByte(address), data};
-		return i2c.write(I2CAddress | getAddrHighByte(address), tmp, sizeof(tmp));
-	}
+    Error sequentealRandomRead(size_t address, gsl::not_null<void *> data, size_t data_size) {
+        uint8_t lowAddress = getAddrLowByte(address);
+        return i2c.writeRead(I2CAddress | getAddrHighByte(address), &lowAddress, sizeof(lowAddress), static_cast<uint8_t *>(data.get()), data_size);
+    }
+    // writing functions
+    Error byteWrite(size_t address, uint8_t data) {
+        uint8_t tmp[] = {getAddrLowByte(address), data};
+        return i2c.write(I2CAddress | getAddrHighByte(address), tmp, sizeof(tmp));
+    }
 
-	Error pageWrite(size_t address, gsl::not_null<const void*> data, size_t data_size) {
-		uint8_t lowAddr = getAddrLowByte(address);
-		return i2c.write(I2CAddress | getAddrHighByte(address), &lowAddr, sizeof(lowAddr), static_cast<const uint8_t*>(data.get()), data_size);
-	}
+    Error pageWrite(size_t address, gsl::not_null<const void *> data, size_t data_size) {
+        uint8_t lowAddr = getAddrLowByte(address);
+        return i2c.write(I2CAddress | getAddrHighByte(address), &lowAddr, sizeof(lowAddr), static_cast<const uint8_t *>(data.get()), data_size);
+    }
 
-	static constexpr uint8_t getAddrHighByte(size_t address) {
-		return (address >> 8) & 0x0E;
-	}
+    static constexpr uint8_t getAddrHighByte(size_t address) { return (address >> 8) & 0x0E; }
 
-	static constexpr uint8_t getAddrLowByte(size_t address) {
-		return address & 0xFF;
-	}
+    static constexpr uint8_t getAddrLowByte(size_t address) { return address & 0xFF; }
 };
 
 #endif /* M24C16_H_ */
