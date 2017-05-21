@@ -45,7 +45,7 @@ def eclipseRun(project, target, defines) {
     }		
     if (env.NODE_NAME == 'master') {
         lock('eclipseBuild_master') {
-            withEnv(['PATH+WHATEVER=/home/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/home/microide/eclipse']) {
+             withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
                 retry(2) {
                     timeout(time:10, unit:'MINUTES') {			
                         sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer' + defs + ' -data ' + workspace + ' -importAll "' + project + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'
