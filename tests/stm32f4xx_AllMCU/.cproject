@@ -356,7 +356,7 @@
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize.244924194" name="Print size" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.printsize" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit.1027703635" name="FPU Type" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit" useByScannerDiscovery="false" value="ilg.gnuarmeclipse.managedbuild.cross.option.arm.target.fpu.unit.fpv4spd16" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.1687870380" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
-							<builder buildPath="${workspace_loc:/serialPort}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.1704552368" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder">
+							<builder buildPath="${workspace_loc:/serialPort}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.1704552368" keepEnvironmentInBuildfile="true" managedBuildOn="true" name="Gnu Make Builder" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
@@ -1098,8 +1098,15 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Windows PC"/>
+		<configuration configurationName="STM32F405xx dma"/>
+		<configuration configurationName="interrupt"/>
+		<configuration configurationName="dma"/>
 		<configuration configurationName="stm32f4-discovery"/>
 		<configuration configurationName="NUCLEO-F411RE"/>
+		<configuration configurationName="polling"/>
+		<configuration configurationName="STM32F405xx Interrupt"/>
+		<configuration configurationName="STM32F410Tx Interrupt"/>
+		<configuration configurationName="STM32F405xx Polling"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/serialPort"/>
 		</configuration>
