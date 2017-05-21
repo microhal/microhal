@@ -36,7 +36,7 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
@@ -45,8 +45,11 @@ void hardwareConfig(void) {
     IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
     IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
 
-    stm32f4xx::I2C::i2c1.init();
-    stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Standard);
-    stm32f4xx::I2C::i2c1.enable();
+    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
+    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
+    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler8);
+    stm32f4xx::SPI::spi1.enable();
 }
 uint64_t SysTick_time = 0;
