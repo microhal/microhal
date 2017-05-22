@@ -149,6 +149,7 @@ def sa(projName, targets) {
         'lis302' : 'drivers/STMicroelectronics/LIS302/example',
         'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
         'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
+	'mcp9800' : 'drivers/Microchip/MCP9800',
         'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
         'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
         'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
@@ -159,6 +160,7 @@ def sa(projName, targets) {
         'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
         'ws2812' : 'drivers/Worldsemi/WS2812/example',
         'serialPort_test' : 'tests/serialPort',
+	'stm32f3xx_allMCU' : 'tests/stm32f3xx_AllMCU',
     ]
      
     lock('eclipseBuild_FX160') {
@@ -205,11 +207,6 @@ pipeline {
                     ticToc :            { eclipseBuild('ticToc', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
                 )
             }
-//            post {
-//                success {
-//                    stash includes: 'examples/**/*.mk, examples/**/makefile', name: 'makefiles'
-//                }
-//            }
         }
         stage('Build components examples') {
             steps {
@@ -220,7 +217,6 @@ pipeline {
             }
         }
         stage('Build devices examples') {
-		
             steps {
                 parallel(
                     at45db : { eclipseBuild('at45db', targets) },
