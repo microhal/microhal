@@ -35,6 +35,7 @@ def projDirMap = [
 	'serialPort_test' : 'tests/serialPort',
 	'stm32f3xx_allMCU' : 'tests/stm32f3xx_AllMCU',
 	'stm32f4xx_allMCU' : 'tests/stm32f4xx_AllMCU',
+        'stm32f4xx_stat_serialPort' : 'tests/statistics/stm32f4xx/serialPort',
 ]
 
 def eclipseRun(project, target, defines) {
@@ -355,6 +356,21 @@ pipeline {
                     signalSlot :        { sa('signal slot', targets) },
                     ticToc :            { sa('ticToc', targets) },
                 )
+            }	    
+        }
+	stage('Statistics') {
+	    steps {		
+                //parallel(
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', [''])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT'])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT2_INTERRUPT'])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT3_INTERRUPT'])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT4_INTERRUPT'])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT5_INTERRUPT'])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT6_INTERRUPT'])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT7_INTERRUPT'])
+                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT8_INTERRUPT'])
+                //)
             }	    
         }
     }
