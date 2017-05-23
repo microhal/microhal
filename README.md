@@ -1,7 +1,10 @@
+
+devel: [![Build Status](https://jenkins.microhal.org/buildStatus/icon?job=microhal/devel)](https://jenkins.microhal.org/job/microhal/job/devel/)
+
 # microhal
 Microhal is project that try to deliver Hardware Abstraction Layer (HAL) that helps you develop software faster and easier to portable to different platforms.
 
-##microhal API
+## microhal API
 We provide API for:
 - GPIO
 - External Inettupts
