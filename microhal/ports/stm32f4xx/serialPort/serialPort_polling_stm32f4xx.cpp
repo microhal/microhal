@@ -50,11 +50,11 @@ SerialPort_polling SerialPort_polling::Serial3(*USART3);
 SerialPort &SerialPort::Serial3 = SerialPort_polling::Serial3;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT4_POLLING
-SerialPort_polling SerialPort_polling::Serial4(*USART4);
+SerialPort_polling SerialPort_polling::Serial4(*UART4);
 SerialPort &SerialPort::Serial4 = SerialPort_polling::Serial4;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT5_POLLING
-SerialPort_polling SerialPort_polling::Serial5(*USART5);
+SerialPort_polling SerialPort_polling::Serial5(*UART5);
 SerialPort &SerialPort::Serial5 = SerialPort_polling::Serial5;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT6_POLLING

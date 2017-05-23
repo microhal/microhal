@@ -476,10 +476,9 @@ class ClockManager {
         }
     }
 
-    static constexpr Frequency LSEFrequency() noexcept {
+    static Frequency LSEFrequency() noexcept {
         if (externalLSEPresent == false) {
-            while (1)
-                ;
+           std::terminate();
         }
         return externalLSEFrequency;
     }
@@ -507,12 +506,11 @@ class ClockManager {
          *
          * @return HSE frequency in [Hz]
          */
-        static constexpr Frequency frequency() noexcept {
+        static Frequency frequency() noexcept {
             static_assert(externalClockFrequency >= 4000000 && externalClockFrequency <= 26000000,
                           "External HSE frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
             if (externalClockPresent == false) {
-                while (1)
-                    ;
+                std::terminate();
             }
             return externalClockFrequency;
         }

@@ -28,15 +28,18 @@ SPI_interrupt SPI_interrupt::spi3(*SPI3, spi3MisoPin);
 SPI &SPI::spi3 = SPI_interrupt::spi3;
 #endif
 #ifdef MICROHAL_USE_SPI4_INTERRUPT
-SPI_interrupt SPI_interrupt::spi4(*SPI4);
+GPIO::IOPin spi4MisoPin(GPIO::PortC, 11);
+SPI_interrupt SPI_interrupt::spi4(*SPI4, spi4MisoPin);
 SPI &SPI::spi4 = SPI_interrupt::spi4;
 #endif
 #ifdef MICROHAL_USE_SPI5_INTERRUPT
-SPI_interrupt SPI_interrupt::spi5(*SPI5);
+GPIO::IOPin spi5MisoPin(GPIO::PortC, 11);
+SPI_interrupt SPI_interrupt::spi5(*SPI5, spi5MisoPin);
 SPI &SPI::spi5 = SPI_interrupt::spi5;
 #endif
 #ifdef MICROHAL_USE_SPI6_INTERRUPT
-SPI_interrupt SPI_interrupt::spi6(*SPI6);
+GPIO::IOPin spi6MisoPin(GPIO::PortC, 11);
+SPI_interrupt SPI_interrupt::spi6(*SPI6, spi6MisoPin);
 SPI &SPI::spi6 = SPI_interrupt::spi6;
 #endif
 
@@ -58,7 +61,7 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
             while (i--) {
             }
         }
-        return SPI::NoError;
+        return Error::None;
     }
     return Error::Timeout;
 }
@@ -75,7 +78,7 @@ SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
     enableReceiverNotEmptyInterrupt();
 
     spi.DR = write;
-    if (semaphore.wait(std::chrono::milliseconds::max())) return SPI::NoError;
+    if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
 }
 
@@ -91,7 +94,7 @@ SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_
     enableTransmitterEmptyInterrupt();
     enableReceiverNotEmptyInterrupt();
 
-    if (semaphore.wait(std::chrono::milliseconds::max())) return SPI::NoError;
+    if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
 }
 //***********************************************************************************************//

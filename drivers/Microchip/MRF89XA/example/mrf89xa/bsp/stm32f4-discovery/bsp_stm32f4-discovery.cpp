@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                           */
+                                                                                                                                                                                                                                                                                                                                                                                                            */
 #include "SPIDevice/SPIDevice.h"
 #include "microhal.h"
 
@@ -38,9 +38,9 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-	(void)bsp::moduleA::spi;
-	(void)bsp::moduleB::spi;
-	(void)bsp::debugPort;
+    (void)bsp::moduleA::spi;
+    (void)bsp::moduleB::spi;
+    (void)bsp::debugPort;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
@@ -82,10 +82,10 @@ void hardwareConfig(void) {
     //	stm32f4xx::SerialPort::Serial2.setBaudRate(stm32f4xx::SerialPort::Baud115200, stm32f4xx::SerialPort::Direction::AllDirections);
     //	stm32f4xx::SerialPort::Serial2.open(stm32f4xx::SerialPort::ReadWrite);
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::PRESCALER_256);
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler256);
     stm32f4xx::SPI::spi1.enable();
 
-    stm32f4xx::SPI::spi2.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::PRESCALER_256);
+    stm32f4xx::SPI::spi2.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler256);
     stm32f4xx::SPI::spi2.enable();
 
     //    xTaskHandle mainHandle;

@@ -6,9 +6,9 @@
  *
  * @authors    Pawel Okas
  * created on: 22-04-2014
- * last modification: 27-06-2016
+ * last modification: 14-05-2017
  *
- * @copyright Copyright (c) 2014-2016, microHAL
+ * @copyright Copyright (c) 2014-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@ namespace microhal {
 
 class SPI {
  public:
-    typedef enum { NoError, MasterModeFault, OverrunError, CRCError, UnknownError, Timeout } Error;
+    enum class Error { None, MasterModeFault, Overrun, Crc, Unknown, Timeout };
 
     /**
      *
@@ -49,14 +49,11 @@ class SPI {
         Mode3       //!< MODE3 CPOL/CKP = 1 CKE/NCPHA = 0
     } Mode;
 
-    void lock() {
-    	mutex.lock();
-    }
-    void unlock() {
-        mutex.unlock();
-    }
+    void lock() { mutex.lock(); }
+    void unlock() { mutex.unlock(); }
 
     virtual uint32_t speed(uint32_t speed) = 0;
+    virtual uint32_t speed() const = 0;
 
     virtual bool setMode(Mode mode) = 0;
     virtual void enable() = 0;
@@ -64,12 +61,8 @@ class SPI {
 
     virtual bool getMISOstate() = 0;
 
-    Error write(uint8_t data, bool last) {
-    	return write(&data, sizeof(data), last);
-    }
-    Error read(uint8_t &data, uint8_t write = 0x00) {
-    	return read(&data, sizeof(data), write);
-    }
+    Error write(uint8_t data, bool last) { return write(&data, sizeof(data), last); }
+    Error read(uint8_t &data, uint8_t write = 0x00) { return read(&data, sizeof(data), write); }
     virtual Error write(const void *data, size_t length, bool last) = 0;
     virtual Error read(void *data, size_t length, const uint8_t write = 0x00) = 0;
     virtual Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) = 0;

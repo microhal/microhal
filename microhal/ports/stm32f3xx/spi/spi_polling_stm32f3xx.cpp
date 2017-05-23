@@ -40,5 +40,5 @@ SPI_polling SPI_polling::spi6(*SPI6);
 SPI &SPI::spi6 = SPI_polling::spi6;
 #endif
 
-} // namespace stm32f4xx
+} // namespace stm32f3xx
 } // namespace microhal

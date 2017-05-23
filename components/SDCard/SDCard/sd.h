@@ -36,177 +36,167 @@
 #include "crc/crc7.h"
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
-#include "utils/packed.h"
 #include "ports/manager/hardware.h"
+#include "utils/packed.h"
 
 class Sd final {
  public:
-	struct CSDv1 {
-	    uint8_t CSD_STRUCTURE : 2;
-	    // reserved : 6
-	    uint8_t TAAC;                    // data read access time 1
-	    uint8_t NSAC;                    // data read access time 2 in CLK cycles (NSAC * 100)
-	    uint8_t TRAN_SPEED;              // max. data transfer rate
-	    uint16_t CCC;// : 12;               // card command classes
-	    uint8_t READ_BL_LEN : 4;         // max. data block len
-	    uint8_t READ_BL_PARTIAL : 1;     // partial blocks for read allowed
-	    uint8_t WRITE_BLK_MISALIGN: 1;  // write block misalignment
-	    uint8_t READ_BLK_MISALIGN : 1;   // read block misalignment
-	    uint8_t DSR_IMP : 1;             // DSR implemented
-	    uint16_t C_SIZE;// : 12;            // device size
-	    uint8_t VDD_R_CURR_MIN : 3;      // max. read current @VDD min
-	    uint8_t VDD_R_CURR_MAX : 3;      // max. read current @VDD max
-	    uint8_t VDD_W_CURR_MIN : 3;      // max. write current @VDD min
-	    uint8_t VDD_W_CURR_MAX : 3;      // max. write current @VDD max
-	    uint8_t C_SIZE_MULT : 3;         // device size multiplier
-	    uint8_t ERASE_BLK_EN : 1;        // erase single block enable
-	    uint8_t SECTOR_SIZE : 7;         // erase sector size
-	    uint8_t WP_GRP_SIZE : 7;         // write protect group size
-	    uint8_t WP_GRP_ENABLE : 1;       // write protect group enable
-	    uint8_t R2W_FACTOR : 3;          // write speed factor
-	    uint8_t WRITE_BL_LEN : 4;        // max. write data block length
-	    uint8_t WRITE_BL_PARTIAL : 1;    // partial blocks for write allowed
-	    uint8_t FILE_FORMAT_GRP : 1;     // File format group
-	    uint8_t COPY : 1;                // copy flag
-	    uint8_t PERM_WRITE_PROTECT : 1;  // permanent write protection
-	    uint8_t TMP_WRITE_PROTECT : 1;   // temporary write protection
-	    uint8_t FILE_FORMAT : 2;         // File format
-	    // crc : 7
-	    // not used, alvays '1' : 1
-	};
+    struct CSDv1 {
+        uint8_t CSD_STRUCTURE : 2;
+        // reserved : 6
+        uint8_t TAAC;                    // data read access time 1
+        uint8_t NSAC;                    // data read access time 2 in CLK cycles (NSAC * 100)
+        uint8_t TRAN_SPEED;              // max. data transfer rate
+        uint16_t CCC;                    // : 12;               // card command classes
+        uint8_t READ_BL_LEN : 4;         // max. data block len
+        uint8_t READ_BL_PARTIAL : 1;     // partial blocks for read allowed
+        uint8_t WRITE_BLK_MISALIGN : 1;  // write block misalignment
+        uint8_t READ_BLK_MISALIGN : 1;   // read block misalignment
+        uint8_t DSR_IMP : 1;             // DSR implemented
+        uint16_t C_SIZE;                 // : 12;            // device size
+        uint8_t VDD_R_CURR_MIN : 3;      // max. read current @VDD min
+        uint8_t VDD_R_CURR_MAX : 3;      // max. read current @VDD max
+        uint8_t VDD_W_CURR_MIN : 3;      // max. write current @VDD min
+        uint8_t VDD_W_CURR_MAX : 3;      // max. write current @VDD max
+        uint8_t C_SIZE_MULT : 3;         // device size multiplier
+        uint8_t ERASE_BLK_EN : 1;        // erase single block enable
+        uint8_t SECTOR_SIZE : 7;         // erase sector size
+        uint8_t WP_GRP_SIZE : 7;         // write protect group size
+        uint8_t WP_GRP_ENABLE : 1;       // write protect group enable
+        uint8_t R2W_FACTOR : 3;          // write speed factor
+        uint8_t WRITE_BL_LEN : 4;        // max. write data block length
+        uint8_t WRITE_BL_PARTIAL : 1;    // partial blocks for write allowed
+        uint8_t FILE_FORMAT_GRP : 1;     // File format group
+        uint8_t COPY : 1;                // copy flag
+        uint8_t PERM_WRITE_PROTECT : 1;  // permanent write protection
+        uint8_t TMP_WRITE_PROTECT : 1;   // temporary write protection
+        uint8_t FILE_FORMAT : 2;         // File format
+        // crc : 7
+        // not used, alvays '1' : 1
+    };
 
-	struct CSDv2 {
-	    uint8_t CSD_STRUCTURE : 2;
-	    // reserved : 6
-	    uint8_t TAAC;                // data read access time 1
-	    uint8_t NSAC;                // data read access time 2 in CLK cycles (NSAC * 100)
-	    uint8_t TRAN_SPEED;          // max. data transfer rate
-	    uint16_t CCC;                // : 12;                // card command classes
-	    uint8_t READ_BL_LEN : 4;         // max. data block len
-	    uint8_t READ_BL_PARTIAL : 1;     // partial blocks for read allowed
-	    uint8_t WRITE_BLK_MISALIGN : 1;  // write block misalignment
-	    uint8_t READ_BLK_MISALIGN : 1;   // read block misalignment
-	    uint8_t DSR_IMP : 1;             // DSR implemented
-	    // reserved : 6
-	    uint32_t C_SIZE;  // : 22;         // device size
-	    // reserved : 1
-	    uint8_t ERASE_BLK_EN : 1;    // erase single block enable
-	    uint8_t SECTOR_SIZE : 7;     // erase sector size
-	    uint8_t WP_GRP_SIZE : 7;     // write protect group size
-	    uint8_t WP_GRP_ENABLE : 1;   // write protect group enable
-	    // reserved : 2
-	    uint8_t R2W_FACTOR : 3;        // write speed factor
-	    uint8_t WRITE_BL_LEN : 4;      // max. write data block length
-	    uint8_t WRITE_BL_PARTIAL : 1;  // partial blocks for write allowed
-	    // reserved : 5
-	    uint8_t FILE_FORMAT_GRP : 1;     // File format group
-	    uint8_t COPY : 1;                // copy flag
-	    uint8_t PERM_WRITE_PROTECT : 1;  // permanent write protection
-	    uint8_t TMP_WRITE_PROTECT : 1;   // temporary write protection
-	    uint8_t FILE_FORMAT : 2;         // File format
-	    // reserved : 2
-	    // crc : 7
-	    // not used, always '1' : 1
-	};
+    struct CSDv2 {
+        uint8_t CSD_STRUCTURE : 2;
+        // reserved : 6
+        uint8_t TAAC;                    // data read access time 1
+        uint8_t NSAC;                    // data read access time 2 in CLK cycles (NSAC * 100)
+        uint8_t TRAN_SPEED;              // max. data transfer rate
+        uint16_t CCC;                    // : 12;                // card command classes
+        uint8_t READ_BL_LEN : 4;         // max. data block len
+        uint8_t READ_BL_PARTIAL : 1;     // partial blocks for read allowed
+        uint8_t WRITE_BLK_MISALIGN : 1;  // write block misalignment
+        uint8_t READ_BLK_MISALIGN : 1;   // read block misalignment
+        uint8_t DSR_IMP : 1;             // DSR implemented
+        // reserved : 6
+        uint32_t C_SIZE;  // : 22;         // device size
+        // reserved : 1
+        uint8_t ERASE_BLK_EN : 1;   // erase single block enable
+        uint8_t SECTOR_SIZE : 7;    // erase sector size
+        uint8_t WP_GRP_SIZE : 7;    // write protect group size
+        uint8_t WP_GRP_ENABLE : 1;  // write protect group enable
+        // reserved : 2
+        uint8_t R2W_FACTOR : 3;        // write speed factor
+        uint8_t WRITE_BL_LEN : 4;      // max. write data block length
+        uint8_t WRITE_BL_PARTIAL : 1;  // partial blocks for write allowed
+        // reserved : 5
+        uint8_t FILE_FORMAT_GRP : 1;     // File format group
+        uint8_t COPY : 1;                // copy flag
+        uint8_t PERM_WRITE_PROTECT : 1;  // permanent write protection
+        uint8_t TMP_WRITE_PROTECT : 1;   // temporary write protection
+        uint8_t FILE_FORMAT : 2;         // File format
+        // reserved : 2
+        // crc : 7
+        // not used, always '1' : 1
+    };
 
-	// temporary type, when std::variant will be available this will be replaced
-	struct CSD {
-		uint8_t version;
-		union {
-			CSDv1 v1;
-			CSDv2 v2;
-		};
-	};
+    // temporary type, when std::variant will be available this will be replaced
+    struct CSD {
+        uint8_t version;
+        union {
+            CSDv1 v1;
+            CSDv2 v2;
+        };
+    };
 
-	enum DataResponse {
-		Accepted = 0b00000101,
-		CRCError = 0b00001011,
-		WriteError = 0b0000110,
-		Timeout = 0b10000000
-	};
+    enum DataResponse { Accepted = 0b00000101, CRCError = 0b00001011, WriteError = 0b0000110, Timeout = 0b10000000 };
 
-	enum class ReadDataError : uint8_t {
-		None = 0,
-		Error = 0b0001,
-		CCError = 0b0010,
-		CardECCFailed = 0b0100,
-		OutOfRange = 0b1000,
-		CRCMismatch = 0b0001'0000,
-		Unknown = 0b1000'0000
-	};
+    enum class ReadDataError : uint8_t {
+        None = 0,
+        Error = 0b0001,
+        CCError = 0b0010,
+        CardECCFailed = 0b0100,
+        OutOfRange = 0b1000,
+        CRCMismatch = 0b0001'0000,
+        Unknown = 0b1000'0000
+    };
 
-	class OCR {
-	public:
-		explicit OCR (uint32_t ocr) noexcept :ocr(ocr) {}
-		bool getCCS() { return (ocr >> 30) & 0b1; }
-		bool isCCSbitValid() { return getPowerStatus(); }
-		bool getPowerStatus() { return (ocr >> 31) & 0b1; }
+    class OCR {
+     public:
+        explicit OCR(uint32_t ocr) noexcept : ocr(ocr) {}
+        bool getCCS() { return (ocr >> 30) & 0b1; }
+        bool isCCSbitValid() { return getPowerStatus(); }
+        bool getPowerStatus() { return (ocr >> 31) & 0b1; }
 
-		uint32_t getRawForDebug() { return ocr; }
-	private:
-		uint32_t ocr;
-	};
+        uint32_t getRawForDebug() { return ocr; }
 
-	enum class CardType {
-		StandardCapacityVer1,
-		StandardCapacityVer2,
-		HighCapacityOrExtendedCapacity,
-		Unknown
-	};
+     private:
+        uint32_t ocr;
+    };
 
-	enum class Error {
-		None = 0,
-		WrongState = 0b0000'0001,
-		//IllegalCommand = 0b0000'0010,
-		WrongAddress = 0b0000'0100,
-		DataCRC = 0b0000'1000,
-		DataWriteError = 0b0001'0000,
+    enum class CardType { StandardCapacityVer1, StandardCapacityVer2, HighCapacityOrExtendedCapacity, Unknown };
 
-		//CCError = 0b0010'0000,
-		//ECCFailed = 0b0100'0000,
-		OutOfRange = 0b0000'0010,
-		//CardLocked,
+    enum class Error {
+        None = 0,
+        WrongState = 0b0000'0001,
+        // IllegalCommand = 0b0000'0010,
+        WrongAddress = 0b0000'0100,
+        DataCRC = 0b0000'1000,
+        DataWriteError = 0b0001'0000,
 
-		Unknown = 0b1000'0000
-	};
+        // CCError = 0b0010'0000,
+        // ECCFailed = 0b0100'0000,
+        OutOfRange = 0b0000'0010,
+        // CardLocked,
+
+        Unknown = 0b1000'0000
+    };
 
     Sd(microhal::SPI &spi, microhal::GPIO::IOPin chipSelect) noexcept : spi(spi), cs(chipSelect, microhal::GPIO::Direction::Output) { cs.set(); }
     ~Sd();
 
-	bool init();
+    bool init();
 
-	CardType getCardType() const noexcept { return cardType; }
+    CardType getCardType() const noexcept { return cardType; }
 
-	uint64_t getCardCapacity() const noexcept { return cardCapacity; }
+    uint64_t getCardCapacity() const noexcept { return cardCapacity; }
 
-	uint32_t getSecrorCount() const noexcept { return getCardCapacity() / blockSize; }
+    uint32_t getSecrorCount() const noexcept { return getCardCapacity() / blockSize; }
 
-	uint32_t getLastPageNumber() const noexcept { return getCardCapacity() / 512 - 1; }
+    uint32_t getLastPageNumber() const noexcept { return getCardCapacity() / 512 - 1; }
 
-	uint32_t getBlockSize() const noexcept { return blockSize; }
-	/**
-	 * @brief This function may be used to set data block size. The function will work only with Standard Capacity
-	 * SC Memory Cards. In different SD Card types data block size is fixed to 512B and can't be adjusted. When working
-	 * with Standard Capacity SD Cards you can set block size from 1 to 512B.
-	 *
-	 * @param blockSize that will be set. Accepted range is from 1 to 512.
-	 */
-	bool setBlockSize(uint32_t blockSize);
+    uint32_t getBlockSize() const noexcept { return blockSize; }
+    /**
+     * @brief This function may be used to set data block size. The function will work only with Standard Capacity
+     * SC Memory Cards. In different SD Card types data block size is fixed to 512B and can't be adjusted. When working
+     * with Standard Capacity SD Cards you can set block size from 1 to 512B.
+     *
+     * @param blockSize that will be set. Accepted range is from 1 to 512.
+     */
+    bool setBlockSize(uint32_t blockSize);
 
+    Error readBlock(const gsl::not_null<void *> data_ptr, uint32_t address);
 
-	Error readBlock(const gsl::not_null<void *> data_ptr, uint32_t address);
+    Error writeBlock(const gsl::not_null<const void *> data_ptr, uint32_t address);
 
-	Error writeBlock(const gsl::not_null<const void *> data_ptr, uint32_t address);
+    Error readMultipleBlock(const gsl::not_null<void *> data_ptr, uint32_t address, uint32_t blocksCount);
 
-	Error readMultipleBlock(const gsl::not_null<void *> data_ptr, uint32_t address, uint32_t blocksCount);
+    Error writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uint32_t address, uint32_t blocksCount);
 
-	Error writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uint32_t address, uint32_t blocksCount);
+    std::experimental::optional<CSD> readCSD();
 
-	std::experimental::optional<CSD> readCSD();
+    bool readCID();
 
-	bool readCID();
-
-	std::experimental::optional<OCR> readOCR();
+    std::experimental::optional<OCR> readOCR();
 
  private:
     microhal::SPI &spi;
@@ -218,9 +208,9 @@ class Sd final {
     class Command {
      public:
         constexpr Command(uint8_t cmdIndex, uint32_t argument, uint8_t crc) noexcept
-        		: startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex),
-				  argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)),
-				  crcAndEndBit(crc) {}
+            : startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex),
+              argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)),
+              crcAndEndBit(crc) {}
 
         void calculateCRC() {
             crcAndEndBit = microhal::CRC7::calculate(&startBitTransmissionBitAndCommandIndex, 5, 0) << 1;
@@ -228,18 +218,17 @@ class Sd final {
         }
 
         void setArgument(uint32_t arg) {
-        	argument = convertEndiannessIfRequired(arg, microhal::Endianness::Big);
-        	calculateCRC();
+            argument = convertEndiannessIfRequired(arg, microhal::Endianness::Big);
+            calculateCRC();
         }
 
-        uint32_t getArgument() {
-        	return convertEndiannessIfRequired(argument, microhal::Endianness::Big);
-        }
+        uint32_t getArgument() { return convertEndiannessIfRequired(argument, microhal::Endianness::Big); }
 
      protected:
-        Command(uint8_t cmdIndex, uint32_t argument) noexcept
-			: startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex),
-			  argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)) { calculateCRC();}
+        Command(uint8_t cmdIndex, uint32_t argument) noexcept : startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex),
+                                                                argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)) {
+            calculateCRC();
+        }
 
      private:
         uint8_t startBitTransmissionBitAndCommandIndex;  // start bit (MSB) always equal 0, transmission bit always equal 1, command index 6 LSB bits
@@ -250,7 +239,7 @@ class Sd final {
 
     class CMD0 : public Command {
      public:
-    	explicit constexpr CMD0() : Command(0x00, 0x0, 0x95) {}
+        explicit constexpr CMD0() : Command(0x00, 0x0, 0x95) {}
     };
 
     class CMD8 : public Command {
@@ -262,29 +251,27 @@ class Sd final {
 
         explicit CMD8(VoltageSupplied voltage) : Command(0x08, 0x000000AA | (static_cast<uint8_t>(voltage) << 8)) {}
 
-        void setVoltage(VoltageSupplied voltage) {
-        	setArgument(getArgument() | (static_cast<uint8_t>(voltage) << 8));
-        }
+        void setVoltage(VoltageSupplied voltage) { setArgument(getArgument() | (static_cast<uint8_t>(voltage) << 8)); }
     };
 
     class CMD9 : public Command {
      public:
-        explicit CMD9() : Command(9, 0x00) {} // todo CRC can be calculated before compilation
+        explicit CMD9() : Command(9, 0x00) {}  // todo CRC can be calculated before compilation
     };
 
     class CMD10 : public Command {
      public:
-        explicit CMD10() : Command(10, 0x00) { } // todo CRC can be calculated before compilation
+        explicit CMD10() : Command(10, 0x00) {}  // todo CRC can be calculated before compilation
     };
 
     class CMD12 : public Command {
      public:
-        explicit CMD12() : Command(12, 0, 0x61) { }
+        explicit CMD12() : Command(12, 0, 0x61) {}
     };
 
     class CMD16 : public Command {
      public:
-        explicit CMD16(uint32_t blockSize) : Command(16, blockSize) {} // todo CRC can be calculated before compilation
+        explicit CMD16(uint32_t blockSize) : Command(16, blockSize) {}  // todo CRC can be calculated before compilation
     };
 
     class CMD17 : public Command {
@@ -309,46 +296,46 @@ class Sd final {
     // Application command indication
     class CMD55 : public Command {
      public:
-        explicit CMD55() : Command(55, 0x0) {} // todo CRC can be calculated before compilation
+        explicit CMD55() : Command(55, 0x0) {}  // todo CRC can be calculated before compilation
     };
     // read OCR command
     class CMD58 : public Command {
      public:
-        explicit CMD58() : Command(58, 0x00) {} // todo CRC can be calculated before compilation
+        explicit CMD58() : Command(58, 0x00) {}  // todo CRC can be calculated before compilation
     };
     // enable/disable CRC command
     class CMD59 : public Command {
      public:
-    	explicit CMD59(bool enable) : Command(59, enable ? 1 : 0) {}
+        explicit CMD59(bool enable) : Command(59, enable ? 1 : 0) {}
     };
 
     class ACMD41 : public Command {
      public:
-    	explicit ACMD41(uint32_t hcs) : Command(41, 0x40000000) {}
+        explicit ACMD41(uint32_t hcs) : Command(41, 0x40000000) {}
     };
 
     class ACMD23 : public Command {
      public:
-    	explicit ACMD23(uint32_t count) : Command(23, count) {}
+        explicit ACMD23(uint32_t count) : Command(23, count) {}
     };
 
     enum ResponseR1 : uint8_t {
-    	InIdleState = 0b0000'0001,
-		EraseReset = 0b0000'0010,
-		IllegalCommand = 0b0000'0100,
-		ComCRCError = 0b000'1000,
-		EraseSequenceError = 0b0001'0000,
-		AddressError = 0b0010'0000,
-		ParameterError = 0b0100'0000
+        InIdleState = 0b0000'0001,
+        EraseReset = 0b0000'0010,
+        IllegalCommand = 0b0000'0100,
+        ComCRCError = 0b000'1000,
+        EraseSequenceError = 0b0001'0000,
+        AddressError = 0b0010'0000,
+        ParameterError = 0b0100'0000
     };
 
     struct ResponseR7 {
-    	ResponseR1 response;
-    	uint32_t data;
+        ResponseR1 response;
+        uint32_t data;
     };
 
     static constexpr uint32_t convertEndiannessIfRequired(uint32_t a, microhal::Endianness endianness) {
-    	return (endianness == microhal::hardware::Device::endianness) ? a : microhal::byteswap(a);
+        return (endianness == microhal::hardware::Device::endianness) ? a : microhal::byteswap(a);
     }
 
     static constexpr uint16_t convertEndiannessIfRequired(uint16_t a, microhal::Endianness endianness) {
@@ -360,25 +347,25 @@ class Sd final {
     Error convertResponseR1ToError(ResponseR1);
 
     bool sendACMD(const Command &command) {
-    	static const CMD55 cmd55;
+        static const CMD55 cmd55;
         sendCMD(cmd55);
         if (auto response = readResponseR1(1)) {
-        	return sendCMD(command);
+            return sendCMD(command);
         }
         return false;
     }
 
     bool enableCRC() {
-    	static const CMD59 cmd59(true);
-    	return sendCMD(cmd59);
+        static const CMD59 cmd59(true);
+        return sendCMD(cmd59);
     }
 
     bool disableCRC() {
-    	static const CMD59 cmd59(false);
-    	return sendCMD(cmd59);
+        static const CMD59 cmd59(false);
+        return sendCMD(cmd59);
     }
 
-    bool readResponse(uint8_t &response) { return spi.read(response, 0xFF); }
+    bool readResponse(uint8_t &response) { return spi.read(response, 0xFF) == microhal::SPI::Error::None; }
 
     std::experimental::optional<ResponseR1> readResponseR1(uint8_t retryCount);
 
@@ -392,29 +379,29 @@ class Sd final {
 
     DataResponse readDataResponse(std::chrono::milliseconds timeout);
 
-//    bool readResponseR3(uint8_t &r1, uint32_t &ocr, uint8_t retryCount) {
-//        // do {
-//        //  if (auto response = readResponseR1(2)) {
-//        //    if (*response != 0xFF) {
-//        //      r1 = *response;
-//        // if ((*response & 0xFE) == 0) {
-//        // return spi.readBuffer(&ocr, sizeof(ocr), 0xFF) == microhal::SPI::Error::NoError;
-//        spi.read(r1, 0xFF);
-//        ocr = r1;
-//        spi.read(r1, 0xFF);
-//        ocr = r1 << 8;
-//        spi.read(r1, 0xFF);
-//        ocr = r1 << 16;
-//        spi.read(r1, 0xFF);
-//        ocr = r1 << 24;
-//        return true;
-//        //}
-//        // return false;
-//        //  }
-//        //}
-//        //} while (retryCount--);
-//        // return false;
-//    }
+    //    bool readResponseR3(uint8_t &r1, uint32_t &ocr, uint8_t retryCount) {
+    //        // do {
+    //        //  if (auto response = readResponseR1(2)) {
+    //        //    if (*response != 0xFF) {
+    //        //      r1 = *response;
+    //        // if ((*response & 0xFE) == 0) {
+    //        // return spi.readBuffer(&ocr, sizeof(ocr), 0xFF) == microhal::SPI::Error::NoError;
+    //        spi.read(r1, 0xFF);
+    //        ocr = r1;
+    //        spi.read(r1, 0xFF);
+    //        ocr = r1 << 8;
+    //        spi.read(r1, 0xFF);
+    //        ocr = r1 << 16;
+    //        spi.read(r1, 0xFF);
+    //        ocr = r1 << 24;
+    //        return true;
+    //        //}
+    //        // return false;
+    //        //  }
+    //        //}
+    //        //} while (retryCount--);
+    //        // return false;
+    //    }
 
     std::experimental::optional<ResponseR7> readResponseR7(uint8_t retryCount);
 };

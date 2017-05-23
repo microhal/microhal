@@ -79,13 +79,13 @@ bool I2CDevice::setBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endia
 
     T tmp;
     I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
-    if (status == I2C::NoError) {
+    if (status == I2C::Error::None) {
         tmp |= bitMask;
         status = i2c.write(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
     }
 
     i2c.unlock();
-    if (status == I2C::NoError) {
+    if (status == I2C::Error::None) {
         return true;
     } else {
         lastError = status;
@@ -120,14 +120,14 @@ bool I2CDevice::clearBitsInRegister_impl(uint8_t registerAddress, T bitMask, End
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
-    if (status == I2C::NoError) {
+    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
+    if (status == I2C::Error::None) {
         tmp &= bitMask;
-        status = i2c.write(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
+        status = i2c.write(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
     }
 
     i2c.unlock();
-    if (status == I2C::NoError) {
+    if (status == I2C::Error::None) {
         return true;
     } else {
         lastError = status;
@@ -163,17 +163,17 @@ bool I2CDevice::writeRegisterWithMask_impl(uint8_t address, T data, T mask, Endi
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
-    if (status == I2C::NoError) {
+    I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
+    if (status == I2C::Error::None) {
         // clear bits
         tmp &= ~mask;
         // set new value
         tmp |= (data & mask);
-        status = i2c.write(deviceAddress, &address, 1, reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
+        status = i2c.write(deviceAddress, &address, 1, reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
     }
 
     i2c.unlock();
-    if (status == I2C::NoError) {
+    if (status == I2C::Error::None) {
         return true;
     } else {
         lastError = status;

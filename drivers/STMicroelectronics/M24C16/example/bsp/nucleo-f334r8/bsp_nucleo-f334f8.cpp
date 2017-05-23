@@ -36,7 +36,7 @@ using namespace microhal;
 using namespace stm32f3xx;
 
 void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
@@ -52,16 +52,15 @@ void hardwareConfig(void) {
     debugPort.setParity(stm32f3xx::SerialPort::NoParity);
 
     stm32f3xx::I2C::i2c1.init();
-    stm32f3xx::I2C::i2c1.setMode(microhal::I2C::Mode::Fast);
+    stm32f3xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);
     stm32f3xx::I2C::i2c1.enable();
 
-
-    SysTick_Config(8000000/1000);
+    SysTick_Config(8000000 / 1000);
 }
 
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
+;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

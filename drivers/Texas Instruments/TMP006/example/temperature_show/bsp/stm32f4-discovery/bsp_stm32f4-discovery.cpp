@@ -4,17 +4,17 @@
  *  Created on: 16 kwi 2014
  *      Author: pawel
  */
-#include "microhal.h"
+#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
 #include "i2c.h"
-#include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-	(void)bsp::tmp006::i2c;
-	(void)bsp::debugPort;
+    (void)bsp::tmp006::i2c;
+    (void)bsp::debugPort;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
@@ -26,15 +26,15 @@ void hardwareConfig(void) {
 
     stm32f4xx::I2C::i2c2.init();
 
-    stm32f4xx::I2C::i2c2.setMode(microhal::I2C::Mode::Fast);
+    stm32f4xx::I2C::i2c2.speed(400000, microhal::I2C::Mode::Fast);
 
     stm32f4xx::I2C::i2c2.enable();
 
-  SysTick_Config(168000000 / 1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
 extern "C" void SysTick_Handler(void) {
-	SysTick_time++;
+    SysTick_time++;
 }

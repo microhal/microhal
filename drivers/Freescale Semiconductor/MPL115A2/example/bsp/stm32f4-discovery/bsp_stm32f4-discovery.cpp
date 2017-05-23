@@ -27,10 +27,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
+#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
 #include "i2c.h"
-#include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
@@ -47,15 +47,15 @@ void hardwareConfig(void) {
 
     stm32f4xx::I2C::i2c2.init();
 
-    stm32f4xx::I2C::i2c2.setMode(microhal::I2C::Mode::Standard);
+    stm32f4xx::I2C::i2c2.speed(100000, microhal::I2C::Mode::Standard);
 
     stm32f4xx::I2C::i2c2.enable();
 
-  SysTick_Config(168000000 / 1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
 extern "C" void SysTick_Handler(void) {
-	SysTick_time++;
+    SysTick_time++;
 }

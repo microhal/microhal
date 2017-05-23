@@ -33,6 +33,6 @@
 
 static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c1;
+static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
 
 #endif  // NUCLEO_F411RE_H_

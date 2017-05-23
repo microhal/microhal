@@ -172,6 +172,6 @@ void EXTI15_10_IRQHandler(void) {
     }
 }
 
-}  // namespace stm32f4xx
+}  // namespace stm32f3xx
 }  // namespace microhal
 

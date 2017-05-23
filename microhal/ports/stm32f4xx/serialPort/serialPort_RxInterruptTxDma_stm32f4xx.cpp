@@ -120,7 +120,7 @@ SerialPort_RxInterruptTxDma::SerialPort_RxInterruptTxDma(USART_TypeDef &usart, c
     // tx
     txStream.deinit();
   //  txStream.getUsartChanalNumber(usart);
-    auto channel = dma.channel(txStream, usart);
+    auto channel = dma.channel(txStream, &usart);
     txStream.init(
     	channel, DMA::Stream::MemoryBurst::SingleTransfer,
         DMA::Stream::PeripheralBurst::SingleTransfer,

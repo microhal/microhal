@@ -10,15 +10,6 @@
 namespace microhal {
 namespace stm32f3xx {
 
-//
-//ClockManager::ClockManager() {
-//	// TODO Auto-generated constructor stub
-//
-//}
-//
-//ClockManager::~ClockManager() {
-//	// TODO Auto-generated destructor stub
-//}
 
-}  // namespace stm32f4xx
+}  // namespace stm32f3xx
 }  // namespace microhal

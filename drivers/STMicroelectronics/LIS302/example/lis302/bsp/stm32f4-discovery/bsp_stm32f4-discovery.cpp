@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,13 +24,11 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
-#include "microhal.h"
-#include "SPIDevice/SPIDevice.h"
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                         */
 #include "bsp.h"
-
-//#include "FreeRTOS.h"
-//#include "task.h"
+#include "SPIDevice/SPIDevice.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
@@ -52,15 +50,13 @@ void hardwareConfig(void) {
     stm32f4xx::SerialPort::Serial1.clear();
 
     stm32f4xx::SerialPort::Serial1.setDataBits(stm32f4xx::SerialPort::Data8);
-	stm32f4xx::SerialPort::Serial1.setStopBits(stm32f4xx::SerialPort::OneStop);
-	stm32f4xx::SerialPort::Serial1.setParity(stm32f4xx::SerialPort::NoParity);
-	stm32f4xx::SerialPort::Serial1.setBaudRate(stm32f4xx::SerialPort::Baud115200);
-	stm32f4xx::SerialPort::Serial1.open(stm32f4xx::SerialPort::ReadWrite);
+    stm32f4xx::SerialPort::Serial1.setStopBits(stm32f4xx::SerialPort::OneStop);
+    stm32f4xx::SerialPort::Serial1.setParity(stm32f4xx::SerialPort::NoParity);
+    stm32f4xx::SerialPort::Serial1.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    stm32f4xx::SerialPort::Serial1.open(stm32f4xx::SerialPort::ReadWrite);
 
-
-	stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::PRESCALER_256);
-	stm32f4xx::SPI::spi1.enable();
-
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler256);
+    stm32f4xx::SPI::spi1.enable();
 }
 
 uint64_t SysTick_time = 0;

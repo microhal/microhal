@@ -28,20 +28,21 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
 #include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
 
 void hardwareConfig(void) {
-	(void)bsp::wsSpi;
-	Core::fpu_enable();
-	stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
-	stm32f3xx::ClockManager::PLL::frequency(51200000);
-	stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
-	while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL);
+    (void)bsp::wsSpi;
+    Core::fpu_enable();
+    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
+    stm32f3xx::ClockManager::PLL::frequency(51200000);
+    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
+    while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
+        ;
 
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
@@ -53,20 +54,19 @@ void hardwareConfig(void) {
     bsp::debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
     diagChannel.setOutputDevice(bsp::debugPort);
 
-//    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::GPIO::PortA, 5>();
-//    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
+    //    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::GPIO::PortA, 5>();
+    //    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
     stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
 
-    stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::PRESCALER_8);
+    stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
     stm32f3xx::SPI::spi1.enable();
 
-    diagChannel << Notice << "SPI frequency: " << stm32f3xx::SPI::spi1.frequency() << endl;
+    diagChannel << Notice << "SPI frequency: " << stm32f3xx::SPI::spi1.speed() << endl;
 
-    SysTick_Config(512000000/1000);
+    SysTick_Config(512000000 / 1000);
 }
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

@@ -30,6 +30,9 @@
 
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
+
+#include "microhal.h"
+
 namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 namespace tmp006 {

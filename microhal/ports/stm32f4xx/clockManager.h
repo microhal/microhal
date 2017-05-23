@@ -32,6 +32,7 @@
 
 #include "microhalPortConfig_stm32f4xx.h"
 #include <type_traits>
+#include <exception>
 
 #include "device/stm32f4xx.h"
 
@@ -63,11 +64,12 @@ class ClockManager {
         else if (&usart == UART5)
             rccEnableFlag = RCC_APB1ENR_UART5EN;
 #endif
+#if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
         else if (&usart == USART6)
             rccEnableFlag = RCC_APB2ENR_USART6EN;
+#endif
         else {
-            while (1)
-                ;  // Error should newer go there
+            std::terminate();  // Error should newer go there
         }
 
         if (&usart == USART1 || &usart == USART6) {
@@ -81,45 +83,56 @@ class ClockManager {
             RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
         else if (&i2c == I2C2)
             RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
+#if defined(I2C3)
         else if (&i2c == I2C3)
             RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
+#endif
         else {
-            while (1)
-                ;  // Error should newer go there
+        	std::terminate(); // Error should newer go there
         }
     }
     static void enable(const SPI_TypeDef &spi) {
         if (&spi == SPI1)
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+#if defined(SPI2)
         else if (&spi == SPI2)
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+#endif
+#if defined(SPI3)
         else if (&spi == SPI3)
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
-    #if defined(SPI4)
+#endif
+#if defined(SPI4)
         else if (&spi == SPI4)
         	RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
-    #endif
-    #if defined(SPI5)
+#endif
+#if defined(SPI5)
         else if (&spi == SPI5)
             RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
-    #endif
-    #if defined(SPI6)
+#endif
+#if defined(SPI6)
         else if (&spi == SPI6)
             RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
-    #endif
+#endif
         else {
-        	while (1); // Error should newer go there
+        	std::terminate(); // Error should newer go there
         }
     }
     static void enable(const TIM_TypeDef &timer) {
     	if (&timer == TIM1) {
     		RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+#if defined(TIM2)
     	} else if (&timer == TIM2) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+#endif
+#if defined(TIM3)
 		} else if (&timer == TIM3) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+#endif
+#if defined(TIM4)
 		} else if (&timer == TIM4) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+#endif
 		} else if (&timer == TIM5) {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
 #if defined(TIM6)
@@ -136,8 +149,10 @@ class ClockManager {
 #endif
 		} else if (&timer == TIM9) {
 			RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
+#if defined(TIM10)
 		} else if (&timer == TIM10) {
 			RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+#endif
 		} else if (&timer == TIM11) {
 			RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
 #if defined(TIM12)
@@ -153,8 +168,7 @@ class ClockManager {
 			RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
 #endif
 		} else {
-			while (1)
-				;  // Error should newer go there
+			std::terminate(); // Error should newer go there
 		}
     }
 	static void enable(const GPIO_TypeDef &gpio) {
@@ -164,16 +178,20 @@ class ClockManager {
 			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
 	else if (&gpio == GPIOC)
 			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+#if defined(GPIOD)
 	else if (&gpio == GPIOD)
 			RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+#endif
+#if defined(GPIOE)
 	else if (&gpio == GPIOE)
 			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
+#endif
 #if defined(GPIOF_BASE)
 	else if (&gpio == GPIOF)
 			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
 #endif
 	else {
-		while (1);
+		std::terminate();
 	}
 }
     //--------------------------------------------------------------------------------------------------------------
@@ -212,8 +230,7 @@ class ClockManager {
         else if (&usart == UART8)
             return APB1Frequency();
 #endif
-        while (1)
-            ;  // Error should newer go there
+        std::terminate(); // Error should newer go there
     }
     /**
      * @brief This function return SPI clock
@@ -224,10 +241,14 @@ class ClockManager {
     static uint32_t SPIFrequency(const SPI_TypeDef &spi) {
         if (&spi == SPI1)
             return APB2Frequency();
+#if defined(SPI2)
         else if (&spi == SPI2)
             return APB1Frequency();
+#endif
+#if defined(SPI3)
         else if (&spi == SPI3)
             return APB1Frequency();
+#endif
 #if defined(SPI4)
         else if (&spi == SPI4)
             return APB2Frequency();
@@ -240,10 +261,7 @@ class ClockManager {
         else if (&spi == SPI6)
             return APB2Frequency();
 #endif
-        else {
-            while (1)
-                ;  // Error should newer go there
-        }
+        std::terminate();  // Error should newer go there
     }
     /**
      * @brief This function return I2C clock
@@ -256,22 +274,27 @@ class ClockManager {
             return APB1Frequency();
         else if (&i2c == I2C2)
             return APB1Frequency();
+#if defined(I2C3)
         else if (&i2c == I2C3)
             return APB1Frequency();
-        else {
-            while (1)
-                ;  // Error should newer go there
-        }
+#endif
+        std::terminate();  // Error should newer go there
     }
     static uint32_t TimerFrequency(const TIM_TypeDef &tim) {
         if (&tim == TIM1)
             return APB2Frequency();
+#if defined(TIM2)
         else if (&tim == TIM2)
             return APB1Frequency();
+#endif
+#if defined(TIM3)
         else if (&tim == TIM3)
             return APB1Frequency();
+#endif
+#if defined(TIM4)
         else if (&tim == TIM4)
             return APB1Frequency();
+#endif
         else if (&tim == TIM5)
             return APB1Frequency();
 #if defined(TIM6)
@@ -289,8 +312,10 @@ class ClockManager {
 #endif
         else if (&tim == TIM9)
             return APB2Frequency();
+#if defined(TIM2)
         else if (&tim == TIM10)
             return APB2Frequency();
+#endif
 
         else if (&tim == TIM11)
             return APB2Frequency();
@@ -306,14 +331,11 @@ class ClockManager {
         else if (&tim == TIM14)
             return APB1Frequency();
 #endif
-        else {
-            while (1)
-                ;  // Error should newer go there
-        }
+        std::terminate();
     }
 
     static uint32_t SYSCLKFrequency() noexcept {
-        volatile uint32_t freq = 0;
+        uint32_t freq = 0;
         switch (RCC->CFGR & RCC_CFGR_SWS) {
             case 0:
                 freq = HSI::frequency();
@@ -358,10 +380,9 @@ class ClockManager {
         }
     }
 
-    static constexpr Frequency LSEFrequency() noexcept {
+    static Frequency LSEFrequency() noexcept {
         if (externalLSEPresent == false) {
-            while (1)
-                ;
+            std::terminate();
         }
         return externalLSEFrequency;
     }
@@ -389,12 +410,11 @@ class ClockManager {
          *
          * @return HSE frequency in [Hz]
          */
-        static constexpr Frequency frequency() noexcept {
+        static Frequency frequency() noexcept {
             static_assert(externalClockFrequency >= 4000000 && externalClockFrequency <= 26000000,
                           "External HSE frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
             if (externalClockPresent == false) {
-                while (1)
-                    ;
+            	std::terminate();
             }
             return externalClockFrequency;
         }

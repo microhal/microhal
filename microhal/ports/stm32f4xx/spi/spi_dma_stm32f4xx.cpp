@@ -68,66 +68,8 @@ SPI_dma SPI_dma::spi6(*SPI6, *DMA::dma2, DMA::dma2->stream[5], DMA::dma2->stream
 SPI &SPI::spi6 = SPI_dma::spi6;
 #endif
 //***********************************************************************************************//
-//                                         Functions //
+//                                         Functions
 //***********************************************************************************************//
-static DMA::Stream::Channel getRxChannalNumber(SPI_TypeDef &spi) {
-    switch (reinterpret_cast<uint32_t>(&spi)) {
-        case reinterpret_cast<uint32_t>(SPI1):
-            return DMA::Stream::Channel::Channel3;
-        case reinterpret_cast<uint32_t>(SPI2):
-        // intentionally lack of break
-        case reinterpret_cast<uint32_t>(SPI3):
-            return DMA::Stream::Channel::Channel0;
-#ifdef SPI4_IRQn
-        case reinterpret_cast<uint32_t>(SPI4):
-            return DMA::Stream::Channel::Channel4;
-            return DMA::Stream::Channel::Channel5;
-            break;
-#endif
-#ifdef SPI5_IRQn
-        case reinterpret_cast<uint32_t>(SPI5):
-            return DMA::Stream::Channel::Channel2;
-            return DMA::Stream::Channel::Channel7;
-#endif
-#ifdef SPI6_IRQn
-        case reinterpret_cast<uint32_t>(SPI6):
-            return DMA::Stream::Channel::Channel1;
-#endif
-    }
-    while (1)
-        ;
-    return DMA::Stream::Channel::Channel0;
-}
-
-static DMA::Stream::Channel getTxChannalNumber(SPI_TypeDef &spi) {
-    switch (reinterpret_cast<uint32_t>(&spi)) {
-        case reinterpret_cast<uint32_t>(SPI1):
-            return DMA::Stream::Channel::Channel3;
-        case reinterpret_cast<uint32_t>(SPI2):
-        // intentionally lack of break
-        case reinterpret_cast<uint32_t>(SPI3):
-            return DMA::Stream::Channel::Channel0;
-#ifdef SPI4_IRQn
-        case reinterpret_cast<uint32_t>(SPI4):
-            return DMA::Stream::Channel::Channel4;
-            return DMA::Stream::Channel::Channel5;
-            break;
-#endif
-#ifdef SPI5_IRQn
-        case reinterpret_cast<uint32_t>(SPI5):
-            return DMA::Stream::Channel::Channel2;
-            return DMA::Stream::Channel::Channel7;
-#endif
-#ifdef SPI6_IRQn
-        case reinterpret_cast<uint32_t>(SPI6):
-            return DMA::Stream::Channel::Channel1;
-#endif
-    }
-    while (1)
-        ;
-    return DMA::Stream::Channel::Channel0;
-}
-
 inline SPI::Error SPI_dma::write(const void *data, size_t len, bool last) {
     txStream.setMemoryIncrement(DMA::Stream::MemoryIncrementMode::PointerIncremented);
     txStream.setNumberOfItemsToTransfer(len);
@@ -137,22 +79,22 @@ inline SPI::Error SPI_dma::write(const void *data, size_t len, bool last) {
     spi.CR2 |= SPI_CR2_TXDMAEN;
 
     if (semaphore.wait(std::chrono::milliseconds::max())) {
-      //  if (last) {
-            busyWait();
-            // workaround, I don't know why but BSY flag is cleared in the middle of last bit. This may cause some error when other function will
-            // deassert CS pin
-            volatile uint32_t i = 150;
-            while (i--) {
-            }
-       // }
-        return NoError;
+        //  if (last) {
+        busyWait();
+        // workaround, I don't know why but BSY flag is cleared in the middle of last bit. This may cause some error when other function will
+        // deassert CS pin
+        volatile uint32_t i = 150;
+        while (i--) {
+        }
+        // }
+        return Error::None;
     }
 
     return Error::Timeout;
 }
 
 SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeLen, size_t readLen) {
-	txStream.disableInterrupt(DMA::Stream::Interrupt::TransferComplete);
+    txStream.disableInterrupt(DMA::Stream::Interrupt::TransferComplete);
     if (writeLen < readLen) {
         writeLen = readLen;
         txStream.setMemoryIncrement(DMA::Stream::MemoryIncrementMode::PointerFixed);
@@ -166,7 +108,7 @@ SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeL
     rxStream.setNumberOfItemsToTransfer(readLen);
     rxStream.setMemoryBank0(readPtr);
 
-//    busyWait();
+    //    busyWait();
     volatile uint8_t tmp __attribute__((unused)) = spi.DR;
 
     rxStream.enable();
@@ -174,19 +116,20 @@ SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeL
 
     spi.CR2 |= SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN;
 
-    //spi.CR2 |= SPI_CR2_TXDMAEN;
+    // spi.CR2 |= SPI_CR2_TXDMAEN;
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
-   // rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
+    // rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
     if (semaphore.wait(std::chrono::milliseconds::max())) {
         busyWait();
         rxStream.disable();
         spi.CR2 &= ~SPI_CR2_RXDMAEN;
-        // workaround, I don't know why but (tested on stm32f407) BSY flag is cleared in the middle of last bit. This may cause some error when other function will
+        // workaround, I don't know why but (tested on stm32f407) BSY flag is cleared in the middle of last bit. This may cause some error when other
+        // function will
         // deassert CS pin
         volatile uint32_t i = 150;
         while (i--) {
         }
-        return NoError;
+        return Error::None;
     }
     return Error::Timeout;
 }
@@ -195,83 +138,24 @@ void SPI_dma::init() {
     dma.clockEnable();
     // rx
     rxStream.deinit();
-    rxStream.init(getRxChannalNumber(spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
+    rxStream.init(dma.channel(rxStream, &spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::PerToMem);
     rxStream.setPeripheralAddress(&spi.DR);
     rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
     // tx
     txStream.deinit();
-    txStream.init(getTxChannalNumber(spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
+    txStream.init(dma.channel(txStream, &spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::MemToPer);
     txStream.setPeripheralAddress(&spi.DR);
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
-    IRQn_Type rxIRQ = DMA2_Stream2_IRQn, txIRQ = DMA2_Stream2_IRQn;
-
-    switch (reinterpret_cast<uint32_t>(&spi)) {
-        case reinterpret_cast<uint32_t>(SPI1):
-#if MICROHAL_SPI1_DMA_RX_STREAM == 0
-            rxIRQ = DMA2_Stream0_IRQn;
-#elif (MICROHAL_SPI1_DMA_RX_STREAM == 2)
-            rxIRQ = DMA2_Stream2_IRQn;
-#endif
-#if MICROHAL_SPI1_DMA_TX_STREAM == 3
-            txIRQ = DMA2_Stream3_IRQn;
-#elif MICROHAL_SPI1_DMA_TX_STREAM == 5
-            txIRQ = DMA2_Stream5_IRQn;
-#endif
-            break;
-        case reinterpret_cast<uint32_t>(SPI2):
-            rxIRQ = DMA1_Stream3_IRQn;
-            txIRQ = DMA1_Stream4_IRQn;
-            break;
-        case reinterpret_cast<uint32_t>(SPI3):
-#if MICROHAL_SPI3_DMA_RX_STREAM == 0
-            rxIRQ = DMA1_Stream0_IRQn;
-#elif MICROHAL_SPI3_DMA_RX_STREAM == 2
-            rxIRQ = DMA1_Stream2_IRQn;
-#endif
-#if MICROHAL_SPI3_DMA_TX_STREAM == 4
-            txIRQ = DMA1_Stream4_IRQn;
-#elif MICROHAL_SPI3_DMA_TX_STREAM == 7
-            txIRQ = DMA1_Stream7_IRQn;
-#endif
-            break;
-#ifdef SPI4_IRQn
-        case reinterpret_cast<uint32_t>(SPI4):
-            rxIRQ = DMA2_Stream0_IRQn;
-            rxIRQ = DMA2_Stream3_IRQn;
-
-            txIRQ = DMA2_Stream1_IRQn;
-            txIRQ = DMA2_Stream4_IRQn;
-            break;
-#endif
-#ifdef SPI5_IRQn
-        case reinterpret_cast<uint32_t>(SPI5):
-            rxIRQ = DMA2_Stream3_IRQn;
-            rxIRQ = DMA2_Stream5_IRQn;
-
-            txIRQ = DMA2_Stream4_IRQn;
-            txIRQ = DMA2_Stream6_IRQn;
-            break;
-#endif
-#ifdef SPI6_IRQn
-        case reinterpret_cast<uint32_t>(SPI6):
-            rxIRQ = DMA2_Stream5_IRQn;
-            txIRQ = DMA2_Stream6_IRQn;
-            break;
-#endif
-    }
-
     dma.clearInterruptFlag(rxStream, DMA::Stream::Interrupt::TransferComplete);
-    NVIC_EnableIRQ(rxIRQ);
-    NVIC_SetPriority(rxIRQ, 6);
+    dma.enableInterrupt(rxStream, 6);
 
     dma.clearInterruptFlag(txStream, DMA::Stream::Interrupt::TransferComplete);
-    NVIC_EnableIRQ(txIRQ);
-    NVIC_SetPriority(txIRQ, 6);
+    dma.enableInterrupt(txStream, 6);
 }
 
 //***********************************************************************************************//
@@ -280,7 +164,7 @@ void SPI_dma::init() {
 void SPI_dma::IRQfunction(SPI_dma &object, SPI_TypeDef *spi) {
     const SPI::Error error = SPI::errorCheck(spi->SR);
 
-    if (error != SPI::NoError) {
+    if (error != SPI::Error::None) {
         bool shouldYeld = object.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
         portYIELD_FROM_ISR(shouldYeld);

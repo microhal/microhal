@@ -96,9 +96,6 @@ class SerialPort_RxInterruptTxDma: public SerialPort_BufferedBase<SerialPort_RxI
     DMA::Stream &txStream;
 //------------------------------------------- constructors --------------------------------------//
     inline SerialPort_RxInterruptTxDma(USART_TypeDef &usart, char * const rxData, char * const txData, size_t rxDataSize, size_t txDataSize, DMA::DMA &dma, DMA::Stream & txStream);
-
-    //virtual ~SerialPort_interrupt(){
-    //}
 //--------------------------------------------- functions ---------------------------------------//
     size_t prepareDmaTransfer();
     void onDMATxFinish();

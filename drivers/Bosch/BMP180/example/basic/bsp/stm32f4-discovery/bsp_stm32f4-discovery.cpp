@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,18 +24,19 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
-#include "microhal.h"
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
+#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
 #include "i2c.h"
-#include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-	(void)bsp::bmp180::i2c;
-	(void)bsp::debugPort;
+    (void)bsp::bmp180::i2c;
+    (void)bsp::debugPort;
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
@@ -46,15 +47,14 @@ void hardwareConfig(void) {
     IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
 
     stm32f4xx::I2C::i2c2.init();
-    stm32f4xx::I2C::i2c2.setMode(microhal::I2C::Mode::Fast);
+    stm32f4xx::I2C::i2c2.speed(400000, microhal::I2C::Mode::Fast);
     stm32f4xx::I2C::i2c2.enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

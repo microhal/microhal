@@ -66,7 +66,7 @@ SerialPort &SerialPort::Serial4 = SerialPort_interrupt::Serial4;
 #ifdef MICROHAL_USE_SERIAL_PORT5_INTERRUPT
 static char txBufferData_5[MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE];
 static char rxBufferData_5[MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial5(*USART5, rxBufferData_5, txBufferData_5, sizeof(rxBufferData_5), sizeof(txBufferData_5));
+SerialPort_interrupt SerialPort_interrupt::Serial5(*UART5, rxBufferData_5, txBufferData_5, sizeof(rxBufferData_5), sizeof(txBufferData_5));
 SerialPort &SerialPort::Serial5 = SerialPort_interrupt::Serial5;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
