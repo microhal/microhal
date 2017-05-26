@@ -26,10 +26,10 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "microhal.h"
+#include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "ds2786.h"
-#include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace diagnostic;
@@ -50,22 +50,22 @@ int main(void) {
     DS2786 ds2786(bsp::ds2786::i2c, 500000);
 
     while (1) {
-        if(ds2786.isCapacityLearningEnabled())
+        if (ds2786.isCapacityLearningEnabled())
             diagChannel << Debug << "Capacity Learning enabled." << endl;
         else
             diagChannel << Debug << "Capacity Learning disabled." << endl;
 
-        if(auto vout = ds2786.isVoutDisabled())
+        if (auto vout = ds2786.isVoutDisabled())
             diagChannel << Debug << "Vout " << (*vout ? "disabled" : "enabled") << endl;
         else
             diagChannel << Debug << "Error while reading Vout status." << endl;
 
-        if(auto aux0 = ds2786.readAxuiliary0())
+        if (auto aux0 = ds2786.readAxuiliary0())
             diagChannel << Debug << "Value of Auxiliary 0: " << *aux0 << endl;
         else
             diagChannel << Debug << "Auxiliary 0 reading error." << endl;
 
-        if(auto aux1 = ds2786.readAxuiliary1())
+        if (auto aux1 = ds2786.readAxuiliary1())
             diagChannel << Debug << "Value of Auxiliary 1: " << *aux1 << endl;
         else
             diagChannel << Debug << "Auxiliary 1 reading error: " << aux1.error() << endl;
@@ -75,12 +75,12 @@ int main(void) {
         else
             diagChannel << Debug << "Auxiliary 1 reading error: " << temperature.error() << endl;
 
-        if(auto initVoltage = ds2786.readInitialVoltage())
+        if (auto initVoltage = ds2786.readInitialVoltage())
             diagChannel << Debug << "Initial battery voltage: " << *initVoltage << " V" << endl;
         else
             diagChannel << Debug << "Initial battery voltage reading error" << endl;
 
-        if(auto voltage = ds2786.readVoltage())
+        if (auto voltage = ds2786.readVoltage())
             diagChannel << Debug << "Battery voltage: " << *voltage << " V" << endl;
         else
             diagChannel << Debug << "Battery voltage reading error." << endl;
@@ -96,6 +96,6 @@ int main(void) {
             diagChannel << Debug << "Battery capacity reading error." << endl;
 
         diagChannel << Debug << endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds {1000});
+        std::this_thread::sleep_for(std::chrono::milliseconds{1000});
     }
 }
