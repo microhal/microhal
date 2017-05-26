@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,25 +24,26 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
- 
-#include "microhal.h"
-#include "diagnostic/diagnostic.h"
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
+
+#include <cstdio>
 #include "bmp180.h"
 #include "bsp.h"
-#include <cstdio>
+#include "diagnostic/diagnostic.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-	bsp::debugPort.setDataBits(SerialPort::Data8);
-	bsp::debugPort.setStopBits(SerialPort::OneStop);
-	bsp::debugPort.setParity(SerialPort::NoParity);
-	bsp::debugPort.open(SerialPort::ReadWrite);
-	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-	bsp::debugPort.write("\n\r------------------- BMP180 Demo -------------------------\n\r");
+    bsp::debugPort.write("\n\r------------------- BMP180 Demo -------------------------\n\r");
 
     char buffer[100];
     BMP180 bmp(bsp::bmp180::i2c);
@@ -51,10 +52,10 @@ int main(void) {
     bsp::debugPort.write(buffer);
 
     if (bmp.init() == false) {
-    	bsp::debugPort.write("BMP initialize error.\n\r");
+        bsp::debugPort.write("BMP initialize error.\n\r");
     }
 
     while (1) {
-    	 std::this_thread::sleep_for(std::chrono::milliseconds {1000});
+        std::this_thread::sleep_for(std::chrono::milliseconds{1000});
     }
 }
