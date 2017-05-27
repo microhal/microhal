@@ -49,10 +49,21 @@ def eclipseRun(project, target, defines) {
              withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
                 retry(2) {
                     timeout(time:10, unit:'MINUTES') {			
-                        sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer' + defs + ' -data ' + workspace + ' -importAll "' + project + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'
+                        sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer' + defs + ' -data ' + workspace + ' -import "' + project + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'
                     }
                 }  
             }	
+        }
+    }
+    if (env.NODE_NAME == 'FX160_HardwareTester') {
+        lock(label: 'hwTester_core', quantity: 1) {
+            withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
+                retry(2) {
+                    timeout(time:10, unit:'MINUTES') {
+                        sh 'eclipse --launcher.suppressErrors -nosplash -no-indexer' + defs + ' -data ' + workspace + ' -import "' + project + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + target + '"'                        
+                    }
+                }
+            }
         }
     }
 }
@@ -105,7 +116,7 @@ def eclipseBuild(projName, targets) {
                      }
                      retry(2) {
                         timeout(time:10, unit:'MINUTES') {			
-                            sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + buildTarget + '"'
+                            sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -import "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + buildTarget + '"'
                         }
                     }
                 }
@@ -118,7 +129,7 @@ def eclipseBuild(projName, targets) {
                 for (target in targets) {
                     retry(2) {
                         timeout(time:10, unit:'MINUTES') {
-                            sh 'eclipse --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -importAll "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
+                            sh 'eclipse --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -import "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
                         }
                     }
                 }
