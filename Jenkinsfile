@@ -232,7 +232,7 @@ pipeline {
                 )
             }
         }
-        stage('Test') {
+        stage('Test - build all targets') {
             steps {
 		parallel(
 			stm32f3xx : { eclipseBuild('stm32f3xx_allMCU', ['all']) },
@@ -303,22 +303,34 @@ pipeline {
 		)		
             }
         }  
-        
+        stage('Test - code size statistics') {
+	    steps {
+                // serialPort code usage
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', [])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT'])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT'])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT'])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT'])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT'])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT'])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT'])
+                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT8_INTERRUPT'])
+            }	    
+        }
         stage('Checkout tester') {
 	    agent { 
                 label 'FX160_HardwareTester'
             }
             steps {
-//	checkout scm
                 sh 'git submodule update --init'
 //                unstash 'makefiles'		                
             }
 	}
-       stage('Build on tester') {
+        stage('Build on tester') {
 	    agent { 
                 label 'FX160_HardwareTester'
             }
-           steps {
+            steps {
                 parallel(
                     diagnostic :        { eclipseBuild('diagnostic', targets) },
                     externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
@@ -329,7 +341,7 @@ pipeline {
                     ticToc :            { eclipseBuild('ticToc', targets) },
                 )
             }
-       }
+        }
 	stage('Analyze microhal examples') {
 	    agent { 
                 label 'FX160_HardwareTester'
@@ -346,21 +358,19 @@ pipeline {
                 )
             }	    
         }
-	stage('Statistics') {
-	    steps {		
-                //parallel(
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', [])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT'])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT'])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT'])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT'])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT'])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT'])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT'])
-                    eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT8_INTERRUPT'])
-                //)
-            }	    
-        }
+        stage('Create documentation') {
+            when {
+                expression { env.BRANCH_NAME == 'master'}
+            }
+            steps {
+                sh 'doxygen microhal/core/HAL_DOC.doxyfile'
+            }
+            post {
+                success {
+                    // todo(pokas) publish documentation
+                }
+            }
+        }	
     }
     post {
         always {
