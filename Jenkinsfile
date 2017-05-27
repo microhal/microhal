@@ -367,6 +367,7 @@ pipeline {
             }
             post {
                 success {
+                    echo "Documentation is published."
                     // todo(pokas) publish documentation
                 }
             }
