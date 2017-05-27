@@ -9,7 +9,7 @@
  @details
 
  */ /* ============================================================================================
-                                                                                                         */
+                                                                                                                                                                                                           */
 /* Created on: 20 sty 2014 */
 
 #ifndef STM32F4DISCOVERY_H_
@@ -17,6 +17,7 @@
 
 #include "i2c.h"
 #include "microhal.h"
+
 namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 namespace isl29023 {

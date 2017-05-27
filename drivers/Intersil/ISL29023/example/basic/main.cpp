@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,12 +24,13 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
- 
-#include "microhal.h"
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
+
+#include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "isl29023.h"
-#include "bsp.h"
+#include "microhal.h"
 
 #include <cstdio>
 
@@ -37,21 +38,21 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-	bsp::debugPort.clear();
+    bsp::debugPort.clear();
 
-	bsp::debugPort.setDataBits(SerialPort::Data8);
-	bsp::debugPort.setStopBits(SerialPort::OneStop);
-	bsp::debugPort.setParity(SerialPort::NoParity);
-	bsp::debugPort.open(SerialPort::ReadWrite);
-	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-	bsp::debugPort.write("\n\r------------------- ISL29023 Demo -------------------------\n\r");
+    bsp::debugPort.write("\n\r------------------- ISL29023 Demo -------------------------\n\r");
 
     diagChannel.setOutputDevice(bsp::debugPort);
 
     ISL29023 isl(bsp::isl29023::i2c);
 
-   // isl.reset();
+    // isl.reset();
 
     diagChannel << lock << MICROHAL_DEBUG << "Setting mode...";
     if (isl.setMode(ISL29023::Mode_AlsContinuous) == false) {
@@ -62,28 +63,27 @@ int main(void) {
 
     diagChannel << lock << MICROHAL_DEBUG << "Setting range...";
     if (isl.setRange(ISL29023::Range2) == false) {
-    	diagChannel << MICROHAL_ERROR << "unable to set range." << unlock;
+        diagChannel << MICROHAL_ERROR << "unable to set range." << unlock;
     } else {
-    	diagChannel << Debug << "OK" << endl << unlock;
+        diagChannel << Debug << "OK" << endl << unlock;
     }
 
-    diagChannel << lock << MICROHAL_DEBUG <<"Setting resolution...";
+    diagChannel << lock << MICROHAL_DEBUG << "Setting resolution...";
     if (isl.setResolution(ISL29023::Resolution_8bit) == false) {
-    	diagChannel << MICROHAL_ERROR << "unable to set resolution." << unlock;
+        diagChannel << MICROHAL_ERROR << "unable to set resolution." << unlock;
     } else {
-    	diagChannel << Debug << "OK" << endl << unlock;
+        diagChannel << Debug << "OK" << endl << unlock;
     }
 
     float lux;
     while (1) {
-
         if (isl.getLux(lux) == true) {
-        	diagChannel << lock << Debug << "lux = " << lux << endl << unlock;
+            diagChannel << lock << Debug << "lux = " << lux << endl << unlock;
         } else {
-        	diagChannel << MICROHAL_ERROR << "unable to read light intensity." << unlock;
+            diagChannel << MICROHAL_ERROR << "unable to read light intensity." << unlock;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds {1000});
+        std::this_thread::sleep_for(std::chrono::milliseconds{1000});
     }
 
     return 0;

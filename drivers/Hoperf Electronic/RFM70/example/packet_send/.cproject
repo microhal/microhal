@@ -149,7 +149,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/nucleo-f334r8|microhal/ports/stm32f3xx|bsp/nucleo-f411re|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|devices|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f4xx/i2c|microhal/core/I2CDevice|microhal/core/button|bsp/nucleo-f334r8|microhal/ports/stm32f3xx|bsp/nucleo-f411re|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|devices|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="devices"/>
 					</sourceEntries>
 				</configuration>
@@ -304,7 +304,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/nucleo-f334r8|microhal/ports/stm32f3xx|microhal/ports/stm32f3xx/spi/spi_interrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi/spi_dma_stm32f3xx.cpp|bsp/stm32f4-discovery|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|devices|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f4xx/i2c|microhal/core/I2CDevice|microhal/core/button|bsp/nucleo-f334r8|microhal/ports/stm32f3xx|microhal/ports/stm32f3xx/spi/spi_interrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi/spi_dma_stm32f3xx.cpp|bsp/stm32f4-discovery|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|devices|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="devices"/>
 					</sourceEntries>
 				</configuration>
@@ -459,7 +459,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f3xx/startup/startup.c|bsp/nucleo-f411re|microhal/ports/stm32f4xx|bsp/stm32f4-discovery|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|devices|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f3xx/i2c|microhal/core/I2CDevice|microhal/core/button|microhal/ports/stm32f3xx/startup/startup.c|bsp/nucleo-f411re|microhal/ports/stm32f4xx|bsp/stm32f4-discovery|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|devices|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="devices"/>
 					</sourceEntries>
 				</configuration>

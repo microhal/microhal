@@ -24,8 +24,8 @@
  * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "microhal.h"
 #include "bsp.h"
+#include "microhal.h"
 
 #include "lis302.h"
 
@@ -42,48 +42,39 @@ int main(void) {
 
     do {
         if (!lis302.init()) {
-            diagChannel << lock << MICROHAL_ERROR <<
-                    "Error while initializing" << endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Error while initializing" << endl << unlock;
             break;
         }
 
         if (!lis302.enableAxis(LIS302DL::Axis::XYZ)) {
-            diagChannel << lock << MICROHAL_ERROR <<
-                    "Error while setting axis" << endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Error while setting axis" << endl << unlock;
             break;
         }
         if (!lis302.setODR(LIS302DL::Odr::ODR_100Hz)) {
-            diagChannel << lock << MICROHAL_ERROR <<
-                    "Error while setting ODR" << endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Error while setting ODR" << endl << unlock;
             break;
         }
         if (!lis302.setRange(LIS302DL::Range::Range_2g)) {
-            diagChannel << lock << MICROHAL_ERROR <<
-                    "Error while setting range" << endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Error while setting range" << endl << unlock;
             break;
         }
 
         if (!lis302.setMode(LIS302DL::Mode::Active)) {
-            diagChannel << lock << MICROHAL_ERROR <<
-                    "Error while setting mode" << endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Error while setting mode" << endl << unlock;
             break;
         }
 
         LIS302DL::AccelerationVector acc;
         while (1) {
-            std::this_thread::sleep_for(std::chrono::milliseconds {250});
+            std::this_thread::sleep_for(std::chrono::milliseconds{250});
             if (lis302.getAcceleration(&acc)) {
-                diagChannel << lock << MICROHAL_DEBUG <<
-                         "X: " << acc[0] <<
-                         ", Y: " << acc[1] <<
-                         ", Z: " << acc[2] <<
-                         endl << unlock;
+                diagChannel << lock << MICROHAL_DEBUG << "X: " << acc[0] << ", Y: " << acc[1] << ", Z: " << acc[2] << endl << unlock;
             }
         }
     } while (0);
 
     while (1) {
-        {;}
+        { ; }
     }
 
     return 0;

@@ -162,7 +162,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/nucleo-f411re|microhal/ports/stm32f4xx/spi|microhal/units|microhal/math|microhal/core/button|microhal/core/SPIDevice|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|gsl/tests|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows|microhal/ports/linux|sht21|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/nucleo-f411re|microhal/ports/stm32f4xx/spi|microhal/units|microhal/math|microhal/core/button|microhal/core/SPIDevice|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|gsl/tests|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows|microhal/ports/linux|sht21|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sht21"/>
 					</sourceEntries>
 				</configuration>
@@ -329,7 +329,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/spi|microhal/units|microhal/math|microhal/core/button|microhal/core/SPIDevice|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|gsl/tests|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows|microhal/ports/linux|sht21|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/spi|microhal/units|microhal/math|microhal/core/button|microhal/core/SPIDevice|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|gsl/tests|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows|microhal/ports/linux|sht21|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sht21"/>
 					</sourceEntries>
 				</configuration>
@@ -497,7 +497,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f3xx/startup/startup.c|microhal/ports/stm32f4xx|bsp/nucleo-f411re|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/spi|microhal/units|microhal/math|microhal/core/button|microhal/core/SPIDevice|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|gsl/tests|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows|microhal/ports/linux|sht21|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi|microhal/ports/stm32f3xx/startup/startup.c|microhal/ports/stm32f4xx|bsp/nucleo-f411re|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/spi|microhal/units|microhal/math|microhal/core/button|microhal/core/SPIDevice|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|gsl/tests|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/windows|microhal/ports/linux|sht21|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="sht21"/>
 					</sourceEntries>
 				</configuration>

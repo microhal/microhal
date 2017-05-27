@@ -57,9 +57,10 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.82658930" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -75,9 +76,10 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1589899247" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -99,9 +101,10 @@
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1077324935" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp1y" valueType="enumerated"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.12348083" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
@@ -147,7 +150,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/nucleo-f411re|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f4xx/spi|microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi|microhal/core/SPIDevice|microhal/core/button|bsp/nucleo-f411re|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -208,8 +211,10 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.393603058" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.956491220" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -223,9 +228,11 @@
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.454409377" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.295059152" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -245,9 +252,11 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.493500197" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1865611596" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.2144988748" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp1y" valueType="enumerated"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.425841467" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
@@ -293,7 +302,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/stm32f4-discovery|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f4xx/spi|microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi|microhal/core/SPIDevice|microhal/core/button|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -354,8 +363,10 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1920618210" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F3XX"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1178605249" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -369,9 +380,11 @@
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.857574902" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F3XX"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1526981204" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -391,9 +404,11 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.560372747" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1220173231" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="__MICROHAL__"/>
 									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
+									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
+									<listOptionValue builtIn="false" value="__MICROHAL"/>
+									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F3XX"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1614738855" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp1y" valueType="enumerated"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1394378272" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
@@ -439,7 +454,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/stm32f4-discovery|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f4xx/spi|microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi|microhal/core/SPIDevice|microhal/core/button|bsp/stm32f4-discovery|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/ports/windows|microhal/ports/linux|gsl/tests|microHAL|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -465,10 +480,16 @@
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1797522996;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1589899247">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389.542264449.1747770233;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389.542264449.1747770233.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1386503352;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1526981204">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389.542264449;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389.542264449.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.389686456;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.425841467">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.464230933;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.464230933.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1985277473;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1060507986">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389.542264449.1747770233;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1507933389.542264449.1747770233.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.784892099;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1394378272">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.464230933;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.464230933.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1431417577;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.909026152">
