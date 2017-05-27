@@ -11,25 +11,25 @@ def projDirMap = [
 	'cli' : 'components/cli/examples/cli',
 	'hostComm' : 'components/hostComm/examples/simpeCommunication',
 	'at45db' : 'drivers/Atmel/AT45DB041D/example',        
-	'bmp180' : 'drivers/Bosch/BMP180/example',
-	'ds2782' : 'drivers/MaximDallas/DS2782/example',
-	'ds2786' : 'drivers/MaximDallas/DS2786/example',        
+	'bmp180' : 'drivers/Bosch/BMP180/example/basic',
+	'ds2782' : 'drivers/MaximDallas/DS2782/example/basic',
+	'ds2786' : 'drivers/MaximDallas/DS2786/example/basic',        
 	'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
-	'isl29023' : 'drivers/Intersil/ISL29023/example',        
+	'isl29023' : 'drivers/Intersil/ISL29023/example/basic',        
 	'leptonPCSerialReceiver' : 'drivers/FLIR/Lepton/example/lepton_PC_Serial_Receiver',
 	'leptonSDCardWrite' : 'drivers/FLIR/Lepton/example/lepton_SDCard_write',
 	'leptonSerialTransmitter' : 'drivers/FLIR/Lepton/example/lepton_Serial_Transmitter',
 	'lis302' : 'drivers/STMicroelectronics/LIS302/example',
 	'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
 	'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
-	'mcp9800' : 'drivers/Microchip/MCP9800',
+	'mcp9800' : 'drivers/Microchip/MCP9800/example',
 	'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
 	'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
 	'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
 	'pcf8563' : 'drivers/NXP/PCF8563/example',
 	'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
 	'sht21' : 'drivers/Sensirion/SHT21/example/basic',
-	'tmp006' : 'drivers/Texas Instruments/TMP006/example',
+	'tmp006' : 'drivers/Texas Instruments/TMP006/example/temperature_show',
 	'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
 	'ws2812' : 'drivers/Worldsemi/WS2812/example',
 	'serialPort_test' : 'tests/serialPort',
@@ -43,7 +43,7 @@ def eclipseRun(project, target, defines) {
     def defs = ''
     for (define in defines) {
         defs = defs + ' -D ' + define
-    }		
+    }	    
     if (env.NODE_NAME == 'master') {
         lock(label: 'master_core', quantity: 1) {
              withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
@@ -80,25 +80,25 @@ def eclipseBuild(projName, targets) {
 	'cli' : 'components/cli/examples/cli',
 	'hostComm' : 'components/hostComm/examples/simpeCommunication',
 	'at45db' : 'drivers/Atmel/AT45DB041D/example',        
-	'bmp180' : 'drivers/Bosch/BMP180/example',
-	'ds2782' : 'drivers/MaximDallas/DS2782/example',
-	'ds2786' : 'drivers/MaximDallas/DS2786/example',        
+	'bmp180' : 'drivers/Bosch/BMP180/example/basic',
+	'ds2782' : 'drivers/MaximDallas/DS2782/example/basic',
+	'ds2786' : 'drivers/MaximDallas/DS2786/example/basic',        
 	'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
-	'isl29023' : 'drivers/Intersil/ISL29023/example',        
+	'isl29023' : 'drivers/Intersil/ISL29023/example/basic',        
 	'leptonPCSerialReceiver' : 'drivers/FLIR/Lepton/example/lepton_PC_Serial_Receiver',
 	'leptonSDCardWrite' : 'drivers/FLIR/Lepton/example/lepton_SDCard_write',
 	'leptonSerialTransmitter' : 'drivers/FLIR/Lepton/example/lepton_Serial_Transmitter',
 	'lis302' : 'drivers/STMicroelectronics/LIS302/example',
 	'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
 	'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
-	'mcp9800' : 'drivers/Microchip/MCP9800',
+	'mcp9800' : 'drivers/Microchip/MCP9800/example',
 	'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
 	'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
 	'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
 	'pcf8563' : 'drivers/NXP/PCF8563/example',
 	'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
 	'sht21' : 'drivers/Sensirion/SHT21/example/basic',
-	'tmp006' : 'drivers/Texas Instruments/TMP006/example',
+	'tmp006' : 'drivers/Texas Instruments/TMP006/example/temperature_show',
 	'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
 	'ws2812' : 'drivers/Worldsemi/WS2812/example',
 	'serialPort_test' : 'tests/serialPort',
@@ -106,36 +106,13 @@ def eclipseBuild(projName, targets) {
 	'stm32f4xx_allMCU' : 'tests/stm32f4xx_AllMCU',
 ]
     echo "Building on ${env.NODE_NAME}"
-    if (env.NODE_NAME == 'master') {
-         lock(label: 'master_core', quantity: 1) {
-             withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
-                 for (target in targets) {
-                     def buildTarget = projName + '/' + target
-		     if (target == 'all') {
-		         buildTarget = 'all'
-                     }
-                     retry(2) {
-                        timeout(time:10, unit:'MINUTES') {			
-                            sh 'eclipse -configuration /srv/jenkins --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -import "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + buildTarget + '"'
-                        }
-                    }
-                }
-            }
+    for (target in targets) {
+        def buildTarget = projName + '/' + target
+	if (target == 'all') {
+	    buildTarget = 'all'
         }
-    }
-    if (env.NODE_NAME == 'FX160_HardwareTester') {
-        lock(label: 'hwTester_core', quantity: 1) {
-            withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
-                for (target in targets) {
-                    retry(2) {
-                        timeout(time:10, unit:'MINUTES') {
-                            sh 'eclipse --launcher.suppressErrors -nosplash -no-indexer -data workspace_' + projName.replaceAll("\\s","_") + ' -import "' + projDirMap[projName] + '" -application org.eclipse.cdt.managedbuilder.core.headlessbuild -cleanBuild "' + projName + '/' + target + '"'
-                        }
-                    }
-                }
-            }
-        }
-    }
+        eclipseRun(projDirMap[projName], buildTarget, [])
+    }	
 }
 
 def sa(projName, targets) {
@@ -150,25 +127,25 @@ def sa(projName, targets) {
         'cli' : 'components/cli/examples/cli',
         'hostComm' : 'components/hostComm/examples/simpeCommunication',
         'at45db' : 'drivers/Atmel/AT45DB041D/example',        
-        'bmp180' : 'drivers/Bosch/BMP180/example',
-        'ds2782' : 'drivers/MaximDallas/DS2782/example',
-        'ds2786' : 'drivers/MaximDallas/DS2786/example',        
+        'bmp180' : 'drivers/Bosch/BMP180/example/basic',
+        'ds2782' : 'drivers/MaximDallas/DS2782/example/basic',
+        'ds2786' : 'drivers/MaximDallas/DS2786/example/basic',        
         'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
-        'isl29023' : 'drivers/Intersil/ISL29023/example',        
+        'isl29023' : 'drivers/Intersil/ISL29023/example/basic',        
         'leptonPCSerialReceiver' : 'drivers/FLIR/Lepton/example/lepton_PC_Serial_Receiver',
         'leptonSDCardWrite' : 'drivers/FLIR/Lepton/example/lepton_SDCard_write',
         'leptonSerialTransmitter' : 'drivers/FLIR/Lepton/example/lepton_Serial_Transmitter',
-        'lis302' : 'drivers/STMicroelectronics/LIS302/example',
+        'lis302' : 'drivers/STMicroelectronics/LIS302/example/lis302',
         'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
         'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
-	'mcp9800' : 'drivers/Microchip/MCP9800',
+	'mcp9800' : 'drivers/Microchip/MCP9800/example',
         'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
         'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
         'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
         'pcf8563' : 'drivers/NXP/PCF8563/example',
         'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
         'sht21' : 'drivers/Sensirion/SHT21/example/basic',
-        'tmp006' : 'drivers/Texas Instruments/TMP006/example',
+        'tmp006' : 'drivers/Texas Instruments/TMP006/example/temperature_show',
         'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
         'ws2812' : 'drivers/Worldsemi/WS2812/example',
         'serialPort_test' : 'tests/serialPort',
