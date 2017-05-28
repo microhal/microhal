@@ -8,11 +8,11 @@ allDisabled = readFile('allDisabled.size')
 oneEnabled = readFile('oneEnabled.size')
 twoEnabled = readFile('twoEnabled.size')
 threeEnabled = readFile('threeEnabled.size')
-fourEnabled = readFile('threeEnabled.size')
-fiveEnabled = readFile('threeEnabled.size')
-sixEnabled = readFile('threeEnabled.size')
-sevenEnabled = readFile('threeEnabled.size')
-eightEnabled = readFile('threeEnabled.size')
+fourEnabled = readFile('fourEnabled.size')
+fiveEnabled = readFile('fiveEnabled.size')
+sixEnabled = readFile('sixEnabled.size')
+sevenEnabled = readFile('sevenEnabled.size')
+eightEnabled = readFile('eightEnabled.size')
 
 oneTextSize = oneEnabled['text'] - allDisabled['text']
 twoTextSize = twoEnabled['text'] - oneEnabled['text']
