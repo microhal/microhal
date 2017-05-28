@@ -1,5 +1,5 @@
 def readFile(filename):
-	with open('jenkins/' + filename) as f:
+	with open(filename) as f:
 		lines = f.readlines()
 		(text, data, bss, dec, hex , filename) = lines[1].split()
 		return {'text' : int(text), 'data' : int(data), 'bss' : int(bss), 'dec' : int(dec), 'hex' : hex}

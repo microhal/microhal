@@ -307,23 +307,23 @@ pipeline {
 	    steps {
                 // serialPort code usage
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', [])
-                sh 'size stm32f4xx_stat_serialPort.elf > allDisabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > allDisabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > oneEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > oneEnabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > twoEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > twoEnabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > threeEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > threeEnabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > fourEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > fourEnabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > fiveEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > fiveEnabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > sixEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > sixEnabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > sevenEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > sevenEnabled.size'
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT8_INTERRUPT'])
-                sh 'size stm32f4xx_stat_serialPort.elf > eightEnabled.size'
+                sh 'size jenkins/stm32f4xx_stat_serialPort.elf > eightEnabled.size'
                 sh 'python generateStats.py'
 		// serialPort polling
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING'])
