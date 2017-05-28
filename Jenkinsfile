@@ -125,7 +125,9 @@ pipeline {
 
     stages {
         stage('testPLot') {
-            build job: 'plot test', parameters: [text(name: 'plotData', value: 'no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8,\\n2, 3, 4, 5, 6, 7, 8, 9')]
+            steps {
+                build job: 'plot test', parameters: [text(name: 'plotData', value: 'no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8,\\n2, 3, 4, 5, 6, 7, 8, 9')]
+            }
         }
      //   stage('Prepare') {
      //       steps {  
