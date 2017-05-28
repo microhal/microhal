@@ -124,40 +124,43 @@ pipeline {
     }   
 
     stages {
-        stage('Prepare') {
-            steps {  
-               //node('master') {    
-                   checkout scm
-                   sh 'git submodule update --init'
-               //}
-            }
+        stage('testPLot') {
+            build job: 'plot test', parameters: [text(name: 'plotData', value: 'no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8,\\n2, 3, 4, 5, 6, 7, 8, 9')]
         }
-        stage('Build microhal examples') {
-            steps {
-                parallel(
-                    diagnostic :        { eclipseBuild('diagnostic', targets) },
-                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-                    gpio :              { eclipseBuild('gpio', targets) },
+     //   stage('Prepare') {
+     //       steps {  
+     //          //node('master') {    
+     //              checkout scm
+     //              sh 'git submodule update --init'
+     //          //}
+     //       }
+     //   }
+     //   stage('Build microhal examples') {
+     //       steps {
+     //           parallel(
+     //               diagnostic :        { eclipseBuild('diagnostic', targets) },
+     //               externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+     //               gpio :              { eclipseBuild('gpio', targets) },
                    // os :                { eclipseBuild('os', targets) },
                    // serialPort :        { eclipseBuild('serialPort', targets) },
                    // signalSlot :        { eclipseBuild('signal slot', targets) },
                    // ticToc :            { eclipseBuild('ticToc', targets) },
-                )
-            }
-        }
-        stage('Analyze microhal examples') {
-            steps {
-                parallel(
-                    diagnostic :        { sa('diagnostic', targets) },
-                    externalInterrupt : { sa('externalInterrupt', targets) },
-                    gpio :              { sa('gpio', targets) },
+     //           )
+     //       }
+     //   }
+     //   stage('Analyze microhal examples') {
+     //       steps {
+     //           parallel(
+     //               diagnostic :        { sa('diagnostic', targets) },
+    //                externalInterrupt : { sa('externalInterrupt', targets) },
+    //                gpio :              { sa('gpio', targets) },
                   //  os :                { sa('os', targets) },
                    // serialPort :        { sa('serialPort', targets) },
                     //signalSlot :        { sa('signal slot', targets) },
                    // ticToc :            { sa('ticToc', targets) },
-                )
-            }
-        }
+      //          )
+      //      }
+       // }
     } 
     post {
         always {
