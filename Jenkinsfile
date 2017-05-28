@@ -126,7 +126,12 @@ pipeline {
     stages {
         stage('testPLot') {
             steps {
-                build job: 'plot test', parameters: [text(name: 'plotData', value: 'no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8,\\n2, 3, 4, 5, 6, 7, 8, 9')]
+               sh 'printf "no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8,\\n2, 3, 4, 5, 6, 7, 8, 9" > size.txt'
+            }
+            post {
+                success {                    
+                    build job: 'plot test', parameters: [text(name: 'plotData', value: readFile('size.txt'))]
+                }
             }
         }
      //   stage('Prepare') {
