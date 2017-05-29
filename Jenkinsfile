@@ -159,8 +159,8 @@ def sa(projName, targets) {
                         sh '''#!/bin/bash
                         echo -target arm-none-eabi > extra_clang_options
                         echo -/third-party* > skipfile
-                        source /srv/codechecker/venv/bin/activate 
-                        export PATH=/srv/codechecker/build/CodeChecker/bin:$PATH 
+                        source /srv/jenkins/tools/codechecker/codechecker/venv/bin/activate 
+                        export PATH=/srv/jenkins/tools/codechecker/codechecker/build/CodeChecker/bin:$PATH 
                         export PATH=/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
                         CodeChecker check --saargs extra_clang_options --skip skipfile -j 2 -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
 		    }
