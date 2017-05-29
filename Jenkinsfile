@@ -151,18 +151,36 @@ def sa(projName, targets) {
         'serialPort_test' : 'tests/serialPort',
 	'stm32f3xx_allMCU' : 'tests/stm32f3xx_AllMCU',
     ]
-     
-    lock(label: 'hwTester_core', quantity: 1) {
-        withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
-            for (target in targets) {               
-                timeout(time:10, unit:'MINUTES') {
-                    sh '''#!/bin/bash
-                    echo -target arm-none-eabi > extra_clang_options
-                    echo -/third-party* > skipfile
-                    source /var/jenkins/tools/codechecker/venv/bin/activate 
-                    export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
-                    export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
-                    CodeChecker check --saargs extra_clang_options --skip skipfile -j 2 -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+    if (env.NODE_NAME == 'master') {
+        lock(label: 'master_core', quantity: 1) {
+            withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
+                for (target in targets) {               
+                    timeout(time:10, unit:'MINUTES') {
+                        sh '''#!/bin/bash
+                        echo -target arm-none-eabi > extra_clang_options
+                        echo -/third-party* > skipfile
+                        source /srv/codechecker/venv/bin/activate 
+                        export PATH=/srv/codechecker/build/CodeChecker/bin:$PATH 
+                        export PATH=/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
+                        CodeChecker check --saargs extra_clang_options --skip skipfile -j 2 -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+		    }
+                }        
+            }
+        }
+    }
+   if (env.NODE_NAME == 'FX160_HardwareTester') {
+       lock(label: 'hwTester_core', quantity: 1) {
+           withEnv(['PATH+WHATEVER=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:/var/jenkins/tools/microide/eclipse']) {
+               for (target in targets) {               
+                   timeout(time:10, unit:'MINUTES') {
+                       sh '''#!/bin/bash
+                       echo -target arm-none-eabi > extra_clang_options
+                       echo -/third-party* > skipfile
+                       source /var/jenkins/tools/codechecker/venv/bin/activate 
+                       export PATH=/var/jenkins/tools/codechecker/build/CodeChecker/bin:$PATH 
+                       export PATH=/var/jenkins/tools/microide/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-5_3-2016q1/bin:$PATH
+                       CodeChecker check --saargs extra_clang_options --skip skipfile -j 2 -e alpha -e llvm -n ''' + projName.replaceAll("\\s","_") + '_' + target + ' -b "cd ' + projDirMap[projName] + '/' + target +' && make clean && make all"'                    
+		   }
                 }        
             }
         }
@@ -352,34 +370,35 @@ pipeline {
                  }
             }    
         }
-        stage('Checkout tester') {
-	    agent { 
-                label 'FX160_HardwareTester'
-            }
-            steps {
-                sh 'git submodule update --init'
+//        stage('Checkout tester') {
+//	    agent { 
+//                label 'FX160_HardwareTester'
+//            }
+//            steps {
+//                sh 'git submodule update --init'
 //                unstash 'makefiles'		                
-            }
-	}
-        stage('Build on tester') {
-	    agent { 
-                label 'FX160_HardwareTester'
-            }
-            steps {
-                parallel(
-                    diagnostic :        { eclipseBuild('diagnostic', targets) },
-                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-                    gpio :              { eclipseBuild('gpio', targets) },
-                    os :                { eclipseBuild('os', targets) },
-                    serialPort :        { eclipseBuild('serialPort', targets) },
-                    signalSlot :        { eclipseBuild('signal slot', targets) },
-                    ticToc :            { eclipseBuild('ticToc', targets) },
-                )
-            }
-        }
+//            }
+//	}
+//        stage('Build on tester') {
+//	    agent { 
+//                label 'FX160_HardwareTester'
+//            }
+//            steps {
+//                parallel(
+//                    diagnostic :        { eclipseBuild('diagnostic', targets) },
+//                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+//                    gpio :              { eclipseBuild('gpio', targets) },
+//                    os :                { eclipseBuild('os', targets) },
+//                    serialPort :        { eclipseBuild('serialPort', targets) },
+//                    signalSlot :        { eclipseBuild('signal slot', targets) },
+//                    ticToc :            { eclipseBuild('ticToc', targets) },
+//                )
+//            }
+//        }
 	stage('Analyze microhal examples') {
 	    agent { 
-                label 'FX160_HardwareTester'
+                ///label 'FX160_HardwareTester'
+		label 'master'
             }
 	    steps {		
                 parallel(
