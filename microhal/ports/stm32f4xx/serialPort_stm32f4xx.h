@@ -50,25 +50,39 @@ namespace stm32f4xx {
  * @}
  * \brief   This class implements SerialPort functions.
  */
-class SerialPort: public microhal::SerialPort {
-public:
-#if (defined MICROHAL_USE_SERIAL_PORT1_POLLING) || (defined MICROHAL_USE_SERIAL_PORT1_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT1_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT1_DMA)
+class SerialPort : public microhal::SerialPort {
+ public:
+#if (defined MICROHAL_USE_SERIAL_PORT1_POLLING) || (defined MICROHAL_USE_SERIAL_PORT1_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT1_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT1_DMA)
     static SerialPort &Serial1;
 #endif
-#if (defined MICROHAL_USE_SERIAL_PORT2_POLLING) || (defined MICROHAL_USE_SERIAL_PORT2_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT2_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT2_DMA)
+#if (defined MICROHAL_USE_SERIAL_PORT2_POLLING) || (defined MICROHAL_USE_SERIAL_PORT2_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT2_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT2_DMA)
     static SerialPort &Serial2;
 #endif
-#if (defined MICROHAL_USE_SERIAL_PORT3_POLLING) || (defined MICROHAL_USE_SERIAL_PORT3_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT3_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT3_DMA)
+#if (defined MICROHAL_USE_SERIAL_PORT3_POLLING) || (defined MICROHAL_USE_SERIAL_PORT3_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT3_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT3_DMA)
     static SerialPort &Serial3;
 #endif
-#if (defined MICROHAL_USE_SERIAL_PORT4_POLLING) || (defined MICROHAL_USE_SERIAL_PORT4_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT4_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT4_DMA)
+#if (defined MICROHAL_USE_SERIAL_PORT4_POLLING) || (defined MICROHAL_USE_SERIAL_PORT4_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT4_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT4_DMA)
     static SerialPort &Serial4;
 #endif
-#if (defined MICROHAL_USE_SERIAL_PORT5_POLLING) || (defined MICROHAL_USE_SERIAL_PORT5_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT5_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT5_DMA)
+#if (defined MICROHAL_USE_SERIAL_PORT5_POLLING) || (defined MICROHAL_USE_SERIAL_PORT5_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT5_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT5_DMA)
     static SerialPort &Serial5;
 #endif
-#if (defined MICROHAL_USE_SERIAL_PORT6_POLLING) || (defined MICROHAL_USE_SERIAL_PORT6_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT6_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT6_DMA)
+#if (defined MICROHAL_USE_SERIAL_PORT6_POLLING) || (defined MICROHAL_USE_SERIAL_PORT6_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT6_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT6_DMA)
     static SerialPort &Serial6;
+#endif
+#if (defined MICROHAL_USE_SERIAL_PORT7_POLLING) || (defined MICROHAL_USE_SERIAL_PORT7_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT7_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT7_DMA)
+    static SerialPort &Serial7;
+#endif
+#if (defined MICROHAL_USE_SERIAL_PORT8_POLLING) || (defined MICROHAL_USE_SERIAL_PORT8_INTERRUPT) || \
+    (defined MICROHAL_USE_SERIAL_PORT8_INTERRUPT_DMA) || (defined MICROHAL_USE_SERIAL_PORT8_DMA)
+    static SerialPort &Serial8;
 #endif
 
     bool open(OpenMode mode) noexcept override = 0;
@@ -81,37 +95,37 @@ public:
     bool setStopBits(SerialPort::StopBits stopBits) noexcept final;
     bool setDataBits(SerialPort::DataBits dataBits) noexcept final;
 
-    void priority(uint32_t priority) {
-    	NVIC_SetPriority(irq(), priority);
-    }
-protected:
-//------------------------------------------- variables -----------------------------------------//
+    void priority(uint32_t priority) { NVIC_SetPriority(irq(), priority); }
+
+ protected:
+    //------------------------------------------- variables -----------------------------------------//
     USART_TypeDef &usart;
 //------------------------------------------- constructors --------------------------------------//
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
-    SerialPort(USART_TypeDef &usart) noexcept : usart(usart) {}
+        SerialPort(USART_TypeDef &usart) noexcept : usart(usart) {
+    }
 
     void enableInterrupt(uint32_t priority) {
-    	NVIC_EnableIRQ(irq());
+        NVIC_EnableIRQ(irq());
         NVIC_SetPriority(irq(), priority);
     }
 
     uint32_t number() {
-    	if (&usart == USART1) return 1;
-    	if (&usart == USART2) return 2;
+        if (&usart == USART1) return 1;
+        if (&usart == USART2) return 2;
 #if defined(USART3)
-    	if (&usart == USART3) return 3;
+        if (&usart == USART3) return 3;
 #endif
 #if defined(UART4)
-    	if (&usart == UART4) return 4;
+        if (&usart == UART4) return 4;
 #endif
 #if defined(UART5)
-    	if (&usart == UART5) return 5;
+        if (&usart == UART5) return 5;
 #endif
 #if defined(USART6)
-    	if (&usart == USART6) return 6;
+        if (&usart == USART6) return 6;
 #endif
         std::terminate();
     }
@@ -134,10 +148,10 @@ protected:
         std::terminate();
     }
 
-   // virtual ~SerialPort(){}
+    // virtual ~SerialPort(){}
 };
 
-} // namespace stm32f4xx
-} // namespace microhal
+}  // namespace stm32f4xx
+}  // namespace microhal
 
-#endif // _MICROHAL_SERIALPORT_STM32F4XX_H_
+#endif  // _MICROHAL_SERIALPORT_STM32F4XX_H_

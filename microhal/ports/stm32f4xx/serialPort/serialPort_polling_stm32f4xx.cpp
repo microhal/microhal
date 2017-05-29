@@ -9,7 +9,7 @@
  * created on: 17-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, Pawel Okas
+ * @copyright Copyright (c) 2014-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -61,11 +61,18 @@ SerialPort &SerialPort::Serial5 = SerialPort_polling::Serial5;
 SerialPort_polling SerialPort_polling::Serial6(*USART6);
 SerialPort &SerialPort::Serial6 = SerialPort_polling::Serial6;
 #endif
+#ifdef MICROHAL_USE_SERIAL_PORT7_POLLING
+SerialPort_polling SerialPort_polling::Serial7(*UART7);
+SerialPort &SerialPort::Serial7 = SerialPort_polling::Serial7;
+#endif
+#ifdef MICROHAL_USE_SERIAL_PORT8_POLLING
+SerialPort_polling SerialPort_polling::Serial8(*UART8);
+SerialPort &SerialPort::Serial8 = SerialPort_polling::Serial8;
+#endif
 
 SerialPort_polling::SerialPort_polling(USART_TypeDef &usart) : stm32f4xx::SerialPort(usart) {
-	ClockManager::enable(usart);
+    ClockManager::enable(usart);
 }
 
-
-} // namespace stm32f4xx
-} // namespace microhal
+}  // namespace stm32f4xx
+}  // namespace microhal

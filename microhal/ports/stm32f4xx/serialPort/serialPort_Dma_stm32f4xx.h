@@ -8,7 +8,7 @@
  * created on: 7-07-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Pawel Okas
+ * @copyright Copyright (c) 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -36,10 +36,9 @@
 
 #include <thread>
 
-#include "buffers/cyclicBuffer.h"
 #include "../dma_stm32f4xx.h"
+#include "buffers/cyclicBuffer.h"
 #include "microhal_semaphore.h"
-
 
 namespace microhal {
 namespace stm32f4xx {
@@ -71,7 +70,7 @@ void DMA2_Stream7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class SerialPort_Dma: public SerialPort_BufferedBase<SerialPort_Dma> {
+class SerialPort_Dma : public SerialPort_BufferedBase<SerialPort_Dma> {
  public:
 #ifdef MICROHAL_USE_SERIAL_PORT1_DMA
     static SerialPort_Dma Serial1;
@@ -91,70 +90,76 @@ class SerialPort_Dma: public SerialPort_BufferedBase<SerialPort_Dma> {
 #ifdef MICROHAL_USE_SERIAL_PORT6_DMA
     static SerialPort_Dma Serial6;
 #endif
-//--------------------------------------------- functions ---------------------------------------//
+#ifdef MICROHAL_USE_SERIAL_PORT7_DMA
+    static SerialPort_Dma Serial6;
+#endif
+#ifdef MICROHAL_USE_SERIAL_PORT8_DMA
+    static SerialPort_Dma Serial6;
+#endif
+    //--------------------------------------------- functions ---------------------------------------//
     bool open(OpenMode mode) noexcept;
     /**
      *
      * @return
      */
     size_t availableBytes() const noexcept final {
-    	size_t receivedBytes = rxTransferInProgress - rxStream.getNumberOfItemsInTransfer();
+        size_t receivedBytes = rxTransferInProgress - rxStream.getNumberOfItemsInTransfer();
         return rxBuffer.getLength() + receivedBytes;
     }
-private:
-//------------------------------------------- variables -----------------------------------------//
+
+ private:
+    //------------------------------------------- variables -----------------------------------------//
     size_t transferInProgress = 0;
     size_t rxTransferInProgress = 0;
     DMA::DMA &dma;
     DMA::Stream &txStream;
     DMA::Stream &rxStream;
-//------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_Dma(USART_TypeDef &usart, char * const rxData, char * const txData, size_t rxDataSize, size_t txDataSize, DMA::DMA &dma, DMA::Stream & txStream, DMA::Stream & rxStream);
+    //------------------------------------------- constructors --------------------------------------//
+    inline SerialPort_Dma(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize, DMA::DMA &dma,
+                          DMA::Stream &txStream, DMA::Stream &rxStream);
 
-    //virtual ~SerialPort_interrupt(){
-    //}
-//--------------------------------------------- functions ---------------------------------------//
+    //--------------------------------------------- functions ---------------------------------------//
     void updateRxBuffer_impl() {
-    	__disable_irq();
-    	size_t receivedBytes = rxTransferInProgress - rxStream.getNumberOfItemsInTransfer();
-    	rxTransferInProgress -= receivedBytes;
-    	rxBuffer.updateWritePointer(receivedBytes);
-    	__enable_irq();
+        __disable_irq();
+        size_t receivedBytes = rxTransferInProgress - rxStream.getNumberOfItemsInTransfer();
+        rxTransferInProgress -= receivedBytes;
+        rxBuffer.updateWritePointer(receivedBytes);
+        __enable_irq();
     }
 
     void startTransmission_impl() {
-    	if(transferInProgress == 0) {
-    		prepareDmaTransfer();
-    	}
+        if (transferInProgress == 0) {
+            prepareDmaTransfer();
+        }
     }
     void configureRxWait_impl(size_t bytesToWait) {
-    	waitForBytes = bytesToWait;
-    	if (rxTransferInProgress > bytesToWait) {
-    		rxStream.disable();
-    	}
+        waitForBytes = bytesToWait;
+        if (rxTransferInProgress > bytesToWait) {
+            rxStream.disable();
+        }
     }
 
     size_t prepareDmaTransfer();
     void prepareRxDmaTransfer(size_t bytesToReceive = 0x10000);
-//------------------------------------------- friends -------------------------------------------//
+    //------------------------------------------- friends -------------------------------------------//
     friend SerialPort_BufferedBase<SerialPort_Dma>;
 
-    friend inline void serialPort_interruptFunction(USART_TypeDef * const usart, SerialPort_Dma &serial); // __attribute__((always_inline));
-    friend inline void DMA_rx_function(SerialPort_Dma & serial, uint32_t DMA_Stream_NDTR);
-    friend inline void DMA_tx_function(SerialPort_Dma & serial);
+    friend inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_Dma &serial);  // __attribute__((always_inline));
+    friend inline void DMA_rx_function(SerialPort_Dma &serial, uint32_t DMA_Stream_NDTR);
+    friend inline void DMA_tx_function(SerialPort_Dma &serial);
 
-//    friend void USART1_IRQHandler(void);
-//    friend void USART2_IRQHandler(void);
-//    friend void USART3_IRQHandler(void);
-//    friend void USART4_IRQHandler(void);
-//    friend void USART5_IRQHandler(void);
-//    friend void USART6_IRQHandler(void);
-//
-//    friend void DMA1_Stream1_IRQHandler(void);
-//    friend void DMA1_Stream3_IRQHandler(void);
-//    friend void DMA1_Stream4_IRQHandler(void);
-//    friend void DMA1_Stream5_IRQHandler(void);
-//    friend void DMA1_Stream6_IRQHandler(void);
+    //    friend void USART1_IRQHandler(void);
+    //    friend void USART2_IRQHandler(void);
+    //    friend void USART3_IRQHandler(void);
+    //    friend void USART4_IRQHandler(void);
+    //    friend void USART5_IRQHandler(void);
+    //    friend void USART6_IRQHandler(void);
+    //
+    //    friend void DMA1_Stream1_IRQHandler(void);
+    //    friend void DMA1_Stream3_IRQHandler(void);
+    //    friend void DMA1_Stream4_IRQHandler(void);
+    //    friend void DMA1_Stream5_IRQHandler(void);
+    //    friend void DMA1_Stream6_IRQHandler(void);
 };
 
 }  // namespace stm32f4xx
