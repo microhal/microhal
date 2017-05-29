@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
 
 #ifndef MICROHALPORTCONFIG_H_
 #define MICROHALPORTCONFIG_H_
@@ -72,12 +72,12 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 1024
 
 #define MICROHAL_USE_SERIAL_PORT7_DMA
-#define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE 1024
 
 #define MICROHAL_USE_SERIAL_PORT8_DMA
-#define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE 1024
 // clang-format on
 
 #endif /* MICROHALPORTCONFIG_H_ */
