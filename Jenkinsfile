@@ -347,7 +347,7 @@ pipeline {
                 sh 'mv output_text_size.txt interrupt_text_size.txt'
                 sh 'mv output_data_size.txt interrupt_data_size.txt'
                 sh 'mv output_bss_size.txt interrupt_bss_size.txt'
-                sh 'mv outputDiff.txt outputDiff_interrupt.txt'
+                sh 'mv output_Diff_text.txt outputDiff_interrupt.txt'
 		// serialPort polling
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING'])
                 sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > oneEnabled.size'
