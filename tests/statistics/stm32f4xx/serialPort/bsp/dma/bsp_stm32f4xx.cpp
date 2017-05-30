@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,25 +24,30 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                         */
 
-#include "microhal.h"
 #include "SPIDevice/SPIDevice.h"
+#include "microhal.h"
 
-#include "../interrupt/bsp.h"
+#include "bsp.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-    //Core::pll_start(8000000, 168000000);
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
+
+    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
+    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
 }
 
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
+;
 
 extern "C" void SysTick_Handler(void) {
-	SysTick_time++;
+    SysTick_time++;
 }
