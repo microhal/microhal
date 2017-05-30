@@ -344,7 +344,9 @@ pipeline {
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT8_INTERRUPT'])
                 sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > eightEnabled.size'
                 sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py'
-                sh 'mv output.txt output_interrupt.txt'
+                sh 'mv output_text_size.txt interrupt_text_size.txt'
+                sh 'mv output_data_size.txt interrupt_data_size.txt'
+                sh 'mv output_bss_size.txt interrupt_bss_size.txt'
                 sh 'mv outputDiff.txt outputDiff_interrupt.txt'
 		// serialPort polling
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING'])
@@ -364,10 +366,13 @@ pipeline {
                 eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING', 'MICROHAL_USE_SERIAL_PORT3_POLLING', 'MICROHAL_USE_SERIAL_PORT4_POLLING', 'MICROHAL_USE_SERIAL_PORT5_POLLING', 'MICROHAL_USE_SERIAL_PORT6_POLLING', 'MICROHAL_USE_SERIAL_PORT7_POLLING', 'MICROHAL_USE_SERIAL_PORT8_POLLING'])
                 sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > eightEnabled.size'
                 sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py'
+                sh 'mv output_text_size.txt polling_text_size.txt'
+                sh 'mv output_data_size.txt polling_data_size.txt'
+                sh 'mv output_bss_size.txt polling_bss_size.txt'
             }	
             post {
                  success {
-                     build job: 'plots_stm32f4xx', parameters: [string(name: 'serialPort_interrupt_size', value: readFile('output_interrupt.txt')), string(name: 'serialPort_interrupt_diff_size', value: readFile('outputDiff_interrupt.txt')), string(name: 'serialPort_polling_diff_size', value: readFile('outputDiff.txt'))]
+                     build job: 'plots_stm32f4xx', parameters: [string(name: 'serialPort_interrupt_size', value: readFile('interrupt_text_size.txt')), string(name: 'serialPort_interrupt_diff_size', value: readFile('outputDiff_interrupt.txt')), string(name: 'serialPort_polling_diff_size', value: readFile('outputDiff.txt')), string(name: 'serialPort_interrupt_text_size', value: readFile('interrupt_text_size.txt')), string(name: 'serialPort_interrupt_data_size', value: readFile('interrupt_data_size.txt')), string(name: 'serialPort_interrupt_bss_size', value: readFile('interrupt_bss_size.txt')), string(name: 'serialPort_polling_text_size', value: readFile('polling_text_size.txt')), string(name: 'serialPort_polling_data_size', value: readFile('polling_data_size.txt')), string(name: 'serialPort_polling_bss_size', value: readFile('polling_bss_size.txt'))]
                  }
             }    
         }

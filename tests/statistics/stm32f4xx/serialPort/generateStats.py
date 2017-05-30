@@ -23,10 +23,15 @@ sixTextSize = sixEnabled['text'] - fiveEnabled['text']
 sevenTextSize = sevenEnabled['text'] - sixEnabled['text']
 eightTextSize = eightEnabled['text'] - sevenEnabled['text']
 
-with open('outputDiff.txt', 'w') as f:
+with open('output_Diff_text.txt', 'w') as f:
 	f.write('no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8\n')
 	f.write(str(allDisabled['text']) + ', ' + str(oneTextSize) + ', ' + str(twoTextSize) + ', ' + str(threeTextSize) + ', ' + str(fourTextSize) + ', ' + str(fiveTextSize) + ', ' + str(sixTextSize) + ', ' + str(sevenTextSize) + ', ' + str(eightTextSize))
 
-with open('output.txt', 'w') as f:
-	f.write('no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8\n')
-	f.write(str(allDisabled['text']) + ', ' + str(oneEnabled['text']) + ', ' + str(twoEnabled['text']) + ', ' + str(threeEnabled['text']) + ', ' + str(fourEnabled['text']) + ', ' + str(fiveEnabled['text']) + ', ' + str(sixEnabled['text']) + ', ' + str(sevenEnabled['text']) + ', ' + str(eightEnabled['text']))
+def saveFile(filename, section):
+	with open(filename, 'w') as f:
+		f.write('no serial enabled, enabled 1, enabled 2, enabled 3, enabled 4, enabled 5, enabled 6, enabled 7, enabled 8\n')
+		f.write(str(allDisabled[section]) + ', ' + str(oneEnabled[section]) + ', ' + str(twoEnabled[section]) + ', ' + str(threeEnabled[section]) + ', ' + str(fourEnabled[section]) + ', ' + str(fiveEnabled[section]) + ', ' + str(sixEnabled[section]) + ', ' + str(sevenEnabled[section]) + ', ' + str(eightEnabled[section]))
+
+saveFile('output_text_size.txt', 'text')
+saveFile('output_data_size.txt', 'data')
+saveFile('output_bss_size.txt', 'bss')

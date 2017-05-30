@@ -30,7 +30,37 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include "microhal.h"
 
+#if defined(MICROHAL_USE_SERIAL_PORT1_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT1_POLLING) || defined(MICROHAL_USE_SERIAL_PORT1_DMA)
+static microhal::SerialPort &serialPort1 = microhal::stm32f4xx::SerialPort::Serial1;
+#endif
+
+using namespace microhal;
+using namespace std::literals::chrono_literals;
+
+const char txt[] = "test";
+char buffer[10];
 int main() {
+#if defined(MICROHAL_USE_SERIAL_PORT1_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT1_POLLING) || defined(MICROHAL_USE_SERIAL_PORT1_DMA)
+    serialPort1.open(SerialPort::ReadWrite);
+    serialPort1.setBaudRate(SerialPort::Baud115200);
+    serialPort1.setDataBits(SerialPort::Data8);
+    serialPort1.setStopBits(SerialPort::OneStop);
+    serialPort1.setParity(SerialPort::NoParity);
+
+    serialPort1.write(txt);
+    serialPort1.read(buffer, sizeof(buffer));
+    serialPort1.getChar(buffer[0]);
+    serialPort1.outputQueueSize();
+    serialPort1.inputQueueSize();
+    serialPort1.availableBytes();
+    serialPort1.clear(microhal::SerialPort::Direction::Input);
+    serialPort1.getBaudRate();
+    serialPort1.isOpen();
+    serialPort1.read(buffer, sizeof(buffer), 1s);
+    serialPort1.waitForWriteFinish(1s);
+    serialPort1.close();
+#endif
     return 0;
 }
