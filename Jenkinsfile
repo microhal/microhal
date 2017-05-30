@@ -397,10 +397,9 @@ pipeline {
 //            }
 //        }
 	stage('Analyze microhal examples') {
-	    agent { 
+	//    agent { 
                 ///label 'FX160_HardwareTester'
-		label 'master'
-            }
+          //  }
 	    steps {		
                 parallel(
                     diagnostic :        { sa('diagnostic', targets) },
