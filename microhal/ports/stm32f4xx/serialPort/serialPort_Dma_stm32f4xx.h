@@ -91,10 +91,10 @@ class SerialPort_Dma : public SerialPort_BufferedBase<SerialPort_Dma> {
     static SerialPort_Dma Serial6;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT7_DMA
-    static SerialPort_Dma Serial6;
+    static SerialPort_Dma Serial7;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT8_DMA
-    static SerialPort_Dma Serial6;
+    static SerialPort_Dma Serial8;
 #endif
     //--------------------------------------------- functions ---------------------------------------//
     bool open(OpenMode mode) noexcept;

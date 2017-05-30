@@ -127,6 +127,12 @@ class SerialPort : public microhal::SerialPort {
 #if defined(USART6)
         if (&usart == USART6) return 6;
 #endif
+#if defined(UART7)
+        if (&usart == UART7) return 7;
+#endif
+#if defined(UART8)
+        if (&usart == UART8) return 8;
+#endif
         std::terminate();
     }
 
@@ -145,10 +151,14 @@ class SerialPort : public microhal::SerialPort {
 #if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
         if (&usart == USART6) return USART6_IRQn;
 #endif
+#if defined(UART7)
+        if (&usart == UART7) return UART7_IRQn;
+#endif
+#if defined(UART8)
+        if (&usart == UART8) return UART8_IRQn;
+#endif
         std::terminate();
     }
-
-    // virtual ~SerialPort(){}
 };
 
 }  // namespace stm32f4xx

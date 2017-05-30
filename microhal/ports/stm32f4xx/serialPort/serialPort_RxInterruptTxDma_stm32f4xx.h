@@ -37,10 +37,9 @@
 
 #include <thread>
 
-#include "buffers/cyclicBuffer.h"
 #include "../dma_stm32f4xx.h"
+#include "buffers/cyclicBuffer.h"
 #include "microhal_semaphore.h"
-
 
 namespace microhal {
 namespace stm32f4xx {
@@ -54,6 +53,8 @@ void USART3_IRQHandler(void);
 void UART4_IRQHandler(void);
 void UART5_IRQHandler(void);
 void USART6_IRQHandler(void);
+void UART7_IRQHandler(void);
+void UART8_IRQHandler(void);
 
 void DMA1_Stream6_IRQHandler(void);
 void DMA1_Stream3_IRQHandler(void);
@@ -66,7 +67,7 @@ void DMA2_Stream7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class SerialPort_RxInterruptTxDma: public SerialPort_BufferedBase<SerialPort_RxInterruptTxDma> {
+class SerialPort_RxInterruptTxDma : public SerialPort_BufferedBase<SerialPort_RxInterruptTxDma> {
  public:
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT_DMA
     static SerialPort_RxInterruptTxDma Serial1;
@@ -86,36 +87,39 @@ class SerialPort_RxInterruptTxDma: public SerialPort_BufferedBase<SerialPort_RxI
 #ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT_DMA
     static SerialPort_RxInterruptTxDma Serial6;
 #endif
-//--------------------------------------------- functions ---------------------------------------//
+#ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT_DMA
+    static SerialPort_RxInterruptTxDma Serial7;
+#endif
+#ifdef MICROHAL_USE_SERIAL_PORT8_INTERRUPT_DMA
+    static SerialPort_RxInterruptTxDma Serial8;
+#endif
+    //--------------------------------------------- functions ---------------------------------------//
     bool open(OpenMode mode) noexcept;
 
  private:
-//------------------------------------------- variables -----------------------------------------//
+    //------------------------------------------- variables -----------------------------------------//
     size_t transferInProgress = 0;
     DMA::DMA &dma;
     DMA::Stream &txStream;
-//------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_RxInterruptTxDma(USART_TypeDef &usart, char * const rxData, char * const txData, size_t rxDataSize, size_t txDataSize, DMA::DMA &dma, DMA::Stream & txStream);
-//--------------------------------------------- functions ---------------------------------------//
+    //------------------------------------------- constructors --------------------------------------//
+    inline SerialPort_RxInterruptTxDma(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize,
+                                       DMA::DMA &dma, DMA::Stream &txStream);
+    //--------------------------------------------- functions ---------------------------------------//
     size_t prepareDmaTransfer();
     void onDMATxFinish();
 
     void startTransmission_impl() {
-    	if(transferInProgress == 0) {
-    		prepareDmaTransfer();
-    	}
+        if (transferInProgress == 0) {
+            prepareDmaTransfer();
+        }
     }
 
-    void updateRxBuffer_impl() {
+    void updateRxBuffer_impl() {}
 
-    }
-
-    void configureRxWait_impl(size_t bytesToReceive) {
-    	waitForBytes = bytesToReceive;
-    }
-//------------------------------------------- friends -------------------------------------------//
+    void configureRxWait_impl(size_t bytesToReceive) { waitForBytes = bytesToReceive; }
+    //------------------------------------------- friends -------------------------------------------//
     friend SerialPort_BufferedBase<SerialPort_RxInterruptTxDma>;
-    friend void serialPort_interruptFunction(USART_TypeDef * const usart, SerialPort_RxInterruptTxDma &serial);
+    friend void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_RxInterruptTxDma &serial);
 
     friend void USART1_IRQHandler(void);
     friend void USART2_IRQHandler(void);

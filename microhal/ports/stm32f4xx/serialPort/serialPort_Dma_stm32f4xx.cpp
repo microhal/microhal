@@ -84,17 +84,15 @@ SerialPort &SerialPort::Serial6 = SerialPort_Dma::Serial6;
 #ifdef MICROHAL_USE_SERIAL_PORT7_DMA
 static char txBufferData_7[MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE];
 static char rxBufferData_7[MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial7(*UART7, rxBufferData_7, txBufferData_7, sizeof(rxBufferData_7), sizeof(txBufferData_7), *DMA::dma2,
-                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT7_DMA_TX_STREAM],
-                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT7_DMA_RX_STREAM]);
+SerialPort_Dma SerialPort_Dma::Serial7(*UART7, rxBufferData_7, txBufferData_7, sizeof(rxBufferData_7), sizeof(txBufferData_7), *DMA::dma1,
+                                       DMA::dma1->stream[1], DMA::dma1->stream[3]);
 SerialPort &SerialPort::Serial7 = SerialPort_Dma::Serial7;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_DMA
+#ifdef MICROHAL_USE_SERIAL_PORT8_DMA
 static char txBufferData_8[MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE];
 static char rxBufferData_8[MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial8(*UART8, rxBufferData_8, txBufferData_8, sizeof(rxBufferData_8), sizeof(txBufferData_8), *DMA::dma2,
-                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT8_DMA_TX_STREAM],
-                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT8_DMA_RX_STREAM]);
+SerialPort_Dma SerialPort_Dma::Serial8(*UART8, rxBufferData_8, txBufferData_8, sizeof(rxBufferData_8), sizeof(txBufferData_8), *DMA::dma1,
+                                       DMA::dma1->stream[0], DMA::dma1->stream[6]);
 SerialPort &SerialPort::Serial8 = SerialPort_Dma::Serial8;
 #endif
 
@@ -437,6 +435,46 @@ void DMA2_Stream7_IRQHandler(void) {
     DMA_tx_function(SerialPort_Dma::Serial6);
 }
 #endif
+#endif
+// ---------------------------- serial port 7
+#ifdef MICROHAL_USE_SERIAL_PORT7_DMA
+void UART7_IRQHandler(void) {
+    serialPort_interruptFunction(UART7, SerialPort_Dma::Serial7);
+}
+// rx
+void DMA1_Stream3_IRQHandler(void) {
+    DMA1->LIFCR = DMA_LIFCR_CTCIF3;
+    DMA1_Stream3->CR &= ~DMA_SxCR_EN;
+
+    DMA_rx_function(SerialPort_Dma::Serial7, DMA1_Stream3->NDTR);
+}
+// tx
+void DMA1_Stream1_IRQHandler(void) {
+    DMA1->LIFCR = DMA_LIFCR_CTCIF1;
+    DMA1_Stream1->CR &= ~DMA_SxCR_EN;
+
+    DMA_tx_function(SerialPort_Dma::Serial7);
+}
+#endif
+// ---------------------------- serial port 8
+#ifdef MICROHAL_USE_SERIAL_PORT8_DMA
+void UART8_IRQHandler(void) {
+    serialPort_interruptFunction(UART8, SerialPort_Dma::Serial8);
+}
+// rx
+void DMA1_Stream6_IRQHandler(void) {
+    DMA1->HIFCR = DMA_HIFCR_CTCIF6;
+    DMA1_Stream6->CR &= ~DMA_SxCR_EN;
+
+    DMA_rx_function(SerialPort_Dma::Serial8, DMA1_Stream6->NDTR);
+}
+// tx
+void DMA1_Stream0_IRQHandler(void) {
+    DMA1->LIFCR = DMA_LIFCR_CTCIF0;
+    DMA1_Stream0->CR &= ~DMA_SxCR_EN;
+
+    DMA_tx_function(SerialPort_Dma::Serial8);
+}
 #endif
 
 }  // namespace stm32f4xx
