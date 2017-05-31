@@ -155,7 +155,7 @@ def sa(projName, targets) {
         lock(label: 'master_core', quantity: 1) {
             withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
                 for (target in targets) {               
-                    timeout(time:10, unit:'MINUTES') {
+                    timeout(time:15, unit:'MINUTES') {
                         sh '''#!/bin/bash
                         echo -target arm-none-eabi > extra_clang_options
                         echo -/third-party* > skipfile
