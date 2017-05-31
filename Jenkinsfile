@@ -323,52 +323,7 @@ pipeline {
         }  
         stage('Test - code size statistics') {
 	    steps {
-                // serialPort code usage
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', [])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > allDisabled.size'
-                //serialPort interrupt
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > oneEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > twoEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > threeEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > fourEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > fiveEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > sixEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > sevenEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT2_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT3_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT4_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT5_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT6_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT7_INTERRUPT', 'MICROHAL_USE_SERIAL_PORT8_INTERRUPT'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > eightEnabled.size'
-                sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py'
-                sh 'mv output_text_size.txt interrupt_text_size.txt'
-                sh 'mv output_data_size.txt interrupt_data_size.txt'
-                sh 'mv output_bss_size.txt interrupt_bss_size.txt'
-                sh 'mv output_Diff_text.txt outputDiff_interrupt.txt'
-		// serialPort polling
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > oneEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > twoEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING', 'MICROHAL_USE_SERIAL_PORT3_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > threeEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING', 'MICROHAL_USE_SERIAL_PORT3_POLLING', 'MICROHAL_USE_SERIAL_PORT4_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > fourEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING', 'MICROHAL_USE_SERIAL_PORT3_POLLING', 'MICROHAL_USE_SERIAL_PORT4_POLLING', 'MICROHAL_USE_SERIAL_PORT5_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > fiveEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING', 'MICROHAL_USE_SERIAL_PORT3_POLLING', 'MICROHAL_USE_SERIAL_PORT4_POLLING', 'MICROHAL_USE_SERIAL_PORT5_POLLING', 'MICROHAL_USE_SERIAL_PORT6_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > sixEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING', 'MICROHAL_USE_SERIAL_PORT3_POLLING', 'MICROHAL_USE_SERIAL_PORT4_POLLING', 'MICROHAL_USE_SERIAL_PORT5_POLLING', 'MICROHAL_USE_SERIAL_PORT6_POLLING', 'MICROHAL_USE_SERIAL_PORT7_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > sevenEnabled.size'
-                eclipseRun(projDirMap['stm32f4xx_stat_serialPort'], 'stm32f4xx_stat_serialPort/jenkins', ['MICROHAL_USE_SERIAL_PORT1_POLLING', 'MICROHAL_USE_SERIAL_PORT2_POLLING', 'MICROHAL_USE_SERIAL_PORT3_POLLING', 'MICROHAL_USE_SERIAL_PORT4_POLLING', 'MICROHAL_USE_SERIAL_PORT5_POLLING', 'MICROHAL_USE_SERIAL_PORT6_POLLING', 'MICROHAL_USE_SERIAL_PORT7_POLLING', 'MICROHAL_USE_SERIAL_PORT8_POLLING'])
-                sh 'size ' + projDirMap['stm32f4xx_stat_serialPort'] +'/jenkins/stm32f4xx_stat_serialPort.elf > eightEnabled.size'
-                sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py'
-                sh 'mv output_text_size.txt polling_text_size.txt'
-                sh 'mv output_data_size.txt polling_data_size.txt'
-                sh 'mv output_bss_size.txt polling_bss_size.txt'
+                sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_serialPort']
             }	
             post {
                  success {

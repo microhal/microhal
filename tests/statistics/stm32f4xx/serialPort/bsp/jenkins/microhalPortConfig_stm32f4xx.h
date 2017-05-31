@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 #ifndef MICROHALPORTCONFIG_H_
 #define MICROHALPORTCONFIG_H_
@@ -47,27 +47,43 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 // clang-format off
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 1024
+// serial port 1 TX stream can be connected only to DMA2 Stream 7
+#define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5		// serial port 1 RX stream can be connected to DMA2 Stream 2 or 5
 
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 1024
+// serial port 2 TX stream can be connected only to DMA1 Stream 6.
+// serial port 2 RX stream can be connected only to DMA1 Stream 5
 
 #define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT3_DMA_TX_STREAM 3 		// Serial port 3 Tx stream can be connected to DMA1 Stream 3 or 4.
+// Serial port 3 RX stream can be connected only to DMA1 Stream 1.
 
 #define MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE 1024
+// serial port 4 TX stream can be connected only to DMA1 Stream 4.
+// serial port 4 RX stream can be connected only to DMA1 Stream 2
 
 #define MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE 1024
+// serial port 5 TX stream can be connected only to DMA1 Stream 0.
+// serial port 5 RX stream can be connected only to DMA1 Stream 7.
 
 #define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 1024
+#define MICROHAL_SERIAL_PORT6_DMA_TX_STREAM 6 		// Serial port 6 Tx stream can be connected to DMA2 Stream 6 or 7.
+#define MICROHAL_SERIAL_PORT6_DMA_RX_STREAM 2 		// Serial port 6 Rx stream can be connected to DMA2 Stream 1 or 2.
 
 #define MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE 1024
+// serial port 7 TX stream can be connected only to DMA1 Stream 3.
+// serial port 7 RX stream can be connected only to DMA1 Stream 1.
 
 #define MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE 1024
+// serial port 8 TX stream can be connected only to DMA1 Stream 0.
+// serial port 8 RX stream can be connected only to DMA1 Stream 6.
 // clang-format on
 
 #endif /* MICROHALPORTCONFIG_H_ */

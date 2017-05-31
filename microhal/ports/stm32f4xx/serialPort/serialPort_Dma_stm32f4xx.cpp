@@ -413,7 +413,7 @@ void DMA2_Stream1_IRQHandler(void) {
 }
 #elif MICROHAL_SERIAL_PORT6_DMA_RX_STREAM == 2
 void DMA2_Stream2_IRQHandler(void) {
-    DMA2->HIFCR = DMA_HIFCR_CTCIF2;
+    DMA2->LIFCR = DMA_LIFCR_CTCIF2;
     DMA2_Stream2->CR &= ~DMA_SxCR_EN;
 
     DMA_rx_function(SerialPort_Dma::Serial6, DMA2_Stream2->NDTR);
@@ -427,7 +427,7 @@ void DMA2_Stream6_IRQHandler(void) {
 
     DMA_tx_function(SerialPort_Dma::Serial6);
 }
-#elif MICROHAL_SERIAL_PORT3_DMA_TX_STREAM == 7
+#elif MICROHAL_SERIAL_PORT6_DMA_TX_STREAM == 7
 void DMA2_Stream7_IRQHandler(void) {
     DMA2->HIFCR = DMA_HIFCR_CTCIF7;
     DMA2_Stream7->CR &= ~DMA_SxCR_EN;
