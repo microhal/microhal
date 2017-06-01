@@ -95,6 +95,8 @@ saveFile('interrupt_text_size.txt', interruptSize, 'text')
 saveFile('interrupt_data_size.txt', interruptSize, 'data')
 saveFile('interrupt_bss_size.txt', interruptSize, 'bss')
 
+saveDiffFile('outputDiff_interrupt.txt', interruptSize, 'text')
+
 dmaSize = buildConfiguration('DMA', 6)
 saveFile('dma_text_size.txt', dmaSize, 'text')
 saveFile('dma_data_size.txt', dmaSize, 'data')

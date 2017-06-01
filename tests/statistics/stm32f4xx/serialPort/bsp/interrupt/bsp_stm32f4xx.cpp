@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                         */
+                                                                                                                                                                                                                                                                                                                                                                                                          */
 
 #include "SPIDevice/SPIDevice.h"
 #include "microhal.h"
@@ -41,8 +41,45 @@ void hardwareConfig(void) {
 
     SysTick_Config(168000000 / 1000);
 
+#if defined(MICROHAL_USE_SERIAL_PORT1_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT1_POLLING) || defined(MICROHAL_USE_SERIAL_PORT1_DMA)
     IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
     IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
+#endif
+
+#if defined(MICROHAL_USE_SERIAL_PORT2_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT2_POLLING) || defined(MICROHAL_USE_SERIAL_PORT2_DMA)
+    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+#endif
+
+#if defined(MICROHAL_USE_SERIAL_PORT3_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT3_POLLING) || defined(MICROHAL_USE_SERIAL_PORT3_DMA)
+    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortB, 10>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortB, 11>();
+#endif
+
+#if defined(MICROHAL_USE_SERIAL_PORT4_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT4_POLLING) || defined(MICROHAL_USE_SERIAL_PORT4_DMA)
+    IOManager::routeSerial<4, Txd, stm32f4xx::GPIO::PortC, 10>();
+    IOManager::routeSerial<4, Rxd, stm32f4xx::GPIO::PortC, 11>();
+#endif
+
+#if defined(MICROHAL_USE_SERIAL_PORT5_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT5_POLLING) || defined(MICROHAL_USE_SERIAL_PORT5_DMA)
+    IOManager::routeSerial<5, Txd, stm32f4xx::GPIO::PortC, 12>();
+    IOManager::routeSerial<5, Rxd, stm32f4xx::GPIO::PortA, 3>();
+#endif
+
+#if defined(MICROHAL_USE_SERIAL_PORT6_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT6_POLLING) || defined(MICROHAL_USE_SERIAL_PORT7_DMA)
+    IOManager::routeSerial<6, Txd, stm32f4xx::GPIO::PortC, 6>();
+    IOManager::routeSerial<6, Rxd, stm32f4xx::GPIO::PortC, 7>();
+#endif
+
+#if defined(MICROHAL_USE_SERIAL_PORT7_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT7_POLLING) || defined(MICROHAL_USE_SERIAL_PORT7_DMA)
+    IOManager::routeSerial<7, Txd, stm32f4xx::GPIO::PortE, 8>();
+    IOManager::routeSerial<7, Rxd, stm32f4xx::GPIO::PortE, 7>();
+#endif
+
+#if defined(MICROHAL_USE_SERIAL_PORT8_INTERRUPT) || defined(MICROHAL_USE_SERIAL_PORT8_POLLING) || defined(MICROHAL_USE_SERIAL_PORT8_DMA)
+    IOManager::routeSerial<8, Txd, stm32f4xx::GPIO::PortE, 1>();
+    IOManager::routeSerial<8, Rxd, stm32f4xx::GPIO::PortE, 0>();
+#endif
 }
 
 uint64_t SysTick_time = 0;
