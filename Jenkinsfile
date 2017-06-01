@@ -323,7 +323,9 @@ pipeline {
         }  
         stage('Test - code size statistics') {
 	    steps {
-                sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_serialPort']
+                withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
+                    sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_serialPort']
+                }
             }	
             post {
                  success {
