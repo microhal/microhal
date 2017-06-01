@@ -43,12 +43,14 @@ def buildConfiguration(config, numberOfserialPorts):
 
 
 def saveDiffFile(filename, data, section):
-	diffSize = []	
-	for i, size in enumerate(data):
+	diffSize = []
+	i = 0	
+	for size in data:
 		if i == 0:
 			diffSize.append(size[section])
 		else:
-			diffSize.append(size[section] - diffSize[i-1])
+			diffSize.append(size[section] - data[i-1][section])
+                i = i + 1
 
 	with open(filename, 'w') as f:
 		firstLine = ''
