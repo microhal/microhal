@@ -89,15 +89,18 @@ class IOManager {
         // assert for Serial6
         static_assert((serial != 6 || serialType != Txd || ((port == GPIO::PortC && pinNr == 6))), "Serial6 Txd can be connected only to: PortC.6.");
         static_assert((serial != 6 || serialType != Rxd || ((port == GPIO::PortC && pinNr == 7))), "Serial6 Rxd can be connected only to: PortC.7.");
-        // assert for Serial7
+// assert for Serial7
+#if defined(GPIOE) && defined(GPIOF)
         static_assert((serial != 7 || serialType != Txd || ((port == GPIO::PortF && pinNr == 7) || (port == GPIO::PortE && pinNr == 8))),
                       "Serial7 Txd can be connected to: PortE.8, PortF.7.");
         static_assert((serial != 7 || serialType != Rxd || ((port == GPIO::PortF && pinNr == 6) || (port == GPIO::PortE && pinNr == 7))),
                       "Serial7 Rxd can be connected to: PortE.7, PortF.6.");
-        // assert for Serial8
+#endif
+// assert for Serial8
+#ifdef GPIOE
         static_assert((serial != 8 || serialType != Txd || ((port == GPIO::PortE && pinNr == 1))), "Serial8 Txd can be connected only to: PortE.1.");
         static_assert((serial != 8 || serialType != Rxd || ((port == GPIO::PortE && pinNr == 0))), "Serial8 Rxd can be connected only to: PortE.0.");
-
+#endif
         // check that pin is use only once
 
         // static_assert(used<port, pinNr>(), "Reuse of pin.");
