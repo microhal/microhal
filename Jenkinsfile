@@ -36,6 +36,8 @@ def projDirMap = [
 	'stm32f3xx_allMCU' : 'tests/stm32f3xx_AllMCU',
 	'stm32f4xx_allMCU' : 'tests/stm32f4xx_AllMCU',
         'stm32f4xx_stat_serialPort' : 'tests/statistics/stm32f4xx/serialPort',
+        'stm32f4xx_stat_i2c' : 'tests/statistics/stm32f4xx/i2c',
+        'stm32f4xx_stat_spi' : 'tests/statistics/stm32f4xx/spi',
 ]
 
 def eclipseRun(project, target, defines) {
