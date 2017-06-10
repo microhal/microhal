@@ -42,7 +42,7 @@ namespace stm32f4xx {
 class ClockManager {
  public:
     using Frequency = uint32_t;
-    enum class PowerMode { Normal, Sleep };
+    enum class PowerMode { Normal = 0b1, Sleep = 0b10 };
 
  private:
     static constexpr bool isEnabled(PowerMode mode, PowerMode flag) {
