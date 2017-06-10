@@ -93,7 +93,7 @@ class SPI_polling : public stm32f4xx::SPI {
 
  private:
     //---------------------------------------- constructors ---------------------------------------
-    SPI_polling(SPI_TypeDef &spi, stm32f4xx::GPIO::IOPin misoPin) : SPI(spi, misoPin) { ClockManager::enable(spi); }
+    SPI_polling(SPI_TypeDef &spi, stm32f4xx::GPIO::IOPin misoPin) : SPI(spi, misoPin) { ClockManager::enable(spi, ClockManager::PowerMode::Normal); }
     //---------------------------------------- functions ----------------------------------------//
     SPI::Error writeNoRead(uint8_t data) {
         uint32_t sr;

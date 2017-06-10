@@ -12,8 +12,8 @@
  */
 #include <cstdint>
 #include "../clockManager.h"
-#include "../i2c_stm32f4xx.h"
 #include "../device/stm32f4xx.h"
+#include "../i2c_stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -34,7 +34,7 @@ class I2C_polling : public stm32f4xx::I2C {
 #endif
  private:
     //---------------------------------------- constructors ---------------------------------------
-    I2C_polling(I2C_TypeDef &i2c) : I2C(i2c) { ClockManager::enable(i2c); }
+    I2C_polling(I2C_TypeDef &i2c) : I2C(i2c) { ClockManager::enable(i2c, ClockManager::PowerMode::Normal); }
     //---------------------------------------- functions ----------------------------------------//
     Error writeRead(DeviceAddress address, const uint8_t *write, size_t write_size, uint8_t *read, size_t read_size) noexcept final;
 
@@ -43,10 +43,10 @@ class I2C_polling : public stm32f4xx::I2C {
                 size_t write_data_sizeB) noexcept final;
 
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength) noexcept final {
-    	return read_implementation(deviceAddress, nullptr, 0, data, dataLength);
+        return read_implementation(deviceAddress, nullptr, 0, data, dataLength);
     }
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final {
-    	return read_implementation(deviceAddress, data, dataLength, dataB, dataBLength);
+        return read_implementation(deviceAddress, data, dataLength, dataB, dataBLength);
     }
 
     inline Error write(uint8_t data);

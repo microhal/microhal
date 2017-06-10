@@ -34,34 +34,34 @@ namespace microhal {
 namespace stm32f4xx {
 
 void GPIO::pinInitialize(const Port port_, const uint_fast8_t pin, const PinConfiguration config) {
-	volatile GPIO_TypeDef *port = reinterpret_cast<volatile GPIO_TypeDef *>(port_);
+    volatile GPIO_TypeDef *port = reinterpret_cast<volatile GPIO_TypeDef *>(port_);
 
-	ClockManager::enable(*reinterpret_cast<const GPIO_TypeDef *>(port_));
+    ClockManager::enable(*reinterpret_cast<const GPIO_TypeDef *>(port_), ClockManager::PowerMode::Normal);
 
     uint32_t afr = port->AFR[pin / 8];
-    afr &= ~(0b1111 << ((pin % 8) * 4)); // clear old configuration
-    afr |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4); // set new configuration
+    afr &= ~(0b1111 << ((pin % 8) * 4));                    // clear old configuration
+    afr |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);  // set new configuration
     port->AFR[pin / 8] = afr;
 
     // set mode -> config.mode is split to 2 part 4MSB bit
     //      contain alternate function and 4LSB bit contain mode
     uint32_t moder = port->MODER;
-    moder &= ~((0b11) << (pin * 2));  // clear old configuration
+    moder &= ~((0b11) << (pin * 2));             // clear old configuration
     moder |= (0x03 & config.mode) << (pin * 2);  // set new configuration
     port->MODER = moder;
     // set type
     uint32_t otyper = port->OTYPER;
-    otyper &= ~(0b1 << pin);  // clear old configuration
+    otyper &= ~(0b1 << pin);       // clear old configuration
     otyper |= config.type << pin;  // set new configuration
     port->OTYPER = otyper;
     // set pullup
     uint32_t pupdr = port->PUPDR;
-    pupdr &= ~(0b11 << (pin * 2));  // clear old configuration
+    pupdr &= ~(0b11 << (pin * 2));      // clear old configuration
     pupdr |= config.pull << (pin * 2);  // set new configuration
     port->PUPDR = pupdr;
     // set speed
     uint32_t ospeedr = port->OSPEEDR;
-    ospeedr &= ~(0b11 << (pin*2));  // clear old configuration
+    ospeedr &= ~(0b11 << (pin * 2));       // clear old configuration
     ospeedr |= config.speed << (pin * 2);  // set new configuration
     port->OSPEEDR = ospeedr;
 }

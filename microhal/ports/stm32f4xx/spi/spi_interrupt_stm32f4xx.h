@@ -57,7 +57,7 @@ class SPI_interrupt : public stm32f4xx::SPI {
 
     //--------------------------------------- constructors --------------------------------------//
     SPI_interrupt(SPI_TypeDef &spi, stm32f4xx::GPIO::IOPin misoPin) : SPI(spi, misoPin), semaphore() {
-        ClockManager::enable(spi);
+        ClockManager::enable(spi, ClockManager::PowerMode::Normal);
 #if defined(HAL_RTOS_FreeRTOS)
         enableInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #else

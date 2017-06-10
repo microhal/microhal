@@ -8,7 +8,7 @@
  @copyright   $Copyright$
  @details
  */ /* ============================================================================================
-                                                                                                                                                                                                             */
+                                                                                                                                                                                                                                                                                                                */
 
 #ifndef I2C_DMA_STM32F4XX_H_
 #define I2C_DMA_STM32F4XX_H_
@@ -88,6 +88,7 @@ class I2C_dma : public stm32f4xx::I2C {
     //---------------------------------- constructors -------------------------------
     I2C_dma(I2C_TypeDef &i2c, DMA::Stream &rxStream, DMA::Stream &txStream)
         : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), semaphore(), transfer() {
+        ClockManager::enable(i2c, ClockManager::PowerMode::Normal);
         init();
         const uint32_t priority = 0;
         enableEventInterrupt(priority);

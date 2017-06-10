@@ -90,7 +90,7 @@ SerialPort &SerialPort::Serial8 = SerialPort_interrupt::Serial8;
 
 SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
-    ClockManager::enable(usart);
+    ClockManager::enable(usart, ClockManager::PowerMode::Normal);
     enableInterrupt(0);
 }
 

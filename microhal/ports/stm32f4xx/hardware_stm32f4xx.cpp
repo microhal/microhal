@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    pawel
  * created on: 12-02-2017
@@ -37,10 +37,8 @@ namespace microhal {
 namespace hardware {
 
 uint32_t Device::coreFrequency() {
-	return stm32f4xx::ClockManager::SYSCLKFrequency();
+    return stm32f4xx::ClockManager::SYSCLK::frequency();
 }
 
 }  // namespace hardware
 }  // namespace microhal
-
-

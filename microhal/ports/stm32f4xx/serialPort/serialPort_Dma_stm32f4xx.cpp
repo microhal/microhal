@@ -168,7 +168,7 @@ SerialPort &SerialPort::Serial8 = SerialPort_Dma::Serial8;
 SerialPort_Dma::SerialPort_Dma(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize, DMA::DMA &dma,
                                DMA::Stream &txStream, DMA::Stream &rxStream)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize), dma(dma), txStream(txStream), rxStream(rxStream) {
-    ClockManager::enable(usart);
+    ClockManager::enable(usart, ClockManager::PowerMode::Normal);
     enableInterrupt(0);
     ///////////////////////////////////
     dma.clockEnable();

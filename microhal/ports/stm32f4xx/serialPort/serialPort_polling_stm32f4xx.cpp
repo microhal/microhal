@@ -71,7 +71,7 @@ SerialPort &SerialPort::Serial8 = SerialPort_polling::Serial8;
 #endif
 
 SerialPort_polling::SerialPort_polling(USART_TypeDef &usart) : stm32f4xx::SerialPort(usart) {
-    ClockManager::enable(usart);
+    ClockManager::enable(usart, ClockManager::PowerMode::Normal);
 }
 
 }  // namespace stm32f4xx

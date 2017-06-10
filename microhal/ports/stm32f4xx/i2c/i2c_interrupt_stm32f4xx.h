@@ -70,7 +70,7 @@ class I2C_interrupt : public stm32f4xx::I2C {
     os::Semaphore semaphore;
     //---------------------------------------- constructors ---------------------------------------
     I2C_interrupt(I2C_TypeDef &i2c) : I2C(i2c), transfer(), error(), semaphore() {
-        ClockManager::enable(i2c);
+        ClockManager::enable(i2c, ClockManager::PowerMode::Normal);
         const uint32_t priority = 0;
         enableEventInterrupt(priority);
         enableErrorInterrupt(priority);
