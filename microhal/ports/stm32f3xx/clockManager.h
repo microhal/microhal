@@ -30,10 +30,10 @@
 #ifndef MICROHAL_PORTS_STM32F3XX_CLOCKMANAGER_H_
 #define MICROHAL_PORTS_STM32F3XX_CLOCKMANAGER_H_
 
-#include "microhalPortConfig_stm32f3xx.h"
 #include <cmath>
-#include <type_traits>
 #include <exception>
+#include <type_traits>
+#include "microhalPortConfig_stm32f3xx.h"
 
 #include "device/stm32f3xx.h"
 
@@ -91,8 +91,7 @@ class ClockManager {
         }
     }
     static void enable(const I2C_TypeDef &i2c) {
-        if (&i2c == I2C1)
-            RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+        if (&i2c == I2C1) RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
 #if defined(I2C2)
         else if (&i2c == I2C2)
             RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
@@ -108,10 +107,10 @@ class ClockManager {
     }
     static void enable(const SPI_TypeDef &spi) {
 #if defined(SPI1)
-    	if (&spi == SPI1)
-            RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+        if (&spi == SPI1) RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
 #else
-    	if (false) {}
+        if (false) {
+        }
 #endif
 #if defined(SPI2)
         else if (&spi == SPI2)
@@ -121,158 +120,164 @@ class ClockManager {
         else if (&spi == SPI3)
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
 #endif
-    #if defined(SPI4)
+#if defined(SPI4)
         else if (&spi == SPI4)
-        	RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
-    #endif
-    #if defined(SPI5)
+            RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
+#endif
+#if defined(SPI5)
         else if (&spi == SPI5)
             RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
-    #endif
-    #if defined(SPI6)
+#endif
+#if defined(SPI6)
         else if (&spi == SPI6)
             RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
-    #endif
+#endif
         else {
-        	while (1); // Error should newer go there
+            while (1)
+                ;  // Error should newer go there
         }
     }
     static void enable(const TIM_TypeDef &timer) {
-
 #if defined(TIM1)
-    	if (&timer == TIM1) {
-    		RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+        if (&timer == TIM1) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 #else
-    	if (false) {
+        if (false) {
 #endif
-    	} else if (&timer == TIM2) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-#if defined (TIM3)
-		} else if (&timer == TIM3) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+        } else if (&timer == TIM2) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+#if defined(TIM3)
+        } else if (&timer == TIM3) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 #endif
 #if defined(TIM4)
-		} else if (&timer == TIM4) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+        } else if (&timer == TIM4) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
 #endif
 #if defined(TIM5)
-		} else if (&timer == TIM5) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
+        } else if (&timer == TIM5) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
 #endif
 #if defined(TIM6)
-		} else if (&timer == TIM6) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
+        } else if (&timer == TIM6) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
 #endif
 #if defined(TIM7)
-		} else if (&timer == TIM7) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;
+        } else if (&timer == TIM7) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;
 #endif
 #if defined(TIM8)
-		} else if (&timer == TIM8) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
+        } else if (&timer == TIM8) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
 #endif
 #if defined(TIM9)
-		} else if (&timer == TIM9) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
+        } else if (&timer == TIM9) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
 #endif
 #if defined(TIM10)
-		} else if (&timer == TIM10) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+        } else if (&timer == TIM10) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
 #endif
 #if defined(TIM11)
-		} else if (&timer == TIM11) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+        } else if (&timer == TIM11) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
 #endif
 #if defined(TIM12)
-		} else if (&timer == TIM12) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM12EN;
+        } else if (&timer == TIM12) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM12EN;
 #endif
 #if defined(TIM13)
-		} else if (&timer == TIM13) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM13EN;
+        } else if (&timer == TIM13) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM13EN;
 #endif
 #if defined(TIM14)
-		} else if (&timer == TIM14) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
+        } else if (&timer == TIM14) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
 #endif
-		} else {
-			while (1)
-				;  // Error should newer go there
-		}
+        } else {
+            while (1)
+                ;  // Error should newer go there
+        }
     }
-	static void enable(const GPIO_TypeDef &gpio) {
-	if (&gpio == GPIOA)
-			RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-	else if (&gpio == GPIOB)
-			RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-	else if (&gpio == GPIOC)
-			RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-	else if (&gpio == GPIOD)
-			RCC->AHBENR |= RCC_AHBENR_GPIODEN;
+    static void enable(const GPIO_TypeDef &gpio) {
+        if (&gpio == GPIOA)
+            RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+        else if (&gpio == GPIOB)
+            RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+        else if (&gpio == GPIOC)
+            RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+        else if (&gpio == GPIOD)
+            RCC->AHBENR |= RCC_AHBENR_GPIODEN;
 #if defined(GPIOE_BASE)
-	else if (&gpio == GPIOE)
-			RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
+        else if (&gpio == GPIOE)
+            RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
 #endif
 #if defined(GPIOF_BASE)
-	else if (&gpio == GPIOF)
-			RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
+        else if (&gpio == GPIOF)
+            RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
 #endif
-	else {
-		while (1);
-	}
-}
+        else {
+            while (1)
+                ;
+        }
+    }
     //--------------------------------------------------------------------------------------------------------------
-	static UsartClockSource USARTClockSource(const USART_TypeDef &usart) {
-		uint32_t pos;
-		if (&usart == USART1)
-			pos = RCC_CFGR3_USART1SW_Pos;
-		else if (&usart == USART2)
-			//pos = RCC_CFGR3_USART2SW_Pos;
-			return UsartClockSource::PCLK;
-		else if (&usart == USART3)
-			//pos = RCC_CFGR3_USART3SW_Pos;
-			return UsartClockSource::PCLK;
-		else {
-			while(1);
-		}
-		return static_cast<UsartClockSource>((RCC->CFGR3  >> pos) & 0b11);
-	}
+    static UsartClockSource USARTClockSource(const USART_TypeDef &usart) {
+        uint32_t pos;
+        if (&usart == USART1)
+            pos = RCC_CFGR3_USART1SW_Pos;
+        else if (&usart == USART2)
+            // pos = RCC_CFGR3_USART2SW_Pos;
+            return UsartClockSource::PCLK;
+        else if (&usart == USART3)
+            // pos = RCC_CFGR3_USART3SW_Pos;
+            return UsartClockSource::PCLK;
+        else {
+            while (1)
+                ;
+        }
+        return static_cast<UsartClockSource>((RCC->CFGR3 >> pos) & 0b11);
+    }
 
-	static void USARTClockSource(const USART_TypeDef &usart, UsartClockSource source) {
-		uint32_t pos;
-		if (&usart == USART1)
-			pos = RCC_CFGR3_USART1SW_Pos;
-		else if (&usart == USART2)
-			//pos = RCC_CFGR3_USART2SW_Pos;
-			while(1);
-		else if (&usart == USART3)
-			//pos = RCC_CFGR3_USART3SW_Pos;
-		while(1);
-		else {
-			while(1);
-		}
-		RCC->CFGR3 = (RCC->CFGR3 & ~(0b11 << pos)) | (source << pos);
-	}
-	/**
-     * @brief This function return usart clock
-     *
-     * @param usart device pointer
-     * @return
-     */
+    static void USARTClockSource(const USART_TypeDef &usart, UsartClockSource source) {
+        uint32_t pos;
+        if (&usart == USART1)
+            pos = RCC_CFGR3_USART1SW_Pos;
+        else if (&usart == USART2)
+            // pos = RCC_CFGR3_USART2SW_Pos;
+            while (1)
+                ;
+        else if (&usart == USART3)
+            // pos = RCC_CFGR3_USART3SW_Pos;
+            while (1)
+                ;
+        else {
+            while (1)
+                ;
+        }
+        RCC->CFGR3 = (RCC->CFGR3 & ~(0b11 << pos)) | (source << pos);
+    }
+    /**
+ * @brief This function return usart clock
+ *
+ * @param usart device pointer
+ * @return
+ */
     static uint32_t USARTFrequency(const USART_TypeDef &usart) {
         UsartClockSource usartClockSource = USARTClockSource(usart);
 
-        switch(usartClockSource) {
-        case PCLK:
-        	return APB1Frequency();
-        case SYSCLK:
-        	return SYSCLK::frequency();
-        case LSE:
-        	while(1);
-        	return 0;//LSE::frequency();
-        	break;
-        case HSI:
-        	return HSI::frequency();
+        switch (usartClockSource) {
+            case PCLK:
+                return APB1Frequency();
+            case SYSCLK:
+                return SYSCLK::frequency();
+            case LSE:
+                while (1)
+                    ;
+                return 0;  // LSE::frequency();
+                break;
+            case HSI:
+                return HSI::frequency();
         }
         std::terminate();
     }
@@ -284,10 +289,10 @@ class ClockManager {
      */
     static uint32_t SPIFrequency(const SPI_TypeDef &spi) {
 #if defined(SPI1)
-        if (&spi == SPI1)
-            return APB2Frequency();
+        if (&spi == SPI1) return APB2Frequency();
 #else
-        if (false) {}
+        if (false) {
+        }
 #endif
 #if defined(SPI2)
         else if (&spi == SPI2)
@@ -322,11 +327,11 @@ class ClockManager {
      */
     static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
         if (&i2c == I2C1)
-        	if (RCC->CFGR3 & RCC_CFGR3_I2C1SW) {
-        		return SYSCLK::frequency();
-        	} else {
-        		return HSI::frequency();
-        	}
+            if (RCC->CFGR3 & RCC_CFGR3_I2C1SW) {
+                return SYSCLK::frequency();
+            } else {
+                return HSI::frequency();
+            }
         else {
             while (1)
                 ;  // Error should newer go there
@@ -334,14 +339,14 @@ class ClockManager {
     }
     static uint32_t TimerFrequency(const TIM_TypeDef &tim) {
 #if defined(TIM1)
-    	if (&tim == TIM1)
-            return APB2Frequency();
+        if (&tim == TIM1) return APB2Frequency();
 #else
-    	if (false) {}
+        if (false) {
+        }
 #endif
         else if (&tim == TIM2)
             return APB1Frequency();
-#if defined (TIM3)
+#if defined(TIM3)
         else if (&tim == TIM3)
             return APB1Frequency();
 #endif
@@ -395,55 +400,49 @@ class ClockManager {
                 ;  // Error should newer go there
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     static void flashLatency(Frequency sysclkFrequency_Hz) {
-    	if (sysclkFrequency_Hz < 24000000) {
-    		FLASH->ACR &= ~FLASH_ACR_LATENCY;
-    	} else if (sysclkFrequency_Hz < 24000000) {
-    		FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_0;
-    	} else {
-    		FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_1;
-    	}
+        if (sysclkFrequency_Hz < 24000000) {
+            FLASH->ACR &= ~FLASH_ACR_LATENCY;
+        } else if (sysclkFrequency_Hz < 24000000) {
+            FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_0;
+        } else {
+            FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_1;
+        }
     }
     struct SYSCLK {
-		enum class Source : decltype(RCC_CFGR_SWS_0) {
-			HSI,
-			HSE = RCC_CFGR_SWS_0,
-			PLL = RCC_CFGR_SWS_1
-		};
-    	static Source source() {
-    		return static_cast<Source>(RCC->CFGR & RCC_CFGR_SWS);
-		}
-    	static void source(Source source) {
-    		switch(source) {
-    		case Source::HSI:
-    			flashLatency(HSI::frequency());
-    			break;
-    		case Source::HSE:
-    			flashLatency(HSE::frequency());
-    			break;
-    		case Source::PLL:
-    			flashLatency(PLL::VCOOutputFrequency());
-    			break;
-    		}
-    		RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | (static_cast<typename std::underlying_type<Source>::type>(source) >> 2);
-    	}
-		static uint32_t frequency() noexcept {
-			volatile uint32_t freq = 0;
-			switch (RCC->CFGR & RCC_CFGR_SWS) {
-				case 0:
-					freq = HSI::frequency();
-					break;
-				case RCC_CFGR_SWS_0:
-					freq = HSE::frequency();
-					break;
-				case RCC_CFGR_SWS_1:
-					freq = PLLCLKFrequency();
-					break;
-			}
-			return freq;
-		}
+        enum class Source : decltype(RCC_CFGR_SWS_0) { HSI, HSE = RCC_CFGR_SWS_0, PLL = RCC_CFGR_SWS_1 };
+        static Source source() { return static_cast<Source>(RCC->CFGR & RCC_CFGR_SWS); }
+        static void source(Source source) {
+            switch (source) {
+                case Source::HSI:
+                    flashLatency(HSI::frequency());
+                    break;
+                case Source::HSE:
+                    flashLatency(HSE::frequency());
+                    break;
+                case Source::PLL:
+                    flashLatency(PLL::VCOOutputFrequency());
+                    break;
+            }
+            RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | (static_cast<typename std::underlying_type<Source>::type>(source) >> 2);
+        }
+        static uint32_t frequency() noexcept {
+            uint32_t freq = 0;
+            switch (RCC->CFGR & RCC_CFGR_SWS) {
+                case 0:
+                    freq = HSI::frequency();
+                    break;
+                case RCC_CFGR_SWS_0:
+                    freq = HSE::frequency();
+                    break;
+                case RCC_CFGR_SWS_1:
+                    freq = PLLCLKFrequency();
+                    break;
+            }
+            return freq;
+        }
     };
 
     static Frequency APB1Frequency() {
@@ -478,7 +477,7 @@ class ClockManager {
 
     static Frequency LSEFrequency() noexcept {
         if (externalLSEPresent == false) {
-           std::terminate();
+            std::terminate();
         }
         return externalLSEFrequency;
     }
@@ -527,7 +526,7 @@ class ClockManager {
 
         static ClockSource clockSource(ClockSource source) noexcept {
             RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PLLSRC) | static_cast<typename std::underlying_type<ClockSource>::type>(
-                                                                      source);  // fixme (pokas) maybe bit banding will be faster solution
+                                                             source);  // fixme (pokas) maybe bit banding will be faster solution
             return source;
         }
 
@@ -544,27 +543,28 @@ class ClockManager {
 
         static float inputFrequency() {
             if (clockSource() == ClockSource::HSIDiv2) {
-            	return HSI::frequency() / 2;
+                return HSI::frequency() / 2;
             } else {
-            	return HSE::frequency() / divider();
+                return HSE::frequency() / divider();
             }
         }
 
         static uint32_t frequency(uint32_t frequency_Hz) {
-        	if (clockSource() == ClockSource::HSIDiv2) {
-        		// we only can change pll mul
-        		uint32_t mul = round(frequency_Hz / inputFrequency());
-        		if (mul > 16) mul = 16;
-        		if (mul < 2) mul = 2;
-        		PLLMUL(mul);
-        		while (HSI::isReady() == false);
-        	} else {
+            if (clockSource() == ClockSource::HSIDiv2) {
+                // we only can change pll mul
+                uint32_t mul = round(frequency_Hz / inputFrequency());
+                if (mul > 16) mul = 16;
+                if (mul < 2) mul = 2;
+                PLLMUL(mul);
+                while (HSI::isReady() == false)
+                    ;
+            } else {
+            }
 
-        	}
-
-        	enable();
-        	while (isReady() == false);
-        	return VCOOutputFrequency();
+            enable();
+            while (isReady() == false)
+                ;
+            return VCOOutputFrequency();
         }
 
         static void enable() noexcept { RCC->CR |= RCC_CR_PLLON; }
@@ -575,19 +575,19 @@ class ClockManager {
 
         static float VCOOutputFrequency() noexcept { return inputFrequency() * PLLMUL(); }
 
-    private:
+     private:
         static uint32_t PLLMUL() noexcept {
-        	uint32_t mul = ((RCC->CFGR & RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos);
-        	if (mul == 0b1111) return 16;
-        	return mul + 2;
+            uint32_t mul = ((RCC->CFGR & RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos);
+            if (mul == 0b1111) return 16;
+            return mul + 2;
         }
 
         static bool PLLMUL(uint32_t mul) noexcept {
-        	if (mul >= 2 && mul <=16) {
-        		RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PLLMUL_Msk) | ((mul - 2) << RCC_CFGR_PLLMUL_Pos);
-        		return true;
-        	}
-        	return false;
+            if (mul >= 2 && mul <= 16) {
+                RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PLLMUL_Msk) | ((mul - 2) << RCC_CFGR_PLLMUL_Pos);
+                return true;
+            }
+            return false;
         }
     };
 };
