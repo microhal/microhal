@@ -300,9 +300,9 @@ pipeline {
 //            }
 //        }
 	stage('Analyze microhal examples') {
-	//    agent { 
-                ///label 'FX160_HardwareTester'
-          //  }
+	    when {
+                expression { env.BRANCH_NAME == 'devel'}
+            }
 	    steps {		
                 parallel(
                     diagnostic :        { sa('diagnostic', targets) },
