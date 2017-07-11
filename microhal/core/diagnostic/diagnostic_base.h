@@ -185,6 +185,7 @@ class Diagnostic_base {
                 break;
             case 16:
                 ioDevice->write("0x");
+                if (data < 0x10) ioDevice->write("0");
                 break;
         }
         itoa(data, buffer, radix);
@@ -203,6 +204,7 @@ class Diagnostic_base {
                 break;
             case 16:
                 ioDevice->write("0x");
+                if (data < 0x10) ioDevice->write("0");
                 break;
         }
         itoa(data, buffer, radix);
@@ -225,6 +227,7 @@ class Diagnostic_base {
                 break;
             case 16:
                 ioDevice->write("0x");
+                if (data < 0x10) ioDevice->write("0");
                 break;
         }
 
@@ -244,6 +247,7 @@ class Diagnostic_base {
                 break;
             case 16:
                 ioDevice->write("0x");
+                if (data < 0x10) ioDevice->write("0");
                 break;
         }
 
