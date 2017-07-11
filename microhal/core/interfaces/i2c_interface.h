@@ -67,6 +67,13 @@ class I2C {
     virtual Error read(uint8_t deviceAddress, uint8_t registerAddress, uint8_t &data) = 0;
     virtual Error read(uint8_t deviceAddress, uint8_t registerAddress, void *data, size_t length) = 0;
 
+    virtual Error read(uint8_t deviceAddress, void *data, size_t length) { return Error::UnknownError; }
+    virtual Error write(uint8_t deviceAddress, void *data, size_t length) { return Error::UnknownError; }
+
+    virtual Error writeRead(uint8_t deviceAddress, void *writeData, uint8_t writeLength, void *readData, uint8_t readLength) {
+        return Error::UnknownError;
+    }
+
  protected:
     bool noLock = false;
 
