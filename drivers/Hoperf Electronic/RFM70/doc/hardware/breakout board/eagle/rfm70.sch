@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.3.0">
+<eagle version="7.5.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -4467,9 +4467,9 @@ Source: AVX .. aphvc.pdf</description>
 </net>
 <net name="MOSI" class="0">
 <segment>
-<pinref part="CON1" gate="G$1" pin="MISO"/>
-<wire x1="76.2" y1="142.24" x2="66.04" y2="142.24" width="0.1524" layer="91"/>
-<label x="66.04" y="142.24" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="66.04" y="139.7" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="CON1" gate="G$1" pin="MOSI"/>
+<wire x1="66.04" y1="139.7" x2="76.2" y2="139.7" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="MOD1" gate="G$1" pin="MOSI"/>
@@ -4479,9 +4479,9 @@ Source: AVX .. aphvc.pdf</description>
 </net>
 <net name="MISO" class="0">
 <segment>
-<pinref part="CON1" gate="G$1" pin="MOSI"/>
-<wire x1="76.2" y1="139.7" x2="66.04" y2="139.7" width="0.1524" layer="91"/>
-<label x="66.04" y="139.7" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="66.04" y="142.24" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="CON1" gate="G$1" pin="MISO"/>
+<wire x1="66.04" y1="142.24" x2="76.2" y2="142.24" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="MOD1" gate="G$1" pin="MISO"/>
