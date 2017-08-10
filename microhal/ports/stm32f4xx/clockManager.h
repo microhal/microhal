@@ -1019,16 +1019,16 @@ class ClockManager {
                     RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1);
                     break;
                 case 2:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | 0b100 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | RCC_CFGR_PPRE1_DIV2;
                     break;
                 case 4:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | 0b101 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | RCC_CFGR_PPRE1_DIV4;
                     break;
                 case 8:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | 0b110 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | RCC_CFGR_PPRE1_DIV8;
                     break;
                 case 16:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | 0b111 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | RCC_CFGR_PPRE1_DIV16;
                     break;
                 default:
                     return false;
@@ -1053,16 +1053,16 @@ class ClockManager {
                     RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2);
                     break;
                 case 2:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | 0b100 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | RCC_CFGR_PPRE2_DIV2;
                     break;
                 case 4:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | 0b101 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | RCC_CFGR_PPRE2_DIV4;
                     break;
                 case 8:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | 0b110 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | RCC_CFGR_PPRE2_DIV8;
                     break;
                 case 16:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | 0b111 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | RCC_CFGR_PPRE2_DIV16;
                     break;
                 default:
                     return false;
@@ -1088,28 +1088,28 @@ class ClockManager {
                     RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE);
                     break;
                 case 2:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1000 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV2;
                     break;
                 case 4:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1001 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV4;
                     break;
                 case 8:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1010 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV8;
                     break;
                 case 16:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1011 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV16;
                     break;
                 case 64:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1100 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV64;
                     break;
                 case 128:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1101 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV128;
                     break;
                 case 256:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1110 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV256;
                     break;
                 case 512:
-                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | 0b1111 << 13;
+                    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV512;
                     break;
                 default:
                     return false;
