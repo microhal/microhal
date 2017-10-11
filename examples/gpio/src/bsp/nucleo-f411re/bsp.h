@@ -31,13 +31,14 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+#include "microhal.h"
+
 constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);
 constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
 constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
 constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
 
 constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
-
 
 constexpr microhal::GPIO::IOPin greenLed_pin = ld2_pin;
 constexpr microhal::GPIO::IOPin redLed_pin = led5_pin;

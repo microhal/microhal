@@ -1,21 +1,22 @@
 /**
+ * @file
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      GPIO example main file
+ * @brief      board support package for nucleo-f411re board
  *
  * @authors    Pawel Okas
- * created on: 30-01-2014
+ * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, microHAL
+ * @copyright Copyright (c) 2016, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
+ * 	   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * 	      documentation and/or other materials provided with the distribution.
  *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
  *        software without specific prior written permission.
  *
@@ -27,33 +28,22 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// This demo require at least two LED and one button.
-// If you want run this example with your's board. You have to create own BSP file.
-
+#include "bsp.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 using namespace microhal;
-using namespace std::literals::chrono_literals;
+using namespace stm32f4xx;
 
-int main(void) {
-    // Create GPIO instances. To see where this GPIO are connected open 'boards' folder and open folder named as your development kit, all pins
-    // definition will be in microhal_bsp.h file.
-    GPIO greenLed(greenLed_pin, GPIO::Direction::Output);
-    GPIO redLed(redLed_pin, GPIO::Direction::Output);
-    GPIO button(button_pin, GPIO::Direction::Input);
+void hardwareConfig(void) {
+    // Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
 
-    while (1) {
-        std::this_thread::sleep_for(500ms);
+    SysTick_Config(168000000 / 1000);
+}
 
-        greenLed.toggle();
+uint64_t SysTick_time = 0;
+;
 
-        if (button.isSet()) {
-            redLed.set();
-        } else {
-            redLed.reset();
-        }
-    }
-
-    return 0;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

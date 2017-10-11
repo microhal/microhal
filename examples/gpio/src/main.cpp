@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for stm32f4Discovery board
+ * @brief      GPIO example main file
  *
  * @authors    Pawel Okas
  * created on: 30-01-2014
@@ -27,17 +27,33 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef STM32F4DISCOVERY_H_
-#define STM32F4DISCOVERY_H_
+// This demo require at least two LED and one button.
+// If you want run this example with your's board. You have to create own BSP file.
 
-constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+#include "bsp.h"
+#include "microhal.h"
 
-constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+using namespace microhal;
+using namespace std::literals::chrono_literals;
 
-constexpr microhal::GPIO::IOPin greenLed_pin = led4_pin;
-constexpr microhal::GPIO::IOPin redLed_pin = led3_pin;
+int main(void) {
+    // Create GPIO instances. To see where this GPIO are connected open 'boards' folder and open folder named as your development kit, all pins
+    // definition will be in microhal_bsp.h file.
+    GPIO greenLed(greenLed_pin, GPIO::Direction::Output);
+    GPIO redLed(redLed_pin, GPIO::Direction::Output);
+    GPIO button(button_pin, GPIO::Direction::Input);
 
-#endif /* STM32F4DISCOVERY_H_ */
+    while (1) {
+        std::this_thread::sleep_for(500ms);
+
+        greenLed.toggle();
+
+        if (button.isSet()) {
+            redLed.set();
+        } else {
+            redLed.reset();
+        }
+    }
+
+    return 0;
+}

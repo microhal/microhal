@@ -1,21 +1,22 @@
 /**
+ * @file
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for stm32f4Discovery board
+ * @brief      board support package for nucleo-f411re board
  *
  * @authors    Pawel Okas
- * created on: 16-04-2014
+ * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, Pawel Okas
+ * @copyright Copyright (c) 2016, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
+ * 	   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * 	      documentation and/or other materials provided with the distribution.
  *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
  *        software without specific prior written permission.
  *
@@ -26,22 +27,23 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "bsp.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 using namespace microhal;
-using namespace stm32f4xx;
+using namespace stm32f3xx;
 
 void hardwareConfig(void) {
-    Core::pll_start(8000000, 168000000);
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(8000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
+;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }
