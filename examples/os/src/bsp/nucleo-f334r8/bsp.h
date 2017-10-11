@@ -2,7 +2,7 @@
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
- @brief      Operating system example main file
+ @brief      board support package for stm32f4Discovery board
 
  @authors    Pawel Okas
  created on: 16-04-2014
@@ -26,50 +26,24 @@
 
  *//* ========================================================================================================================== */
 
-#include <thread>
-#include <chrono>
+#ifndef STM32F3DISCOVERY_H_
+#define STM32F3DISCOVERY_H_
 
 #include "microhal.h"
-#include "microhal_bsp.h"
 
-using namespace microhal;
-using namespace std::literals::chrono_literals;
+static microhal::SerialPort &serialPort = microhal::stm32f3xx::SerialPort::Serial2;
 
-void task1() {
-    GPIO redLed(RedLed, GPIO::Direction::Output);
+constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f3xx::GPIO::Port::PortA, 5);
+constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f3xx::GPIO::Port::PortD, 13);
+constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f3xx::GPIO::Port::PortD, 14);
+constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f3xx::GPIO::Port::PortD, 15);
 
-    std::chrono::milliseconds dura(1000);
-    while (1) {
-        redLed.toggle();
+constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f3xx::GPIO::Port::PortC, 13);
 
-        std::this_thread::sleep_for(dura);
-    }
-}
 
-void task2() {
-    GPIO greenLed(GreenLed, GPIO::Direction::Output);
+constexpr microhal::GPIO::IOPin GreenLed = ld2_pin;
+constexpr microhal::GPIO::IOPin RedLed = led5_pin;
+constexpr microhal::GPIO::IOPin blueLed_pin = led6_pin;
+constexpr microhal::GPIO::IOPin orangeLed_pin = led3_pin;
 
-    while (1) {
-        greenLed.toggle();
-
-        std::this_thread::sleep_for(2s);
-    }
-}
-
-// when using os main function is a thread
-int main(void) {
-    serialPort.open(SerialPort::ReadWrite);
-    serialPort.setBaudRate(SerialPort::Baud115200);
-    serialPort.setDataBits(SerialPort::Data8);
-    serialPort.setStopBits(SerialPort::OneStop);
-    serialPort.setParity(SerialPort::NoParity);
-
-    serialPort.write("\n\r----------------------------- OS DEMO -----------------------------\n\r");
-
-    std::thread first(task1);
-    std::thread first2(task2);
-
-    while (1) {
-    }
-    return 0;
-}
+#endif // STM32F3DISCOVERY_H_

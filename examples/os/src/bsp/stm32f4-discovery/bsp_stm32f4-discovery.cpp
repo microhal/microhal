@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,21 +24,22 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
-#include "microhal.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
 microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial3;
 
-extern "C" int main(int, void*);
+extern "C" int main(int, void *);
 
 static void run_main(void *) {
-	main(0, nullptr);
+    main(0, nullptr);
 }
 
 void hardwareConfig(void) {
@@ -50,8 +51,7 @@ void hardwareConfig(void) {
 
     TaskHandle_t xHandle = NULL;
 
-    xTaskCreate(run_main, "NAME", 256, NULL, tskIDLE_PRIORITY, &xHandle );
+    xTaskCreate(run_main, "NAME", 256, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }
-
