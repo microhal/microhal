@@ -29,7 +29,7 @@
 
 #include "consoleIODevice_linux.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
 using namespace microhal;
 using namespace diagnostic;

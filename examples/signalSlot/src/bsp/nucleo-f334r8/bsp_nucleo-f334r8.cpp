@@ -1,18 +1,18 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
- @brief      board support package for windows os
+ @brief      board support package for stm32f4Discovery board
 
  @authors    Pawel Okas
- created on: 23-06-2015
+ created on: 16-04-2014
  last modification: <DD-MM-YYYY>
 
  @copyright Copyright (c) 2014, microHAL
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
  conditions are met:
-	 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ 	 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  	 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
  	 	in the documentation and/or other materials provided with the distribution.
  	 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived
@@ -24,11 +24,34 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
-#ifndef WINDOWS_BSP_H_
-#define WINDOWS_BSP_H_
+#include "bsp.h"
+#include "microhal.h"
 
-extern  microhal::IODevice &debugPort;
+using namespace microhal;
+using namespace stm32f3xx;
 
-#endif /* STM32F4DISCOVERY_H_ */
+void hardwareConfig(void) {
+    // Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
+
+    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+
+    debugPort.open(IODevice::ReadWrite);
+    debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
+    debugPort.setDataBits(stm32f3xx::SerialPort::Data8);
+    debugPort.setStopBits(stm32f3xx::SerialPort::OneStop);
+    debugPort.setParity(stm32f3xx::SerialPort::NoParity);
+
+    SysTick_Config(8000000 / 1000);
+}
+
+uint64_t SysTick_time = 0;
+;
+
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
+}

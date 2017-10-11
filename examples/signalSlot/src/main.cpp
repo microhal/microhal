@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,10 +24,11 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
+#include "bsp.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 #include "signalSlot/signalSlot.h"
 
@@ -57,9 +58,7 @@ void freeFunctionBoolInt(bool b, int i __attribute__((unused))) {
 }
 
 class SlotContainer {
-    void function() {
-        diagChannel << Debug << "Text from class function. No parameter." << endl;
-    }
+    void function() { diagChannel << Debug << "Text from class function. No parameter." << endl; }
 
     void function(bool b) {
         diagChannel << Debug << "Text from class function with bool parameter. Value: ";
@@ -69,16 +68,17 @@ class SlotContainer {
             diagChannel << Debug << "false" << endl;
         }
     }
-public:
-    //create slots
+
+ public:
+    // create slots
     Slot_0<SlotContainer, &SlotContainer::function> slot;
     Slot_1<SlotContainer, bool, &SlotContainer::function> slot2;
 };
 
 int main(void) {
-	debugPort.open(IODevice::WriteOnly);
+    debugPort.open(IODevice::WriteOnly);
 
-	debugPort.write("\n\r------------------- Signal Slot Demo -------------------------\n\r");
+    debugPort.write("\n\r------------------- Signal Slot Demo -------------------------\n\r");
 
     diagChannel.setOutputDevice(debugPort);
 

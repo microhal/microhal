@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,33 +24,36 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
+#include "bsp.h"
+#include "SPIDevice/SPIDevice.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 using namespace microhal;
-using namespace stm32f3xx;
+using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-    //Core::pll_start(8000000, 168000000);
+    Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
 
-    debugPort.open(IODevice::ReadWrite);
-    debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
-    debugPort.setDataBits(stm32f3xx::SerialPort::Data8);
-    debugPort.setStopBits(stm32f3xx::SerialPort::OneStop);
-    debugPort.setParity(stm32f3xx::SerialPort::NoParity);
+    debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
+    debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
+    debugPort.setParity(stm32f4xx::SerialPort::NoParity);
+    debugPort.open(stm32f4xx::SerialPort::ReadWrite);
+    debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    debugPort.clear();
 
-
-    SysTick_Config(8000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
+;
 
 extern "C" void SysTick_Handler(void) {
-	SysTick_time++;
+    SysTick_time++;
 }

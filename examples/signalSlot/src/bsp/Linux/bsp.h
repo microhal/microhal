@@ -30,9 +30,11 @@
 #ifndef _LINUX_BSP_H_
 #define _LINUX_BSP_H_
 
+#include "microhal.h"
+
 bool BSP_Init(void);
 bool BSP_Deinit(void);
 
-extern  microhal::IODevice &debugPort;
+extern microhal::IODevice &debugPort;
 
 #endif  // _LINUX_BSP_H_
