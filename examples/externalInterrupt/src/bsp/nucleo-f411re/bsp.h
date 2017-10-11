@@ -28,22 +28,21 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef NUCLEO_F411RE_H_
+#define NUCLEO_F411RE_H_
+
 #include "microhal.h"
-#include "microhal_bsp.h"
 
-using namespace microhal;
-using namespace stm32f4xx;
+constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);
+constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
+constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
 
-void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
 
-    SysTick_Config(168000000/1000);
-}
+constexpr microhal::GPIO::IOPin greenLed_pin = ld2_pin;
+constexpr microhal::GPIO::IOPin redLed_pin = led5_pin;
+constexpr microhal::GPIO::IOPin blueLed_pin = led6_pin;
+constexpr microhal::GPIO::IOPin orangeLed_pin = led3_pin;
 
-uint64_t SysTick_time = 0;;
-
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
-}
+#endif  // NUCLEO_F411RE_H_

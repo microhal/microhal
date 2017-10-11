@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "bsp.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 using namespace microhal;
 using namespace std::literals::chrono_literals;
@@ -94,4 +94,3 @@ int main(void) {
 
     return 0;
 }
-
