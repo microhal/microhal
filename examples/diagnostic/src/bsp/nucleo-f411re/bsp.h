@@ -9,7 +9,7 @@
  * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2016 - 2017, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,8 @@
 
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
+
+#include "microhal.h"
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 

@@ -1,14 +1,14 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
  @brief      board support package for stm32f4Discovery board
 
  @authors    Pawel Okas
- created on: 16-04-2014
+ created on: 19-02-2017
  last modification: <DD-MM-YYYY>
 
- @copyright Copyright (c) 2014, microHAL
+ @copyright Copyright (c) 2017, Pawel Okas
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
  conditions are met:
@@ -24,34 +24,14 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
+
+#ifndef STM32F3DISCOVERY_H_
+#define STM32F3DISCOVERY_H_
 
 #include "microhal.h"
-#include "microhal_bsp.h"
-#include "SPIDevice/SPIDevice.h"
 
-using namespace microhal;
-using namespace stm32f4xx;
+static microhal::SerialPort &debugPort = microhal::stm32f3xx::SerialPort::Serial2;
 
-void hardwareConfig(void) {
-    Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
-
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
-
-    debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
-    debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
-    debugPort.setParity(stm32f4xx::SerialPort::NoParity);
-    debugPort.open(stm32f4xx::SerialPort::ReadWrite);
-    debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
-
-    SysTick_Config(168000000/1000);
-}
-
-uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
-}
+#endif  // STM32F3DISCOVERY_H_

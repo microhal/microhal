@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,10 +24,11 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                         */
 
+#include "bsp.h"
 #include "consoleIODevice_linux.h"
-#include "microhal_bsp.h"
 #include "microhal.h"
 
 using namespace microhal;
@@ -36,13 +37,13 @@ using namespace diagnostic;
 microhal::IODevice &debugPort = linux::consoleIODev;
 
 bool BSP_Init(void) {
-	// setup diagnostic port
-	if(debugPort.open(SerialPort::ReadWrite)) {
-		return true;
-	}
-	return false;
+    // setup diagnostic port
+    if (debugPort.open(SerialPort::ReadWrite)) {
+        return true;
+    }
+    return false;
 }
 
 bool BSP_Deinit(void) {
-	return true;
+    return true;
 }

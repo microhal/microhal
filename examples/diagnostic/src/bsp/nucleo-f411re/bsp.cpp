@@ -28,14 +28,14 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "bsp.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
@@ -47,12 +47,12 @@ void hardwareConfig(void) {
     debugPort.open(stm32f4xx::SerialPort::ReadWrite);
     debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
+;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }
