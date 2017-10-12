@@ -27,65 +27,26 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_DS18B20_H_
-#define _MICROHAL_DS18B20_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "diagnostic/diagnostic.h"
-#include "oneWire.h"
-/* **************************************************************************************************************************************************
- * CLASS
- */
-class DS18B20 {
-    enum class Command : uint8_t {
-        Convert = 0x44,
-        ReadScratchpad = 0xBE,
-        WriteScratchpad = 0x4E,
-        CopyScratchpad = 0x48,
-        RecallE2 = 0xB8,
-        ReadPowerSupply = 0xB4,
-    };
 
- public:
-    using OneWire = microhal::OneWire;
+#ifndef STM32F4DISCOVERY_H_
+#define STM32F4DISCOVERY_H_
 
-    enum class Resolution {
-        Bits_9 = 0x00,   ///< 9 bit resolution, maximum conversion time = 93.75ms
-        Bits_10 = 0x20,  ///< 10 bit resolution, maximum conversion time = 187.5ms
-        Bits_11 = 0x40,  ///< 11 bit resolution, maximum conversion time = 375ms
-        Bits_12 = 0x60   ///< 12 bit resolution, maximum conversion time = 750ms
-    };
+#include "microhal.h"
 
-    constexpr DS18B20(OneWire &oneWire, OneWire::Rom rom) : oneWire(oneWire), rom(rom) {}
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
+static microhal::SerialPort &oneWirePort = microhal::stm32f4xx::SerialPort::Serial2;
 
-    Resolution resolution(Resolution resolution);
+constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
+constexpr microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
+constexpr microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
 
-    Resolution resolution() const {
-        uint8_t tmp[9];
-        if (readScrathpad(tmp)) {
-            uint8_t config = tmp[4];
-            return static_cast<Resolution>(config);
-        }
-    }
+constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
 
-    bool startConversion(bool waitForConversionEnd);
+constexpr microhal::GPIO::IOPin GreenLed = Led4;
+constexpr microhal::GPIO::IOPin RedLed = Led3;
 
-    bool temperature(float *temp) {
-        uint8_t scratchpad[9];
-        if (readScrathpad(scratchpad)) {
-            int16_t temporary = scratchpad[1] << 8 | scratchpad[0];
-            *temp = (float)temporary / 16;  // calculate actual temperature
-            return true;
-        }
-        return false;
-    }
-
- private:
-    mutable OneWire oneWire;
-    OneWire::Rom rom;
-
-    bool readScrathpad(uint8_t scratchpad[9]) const;
-};
-
-#endif  // _MICROHAL_DS18B20_H_
+#endif /* STM32F4DISCOVERY_H_ */

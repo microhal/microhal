@@ -26,17 +26,17 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>ds18b20</name>
+			<name>src/ds18b20</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/driver</locationURI>
 		</link>
 		<link>
-			<name>gsl</name>
+			<name>src/gsl</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
-			<name>microhal</name>
+			<name>src/microhal</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/microhal</locationURI>
 		</link>

@@ -2,13 +2,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
- * @authors    pawel
+ * @authors    Pawel Okas
  * created on: 31-12-2016
  * last modification: 31-12-2016
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2016 - 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,48 +37,51 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main() {
-	debugPort.clear();
+    debugPort.clear();
 
-	debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+    debugPort.setDataBits(SerialPort::Data8);
+    debugPort.setStopBits(SerialPort::OneStop);
+    debugPort.setParity(SerialPort::NoParity);
+    debugPort.open(SerialPort::ReadWrite);
+    debugPort.setBaudRate(SerialPort::Baud115200);
 
-	oneWirePort.setDataBits(SerialPort::Data8);
-	oneWirePort.setStopBits(SerialPort::OneStop);
-	oneWirePort.setParity(SerialPort::NoParity);
-	oneWirePort.open(SerialPort::ReadWrite);
-	oneWirePort.setBaudRate(SerialPort::Baud9600);
+    oneWirePort.setDataBits(SerialPort::Data8);
+    oneWirePort.setStopBits(SerialPort::OneStop);
+    oneWirePort.setParity(SerialPort::NoParity);
+    oneWirePort.open(SerialPort::ReadWrite);
+    oneWirePort.setBaudRate(SerialPort::Baud9600);
 
-	debugPort.write("\n\r------------------- DS18B20 Demo -------------------------\n\r");
+    debugPort.write("\n\r------------------- DS18B20 Demo -------------------------\n\r");
 
-	diagChannel.setOutputDevice(debugPort);
+    diagChannel.setOutputDevice(debugPort);
 
-	OneWire oneWire(oneWirePort);
+    OneWire oneWire(oneWirePort);
 
-	diagChannel << Debug << "Detected 1-Wire device: " << oneWire.sendResetPulse();
+    diagChannel << Debug << "Detected 1-Wire device: " << oneWire.sendResetPulse();
 
-	OneWire::Rom rom;
-	diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.readRom(&rom) << endl;
+    OneWire::Rom rom;
+    diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.readRom(&rom) << endl;
 
-	uint64_t searchRom;
-	diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.searchRom(&searchRom) << endl;
+    OneWire::Rom searchRom;
+    diagChannel << Debug << "Reading ROM of 1-Wire device: " << oneWire.searchRom(&searchRom) << endl;
 
-	diagChannel << Debug << "Device ROM from read: " << toHex(rom) << endl;
-	diagChannel << Debug << "Device ROM from search: " << toHex(searchRom) << endl;
+    diagChannel << Debug << "Device ROM from read: " << rom << endl;
+    diagChannel << Debug << "Device ROM from search: " << searchRom << endl;
 
-	DS18B20 ds(oneWire, rom);
+    DS18B20 ds(oneWire, rom);
 
-	ds.resolution(DS18B20::Resolution::Bits_12);
+    ds.resolution(DS18B20::Resolution::Bits_12);
 
-	while(1) {
-		float temperature;
-		ds.temperature(&temperature);
-		diagChannel << Debug << "DS18B20 Temperature: " << temperature << endl;
-		ds.startConversion(false);
-		std::this_thread::sleep_for(std::chrono::milliseconds {1000});
-	}
+    while (1) {
+        float temperature;
+        if (ds.temperature(&temperature))
+            diagChannel << Debug << "DS18B20 Temperature: " << temperature << endl;
+        else
+            diagChannel << Error << "Unable to read DS18B20 temperature." << endl;
 
-	return 0;
+        ds.startConversion(false);
+        std::this_thread::sleep_for(std::chrono::milliseconds{1000});
+    }
+
+    return 0;
 }

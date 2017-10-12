@@ -2,13 +2,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
- * @authors    pawel
+ * @authors    Pawel Okas
  * created on: 31-12-2016
  * last modification: 31-12-2016
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2016 - 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,3 +32,43 @@
  */
 #include "ds18b20.h"
 
+bool DS18B20::startConversion(bool waitForConversionEnd) {
+    oneWire.sendResetPulse();
+    oneWire.write(OneWire::Command::MatchROM);
+    oneWire.write(reinterpret_cast<uint8_t *>(&rom), sizeof(rom));
+    oneWire.write(static_cast<uint8_t>(Command::Convert));
+
+    if (waitForConversionEnd) {  // if function should wait for conversion end
+                                 // conversion will be ended when 1-wire data pin will go to high
+        // todo
+        std::terminate();
+    }
+    return true;
+}
+
+DS18B20::Resolution DS18B20::resolution(DS18B20::Resolution resolution) {
+    uint8_t scratchpad[9];
+    if (readScrathpad(scratchpad)) {
+        if (oneWire.sendResetPulse()) {
+            oneWire.write(OneWire::Command::MatchROM);
+            oneWire.write(reinterpret_cast<uint8_t *>(&rom), sizeof(rom));
+            oneWire.write(static_cast<uint8_t>(Command::WriteScratchpad));
+            oneWire.write(scratchpad[2]);
+            oneWire.write(scratchpad[3]);
+            oneWire.write(static_cast<uint8_t>(resolution));
+        }
+    }
+    return resolution;
+}
+
+bool DS18B20::readScrathpad(uint8_t scratchpad[9]) const {
+    if (oneWire.sendResetPulse()) {
+        oneWire.write(OneWire::Command::MatchROM);
+        oneWire.write(reinterpret_cast<const uint8_t *>(&rom), sizeof(rom));
+        oneWire.write(static_cast<uint8_t>(Command::ReadScratchpad));
+        oneWire.read(scratchpad, sizeof(scratchpad));
+        // todo(pokas) add crc check return scratchpad.crc == CRC<uint8_t, "x^8 + x^5 + x^4 + 1">::calculate(scratchpad, 8);
+        return true;
+    }
+    return false;
+}

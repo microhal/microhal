@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    Paweł Okas
  * created on: 07-01-2017
@@ -35,108 +35,107 @@
 namespace microhal {
 using namespace diagnostic;
 
-bool OneWire::searchRom(uint64_t *deviceRom) {
-	if (sendResetPulse()) {
-		if (write(Command::SearchROM)) {
-			Rom devRom = 0;
-			Rom lastFound = 0;
-			uint_fast8_t lastTransition = 0xFF;
-			uint_fast8_t transitionTmp = 0xFF;
-			bool firstDeviceSearch = true;
-			for(uint_fast8_t position = 0; position < 64; position++) {
-				uint8_t bit, complementaryBit;
-				if (readBit(bit, complementaryBit)) {
-					if (bit == 1 && complementaryBit == 1) {
-						return false; // no device on bus, this may happen when someone will disconnect device from bus
-					}
+bool OneWire::searchRom(Rom *deviceRom) {
+    if (sendResetPulse()) {
+        if (write(Command::SearchROM)) {
+            Rom devRom = 0;
+            Rom lastFound = 0;
+            uint_fast8_t lastTransition = 0xFF;
+            uint_fast8_t transitionTmp = 0xFF;
+            bool firstDeviceSearch = true;
+            for (uint_fast8_t position = 0; position < 64; position++) {
+                uint8_t bit, complementaryBit;
+                if (readBit(bit, complementaryBit)) {
+                    if (bit == 1 && complementaryBit == 1) {
+                        return false;  // no device on bus, this may happen when someone will disconnect device from bus
+                    }
 
-					diagChannel << lock << Debug << "Found bit: " << bit << " complementary: " << complementaryBit << endl << unlock;
+                    diagChannel << lock << Debug << "Found bit: " << bit << " complementary: " << complementaryBit << endl << unlock;
 
-					if (bit != complementaryBit) {
-						writeBit(bit);
-						if(bit) devRom |= 1 << position;
-					} else {
-						if (firstDeviceSearch) {
-							// always go to 0
-							transitionTmp = position;
-							writeBit(0);
-						} else {
-							if (lastTransition > position) {
-								transitionTmp = position;
-								if (lastFound & 1 << position) {
-									writeBit(1);
-									devRom |= 1 << position;
-								} else {
-									writeBit(0);
-								}
-							} else if (lastTransition == position) {
-								writeBit(1);
-								devRom |= 1 << position;
-							} else {
-								transitionTmp = position;
-								writeBit(0);
-							}
-						}
-					}
-				}
-			}
-			firstDeviceSearch = false;
-			lastTransition = transitionTmp;
-			lastFound = devRom;
-			*deviceRom = devRom;
-			return true;
-		}
-	}
-	return false;
+                    if (bit != complementaryBit) {
+                        writeBit(bit);
+                        if (bit) devRom |= 1 << position;
+                    } else {
+                        if (firstDeviceSearch) {
+                            // always go to 0
+                            transitionTmp = position;
+                            writeBit(0);
+                        } else {
+                            if (lastTransition > position) {
+                                transitionTmp = position;
+                                if (lastFound.getRaw() & 1 << position) {
+                                    writeBit(1);
+                                    devRom |= 1 << position;
+                                } else {
+                                    writeBit(0);
+                                }
+                            } else if (lastTransition == position) {
+                                writeBit(1);
+                                devRom |= 1 << position;
+                            } else {
+                                transitionTmp = position;
+                                writeBit(0);
+                            }
+                        }
+                    }
+                }
+            }
+            firstDeviceSearch = false;
+            lastTransition = transitionTmp;
+            lastFound = devRom;
+            *deviceRom = devRom;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool OneWire::writeBit(uint8_t bit) {
-	char write[] = {0};
-	if (bit) write[0] = 0xFF;
-	if (serial.putChar(write[0])) {
-		char tmp;
-		return serial.read(&tmp, sizeof(tmp), std::chrono::milliseconds {1});
-	}
-	return false;
+    char write[] = {0};
+    if (bit) write[0] = 0xFF;
+    if (serial.putChar(write[0])) {
+        char tmp;
+        return serial.read(&tmp, sizeof(tmp), std::chrono::milliseconds{1});
+    }
+    return false;
 }
 
 bool OneWire::readBit(uint8_t &bit, uint8_t &complementaryBit) {
-	if (serial.waitForWriteFinish(std::chrono::milliseconds {100})) {
-		serial.clear(SerialPort::Direction::Input);
-		const uint8_t write[] = {0xFF, 0xFF};
-		static_assert(sizeof(write) == 2,"");
+    if (serial.waitForWriteFinish(std::chrono::milliseconds{100})) {
+        serial.clear(SerialPort::Direction::Input);
+        const uint8_t write[] = {0xFF, 0xFF};
+        static_assert(sizeof(write) == 2, "");
 
-		serial.write(reinterpret_cast<const char*>(write), sizeof(write));
-		uint8_t read[2];
-		serial.read(reinterpret_cast<char*>(read), sizeof(read), std::chrono::milliseconds {10});
-		diagChannel << lock << Debug << "bit: " << read[0] << " complementary: " << read[1] << endl << unlock;
-		bit = read[0] == 0xFF ? 1 : 0;
-		complementaryBit = read[1] == 0xFF ? 1 : 0;
-		return true;
-
-	}
-	return false;
+        serial.write(reinterpret_cast<const char *>(write), sizeof(write));
+        uint8_t read[2];
+        serial.read(reinterpret_cast<char *>(read), sizeof(read), std::chrono::milliseconds{10});
+        diagChannel << lock << Debug << "bit: " << read[0] << " complementary: " << read[1] << endl << unlock;
+        bit = read[0] == 0xFF ? 1 : 0;
+        complementaryBit = read[1] == 0xFF ? 1 : 0;
+        return true;
+    }
+    return false;
 }
 
 bool OneWire::sendResetPulse() const {
-	if (serial.waitForWriteFinish(std::chrono::milliseconds::max())) {
-		serial.clear(SerialPort::Direction::Input);
-		serial.setBaudRate(SerialPort::Baud9600);
-		if (serial.putChar(0xF0)) {
-			char response;
-			if (serial.read(&response, 1, std::chrono::milliseconds {3})) {
-				if (response != 0xF0) {
-					serial.setBaudRate(SerialPort::Baud115200);
-					return true;
-				} else {
-					diagChannel << lock << MICROHAL_ERROR << "1-wire device not found" << unlock;
-				}
-			} else {
-				diagChannel << lock << MICROHAL_ERROR << "Unable to read data from serial port." << unlock;
-			}
-		}
-	}
-	return false;
+    if (serial.waitForWriteFinish(std::chrono::milliseconds::max())) {
+        serial.clear(SerialPort::Direction::Input);
+        serial.setBaudRate(SerialPort::Baud9600);
+        if (serial.putChar(0xF0)) {
+            char response;
+            if (serial.read(&response, 1, std::chrono::milliseconds{3})) {
+                if (response != 0xF0) {
+                    serial.setBaudRate(SerialPort::Baud115200);
+                    return true;
+                } else {
+                    diagChannel << lock << MICROHAL_ERROR << "1-wire device not found" << unlock;
+                }
+            } else {
+                diagChannel << lock << MICROHAL_ERROR << "Unable to read data from serial port." << unlock;
+            }
+        }
+    }
+    return false;
 }
 
 }  // namespace microhal
