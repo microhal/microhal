@@ -72,7 +72,7 @@ class SPI {
     virtual Error read(uint8_t &data, const uint8_t write = 0x00) = 0;
     virtual Error writeBuffer(const void *data, const size_t length, bool last) = 0;
     virtual Error readBuffer(void *data, const size_t length, const uint8_t write = 0x00) = 0;
-    virtual Error readWrite(void *dataRead, const void *dataWrite, size_t readWriteLength) { return Error::UnknownError; }
+    virtual Error readWrite(void *dataRead, const void *dataWrite, size_t readWriteLength) = 0; //{ return Error::UnknownError; }
     //	virtual SPI::Error write(const uint16_t data, bool last) {
     //		Error error;
     //		error = write((uint8_t) (data >> 8), false);

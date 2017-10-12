@@ -7,6 +7,7 @@
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.GDB_INIT" value=".gdbinit"/>
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.NON_STOP" value="false"/>
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.REVERSE" value="false"/>
+<stringAttribute key="org.eclipse.cdt.dsf.gdb.REVERSE_MODE" value="UseSoftTrace"/>
 <listAttribute key="org.eclipse.cdt.dsf.gdb.SOLIB_PATH"/>
 <stringAttribute key="org.eclipse.cdt.dsf.gdb.TRACEPOINT_MODE" value="TP_NORMAL_ONLY"/>
 <booleanAttribute key="org.eclipse.cdt.dsf.gdb.UPDATE_THREADLIST_ON_SUSPEND" value="false"/>
@@ -18,7 +19,7 @@
 <booleanAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_ARGUMENTS" value="-f board/stm32f4discovery.cfg&#10;-c init&#10;-c targets&#10;-c &quot;reset halt&quot;&#10;-c &quot;sleep 100&quot;&#10;-c &quot;flash write_image erase stm32f4-discovery/${project_name}.elf&quot;&#10;-c &quot;verify_image stm32f4-discovery//${project_name}.elf&quot;&#10;-c &quot;reset run&quot;&#10;-c shutdown"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${eclipse_home}utils\openocd-0.8.0\bin\openocd-0.8.0.exe"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="${openocd_path}/${openocd_executable}"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="mrf89xa"/>
 <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>

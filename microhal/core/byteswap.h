@@ -53,7 +53,6 @@ constexpr static inline T convertEndianness(T data, Endianness from, Endianness 
   return data;
 }
 
-
 }/* namespace hal*/
 
 #endif /* BASICS_H_ */
