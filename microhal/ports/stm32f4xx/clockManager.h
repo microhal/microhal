@@ -30,11 +30,11 @@
 #ifndef MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 #define MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 
-#include "microhalPortConfig_stm32f4xx.h"
-#include <type_traits>
 #include <exception>
+#include <type_traits>
 
 #include "device/stm32f4xx.h"
+#include "microhalPortConfig_stm32f4xx.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -88,12 +88,11 @@ class ClockManager {
             RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
 #endif
         else {
-        	std::terminate(); // Error should newer go there
+            std::terminate();  // Error should newer go there
         }
     }
     static void enable(const SPI_TypeDef &spi) {
-        if (&spi == SPI1)
-            RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+        if (&spi == SPI1) RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
 #if defined(SPI2)
         else if (&spi == SPI2)
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
@@ -104,7 +103,7 @@ class ClockManager {
 #endif
 #if defined(SPI4)
         else if (&spi == SPI4)
-        	RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
+            RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
 #endif
 #if defined(SPI5)
         else if (&spi == SPI5)
@@ -115,85 +114,85 @@ class ClockManager {
             RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
 #endif
         else {
-        	std::terminate(); // Error should newer go there
+            std::terminate();  // Error should newer go there
         }
     }
     static void enable(const TIM_TypeDef &timer) {
-    	if (&timer == TIM1) {
-    		RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
+        if (&timer == TIM1) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 #if defined(TIM2)
-    	} else if (&timer == TIM2) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+        } else if (&timer == TIM2) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
 #endif
 #if defined(TIM3)
-		} else if (&timer == TIM3) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+        } else if (&timer == TIM3) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 #endif
 #if defined(TIM4)
-		} else if (&timer == TIM4) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+        } else if (&timer == TIM4) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
 #endif
-		} else if (&timer == TIM5) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
+        } else if (&timer == TIM5) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM5EN;
 #if defined(TIM6)
-		} else if (&timer == TIM6) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
+        } else if (&timer == TIM6) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
 #endif
 #if defined(TIM7)
-		} else if (&timer == TIM7) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;
+        } else if (&timer == TIM7) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM7EN;
 #endif
 #if defined(TIM8)
-		} else if (&timer == TIM8) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
+        } else if (&timer == TIM8) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
 #endif
-		} else if (&timer == TIM9) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
+        } else if (&timer == TIM9) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
 #if defined(TIM10)
-		} else if (&timer == TIM10) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+        } else if (&timer == TIM10) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
 #endif
-		} else if (&timer == TIM11) {
-			RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+        } else if (&timer == TIM11) {
+            RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
 #if defined(TIM12)
-		} else if (&timer == TIM12) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM12EN;
+        } else if (&timer == TIM12) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM12EN;
 #endif
 #if defined(TIM13)
-		} else if (&timer == TIM13) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM13EN;
+        } else if (&timer == TIM13) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM13EN;
 #endif
 #if defined(TIM14)
-		} else if (&timer == TIM14) {
-			RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
+        } else if (&timer == TIM14) {
+            RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
 #endif
-		} else {
-			std::terminate(); // Error should newer go there
-		}
+        } else {
+            std::terminate();  // Error should newer go there
+        }
     }
-	static void enable(const GPIO_TypeDef &gpio) {
-	if (&gpio == GPIOA)
-			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
-	else if (&gpio == GPIOB)
-			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-	else if (&gpio == GPIOC)
-			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+    static void enable(const GPIO_TypeDef &gpio) {
+        if (&gpio == GPIOA)
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+        else if (&gpio == GPIOB)
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+        else if (&gpio == GPIOC)
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 #if defined(GPIOD)
-	else if (&gpio == GPIOD)
-			RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
+        else if (&gpio == GPIOD)
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
 #endif
 #if defined(GPIOE)
-	else if (&gpio == GPIOE)
-			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
+        else if (&gpio == GPIOE)
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
 #endif
 #if defined(GPIOF_BASE)
-	else if (&gpio == GPIOF)
-			RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
+        else if (&gpio == GPIOF)
+            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
 #endif
-	else {
-		std::terminate();
-	}
-}
+        else {
+            std::terminate();
+        }
+    }
     //--------------------------------------------------------------------------------------------------------------
     /**
      * @brief This function return usart clock
@@ -230,7 +229,7 @@ class ClockManager {
         else if (&usart == UART8)
             return APB1Frequency();
 #endif
-        std::terminate(); // Error should newer go there
+        std::terminate();  // Error should newer go there
     }
     /**
      * @brief This function return SPI clock
@@ -239,8 +238,7 @@ class ClockManager {
      * @return
      */
     static uint32_t SPIFrequency(const SPI_TypeDef &spi) {
-        if (&spi == SPI1)
-            return APB2Frequency();
+        if (&spi == SPI1) return APB2Frequency();
 #if defined(SPI2)
         else if (&spi == SPI2)
             return APB1Frequency();
@@ -281,8 +279,7 @@ class ClockManager {
         std::terminate();  // Error should newer go there
     }
     static uint32_t TimerFrequency(const TIM_TypeDef &tim) {
-        if (&tim == TIM1)
-            return APB2Frequency();
+        if (&tim == TIM1) return APB2Frequency();
 #if defined(TIM2)
         else if (&tim == TIM2)
             return APB1Frequency();
@@ -414,7 +411,7 @@ class ClockManager {
             static_assert(externalClockFrequency >= 4000000 && externalClockFrequency <= 26000000,
                           "External HSE frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
             if (externalClockPresent == false) {
-            	std::terminate();
+                std::terminate();
             }
             return externalClockFrequency;
         }
@@ -466,8 +463,8 @@ class ClockManager {
             static float VCOOutputFrequency() noexcept { return inputFrequency() * N(); }
             static uint32_t N() noexcept { return (RCC->PLLCFGR >> 6) & 0x1FF; }
             static uint32_t P() noexcept {
-            	const uint32_t tab[] = {2, 4, 6, 8};
-            	return tab[(RCC->PLLCFGR >> 16) & 0b11];
+                const uint32_t tab[] = {2, 4, 6, 8};
+                return tab[(RCC->PLLCFGR >> 16) & 0b11];
             }
             static uint32_t Q() noexcept { return (RCC->PLLCFGR >> 24) & 0xF; }
         };
