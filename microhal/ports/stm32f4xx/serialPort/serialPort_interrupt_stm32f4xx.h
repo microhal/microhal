@@ -84,9 +84,6 @@ class SerialPort_interrupt: public SerialPort_BufferedBase<SerialPort_interrupt>
 
 //------------------------------------------- constructors --------------------------------------//
     inline SerialPort_interrupt(USART_TypeDef &usart, char * const rxData, char * const txData, size_t rxDataSize, size_t txDataSize);
-
-    //virtual ~SerialPort_interrupt(){
-    //}
 //--------------------------------------------- functions ---------------------------------------//
     void startTransmission_impl() {
         usart.CR1 |= USART_CR1_TXEIE;
