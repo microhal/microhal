@@ -76,10 +76,10 @@ SerialPort_interrupt SerialPort_interrupt::Serial6(*USART6, rxBufferData_6, txBu
 SerialPort &SerialPort::Serial6 = SerialPort_interrupt::Serial6;
 #endif
 
-SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char * const rxData, char * const txData, size_t rxDataSize, size_t txDataSize) :
-		SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
-	ClockManager::enable(usart);
-	enableInterrupt(0);
+SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
+    : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
+    ClockManager::enable(usart);
+    enableInterrupt(0);
 }
 
 bool SerialPort_interrupt::open(OpenMode mode) noexcept {
@@ -91,49 +91,49 @@ bool SerialPort_interrupt::open(OpenMode mode) noexcept {
 //***********************************************************************************************//
 //                                     interrupt functions                                       //
 //***********************************************************************************************//
-inline void serialPort_interruptFunction(USART_TypeDef * const usart, SerialPort_interrupt &serial) {
+inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_interrupt &serial) {
     uint16_t sr = usart->SR;
 
     if (sr & USART_SR_RXNE) {
         char tmp = usart->DR;
         serial.rxBuffer.append(tmp);
         if (serial.waitForBytes != 0 && serial.rxBuffer.getLength() == serial.waitForBytes) {
-        	serial.waitForBytes = 0;
-        	bool shouldYeld = serial.rxSemaphore.giveFromISR();
-#if defined (HAL_RTOS_FreeRTOS)
-        	portYIELD_FROM_ISR( shouldYeld );
+            serial.waitForBytes = 0;
+            bool shouldYeld = serial.rxSemaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
 #else
-        	(void)shouldYeld;
+            (void)shouldYeld;
 #endif
         }
     }
     if ((sr & USART_SR_TXE) && (usart->CR1 & USART_CR1_TXEIE)) {
-    	if (serial.txBuffer.isEmpty()) {
-    		usart->CR1 &= ~USART_CR1_TXEIE;
-    		if (serial.txWait) {
-    			usart->CR1 |= USART_CR1_TCIE;
-//    			auto shouldYeld = serial.txFinish.giveFromISR();
-//#if defined (HAL_RTOS_FreeRTOS)
-//    			portYIELD_FROM_ISR(shouldYeld);
-//#else
-//    			(void)shouldYeld;
-//#endif
-    		}
-    	} else {
-    		usart->DR = serial.txBuffer.get_unsafe();
-    	}
+        if (serial.txBuffer.isEmpty()) {
+            usart->CR1 &= ~USART_CR1_TXEIE;
+            if (serial.txWait) {
+                usart->CR1 |= USART_CR1_TCIE;
+                //    			auto shouldYeld = serial.txFinish.giveFromISR();
+                //#if defined (HAL_RTOS_FreeRTOS)
+                //    			portYIELD_FROM_ISR(shouldYeld);
+                //#else
+                //    			(void)shouldYeld;
+                //#endif
+            }
+        } else {
+            usart->DR = serial.txBuffer.get_unsafe();
+        }
     } else if ((sr & USART_SR_TC) && (usart->CR1 & USART_CR1_TCIE)) {
-    	usart->CR1 &= ~USART_CR1_TCIE;
-    	if (serial.txWait) {
-			serial.txWait = false;
-			auto shouldYeld = serial.txFinish.giveFromISR();
-#if defined (HAL_RTOS_FreeRTOS)
-			portYIELD_FROM_ISR(shouldYeld);
+        usart->CR1 &= ~USART_CR1_TCIE;
+        if (serial.txWait) {
+            serial.txWait = false;
+            auto shouldYeld = serial.txFinish.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
 #else
-			(void)shouldYeld;
+            (void)shouldYeld;
 #endif
-		}
-	}
+        }
+    }
 }
 //***********************************************************************************************//
 //                                          IRQHandlers                                          //
