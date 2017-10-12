@@ -33,7 +33,7 @@
 		<link>
 			<name>SDCard</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/SDCard</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/SDCard</locationURI>
 		</link>
 		<link>
 			<name>catch</name>
