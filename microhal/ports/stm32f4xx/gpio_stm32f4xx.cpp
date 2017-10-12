@@ -36,7 +36,7 @@ namespace stm32f4xx {
 void GPIO::pinInitialize(const Port port_, const uint_fast8_t pin, const PinConfiguration config) {
     volatile GPIO_TypeDef *port = reinterpret_cast<volatile GPIO_TypeDef *>(port_);
 
-    ClockManager::enable(*reinterpret_cast<const GPIO_TypeDef *>(port_));
+    ClockManager::enable(*reinterpret_cast<const GPIO_TypeDef *>(port_), ClockManager::PowerMode::Normal);
 
     uint32_t afr = port->AFR[pin / 8];
     afr &= ~(0b1111 << ((pin % 8) * 4));                    // clear old configuration
