@@ -1,14 +1,14 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
  @brief      board support package for stm32f4Discovery board
 
  @authors    Pawel Okas
- created on: 19-02-2017
+ created on: 16-04-2014
  last modification: <DD-MM-YYYY>
 
- @copyright Copyright (c) 2017, Pawel Okas
+ @copyright Copyright (c) 2014 - 2017, Pawel Okas
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
  conditions are met:
@@ -24,11 +24,14 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                         */
 
-#ifndef STM32F3DISCOVERY_H_
-#define STM32F3DISCOVERY_H_
+#ifndef STM32F4DISCOVERY_H_
+#define STM32F4DISCOVERY_H_
 
-static microhal::SerialPort &debugPort = microhal::stm32f3xx::SerialPort::Serial2;
+#include "microhal.h"
 
-#endif // STM32F3DISCOVERY_H_
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
+
+#endif /* STM32F4DISCOVERY_H_ */

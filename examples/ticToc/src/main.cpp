@@ -8,7 +8,7 @@
  * created on: 26-10-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015, microHAL
+ * @copyright Copyright (c) 2015 - 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,10 +27,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "diagnostic/ticToc.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;
@@ -66,7 +66,8 @@ int main(void) {
     functionTime.tic();
     functionTime.toc();
 
-    diagChannel << MICROHAL_DEBUG << "Only tic and toc function was called so execution time should be equal 0, execution time = " << functionTime << endl;
+    diagChannel << MICROHAL_DEBUG << "Only tic and toc function was called so execution time should be equal 0, execution time = " << functionTime
+                << endl;
 
     // Now lets measure execution time of function with log.
     functionTime.tic();

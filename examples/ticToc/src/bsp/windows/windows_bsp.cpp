@@ -4,7 +4,7 @@
  @version    $Id$
  @brief      board support package for windows os
 
- @authors    Kubaszek Mateusz
+ @authors    Pawel Okas
  created on: 23-06-2015
  last modification: <DD-MM-YYYY>
 
@@ -27,11 +27,10 @@
  */ /* ==========================================================================================================================
                                                                                                                                          */
 
-#include "consoleIODevice_linux.h"
+#include "bsp.h"
+#include "consoleIODevice.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 
 using namespace microhal;
-using namespace diagnostic;
 
-microhal::IODevice &debugPort = linux::consoleIODev;
+microhal::IODevice &debugPort = windows::consoleIODev;

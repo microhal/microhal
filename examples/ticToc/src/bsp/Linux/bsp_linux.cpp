@@ -1,10 +1,10 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
  @brief      board support package for windows os
 
- @authors    Pawel Okas
+ @authors    Kubaszek Mateusz
  created on: 23-06-2015
  last modification: <DD-MM-YYYY>
 
@@ -24,12 +24,14 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                           */
 
-#include "consoleIODevice.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
+#include "consoleIODevice_linux.h"
 #include "microhal.h"
 
 using namespace microhal;
+using namespace diagnostic;
 
-microhal::IODevice &debugPort = windows::consoleIODev;
+microhal::IODevice &debugPort = linux::consoleIODev;
