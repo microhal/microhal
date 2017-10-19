@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>i2c_test</name>
+	<name>i2c_mock</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -26,14 +26,14 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>gsl</name>
+			<name>src/gsl</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/third-party/gsl</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
-			<name>microhal</name>
+			<name>src/microhal</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/microhal</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
