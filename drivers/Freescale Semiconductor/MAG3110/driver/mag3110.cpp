@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -8,7 +8,7 @@
  created on: 14-10-2014
  last modification: <DD-MM-YYYY>
 
- @copyright Copyright (c) 2014, microHAL
+ @copyright Copyright (c) 2014 - 2017, Pawel Okas
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
  conditions are met:
@@ -24,101 +24,120 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                             */
 
 #include "mag3110.h"
 
 using namespace microhal::diagnostic;
 
 bool MAG3110::init() {
-	uint8_t whoAmI;
-	if(read(WHO_AM_I, whoAmI) == Error::NoError) {
-		if (whoAmI != WHO_AM_I_VALUE) {
-			diagChannel << lock << MICROHAL_ERROR << "MAG3110: error in init - ID mismatch: expected: " << toHex(WHO_AM_I_VALUE) << ", received: " << toHex(whoAmI)	<< endl << unlock;
-		} else {
-			return true;
-		}
-	}
-	return false;
+    uint8_t whoAmI;
+    if (read(WHO_AM_I, whoAmI) == Error::None) {
+        if (whoAmI != WHO_AM_I_VALUE) {
+            diagChannel << lock << MICROHAL_ERROR << "MAG3110: error in init - ID mismatch: expected: " << toHex(WHO_AM_I_VALUE)
+                        << ", received: " << toHex(whoAmI) << endl
+                        << unlock;
+        } else {
+            return true;
+        }
+    }
+    return false;
 }
 
-bool MAG3110::setMode(Mode mode){
-	switch(mode) {
-	case Mode::Standby:
-		return bitsClear(CTRL_REG1, CTRL_REG1_AC) == Error::NoError;
-	case Mode::ActiveRAW:
-		// enable automatic reset
-		if(bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) { return false; }
-		//to change value of control registers device have to be in standby mode
-		//change mode to standby
-		if(bitsClear(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) { return false; }
-		//set RAW bit for enable data correction
-		if(bitsSet(CTRL_REG2, CTRL_REG2_RAW) != Error::NoError) { return false; }
-		//set mode to active
-		if(bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) { return false; }
-		break;
-	case Mode::ActiveCorrected:
-        // enable automatic reset
-        if(bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) { return false; }
-        //to change value of control registers device have to be in standby mode
-        //change mode to standby
-        if(bitsClear(CTRL_REG1, (uint8_t)CTRL_REG1_AC) != Error::NoError) { return false; }
-        //clear RAW bit for enable data correction
-        if(bitsClear(CTRL_REG2, CTRL_REG2_RAW) != Error::NoError) { return false; }
-        //set mode to active
-        if(bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) { return false; }
-		break;
-	}
-	return true;
+bool MAG3110::setMode(Mode mode) {
+    switch (mode) {
+        case Mode::Standby:
+            return bitsClear(CTRL_REG1, CTRL_REG1_AC) == Error::None;
+        case Mode::ActiveRAW:
+            // enable automatic reset
+            if (bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::None) {
+                return false;
+            }
+            // to change value of control registers device have to be in standby mode
+            // change mode to standby
+            if (bitsClear(CTRL_REG1, CTRL_REG1_AC) != Error::None) {
+                return false;
+            }
+            // set RAW bit for enable data correction
+            if (bitsSet(CTRL_REG2, CTRL_REG2_RAW) != Error::None) {
+                return false;
+            }
+            // set mode to active
+            if (bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::None) {
+                return false;
+            }
+            break;
+        case Mode::ActiveCorrected:
+            // enable automatic reset
+            if (bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::None) {
+                return false;
+            }
+            // to change value of control registers device have to be in standby mode
+            // change mode to standby
+            if (bitsClear(CTRL_REG1, (uint8_t)CTRL_REG1_AC) != Error::None) {
+                return false;
+            }
+            // clear RAW bit for enable data correction
+            if (bitsClear(CTRL_REG2, CTRL_REG2_RAW) != Error::None) {
+                return false;
+            }
+            // set mode to active
+            if (bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::None) {
+                return false;
+            }
+            break;
+    }
+    return true;
 }
 
 bool MAG3110::setCorrection(int16_t x, int16_t y, int16_t z) {
-	const std::array<int16_t, 3> data = {x,y,z};
-	return writeRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::NoError;
+    const std::array<int16_t, 3> data = {x, y, z};
+    return writeRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::None;
 }
 
 bool MAG3110::getCorrection(int16_t* x, int16_t* y, int16_t* z) {
-	std::tuple<int16_t, int16_t, int16_t> data;
-	const bool status = readRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::NoError;
-	*x = std::get<0>(data);
-	*y = std::get<1>(data);
-	*z = std::get<2>(data);
+    std::tuple<int16_t, int16_t, int16_t> data;
+    const bool status = readRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::None;
+    *x = std::get<0>(data);
+    *y = std::get<1>(data);
+    *z = std::get<2>(data);
 
-	return status;
+    return status;
 }
 
 bool MAG3110::setODR_OSR(OutputDataRate_OverSamplingRate odr_osr) {
-	//to change output data rate and output sampling rate we need switch Mode to STANDBY
-	if (auto mode = getMode()) {
-		if (setMode(Mode::Standby)) {
-			uint8_t ctrl_reg;
-			if (read(CTRL_REG1, ctrl_reg)) {
-				uint8_t ctrl_reg_1 = ctrl_reg;
-				//clear old settings
-				ctrl_reg_1 &= 0xF8;
-				//set new settings
-				ctrl_reg_1 |= odr_osr;
-				if (write(CTRL_REG1, ctrl_reg_1)) {
-					return setMode(*mode);
-				}
-			}
-		}
-	}
-	return false;
+    // to change output data rate and output sampling rate we need switch Mode to STANDBY
+    if (auto mode = getMode()) {
+        if (setMode(Mode::Standby)) {
+            uint8_t ctrl_reg;
+            if (read(CTRL_REG1, ctrl_reg) == Error::None) {
+                uint8_t ctrl_reg_1 = ctrl_reg;
+                // clear old settings
+                ctrl_reg_1 &= 0xF8;
+                // set new settings
+                ctrl_reg_1 |= odr_osr;
+                if (write(CTRL_REG1, ctrl_reg_1) == Error::None) {
+                    return setMode(*mode);
+                }
+            }
+        }
+    }
+    return false;
 }
 
-std::experimental::optional <MAG3110::MagneticVector> MAG3110::getMagnetic() {
-	std::experimental::optional <MagneticVector> mag;
-	uint8_t status;
-	if (read(DR_STATUS, status) == Error::NoError) {
-        //std::tuple<int16_t, int16_t, int16_t> data;
+std::experimental::optional<MAG3110::MagneticVector> MAG3110::getMagnetic() {
+    std::experimental::optional<MagneticVector> mag;
+    uint8_t status;
+    if (read(DR_STATUS, status) == Error::None) {
+        // std::tuple<int16_t, int16_t, int16_t> data;
         std::array<int16_t, 3> data;
         readRegisters(data, OUT_X, OUT_Y, OUT_Z);
         int16_t x = data[0];
         int16_t y = data[1];
         int16_t z = data[2];
 
-		MagneticVector tmp;
+        MagneticVector tmp;
         convertToMagnetic(&tmp, x, y, z);
         mag = tmp;
     }

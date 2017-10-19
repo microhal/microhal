@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   */
 
 #ifndef HOSTCOMM_H_
 #define HOSTCOMM_H_
@@ -57,7 +57,16 @@ class HostComm {
     //	}
 
     HostComm(IODevice &ioDevice, IODevice &logDevice, const char *logHeader = "HostComm: ")
-        : ioDevice(ioDevice), log(logHeader, logDevice), receivedPacket(packetBuffer, sizeof(packetBuffer)), runThread(false), runningThread() {}
+        : incommingPacket(),
+          ackSemaphore(),
+          sendMutex(),
+          ioDevice(ioDevice),
+          log(logHeader, logDevice, diagnostic::EnableTimestamp | diagnostic::EnableFileName | diagnostic::EnableLevelName),
+          statistics(),
+          receivedPacket(packetBuffer, sizeof(packetBuffer)),
+          ACKpacket(),
+          runThread(false),
+          runningThread() {}
     ~HostComm() { stopHostCommThread(); }
     bool send(HostCommPacket &packet);
 

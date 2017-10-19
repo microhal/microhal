@@ -77,22 +77,52 @@ bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
     case 115200:
         baud = B115200;
         break;
+    case 230400:
+    	baud = B230400;
+    	break;
+    case 460800:
+    	baud = B460800;
+    	break;
+    case 500000:
+    	baud = B500000;
+    	break;
+    case 576000:
+    	baud = B576000;
+    	break;
+    case 921600:
+       	baud = B921600;
+       	break;
+    case 1000000:
+       	baud = B1000000;
+       	break;
+    case 1152000:
+       	baud = B1152000;
+       	break;
+    case 1500000:
+       	baud = B1500000;
+       	break;
+    case 2000000:
+    	baud = B2000000;
+    	break;
+    case 2500000:
+    	baud = B2500000;
+    	break;
+    case 3000000:
+    	baud = B3000000;
+    	break;
+    case 3500000:
+    	baud = B3500000;
+    	break;
+    case 4000000:
+    	baud = B4000000;
+    	break;
     default:    //unsupported baudrate
         return false;
     }
     //set baudrate
-//    switch (dir) {
-//    case SerialPort::Input:
-//        cfsetispeed(&tio, baud);
-//        break;
-//    case SerialPort::Output:
-//        cfsetospeed(&tio, baud);
-//        break;
-//    case SerialPort::AllDirections:
-        cfsetospeed(&tio, baud);
-        cfsetispeed(&tio, baud);
-//        break;
-//    }
+    cfsetospeed(&tio, baud);
+    cfsetispeed(&tio, baud);
+
     tcsetattr(tty_fd, TCSANOW, &tio);
 
     return true;
@@ -105,22 +135,11 @@ bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
 uint32_t SerialPort::getBaudRate() const noexcept {
     int baud;
     //get baudrate
-//    switch (dir) {
-//    case SerialPort::Input:
-//        baud = cfgetispeed(&tio);
-//        break;
-//    case SerialPort::Output:
-//        baud = cfgetospeed(&tio);
-//        break;
-//    case SerialPort::AllDirections:
-        baud = cfgetispeed(&tio);
-        if (baud != cfgetospeed(&tio)) {
-            return 0;
-        }
-     //   break;
-//    default:
-//        return 0;
-//    }
+    baud = cfgetispeed(&tio);
+    if (baud != cfgetospeed(&tio)) {
+    	return 0;
+    }
+
     //convert baud to uint32_t
     switch (baud) {
     case B50:

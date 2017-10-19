@@ -72,7 +72,7 @@ namespace microhal {
  */
 class I2CDevice {
  public:
-	using DeviceAddress = I2C::DeviceAddress;
+    using DeviceAddress = I2C::DeviceAddress;
     /**
      * Class copying was disabled by deleting copy constructor and assigning operator.
      */
@@ -84,7 +84,8 @@ class I2CDevice {
      *
      * @param i2c - reference to I2C controller object
      * @param meAddress - address of device connected to I2C data buss. This address is in 8bit form @a aaaaaaax where @a a are address bits and
-     * 					  @a x bit changes when you want to write or read from device. When you passing device address @a x have to be 0.
+     * 					  @a x bit changes when you want to write or read from device. When you passing device address @a x have to be
+     * 0.
      */
     explicit constexpr I2CDevice(I2C &i2c, DeviceAddress meAddress) : i2c(i2c), deviceAddress(meAddress) {}
     //------------------------------------------ functions ----------------------------------------
@@ -105,7 +106,7 @@ class I2CDevice {
      * @retval false - if an error occurred.
      */
     I2C::Error write(uint8_t data) {
-    	std::lock_guard<I2C> guard(i2c);
+        std::lock_guard<I2C> guard(i2c);
         return i2c.write(deviceAddress, data);
     }
     /**
@@ -119,202 +120,210 @@ class I2CDevice {
      * @retval false if an error occurred.
      */
     I2C::Error read(uint8_t *data) {
-    	std::lock_guard<I2C> guard(i2c);
+        std::lock_guard<I2C> guard(i2c);
         return i2c.read(deviceAddress, data, 1);
     }
 
-
-    template<typename Register>
+    template <typename Register>
     I2C::Error write(Register reg, typename Register::Type value) {
-    	static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
-    	typename Register::Address::Type tmp = Register::Address::value;
+        static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
+        typename Register::Address::Type tmp = Register::Address::value;
         std::lock_guard<I2C> guard(i2c);
-        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t*>(&tmp), sizeof(tmp), reinterpret_cast<const uint8_t*>(&value), sizeof(value));
+        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<const uint8_t *>(&value),
+                         sizeof(value));
     }
 
-    template<typename Register>
+    template <typename Register>
     I2C::Error read(Register reg, typename Register::Type &value) {
-    	static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
-    	const auto tmp = reg.getAddress();
-    	std::lock_guard<I2C> guard(i2c);
-        return i2c.writeRead(deviceAddress, static_cast<const uint8_t*>(&tmp), sizeof(tmp), reinterpret_cast<uint8_t*>(&value), sizeof(value));
+        static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
+        const auto tmp = reg.getAddress();
+        std::lock_guard<I2C> guard(i2c);
+        return i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<uint8_t *>(&value), sizeof(value));
     }
 
-    template<typename Register>
+    template <typename Register>
     I2C::Error bitsSet(Register reg, typename Register::Type value) {
-    	static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
         std::lock_guard<I2C> guard(i2c);
-        const auto status = i2c.writeRead(deviceAddress, &address, sizeof(address), reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
-        if (status == I2C::Error::NoError) {
-        	tmp |= value;
-        	return i2c.write(deviceAddress, &address, sizeof(address), reinterpret_cast<const uint8_t*>(&tmp), sizeof(tmp));
+        const auto status = i2c.writeRead(deviceAddress, &address, sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
+        if (status == I2C::Error::None) {
+            tmp |= value;
+            return i2c.write(deviceAddress, &address, sizeof(address), reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp));
         }
         return status;
     }
 
-    template<typename Register>
+    template <typename Register>
     I2C::Error bitsClear(Register reg, typename Register::Type value) {
-    	static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
         std::lock_guard<I2C> guard(i2c);
-        const auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t*>(&address), sizeof(address), reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
-        if (status == I2C::Error::NoError) {
-        	tmp &= ~value;
-        	return i2c.write(deviceAddress, static_cast<const uint8_t*>(&address), sizeof(address), reinterpret_cast<const uint8_t*>(&tmp), sizeof(tmp));
+        const auto status =
+            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
+        if (status == I2C::Error::None) {
+            tmp &= ~value;
+            return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
+                             sizeof(tmp));
         }
         return status;
     }
 
-    template<typename Register>
+    template <typename Register>
     I2C::Error bitsModify(Register reg, typename Register::Type value, typename Register::Type mask) {
-    	static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
-    	typename Register::Type tmp;
-    	typename Register::Address::Type address = Register::Address::value;
-    	std::lock_guard<I2C> guard(i2c);
-    	const auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t*>(&address), sizeof(address), reinterpret_cast<uint8_t*>(&tmp), sizeof(tmp));
-    	if (status == I2C::Error::NoError) {
-    		tmp &= ~mask;
-    		tmp |= value & mask;
-    		return i2c.write(deviceAddress, static_cast<const uint8_t*>(&address), sizeof(address), reinterpret_cast<const uint8_t*>(&tmp), sizeof(tmp));
-    	}
-    	return status;
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+        typename Register::Type tmp;
+        typename Register::Address::Type address = Register::Address::value;
+        std::lock_guard<I2C> guard(i2c);
+        const auto status =
+            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
+        if (status == I2C::Error::None) {
+            tmp &= ~mask;
+            tmp |= value & mask;
+            return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
+                             sizeof(tmp));
+        }
+        return status;
     }
 
-    template <typename ArrayType, size_t N, typename ...Registers>
+    template <typename ArrayType, size_t N, typename... Registers>
     I2C::Error readRegisters(std::array<ArrayType, N> &array, Registers... reg) {
-    	static_assert(sizeof...(reg) > 1, "");
-    	static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
-    	// because we are reading data to array we have to check if all registers have the same data type and type is equal
-    	// with std::array type
-    	microhal::dataTypeCheck<ArrayType>(reg...);
-    	microhal::isContinous(reg...);
-    	microhal::accessCheck<Access::WriteOnly>(reg...);
+        static_assert(sizeof...(reg) > 1, "");
+        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        // because we are reading data to array we have to check if all registers have the same data type and type is equal
+        // with std::array type
+        microhal::dataTypeCheck<ArrayType>(reg...);
+        microhal::isContinous(reg...);
+        microhal::accessCheck<Access::WriteOnly>(reg...);
 
-    	const auto firstReg = microhal::first(reg...);
+        const auto firstReg = microhal::first(reg...);
 
-    	const auto registerAddress = firstReg.getAddress();
-    	auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t*>(&registerAddress), sizeof(registerAddress), reinterpret_cast<uint8_t*>(array.data()), array.size() * sizeof(ArrayType));
-    	convertEndianness(array, reg...);
-    	return status;
+        const auto registerAddress = firstReg.getAddress();
+        auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress),
+                                    reinterpret_cast<uint8_t *>(array.data()), array.size() * sizeof(ArrayType));
+        convertEndianness(array, reg...);
+        return status;
     }
 
-    template <typename ...Registers>
+    template <typename... Registers>
     I2C::Error readRegisters(std::tuple<typename Registers::Type...> &data, Registers... reg) {
-    	static_assert(sizeof...(reg) > 1, "");
-    	microhal::accessCheck<Access::WriteOnly>(reg...);
-    	microhal::isContinous(reg...);
-    	const auto firstReg = microhal::first(reg...);
-    	uint8_t tmp[sizeOfRegistersData(reg...)];
+        static_assert(sizeof...(reg) > 1, "");
+        microhal::accessCheck<Access::WriteOnly>(reg...);
+        microhal::isContinous(reg...);
+        const auto firstReg = microhal::first(reg...);
+        uint8_t tmp[sizeOfRegistersData(reg...)];
 
-    	const auto registerAddress = firstReg.getAddress();
-    	auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t*>(&registerAddress), sizeof(registerAddress), tmp, sizeof(tmp));
-    	setTuple<0>(data, tmp, reg...);
-    	return status;
+        const auto registerAddress = firstReg.getAddress();
+        auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress), tmp, sizeof(tmp));
+        setTuple<0>(data, tmp, reg...);
+        return status;
     }
 
-    template<typename ArrayType, size_t N, typename ...Registers>
+    template <typename ArrayType, size_t N, typename... Registers>
     I2C::Error writeRegisters(const std::array<ArrayType, N> &array, Registers... reg) {
-    	static_assert(sizeof...(reg) > 1, "");
-    	static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
-    	static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
-    	// because we are reading data to array we have to check if all registers have the same data type and type is equal
-    	// with std::array type
-    	microhal::dataTypeCheck<ArrayType>(reg...);
-    	isContinous(reg...);
-    	accessCheck<Access::ReadOnly>(reg...);
+        static_assert(sizeof...(reg) > 1, "");
+        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+        // because we are reading data to array we have to check if all registers have the same data type and type is equal
+        // with std::array type
+        microhal::dataTypeCheck<ArrayType>(reg...);
+        isContinous(reg...);
+        accessCheck<Access::ReadOnly>(reg...);
 
-    	const auto firstReg = microhal::first(reg...);
-    	const auto registerAddress = firstReg.getAddress();
+        const auto firstReg = microhal::first(reg...);
+        const auto registerAddress = firstReg.getAddress();
 
-    	std::array<ArrayType, N> tmpArray = array;
-    	convertEndianness(tmpArray, reg...);
-    	return i2c.write(deviceAddress, static_cast<const uint8_t*>(&registerAddress), sizeof(registerAddress), reinterpret_cast<const uint8_t*>(tmpArray.data()), tmpArray.size() * sizeof(ArrayType));
+        std::array<ArrayType, N> tmpArray = array;
+        convertEndianness(tmpArray, reg...);
+        return i2c.write(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress),
+                         reinterpret_cast<const uint8_t *>(tmpArray.data()), tmpArray.size() * sizeof(ArrayType));
     }
 
-    template<typename ArrayType, size_t N, typename ...Registers>
+    template <typename ArrayType, size_t N, typename... Registers>
     I2C::Error writeRegisters(const std::tuple<typename Registers::Type...> &data, Registers... reg) {
-    	static_assert(sizeof...(reg) > 1, "");
-    	// because we are reading data to array we have to check if all registers have the same data type and type is equal
-    	// with std::array type
-    	microhal::dataTypeCheck<ArrayType>(reg...);
-    	isContinous(reg...);
-    	accessCheck<Access::ReadOnly>(reg...);
+        static_assert(sizeof...(reg) > 1, "");
+        // because we are reading data to array we have to check if all registers have the same data type and type is equal
+        // with std::array type
+        microhal::dataTypeCheck<ArrayType>(reg...);
+        isContinous(reg...);
+        accessCheck<Access::ReadOnly>(reg...);
 
-    	const auto firstReg = microhal::first(reg...);
-    	const auto registerAddress = firstReg.getAddress();
-    	//if (sizeof(data) == sizeOfRegistersData(reg...)) {
-    		//return i2c.write(deviceAddress, static_cast<const uint8_t*>(&registerAddress), sizeof(registerAddress), reinterpret_cast<const uint8_t*>(array.data()), array.size() * sizeof(ArrayType));
-    	//} else {
-    		uint8_t tmp[sizeOfRegistersData(reg...)];
-    		setArrayFromTuple<0>(tmp, data, reg...);
-    		return i2c.write(deviceAddress, static_cast<const uint8_t*>(&registerAddress), sizeof(registerAddress), tmp, sizeof(tmp));
-    	//}
+        const auto firstReg = microhal::first(reg...);
+        const auto registerAddress = firstReg.getAddress();
+        // if (sizeof(data) == sizeOfRegistersData(reg...)) {
+        // return i2c.write(deviceAddress, static_cast<const uint8_t*>(&registerAddress), sizeof(registerAddress), reinterpret_cast<const
+        // uint8_t*>(array.data()), array.size() * sizeof(ArrayType));
+        //} else {
+        uint8_t tmp[sizeOfRegistersData(reg...)];
+        setArrayFromTuple<0>(tmp, data, reg...);
+        return i2c.write(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress), tmp, sizeof(tmp));
+        //}
     }
 
  private:
     I2C &i2c;
     const DeviceAddress deviceAddress;  ///< address of I2C slave device
 
-/////////////////////////////
-	template<size_t i, typename Tuple, typename Register>
-	constexpr void setTuple(Tuple &tuple, const uint8_t *data, Register reg) {
-		(void)reg;
-		using DataType = typename Register::Type;
-		DataType value = *reinterpret_cast<const DataType*>(data);
-		if (reg.requireEndiannessConversion()) {
-			value = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
-		}
-		std::get<i>(tuple) = value;
-	}
-	template<size_t i, typename Tuple, typename Register, typename... Registers>
-	constexpr void setTuple(Tuple &tuple, const uint8_t *data, Register reg, Registers... regs) {
-		(void)reg;
-		using DataType = typename Register::Type;
-		DataType value = *reinterpret_cast<const DataType*>(data);
-		if (reg.requireEndiannessConversion()) {
-			value = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
-		}
-		std::get<i>(tuple) = value;//convertEndiannessIfRequired(*value, reg.getEndianness());
-		setTuple<i+1>(tuple, data + sizeof(DataType), regs...);
-	}
-//////////////////////////////
-  	template<size_t i, typename Tuple, typename Register>
- 	void setArrayFromTuple(uint8_t *array, Tuple &tuple, Register reg) {
- 		using DataType = typename std::tuple_element<i, Tuple>::type;
- 		DataType value = std::get<i>(tuple);
- 		if (reg.requireEndiannessConversion()) {
- 			*reinterpret_cast<DataType*>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
- 		} else {
- 			*reinterpret_cast<DataType*>(array) = value;
- 		}
- 	}
- 	template<size_t i, typename Tuple, typename Register, typename... Registers>
- 	void setArrayFromTuple(uint8_t *array, Tuple &tuple, Register reg, Registers... regs) {
- 		using DataType = typename std::tuple_element<i, Tuple>::type;
- 		DataType value = std::get<i>(tuple);
- 		if (reg.requireEndiannessConversion()) {
- 			*reinterpret_cast<DataType*>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
- 		} else {
- 			*reinterpret_cast<DataType*>(array) = value;
- 		}
- 		setArrayFromTuple<i+1>(array + sizeof(DataType), tuple);
- 	}
-//////////////////////////////
-  	template <typename Type, size_t N, typename Register>
-    void convertEndianness(std::array<Type, N> &array, Register reg) {
- 		if (reg.requireEndiannessConversion()) {
- 			array[array.size() - 1] = microhal::convertEndianness(array[array.size() - 1], Endianness::Big, Endianness::Little);
- 		}
+    /////////////////////////////
+    template <size_t i, typename Tuple, typename Register>
+    constexpr void setTuple(Tuple &tuple, const uint8_t *data, Register reg) {
+        (void)reg;
+        using DataType = typename Register::Type;
+        DataType value = *reinterpret_cast<const DataType *>(data);
+        if (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
+        }
+        std::get<i>(tuple) = value;
     }
- 	template <typename Type, size_t N, typename Register, typename... Registers>
+    template <size_t i, typename Tuple, typename Register, typename... Registers>
+    constexpr void setTuple(Tuple &tuple, const uint8_t *data, Register reg, Registers... regs) {
+        (void)reg;
+        using DataType = typename Register::Type;
+        DataType value = *reinterpret_cast<const DataType *>(data);
+        if (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
+        }
+        std::get<i>(tuple) = value;  // convertEndiannessIfRequired(*value, reg.getEndianness());
+        setTuple<i + 1>(tuple, data + sizeof(DataType), regs...);
+    }
+    //////////////////////////////
+    template <size_t i, typename Tuple, typename Register>
+    void setArrayFromTuple(uint8_t *array, Tuple &tuple, Register reg) {
+        using DataType = typename std::tuple_element<i, Tuple>::type;
+        DataType value = std::get<i>(tuple);
+        if (reg.requireEndiannessConversion()) {
+            *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
+        } else {
+            *reinterpret_cast<DataType *>(array) = value;
+        }
+    }
+    template <size_t i, typename Tuple, typename Register, typename... Registers>
+    void setArrayFromTuple(uint8_t *array, Tuple &tuple, Register reg, Registers... regs) {
+        using DataType = typename std::tuple_element<i, Tuple>::type;
+        DataType value = std::get<i>(tuple);
+        if (reg.requireEndiannessConversion()) {
+            *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
+        } else {
+            *reinterpret_cast<DataType *>(array) = value;
+        }
+        setArrayFromTuple<i + 1>(array + sizeof(DataType), tuple);
+    }
+    //////////////////////////////
+    template <typename Type, size_t N, typename Register>
+    void convertEndianness(std::array<Type, N> &array, Register reg) {
+        if (reg.requireEndiannessConversion()) {
+            array[array.size() - 1] = microhal::convertEndianness(array[array.size() - 1], Endianness::Big, Endianness::Little);
+        }
+    }
+    template <typename Type, size_t N, typename Register, typename... Registers>
     void convertEndianness(std::array<Type, N> &array, Register reg, Registers... regs) {
- 		if (reg.requireEndiannessConversion()) {
- 			array[array.size() - sizeof...(Registers) - 1] = microhal::convertEndianness(array[array.size() - sizeof...(Registers) - 1], Endianness::Big, Endianness::Little);
- 		}
- 		convertEndianness(array, regs...);
+        if (reg.requireEndiannessConversion()) {
+            array[array.size() - sizeof...(Registers)-1] =
+                microhal::convertEndianness(array[array.size() - sizeof...(Registers)-1], Endianness::Big, Endianness::Little);
+        }
+        convertEndianness(array, regs...);
     }
 };
 /**

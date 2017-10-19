@@ -40,7 +40,12 @@ namespace microhal {
 #elif defined(MCU_TYPE_STM32F4XX)
 #include "ports/stm32f4xx/hardware_stm32f4xx.h"
 namespace microhal {
-    namespace activePort = stm32f4xx;
+    //namespace activePort = stm32f4xx;
+}
+#elif defined(MCU_TYPE_STM32F3XX)
+#include "ports/stm32f3xx/hardware_stm32f3xx.h"
+namespace microhal {
+    //namespace activePort = stm32f4xx;
 }
 #else
 #error "MCU type must be specified."

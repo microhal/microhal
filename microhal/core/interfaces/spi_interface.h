@@ -6,9 +6,9 @@
  *
  * @authors    Pawel Okas
  * created on: 22-04-2014
- * last modification: 27-06-2016
+ * last modification: 14-05-2017
  *
- * @copyright Copyright (c) 2014-2016, microHAL
+ * @copyright Copyright (c) 2014-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -30,14 +30,14 @@
 #ifndef _MICROHAL_SPI_INTERFACE_H_
 #define _MICROHAL_SPI_INTERFACE_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <mutex>
 
 namespace microhal {
 
 class SPI {
  public:
-    typedef enum { NoError, MasterModeFault, OverrunError, CRCError, UnknownError } Error;
+    enum class Error { None, MasterModeFault, Overrun, Crc, Unknown, Timeout };
 
     /**
      *
@@ -49,18 +49,11 @@ class SPI {
         Mode3       //!< MODE3 CPOL/CKP = 1 CKE/NCPHA = 0
     } Mode;
 
-    void lock() {
-        if (noLock == false) {
-            mutex.lock();
-        }
-    }
-    void unlock() {
-        if (noLock == false) {
-            mutex.unlock();
-        }
-    }
+    void lock() { mutex.lock(); }
+    void unlock() { mutex.unlock(); }
 
     virtual uint32_t speed(uint32_t speed) = 0;
+    virtual uint32_t speed() const = 0;
 
     virtual bool setMode(Mode mode) = 0;
     virtual void enable() = 0;
@@ -68,34 +61,15 @@ class SPI {
 
     virtual bool getMISOstate() = 0;
 
-    virtual Error write(const uint8_t data, bool last) = 0;
-    virtual Error read(uint8_t &data, const uint8_t write = 0x00) = 0;
-    virtual Error writeBuffer(const void *data, const size_t length, bool last) = 0;
-    virtual Error readBuffer(void *data, const size_t length, const uint8_t write = 0x00) = 0;
-    virtual Error readWrite(void *dataRead, const void *dataWrite, size_t readWriteLength) = 0; //{ return Error::UnknownError; }
-    //	virtual SPI::Error write(const uint16_t data, bool last) {
-    //		Error error;
-    //		error = write((uint8_t) (data >> 8), false);
-    //		if (error == NO_ERROR){
-    //			return write((uint8_t) (data), last);
-    //		}
-    //		return error;
-    //	}
-    //	virtual SPI::Error read(uint16_t &data, const uint16_t write = 0x0000){
-    //		uint8_t msb, lsb;
-    //		Error error = read(msb, write >> 8);
-    //		if(error == NO_ERROR){
-    //			error = read(lsb, write);
-    //			data = msb << 8 | lsb;
-    //			return error;
-    //		}
-    //		return error;
-    //	}
+    Error write(uint8_t data, bool last) { return write(&data, sizeof(data), last); }
+    Error read(uint8_t &data, uint8_t write = 0x00) { return read(&data, sizeof(data), write); }
+    virtual Error write(const void *data, size_t length, bool last) = 0;
+    virtual Error read(void *data, size_t length, const uint8_t write = 0x00) = 0;
+    virtual Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) = 0;
+
     virtual ~SPI() {}
 
  protected:
-    bool noLock = false;
-
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif

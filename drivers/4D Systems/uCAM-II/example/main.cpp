@@ -27,45 +27,45 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <iostream>
+#include <string>
 
+#include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
-
 #include "uCamII.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;
 using namespace std::literals::chrono_literals;
 
-uCAM_II uCam(cameraPort);
+uCAM_II uCam(bsp::cameraPort);
 
 void saveFile(const char *filename, uint8_t *data, size_t size) {
-	 std::ofstream myfile(filename, std::ios::out | std::ios::binary);
-	 for (size_t i = 0; i < size; i++) {
-		 myfile << data[i];
-	 }
-	 myfile.close();
+    static char buff[2 * 1024];
+    if (FILE *f = fopen(filename, "wb")) {
+        setvbuf(f, buff, _IOFBF, sizeof(buff));  // this give little speed up when using embedded platform
+        fwrite(data, 1, size, f);
+        fclose(f);
+    }
 }
 
-void singleCaptureTest(void)
-{
-    cameraPort.setBaudRate(115200);
-    cameraPort.setDataBits(SerialPort::DataBits::Data8);
-    cameraPort.setStopBits(SerialPort::StopBits::OneStop);
-    cameraPort.setParity(SerialPort::Parity::NoParity);
+void singleCaptureTest(void) {
+    bsp::cameraPort.setBaudRate(115200);
+    bsp::cameraPort.setDataBits(SerialPort::DataBits::Data8);
+    bsp::cameraPort.setStopBits(SerialPort::StopBits::OneStop);
+    bsp::cameraPort.setParity(SerialPort::Parity::NoParity);
 
-	if (!uCam.reset(uCAM_II::ResetType::StateMachineReset))
-	{
-		diagChannel << lock << MICROHAL_DEBUG << "Unable to reset camera." << unlock;
-		return;
-	}
+    if (!uCam.reset(uCAM_II::ResetType::StateMachineReset)) {
+        diagChannel << lock << MICROHAL_DEBUG << "Unable to reset camera." << unlock;
+        return;
+    }
 
     if (!uCam.sync()) {
         diagChannel << lock << MICROHAL_DEBUG << "Unable to synchronize with camera." << unlock;
+        return;
     }
 
     if (!uCam.initJPEG(uCAM_II::JpegResolution::Image_640x480)) {
@@ -76,35 +76,35 @@ void singleCaptureTest(void)
         diagChannel << lock << MICROHAL_DEBUG << "Unable to set package size" << unlock;
     }
 
-    uint8_t data[1000000];
+    static uint8_t data[45000];
     size_t received;
 
     // --------------------------------------- get JPEG picture --------------------------------------------------------
     if (!uCam.getPicture(uCAM_II::PictureType::JPEGPictureMode, data, received)) {
         diagChannel << lock << MICROHAL_DEBUG << "Unable to read picture." << unlock;
     } else {
+        diagChannel << lock << MICROHAL_DEBUG << "Saving jpeg picture." << unlock;
         saveFile("jpeg.jpg", data, received);
     }
     // --------------------------------------- get snapshot JPEG picture --------------------------------------------------------
     if (!uCam.snapshot(uCAM_II::SnapshotType::CompressedPictureJPEG)) {
-        diagChannel << lock << MICROHAL_DEBUG << "Unable to take snapshot" << unlock;
+        diagChannel << lock << MICROHAL_DEBUG << "Unable to take snapshot." << unlock;
     }
 
     if (!uCam.getPicture(uCAM_II::PictureType::JPEGPictureMode, data, received)) {
         diagChannel << lock << MICROHAL_DEBUG << "Unable to read picture." << unlock;
     } else {
-        saveFile("snapshot_jpeg.jpg", data, received);
+        saveFile("snapshot.jpg", data, received);
     }
-
     // --------------------------------------- reinit to RAW mode --------------------------------------------------------
     if (!uCam.initRAW(uCAM_II::ImageFormatRAW::Colour16bit, uCAM_II::RawResolution::Image_160x120)) {
         diagChannel << lock << MICROHAL_DEBUG << "Unable to initialize camera." << unlock;
     }
-
     // --------------------------------------- get RAW picture --------------------------------------------------------
     if (!uCam.getPicture(uCAM_II::PictureType::RAWPictureMode, data, received)) {
         diagChannel << lock << MICROHAL_DEBUG << "Unable to read RAW picture." << unlock;
     } else {
+        diagChannel << lock << MICROHAL_DEBUG << "Saving raw picture." << unlock;
         saveFile("raw.dat", data, received);
     }
     // --------------------------------------- get snapshot RAW picture --------------------------------------------------------
@@ -115,98 +115,81 @@ void singleCaptureTest(void)
     if (!uCam.getPicture(uCAM_II::PictureType::SnapshotPictureMode, data, received)) {
         diagChannel << lock << MICROHAL_DEBUG << "Unable to read picture." << unlock;
     } else {
-        saveFile("snapshot_raw.dat", data, received);
+        diagChannel << lock << MICROHAL_DEBUG << "Saving raw snapshot." << unlock;
+        saveFile("snapshot.dat", data, received);
+    }
+}
+
+void multipleCaptureTest(void) {
+    bsp::cameraPort.setBaudRate(115200);
+    bsp::cameraPort.setDataBits(SerialPort::DataBits::Data8);
+    bsp::cameraPort.setStopBits(SerialPort::StopBits::OneStop);
+    bsp::cameraPort.setParity(SerialPort::Parity::NoParity);
+
+    if (!uCam.reset(uCAM_II::ResetType::StateMachineReset)) {
+        diagChannel << lock << MICROHAL_DEBUG << "Unable to reset camera." << unlock;
+        return;
     }
 
+    if (!uCam.sync()) {
+        diagChannel << lock << MICROHAL_DEBUG << "Unable to synchronize with camera." << unlock;
+        return;
+    }
+    diagChannel << lock << MICROHAL_DEBUG << "Synchronized with baudrate 115200." << unlock;
+
+    uCam.setBaudrate(uCAM_II::Baudrate::Baud_921600);
+    bsp::cameraPort.setBaudRate(921600);
+
+    if (!uCam.sync()) {
+        diagChannel << lock << MICROHAL_DEBUG << "Unable to synchronize with camera." << unlock;
+        return;
+    }
+
+    diagChannel << lock << MICROHAL_DEBUG << "Synchronized with new transmission baudrate." << unlock;
+
+    if (!uCam.initJPEG(uCAM_II::JpegResolution::Image_640x480)) {
+        diagChannel << lock << MICROHAL_DEBUG << "Unable to initialize camera." << unlock;
+        return;
+    }
+
+    if (!uCam.setPackageSize(512)) {
+        diagChannel << lock << MICROHAL_DEBUG << "Unable to set package size" << unlock;
+        return;
+    }
+
+    static uint8_t data[45000];
+    size_t received;
+
+    uint32_t i = 0;
+    std::string fileName = "jpeg";
+    while (i < 300) {
+        i++;
+        std::string temp(fileName + std::to_string(i) + ".jpg");
+        // --------------------------------------- get JPEG picture --------------------------------------------------------
+        if (!uCam.getPicture(uCAM_II::PictureType::JPEGPictureMode, data, received)) {
+            diagChannel << lock << MICROHAL_DEBUG << "Unable to read picture." << unlock;
+            return;
+        } else {
+            saveFile(temp.c_str(), data, received);
+        }
+    }
 }
 
-void multipleCaptureTest(void)
-{
-	cameraPort.setBaudRate(115200);
-	cameraPort.setDataBits(SerialPort::DataBits::Data8);
-	cameraPort.setStopBits(SerialPort::StopBits::OneStop);
-	cameraPort.setParity(SerialPort::Parity::NoParity);
-
-	if (!uCam.reset(uCAM_II::ResetType::StateMachineReset))
-	{
-		diagChannel << lock << MICROHAL_DEBUG << "Unable to reset camera." << unlock;
-		return;
-	}
-
-	if (!uCam.sync())
-	{
-		diagChannel << lock << MICROHAL_DEBUG << "Unable to synchronize with camera."
-				<< unlock;
-		return;
-	}
-	diagChannel << lock << MICROHAL_DEBUG << "Synchronized with baudrate 115200." << unlock;
-
-	uCam.setBaudrate(uCAM_II::Baudrate::Baud_460800);
-
-	cameraPort.setBaudRate(460800);
-
-	if (!uCam.sync())
-	{
-		diagChannel << lock << MICROHAL_DEBUG << "Unable to synchronize with camera."
-				<< unlock;
-		return;
-	}
-
-	diagChannel << lock << MICROHAL_DEBUG << "Synchronized with new transmission baudrate."
-			<< unlock;
-
-	if (!uCam.initJPEG(uCAM_II::JpegResolution::Image_640x480))
-	{
-		diagChannel << lock << MICROHAL_DEBUG << "Unable to initialize camera."
-				<< unlock;
-		return;
-	}
-
-	if (!uCam.setPackageSize(512))
-	{
-		diagChannel << lock << MICROHAL_DEBUG << "Unable to set package size" << unlock;
-		return;
-	}
-
-	uint8_t data[1000000];
-	size_t received;
-
-	int i = 0;
-	std::string fileName = "jpeg";
-	std::string prefix = std::to_string(rand()%10000);
-	while (1)
-	{
-		i++;
-		std::string temp(fileName + std::to_string(i)+ prefix + ".jpg");
-		// --------------------------------------- get JPEG picture --------------------------------------------------------
-		if (!uCam.getPicture(uCAM_II::PictureType::JPEGPictureMode, data,
-				received))
-		{
-			diagChannel << lock << MICROHAL_DEBUG << "Unable to read picture." << unlock;
-		}
-		else
-		{
-			saveFile(temp.c_str(), data, received);
-		}
-	}
-}
 int main(void) {
-    debugPort.open(IODevice::ReadWrite);
-    debugPort.write("\n\r------------------- uCAM-II driver example -------------------------\n\r");
+    bsp::debugPort.open(IODevice::ReadWrite);
+    bsp::debugPort.write("\n\r------------------- uCAM-II driver example -------------------------\n\r");
 
-    diagChannel.setOutputDevice(debugPort);
     // lets check if diagChannal is working
     diagChannel << lock << MICROHAL_EMERGENCY << "Information from diagnostic channel.\n" << unlock;
 
-    if (!cameraPort.open(SerialPort::OpenMode::ReadWrite)) {  //! cameraPort.open(SerialPort::OpenMode::ReadWrite, 115200,
-                                                              //! SerialPort::DataBits::Data8, SerialPort::StopBits::OneStop,
-        // SerialPort::Parity::NoParity)) {
+    if (!bsp::cameraPort.open(SerialPort::OpenMode::ReadWrite)) {
         diagChannel << lock << MICROHAL_DEBUG << "Unable to open serial port." << unlock;
         return -1;
     }
 
     multipleCaptureTest();
+    // singleCaptureTest();
 
-    if (cameraPort.isOpen()) cameraPort.close();
+    if (bsp::cameraPort.isOpen()) bsp::cameraPort.close();
     return 0;
 }

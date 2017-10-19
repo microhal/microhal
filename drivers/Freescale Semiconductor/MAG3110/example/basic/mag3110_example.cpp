@@ -28,12 +28,13 @@
 #include "microhal.h"
 #include "diagnostic/diagnostic.h"
 #include "mag3110.h"
-#include "microhal_bsp.h"
+#include "bsp.h"
 
 
 using namespace microhal;
 using namespace diagnostic;
 
+// MAG3110 object
 MAG3110 mag3110(sensorI2C, MAG3110::I2C_ADDRESS_0);
 
 int main(void) {

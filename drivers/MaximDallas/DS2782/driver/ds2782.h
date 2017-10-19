@@ -27,9 +27,6 @@
  *
  * @brief DS2782 stand-alone ocv-based fuel gauge 2-wire interface
  */
-
-namespace ds2782 {
-
 class DS2782: protected microhal::I2CDevice {
 	enum Registers
 		: uint8_t {
@@ -1119,7 +1116,5 @@ public:
 	}
 
 };
-
-} // namespace ds2782
 
 #endif

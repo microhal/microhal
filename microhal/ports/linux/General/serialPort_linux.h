@@ -37,14 +37,16 @@ public:
                 break;
             }
             tty_fd = ::open(portName, openParam);
-            //memset(&tio, 0, sizeof(tio));
-            tio.c_iflag = 0;
-            tio.c_oflag = 0;
-            tio.c_cflag = CS8 | CREAD | CLOCAL;           // 8n1, see termios.h for more information
-            tio.c_lflag = 0;
-            tio.c_cc[VMIN] = 1;
-            tio.c_cc[VTIME] = 5;
-            return (tty_fd != 0);
+            if (tty_fd && isatty(tty_fd)) {
+            	tcgetattr(tty_fd, &tio);
+            	tio.c_iflag = 0;
+            	tio.c_oflag = 0;
+            	tio.c_cflag = CS8 | CREAD | CLOCAL;           // 8n1, see termios.h for more information
+            	tio.c_lflag = 0;
+            	tio.c_cc[VMIN] = 1;
+            	tio.c_cc[VTIME] = 5;
+            	return true;
+            }
         }
         return false;
     }
@@ -123,6 +125,7 @@ public:
     }
 
     bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final {
+    	::tcdrain(tty_fd);
     }
 
     bool clear(SerialPort::Direction dir = AllDirections) noexcept  final {

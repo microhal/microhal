@@ -20,37 +20,37 @@
 static void __Default_Handler(void) __attribute__ ((interrupt));
 static void __Default_Handler(void)
 {
-	asm volatile("BKPT #01");
+	__asm volatile("BKPT #01");
 	while (1);
 }
 
-static void __Default_NMI_Handler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_HardFault_Handler(void) {	asm volatile("BKPT #01");while (1); }
-static void __Default_MemManage_Handler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_BusFault_Handler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_UsageFault_Handler(void) {asm volatile("BKPT #01"); while (1); }
-static void __Default_SVC_Handler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_DebugMon_Handler(void) {asm volatile("BKPT #01"); while (1); }
-static void __Default_PendSV_Handler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_SysTick_Handler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_WWDG_IRQHandler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_PVD_IRQHandler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_TAMP_STAMP_IRQHandler(void) { asm volatile("BKPT #01");while (1); }
-static void __Default_RTC_WKUP_IRQHandler(void) {asm volatile("BKPT #01"); while (1); }
-static void __Default_FLASH_IRQHandler(void) {asm volatile("BKPT #01"); while (1); }
+static void __Default_NMI_Handler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_HardFault_Handler(void) {	__asm volatile("BKPT #01");while (1); }
+static void __Default_MemManage_Handler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_BusFault_Handler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_UsageFault_Handler(void) {__asm volatile("BKPT #01"); while (1); }
+static void __Default_SVC_Handler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_DebugMon_Handler(void) {__asm volatile("BKPT #01"); while (1); }
+static void __Default_PendSV_Handler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_SysTick_Handler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_WWDG_IRQHandler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_PVD_IRQHandler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_TAMP_STAMP_IRQHandler(void) { __asm volatile("BKPT #01");while (1); }
+static void __Default_RTC_WKUP_IRQHandler(void) {__asm volatile("BKPT #01"); while (1); }
+static void __Default_FLASH_IRQHandler(void) {__asm volatile("BKPT #01"); while (1); }
 static void __Default_RCC_IRQHandler(void) { while (1); }
 static void __Default_EXTI0_IRQHandler(void) { while (1); }
 static void __Default_EXTI1_IRQHandler(void) { while (1); }
 static void __Default_EXTI2_IRQHandler(void) { while (1); }
 static void __Default_EXTI3_IRQHandler(void) { while (1); }
 static void __Default_EXTI4_IRQHandler(void) { while (1); }
-static void __Default_DMA1_Stream0_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA1_Stream1_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA1_Stream2_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA1_Stream3_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA1_Stream4_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA1_Stream5_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA1_Stream6_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream0_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream1_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream2_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream3_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream4_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream5_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream6_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
 static void __Default_ADC_IRQHandler(void) { while (1); }
 static void __Default_CAN1_TX_IRQHandler(void) { while (1); }
 static void __Default_CAN1_RX0_IRQHandler(void) { while (1); }
@@ -64,17 +64,17 @@ static void __Default_I2C2_EV_IRQHandler(void) { while (1); }
 static void __Default_I2C2_ER_IRQHandler(void) { while (1); }
 static void __Default_SPI1_IRQHandler(void) { while (1); }
 static void __Default_SPI2_IRQHandler(void) { while (1); }
-static void __Default_USART1_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_USART2_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_USART3_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_EXTI15_10_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
+static void __Default_USART1_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_USART2_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_USART3_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_EXTI15_10_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
 static void __Default_RTC_Alarm_IRQHandler(void) { while (1); }
 
-static void __Default_DMA1_Stream7_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA1_Stream7_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
 
 static void __Default_SPI3_IRQHandler(void) { while (1); }
-static void __Default_UART4_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_UART5_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
+static void __Default_UART4_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_UART5_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
 static void __Default_TIM6_DAC_IRQHandler(void) { while (1); }
 static void __Default_TIM7_IRQHandler(void) { while (1); }
 static void __Default_DMA2_Stream0_IRQHandler(void) { while (1); }
@@ -86,14 +86,14 @@ static void __Default_DMA2_Stream4_IRQHandler(void) { while (1); }
 //static void __Default_(void) { while (1); }
 
 
-static void __Default_DMA2_Stream5_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA2_Stream6_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_DMA2_Stream7_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
-static void __Default_USART6_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA2_Stream5_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA2_Stream6_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_DMA2_Stream7_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
+static void __Default_USART6_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
 
-static void __Default_FPU_IRQHandler(void) { asm volatile("BKPT #01"); while (1); }
+static void __Default_FPU_IRQHandler(void) { __asm volatile("BKPT #01"); while (1); }
 
-static void __Default_Reserved_Handler(void) {asm volatile("BKPT #01");  while (1); }
+static void __Default_Reserved_Handler(void) {__asm volatile("BKPT #01");  while (1); }
 
 /*
 +=============================================================================+

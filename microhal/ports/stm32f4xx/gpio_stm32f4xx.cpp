@@ -8,7 +8,7 @@
  * created on: 17-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014, microHAL
+ * @copyright Copyright (c) 2014-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,44 +28,42 @@
  */
 
 #include "gpio_stm32f4xx.h"
+#include "clockManager.h"
 
 namespace microhal {
 namespace stm32f4xx {
 
-void GPIO::pinInitialize(const Port port, const uint_fast8_t pin, const PinConfiguration config) {
-// enable clock
-    switch (port) {
-        case PortA:
-            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
-            break;
-        case PortB:
-            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-            break;
-        case PortC:
-            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-            break;
-        case PortD:
-            RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
-            break;
-        case PortE:
-            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
-            break;
-        case PortF:
-            RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
-            break;
-    }
+void GPIO::pinInitialize(const Port port_, const uint_fast8_t pin, const PinConfiguration config) {
+    volatile GPIO_TypeDef *port = reinterpret_cast<volatile GPIO_TypeDef *>(port_);
+
+    ClockManager::enable(*reinterpret_cast<const GPIO_TypeDef *>(port_), ClockManager::PowerMode::Normal);
+
+    uint32_t afr = port->AFR[pin / 8];
+    afr &= ~(0b1111 << ((pin % 8) * 4));                    // clear old configuration
+    afr |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);  // set new configuration
+    port->AFR[pin / 8] = afr;
 
     // set mode -> config.mode is split to 2 part 4MSB bit
     //      contain alternate function and 4LSB bit contain mode
-    reinterpret_cast<volatile GPIO_TypeDef *>(port)->MODER |= (0x03 & config.mode) << (pin * 2);
+    uint32_t moder = port->MODER;
+    moder &= ~((0b11) << (pin * 2));             // clear old configuration
+    moder |= (0x03 & config.mode) << (pin * 2);  // set new configuration
+    port->MODER = moder;
     // set type
-    reinterpret_cast<volatile GPIO_TypeDef *>(port)->OTYPER |= config.type << pin;
+    uint32_t otyper = port->OTYPER;
+    otyper &= ~(0b1 << pin);       // clear old configuration
+    otyper |= config.type << pin;  // set new configuration
+    port->OTYPER = otyper;
     // set pullup
-    reinterpret_cast<volatile GPIO_TypeDef *>(port)->PUPDR |= config.pull << (pin * 2);
+    uint32_t pupdr = port->PUPDR;
+    pupdr &= ~(0b11 << (pin * 2));      // clear old configuration
+    pupdr |= config.pull << (pin * 2);  // set new configuration
+    port->PUPDR = pupdr;
     // set speed
-    reinterpret_cast<volatile GPIO_TypeDef *>(port)->OSPEEDR |= config.speed << (pin * 2);
-
-    reinterpret_cast<volatile GPIO_TypeDef *>(port)->AFR[pin / 8] |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);
+    uint32_t ospeedr = port->OSPEEDR;
+    ospeedr &= ~(0b11 << (pin * 2));       // clear old configuration
+    ospeedr |= config.speed << (pin * 2);  // set new configuration
+    port->OSPEEDR = ospeedr;
 }
 
 }  // namespace stm32f4xx

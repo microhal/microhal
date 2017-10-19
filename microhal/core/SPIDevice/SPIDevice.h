@@ -12,10 +12,10 @@
  */
 #include <stdint.h>
 
-#include "ports/manager/spi_port.h"
-#include "ports/manager/hardware.h"
 #include "byteswap.h"
 #include "gpio.h"
+#include "ports/manager/hardware.h"
+#include "ports/manager/spi_port.h"
 #include "spi.h"
 
 namespace microhal {
@@ -33,7 +33,7 @@ namespace microhal {
 class SPIDevice {
  public:
     //---------------------------------------- constructors ---------------------------------------
-    SPIDevice(SPI &spi, microhal::GPIO::IOPin CEPin) : spi(spi), cePin(CEPin, GPIO::Direction::Output), lastError(SPI::NoError) { cePin.set(); }
+    SPIDevice(SPI &spi, microhal::GPIO::IOPin CEPin) : spi(spi), cePin(CEPin, GPIO::Direction::Output), lastError(SPI::Error::None) { cePin.set(); }
     ~SPIDevice() { cePin.set(); }
     //------------------------------------------ functions ----------------------------------------
     /**
@@ -71,7 +71,7 @@ class SPIDevice {
         cePin.set();
         spi.unlock();
 
-        if (status == SPI::NoError) {
+        if (status == SPI::Error::None) {
             return true;
         } else {
             lastError = status;
@@ -99,7 +99,7 @@ class SPIDevice {
         cePin.set();
         spi.unlock();
 
-        if (status == SPI::NoError) {
+        if (status == SPI::Error::None) {
             return true;
         } else {
             lastError = status;

@@ -9,7 +9,7 @@
  * created on: 17-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, Pawel Okas
+ * @copyright Copyright (c) 2014-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -52,11 +52,13 @@ void USART3_IRQHandler(void);
 void UART4_IRQHandler(void);
 void UART5_IRQHandler(void);
 void USART6_IRQHandler(void);
+void UART7_IRQHandler(void);
+void UART8_IRQHandler(void);
 }
 /* ************************************************************************************************
  * CLASS
  */
-class SerialPort_interrupt: public SerialPort_BufferedBase<SerialPort_interrupt> {
+class SerialPort_interrupt : public SerialPort_BufferedBase<SerialPort_interrupt> {
  public:
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
     static SerialPort_interrupt Serial1;
@@ -76,32 +78,33 @@ class SerialPort_interrupt: public SerialPort_BufferedBase<SerialPort_interrupt>
 #ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
     static SerialPort_interrupt Serial6;
 #endif
-//--------------------------------------------- functions ---------------------------------------//
+#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+    static SerialPort_interrupt Serial7;
+#endif
+#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+    static SerialPort_interrupt Serial8;
+#endif
+    //--------------------------------------------- functions ---------------------------------------//
     bool open(OpenMode mode) noexcept;
 
  private:
-//------------------------------------------- variables -----------------------------------------//
+    //------------------------------------------- variables -----------------------------------------//
 
-//------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_interrupt(USART_TypeDef &usart, char * const rxData, char * const txData, size_t rxDataSize, size_t txDataSize);
+    //------------------------------------------- constructors --------------------------------------//
+    inline SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize);
 
-    //virtual ~SerialPort_interrupt(){
+    // virtual ~SerialPort_interrupt(){
     //}
-//--------------------------------------------- functions ---------------------------------------//
-    void startTransmission_impl() {
-        usart.CR1 |= USART_CR1_TXEIE;
-    }
+    //--------------------------------------------- functions ---------------------------------------//
+    void startTransmission_impl() { usart.CR1 |= USART_CR1_TXEIE; }
 
-    void updateRxBuffer_impl() {
+    void updateRxBuffer_impl() {}
 
-    }
-
-    void configureRxWait_impl(size_t bytesToReceive) {
-    	waitForBytes = bytesToReceive;
-    }
-//------------------------------------------- friends -------------------------------------------//
+    void configureRxWait_impl(size_t bytesToReceive) { waitForBytes = bytesToReceive; }
+    //------------------------------------------- friends -------------------------------------------//
     friend SerialPort_BufferedBase<SerialPort_interrupt>;
-    friend inline void serialPort_interruptFunction(USART_TypeDef * const usart, SerialPort_interrupt &serialObject);// __attribute__((always_inline));
+    friend inline void serialPort_interruptFunction(USART_TypeDef *const usart,
+                                                    SerialPort_interrupt &serialObject);  // __attribute__((always_inline));
 
     friend void USART1_IRQHandler(void);
     friend void USART2_IRQHandler(void);
@@ -109,9 +112,11 @@ class SerialPort_interrupt: public SerialPort_BufferedBase<SerialPort_interrupt>
     friend void USART4_IRQHandler(void);
     friend void USART5_IRQHandler(void);
     friend void USART6_IRQHandler(void);
+    friend void UART7_IRQHandler(void);
+    friend void UART8_IRQHandler(void);
 };
 
-} // namespace stm32f4xx
-} // namespace microhal
+}  // namespace stm32f4xx
+}  // namespace microhal
 
-#endif // _MICROHAL_SERIALPORT_INTERRUPT_STM32F4XX_H_
+#endif  // _MICROHAL_SERIALPORT_INTERRUPT_STM32F4XX_H_

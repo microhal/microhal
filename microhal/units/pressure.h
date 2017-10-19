@@ -31,12 +31,21 @@
 
 namespace microhal {
 
+template <typename T = float>
 class Pressure {
  public:
-    explicit Pressure(float pressure) : pressure(pressure) {}
+    explicit Pressure(T pressure) : pressure(pressure) {}
+    Pressure() {}
+
+    T getRAW() const { return pressure; }
  private:
-    float pressure;
+    T pressure;
 };
+
+template <microhal::diagnostic::LogLevel level, bool B, typename T>
+inline microhal::diagnostic::LogLevelChannel<level, B> operator<< (microhal::diagnostic::LogLevelChannel<level, B> logChannel, const Pressure<T>& pressure) {
+    return logChannel << pressure.getRAW();
+}
 
 }  // namespace microhal
 

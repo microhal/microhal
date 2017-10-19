@@ -60,16 +60,46 @@ extern "C" int _gettimeofday(struct timeval *tv, void *tzvp __attribute__((unuse
     return 0;  // return non-zero for error
 }
 
+#ifndef USE_WRAP_MALLOCK
 extern "C" void *malloc(size_t size) {
-    return pvPortMalloc(size);
+	return pvPortMalloc(size);
 }
 
 extern "C" void free(void *pv) {
     vPortFree(pv);
 }
+#else
+volatile uint32_t mallock_failure_counter = 0;
+void *freeRTOS_malloc(size_t size) {
+	void *ptr = pvPortMalloc(size);
 
-// extern "C" void __dso_handle(){
-//	while(1){
-//
-//	}
-//}
+	//    diagChannel << MICROHAL_DEBUG << "allocating memory: " << (uint32_t)size << " left: " << (uint32_t)xPortGetFreeHeapSize();
+	if (ptr == nullptr) {
+		diagChannel << MICROHAL_ERROR << "mallock failed, out of memory";
+		mallock_failure_counter++;
+	}
+
+	return ptr;
+}
+
+void freeRTOS_free(void *ptr) {
+	vPortFree(ptr);
+}
+
+extern "C" void *__wrap_malloc(size_t size) {
+    return freeRTOS_malloc(size);
+}
+
+extern "C" void __wrap_free(void *ptr) {
+    freeRTOS_free(ptr);
+}
+
+extern "C" void *__wrap__malloc_r(struct _reent *ptr, size_t size) {
+    return freeRTOS_malloc(size);
+}
+
+extern "C" void __wrap__free_r(struct _reent *r_ptr, void *ptr) {
+    freeRTOS_free(ptr);
+}
+#endif
+

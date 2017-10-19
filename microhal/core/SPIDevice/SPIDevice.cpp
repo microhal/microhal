@@ -28,7 +28,7 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint8_t data) {
     }
 
     SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::NoError) {
+    if (status == SPI::Error::None) {
         status = spi.write(data, true);
 
         // fixme is delay necessary
@@ -39,7 +39,7 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint8_t data) {
 
     cePin.set();
 
-    if (status == SPI::NoError) {
+    if (status == SPI::Error::None) {
         return true;
     } else {
         lastError = status;
@@ -70,8 +70,8 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint16_t data, End
     // write write register address
     SPI::Error status = spi.write(registerAddress, false);
     // if register address was written successfully then send data;
-    if (status == SPI::NoError) {
-        status = spi.writeBuffer(&dataTmp, 2, true);
+    if (status == SPI::Error::None) {
+        status = spi.write(&dataTmp, 2, true);
     }
 
     // fixme is delay necessary
@@ -81,7 +81,7 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint16_t data, End
     // deactivate spi device
     cePin.set();
 
-    if (status == SPI::NoError) {
+    if (status == SPI::Error::None) {
         return true;
     } else {
         lastError = status;
@@ -112,8 +112,8 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint32_t data, End
     // write write register address
     SPI::Error status = spi.write(registerAddress, false);
     // if register address was written successfully then send data;
-    if (status == SPI::NoError) {
-        status = spi.writeBuffer(&dataTmp, 4, true);
+    if (status == SPI::Error::None) {
+        status = spi.write(&dataTmp, 4, true);
     }
 
     //    //fixme is delay necessary
@@ -124,7 +124,7 @@ bool SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint32_t data, End
     // deactivate spi device
     cePin.set();
 
-    if (status == SPI::NoError) {
+    if (status == SPI::Error::None) {
         return true;
     } else {
         lastError = status;
@@ -152,7 +152,7 @@ bool SPIDevice::readRegister_noLock(uint8_t registerAddress, uint8_t &data) {
     // write write register address
     SPI::Error status = spi.write(registerAddress, false);
     // if register address was written successfully then read data;
-    if (status == SPI::NoError) {
+    if (status == SPI::Error::None) {
         status = spi.read(data);
 
         // fixme is delay necessary
@@ -164,7 +164,7 @@ bool SPIDevice::readRegister_noLock(uint8_t registerAddress, uint8_t &data) {
     // deactivate spi device
     cePin.set();
 
-    if (status == SPI::NoError) {
+    if (status == SPI::SPI::Error::None) {
         return true;
     } else {
         lastError = status;
@@ -186,14 +186,14 @@ bool SPIDevice::readRegister_noLock(uint8_t registerAddress, uint16_t &data, End
     cePin.reset();
 
     SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::NoError) {
-        status = spi.readBuffer(&data, 2);
+    if (status == SPI::SPI::Error::None) {
+        status = spi.read(&data, 2);
     }
 
     // deactivate spi device
     cePin.set();
 
-    if (status == SPI::NoError) {
+    if (status == SPI::SPI::Error::None) {
         // convert endianness if needed
         if (endianness != hardware::Device::endianness) {
             // do conversion
@@ -222,14 +222,14 @@ bool SPIDevice::readRegister_noLock(uint8_t registerAddress, uint32_t &data, End
     cePin.reset();
 
     SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::NoError) {
-        status = spi.readBuffer(&data, 4);
+    if (status == SPI::SPI::Error::None) {
+        status = spi.read(&data, 4);
     }
 
     // deactivate spi device
     cePin.set();
 
-    if (status == SPI::NoError) {
+    if (status == SPI::SPI::Error::None) {
         // convert endianness if needed
         if (endianness != hardware::Device::endianness) {
             // do conversion
@@ -261,7 +261,7 @@ bool SPIDevice::writeBuffer(const uint8_t *buffer, size_t length, bool last) {
     // activate spi device
     cePin.reset();
 
-    SPI::Error status = spi.writeBuffer(buffer, length, last);
+    SPI::Error status = spi.write(buffer, length, last);
 
     if (last == true) {
         // fixme is delay necessary
@@ -277,13 +277,13 @@ bool SPIDevice::writeBuffer(const uint8_t *buffer, size_t length, bool last) {
         spi.unlock();
     }
 
-    if (status == SPI::NoError) {
+    if (status == SPI::SPI::Error::None) {
         return true;
     } else {
         lastError = status;
         return false;
     }
-}  // SPIDevice::writeBuffer ---------------------------------------------------------------------//
+}  // SPIDevice::write ---------------------------------------------------------------------//
    /**
     * @brief This function read 8 bit data. Function is thread safe.
     * This function firstly lock SPI interface, next reset SPI device CE pin and start reading data.
@@ -304,7 +304,7 @@ bool SPIDevice::readBuffer(uint8_t *buffer, size_t length, bool last) {
     // activate spi device
     cePin.reset();
 
-    SPI::Error status = spi.readBuffer(buffer, length);
+    SPI::Error status = spi.read(buffer, length);
 
     if (last == true) {
         // fixme is delay necessary
@@ -320,13 +320,13 @@ bool SPIDevice::readBuffer(uint8_t *buffer, size_t length, bool last) {
         spi.unlock();
     }
 
-    if (status == SPI::NoError) {
+    if (status == SPI::SPI::Error::None) {
         return true;
     } else {
         lastError = status;
         return false;
     }
-}  // SPIDevice::readBuffer ----------------------------------------------------------------------//
+}  // SPIDevice::read ----------------------------------------------------------------------//
    /**
     * @brief This function write data to 8 bit registers. Function is thread safe.
     * This function firstly lock SPI interface, next reset SPI device CE pin and start writing data.
@@ -346,8 +346,8 @@ bool SPIDevice::writeRegisters(uint8_t registerAddress, const uint8_t *buffer, s
     cePin.reset();
 
     SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::NoError) {
-        status = spi.writeBuffer(buffer, length, true);
+    if (status == SPI::SPI::Error::None) {
+        status = spi.write(buffer, length, true);
     }
     //
     //    //fixme is delay necessary
@@ -360,7 +360,7 @@ bool SPIDevice::writeRegisters(uint8_t registerAddress, const uint8_t *buffer, s
     // unlock spi device
     spi.unlock();
 
-    if (status == SPI::NoError) {
+    if (status == SPI::Error::None) {
         return true;
     } else {
         lastError = status;
@@ -385,9 +385,9 @@ bool SPIDevice::readRegisters(uint8_t registerAddress, uint8_t *buffer, size_t l
     // activate spi device
     cePin.reset();
 
-    bool status = spi.write(registerAddress, false);
-    if (status == true) {
-        // status = readBuffer(buffer, length, true);
+    bool status = false;
+    if (spi.write(registerAddress, false) == SPI::Error::None) {
+        // status = read(buffer, length, true);
         status = readBuffer(buffer, length);
     }
 

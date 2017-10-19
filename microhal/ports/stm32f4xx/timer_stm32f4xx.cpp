@@ -20,6 +20,12 @@ Timer Timer::timer3(*TIM3);
 //***********************************************************************************************//
 //                                          IRQHandlers                                          //
 //***********************************************************************************************//
+extern "C" void DMA1_Stream1_IRQHandler(void) {
+    DMA1->LIFCR = DMA_LIFCR_CTCIF1;
+    DMA1_Stream1->CR &= ~DMA_SxCR_EN;
+    TIM2->CR1 &= ~TIM_CR1_CEN;
+}
+
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void){
 
 }

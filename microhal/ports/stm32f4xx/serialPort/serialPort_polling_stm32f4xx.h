@@ -38,8 +38,8 @@
 namespace microhal {
 namespace stm32f4xx {
 
-class SerialPort_polling: public stm32f4xx::SerialPort {
-public:
+class SerialPort_polling : public stm32f4xx::SerialPort {
+ public:
 #ifdef MICROHAL_USE_SERIAL_PORT1_POLLING
     static SerialPort_polling Serial1;
 #endif
@@ -58,10 +58,16 @@ public:
 #ifdef MICROHAL_USE_SERIAL_PORT6_POLLING
     static SerialPort_polling Serial6;
 #endif
-private:
+#ifdef MICROHAL_USE_SERIAL_PORT7_POLLING
+    static SerialPort_polling Serial7;
+#endif
+#ifdef MICROHAL_USE_SERIAL_PORT8_POLLING
+    static SerialPort_polling Serial8;
+#endif
+ private:
     SerialPort_polling(USART_TypeDef &usart);
 
-    //virtual ~SerialPort_polling(){}
+    // virtual ~SerialPort_polling(){}
 
     bool open(OpenMode mode) noexcept {
         if (isOpen() || (mode > 0x03)) return false;
@@ -150,7 +156,7 @@ private:
     }
 };
 
-} // namespace stm32f4xx
-} // namespace microhal
+}  // namespace stm32f4xx
+}  // namespace microhal
 
-#endif // _MICROHAL_SERIALPORT_POLLING_STM32F4XX_H_
+#endif  // _MICROHAL_SERIALPORT_POLLING_STM32F4XX_H_

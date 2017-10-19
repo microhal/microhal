@@ -37,10 +37,10 @@ namespace microhal {
 
 class I2C {
  public:
-	using DeviceAddress = uint8_t;
-	using Speed = uint32_t;
+    using DeviceAddress = uint8_t;
+    using Speed = uint32_t;
 
-    typedef enum { NoError = 0x00, Timeout, BusError, AcknowledgeFailure, ArbitrationLost, OverrunError, UnknownError = 0xFF } Error;
+    enum class Error { None, Timeout, Bus, AcknowledgeFailure, ArbitrationLost, Overrun, Unknown };
 
     enum class Mode : uint_fast8_t {
         Standard = 0,  // 100kHz
@@ -49,33 +49,19 @@ class I2C {
         HighSpeed      // 3.4 MHz
     };
 
-    void lock() noexcept {
-        mutex.lock();
-    }
-    void unlock() noexcept {
-        mutex.unlock();
-    }
+    void lock() noexcept { mutex.lock(); }
+    void unlock() noexcept { mutex.unlock(); }
 
-    virtual bool setMode(Mode mode) noexcept = 0; // todo delete
-
-    virtual Speed speed(Speed speed) noexcept = 0;
+    virtual bool speed(Speed speed, Mode mode) noexcept = 0;
     virtual Speed speed() noexcept = 0;
     virtual void busReset() noexcept = 0;
 
-    Error write(uint8_t deviceAddress, uint8_t data) noexcept {
-    	return write(deviceAddress, &data, sizeof(data));
-    }
+    Error write(uint8_t deviceAddress, uint8_t data) noexcept { return write(deviceAddress, &data, sizeof(data)); }
     virtual Error write(DeviceAddress deviceAddress, const uint8_t *data, size_t length) noexcept = 0;
-    virtual Error write(DeviceAddress deviceAddress,
-        		        const uint8_t* data, size_t dataLength,
-                        const uint8_t* dataB, size_t dataBLength) noexcept = 0;
+    virtual Error write(DeviceAddress deviceAddress, const uint8_t *data, size_t dataLength, const uint8_t *dataB, size_t dataBLength) noexcept = 0;
     virtual Error read(DeviceAddress deviceAddress, uint8_t *data, size_t size) noexcept = 0;
-    virtual Error read(DeviceAddress deviceAddress,
-    		           uint8_t *data, size_t dataLength,
-                       uint8_t *dataB, size_t dataBLength) noexcept = 0;
-    virtual Error writeRead(DeviceAddress deviceAddress,
-    		                const uint8_t* write, size_t writeLength,
-							uint8_t *read, size_t readLength) noexcept = 0;
+    virtual Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept = 0;
+    virtual Error writeRead(DeviceAddress deviceAddress, const uint8_t *write, size_t writeLength, uint8_t *read, size_t readLength) noexcept = 0;
 
     virtual ~I2C() {}
 
@@ -110,6 +96,16 @@ class I2C {
 
     friend class I2CDevice;
 };
+
+constexpr I2C::Error operator|(I2C::Error a, I2C::Error b) {
+    using Type = std::underlying_type<I2C::Error>::type;
+    return static_cast<I2C::Error>(static_cast<Type>(a) | static_cast<Type>(b));
+}
+
+constexpr I2C::Error operator|=(I2C::Error &a, I2C::Error b) {
+    a = a | b;
+    return a;
+}
 
 }  // namespace microhal
 

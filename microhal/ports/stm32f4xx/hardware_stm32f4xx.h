@@ -33,12 +33,15 @@
  * INCLUDES
  */
 #include "microhalDefs.h"
+#include <cstdint>
 
 namespace microhal {
 namespace hardware {
 
 struct Device {
 	static constexpr auto endianness = Endianness::Little;
+
+    static uint32_t coreFrequency();
 };
 
 }  // namespace hardware
