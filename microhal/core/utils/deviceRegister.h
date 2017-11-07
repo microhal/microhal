@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    pawel
  * created on: 29-12-2016
@@ -32,8 +32,8 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include "microhalDefs.h"
 #include "ports/manager/hardware.h"
@@ -43,163 +43,140 @@
  */
 namespace microhal {
 
-enum class Access {
-  ReadOnly,
-  WriteOnly,
-  ReadWrite
-};
+enum class Access { ReadOnly, WriteOnly, ReadWrite };
 
-template <typename T, T Value, Endianness ...endianness>
+template <typename T, T Value, Endianness... endianness>
 class Address {
-	static_assert(std::is_unsigned<T>::value, "");
+    static_assert(std::is_unsigned<T>::value, "");
     static_assert((sizeof(T) == 1 && sizeof...(endianness) == 0) || sizeof(T) > 1, "");
     static_assert((sizeof(T) > 1 && sizeof...(endianness) == 1) || sizeof(T) == 1, "");
+
  public:
-  using Type = T;
- 	enum : T {
-    	value = Value
-    };
-    constexpr bool isEndiannessConveted() {
-    	return true;
-    }
+    using Type = T;
+    enum : T { value = Value };
+    constexpr bool isEndiannessConveted() { return true; }
 };
 
-template <typename T, Access _Access, typename AddressType, Endianness ...endianness_>
+template <typename T, Access _Access, typename AddressType, Endianness... endianness_>
 class Register {
  public:
-	using Address = AddressType;
-	using Type = T;
-	//const Address address;
+    using Address = AddressType;
+    using Type = T;
+    // const Address address;
 
-	constexpr typename Address::Type getAddress() const {
-		return Address::value;
-	}
+    constexpr typename Address::Type getAddress() const { return Address::value; }
 
-	constexpr Endianness endianness() const noexcept { return get(endianness_...); }
+    constexpr Endianness endianness() const noexcept { return get(endianness_...); }
 
-	constexpr bool requireEndiannessConversion() const noexcept {
-		return endianness() != microhal::hardware::Device::endianness;
-	}
+    constexpr bool requireEndiannessConversion() const noexcept { return endianness() != microhal::hardware::Device::endianness; }
 
-	constexpr Access access() const {
-		return _Access;
-	}
+    constexpr Access access() const { return _Access; }
 
  private:
-	constexpr Endianness get(Endianness endian) const {
-		return endian;
-	}
+    constexpr Endianness get(Endianness endian) const { return endian; }
 };
 
 template <typename T, Access _Access, typename AddressType>
 class Register<T, _Access, AddressType> {
  public:
-	using Address = AddressType;
-	using Type = T;
-	//const Address address;
+    using Address = AddressType;
+    using Type = T;
+    // const Address address;
 
-	constexpr typename Address::Type getAddress() const {
-		return Address::value;
-	}
+    constexpr typename Address::Type getAddress() const { return Address::value; }
 
-	constexpr bool requireEndiannessConversion() const noexcept {
-		return false;
-	}
+    constexpr bool requireEndiannessConversion() const noexcept { return false; }
 
-	constexpr Access access() const {
-		return _Access;
-	}
+    constexpr Access access() const { return _Access; }
 };
 
-
 //////////////
-template<Access RequiredAccess, typename Register>
-constexpr void accessCheck(Register reg){
-	static_assert(reg.access() != RequiredAccess,"");
+template <Access RequiredAccess, typename Register>
+constexpr void accessCheck(Register reg) {
+    static_assert(reg.access() != RequiredAccess, "");
 }
-template<Access RequiredAccess, typename Register, typename... Rest>
-constexpr void accessCheck(Register reg, Rest... rest){
-	static_assert(reg.access() != RequiredAccess,"");
+template <Access RequiredAccess, typename Register, typename... Rest>
+constexpr void accessCheck(Register reg, Rest... rest) {
+    static_assert(reg.access() != RequiredAccess, "");
     accessCheck<RequiredAccess>(rest...);
 }
 /////////////////
-template<typename Register, typename Register2>
+template <typename Register, typename Register2>
 constexpr void isContinous(Register reg, Register2 reg2) {
-	(void)reg;
-	(void)reg2;
-	static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "");
+    (void)reg;
+    (void)reg2;
+    static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "");
 }
-template<typename Register, typename Register2, typename... Rest>
+template <typename Register, typename Register2, typename... Rest>
 constexpr void isContinous(Register reg, Register2 reg2, Rest... regs) {
-	(void)reg;
-	(void)reg2;
-	static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "");
-	isContinous(reg2, regs...);
+    (void)reg;
+    (void)reg2;
+    static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "");
+    isContinous(reg2, regs...);
 }
 ////////////////////////
-template<typename Register>
+template <typename Register>
 constexpr size_t sizeOfRegistersData(Register reg) {
-	(void) reg;
-	return sizeof(typename Register::Type);
+    (void)reg;
+    return sizeof(typename Register::Type);
 }
-template<typename Register, typename... Rest>
+template <typename Register, typename... Rest>
 constexpr size_t sizeOfRegistersData(Register reg, Rest... regs) {
-	(void) reg;
-	return sizeof(typename Register::Type) + sizeOfRegistersData(regs...);
+    (void)reg;
+    return sizeof(typename Register::Type) + sizeOfRegistersData(regs...);
 }
 ////////////////////////
-template<typename Type, typename Register>
+template <typename Type, typename Register>
 void dataTypeCheck(Register reg) {
-	(void)reg;
-	static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
+    (void)reg;
+    static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
 }
-template<typename Type, typename Register, typename... Registers>
+template <typename Type, typename Register, typename... Registers>
 void dataTypeCheck(Register reg, Registers... regs) {
-	(void)reg;
-	static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
-	dataTypeCheck<Type>(regs...);
+    (void)reg;
+    static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
+    dataTypeCheck<Type>(regs...);
 }
 
-
-//template<typename Register, typename Register2>
-//constexpr auto first_impl(Register min, Register2 current) {
+// template<typename Register, typename Register2>
+// constexpr auto first_impl(Register min, Register2 current) {
 //	if (min.getAddress() > current.getAddress()){
 //		return current;
 //    } else {
 //    	return min;
 //    }
 //}
-//template<typename Register, typename Register2, typename... Registers>
-//constexpr auto first_impl(Register min, Register2 current, Registers... regs) {
+// template<typename Register, typename Register2, typename... Registers>
+// constexpr auto first_impl(Register min, Register2 current, Registers... regs) {
 //	if (min.getAddress() > current.getAddress()){
 //		return first_impl(current, regs...);
 //    } else {
 //    	return first_impl(min, regs...);
 //    }
 //}
-//template<typename Register, typename Register2, typename... Registers>
-//constexpr auto first(Register min, Register2 current, Registers ...regs) {
+// template<typename Register, typename Register2, typename... Registers>
+// constexpr auto first(Register min, Register2 current, Registers ...regs) {
 //     return first_impl(min, regs...);
 //}
 
-template<typename Register, typename... Registers>
-constexpr auto first(Register reg, Registers ...regs) {
+template <typename Register, typename... Registers>
+constexpr auto first(Register reg, Registers... regs) {
     return reg;
 }
 
 //////////////
-template<typename Type, Access access, typename AddressType>
+template <typename Type, Access access, typename AddressType>
 constexpr auto makeRegister(AddressType address) {
-	(void)address;
-	static_assert(sizeof(Type) == 1, "");
-	return Register<Type, access, AddressType>{};
+    (void)address;
+    static_assert(sizeof(Type) == 1, "Missing parameter: endianness. For registers bigger than 8 bits you need to provide endianness information.");
+    return Register<Type, access, AddressType>{};
 }
 
-template<typename Type, Access access, Endianness endianness, typename AddressType>
+template <typename Type, Access access, Endianness endianness, typename AddressType>
 constexpr auto makeRegister(AddressType address) {
-	(void)address;
-	static_assert(sizeof(Type) > 1, "");
-	return Register<Type, access, AddressType, endianness>{};
+    (void)address;
+    static_assert(sizeof(Type) > 1, "");
+    return Register<Type, access, AddressType, endianness>{};
 }
 
 }  // namespace microhal

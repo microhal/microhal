@@ -50,6 +50,10 @@ constexpr static inline T convertEndianness(T data, Endianness from, Endianness 
     return data;
 }
 
+constexpr static inline uint8_t convertEndianness(uint8_t data, Endianness from, Endianness to) {
+    return data;
+}
+
 } /* namespace hal*/
 
 #endif /* BASICS_H_ */

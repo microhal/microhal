@@ -241,14 +241,12 @@ class I2CDevice {
                          reinterpret_cast<const uint8_t *>(tmpArray.data()), tmpArray.size() * sizeof(ArrayType));
     }
 
-    template <typename ArrayType, size_t N, typename... Registers>
-    I2C::Error writeRegisters(const std::tuple<typename Registers::Type...> &data, Registers... reg) {
+    template <typename... tupleTypes, typename... Registers>
+    I2C::Error writeRegisters(const std::tuple<tupleTypes...> &data, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "");
-        // because we are reading data to array we have to check if all registers have the same data type and type is equal
-        // with std::array type
-        microhal::dataTypeCheck<ArrayType>(reg...);
+        microhal::accessCheck<Access::ReadOnly>(reg...);
         isContinous(reg...);
-        accessCheck<Access::ReadOnly>(reg...);
+        // accessCheck<Access::ReadOnly>(reg...);
 
         const auto firstReg = microhal::first(reg...);
         const auto registerAddress = firstReg.getAddress();
@@ -290,8 +288,9 @@ class I2CDevice {
     }
     //////////////////////////////
     template <size_t i, typename Tuple, typename Register>
-    void setArrayFromTuple(uint8_t *array, Tuple &tuple, Register reg) {
+    void setArrayFromTuple(uint8_t *array, const Tuple &tuple, Register reg) {
         using DataType = typename std::tuple_element<i, Tuple>::type;
+        static_assert(std::is_same<DataType, typename Register::Type>::value, "Tuple types and registers types are different.");
         DataType value = std::get<i>(tuple);
         if (reg.requireEndiannessConversion()) {
             *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
@@ -300,15 +299,17 @@ class I2CDevice {
         }
     }
     template <size_t i, typename Tuple, typename Register, typename... Registers>
-    void setArrayFromTuple(uint8_t *array, Tuple &tuple, Register reg, Registers... regs) {
+    void setArrayFromTuple(uint8_t *array, const Tuple &tuple, Register reg, Registers... regs) {
         using DataType = typename std::tuple_element<i, Tuple>::type;
+        static_assert(std::is_same<DataType, typename Register::Type>::value, "Tuple types and registers types are different.");
+
         DataType value = std::get<i>(tuple);
         if (reg.requireEndiannessConversion()) {
             *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
         } else {
             *reinterpret_cast<DataType *>(array) = value;
         }
-        setArrayFromTuple<i + 1>(array + sizeof(DataType), tuple);
+        setArrayFromTuple<i + 1>(array + sizeof(DataType), tuple, regs...);
     }
     //////////////////////////////
     template <typename Type, size_t N, typename Register>
@@ -324,6 +325,15 @@ class I2CDevice {
                 microhal::convertEndianness(array[array.size() - sizeof...(Registers)-1], Endianness::Big, Endianness::Little);
         }
         convertEndianness(array, regs...);
+    }
+
+    template <size_t N, typename Register, typename... Registers>
+    void convertEndianness(std::array<uint8_t, N> &array, Register reg, Registers... regs) {
+        //        if (reg.requireEndiannessConversion()) {
+        //            array[array.size() - sizeof...(Registers)-1] =
+        //                microhal::convertEndianness(array[array.size() - sizeof...(Registers)-1], Endianness::Big, Endianness::Little);
+        //        }
+        //        convertEndianness(array, regs...);
     }
 };
 /**
