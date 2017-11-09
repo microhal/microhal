@@ -138,27 +138,6 @@ void dataTypeCheck(Register reg, Registers... regs) {
     dataTypeCheck<Type>(regs...);
 }
 
-// template<typename Register, typename Register2>
-// constexpr auto first_impl(Register min, Register2 current) {
-//	if (min.getAddress() > current.getAddress()){
-//		return current;
-//    } else {
-//    	return min;
-//    }
-//}
-// template<typename Register, typename Register2, typename... Registers>
-// constexpr auto first_impl(Register min, Register2 current, Registers... regs) {
-//	if (min.getAddress() > current.getAddress()){
-//		return first_impl(current, regs...);
-//    } else {
-//    	return first_impl(min, regs...);
-//    }
-//}
-// template<typename Register, typename Register2, typename... Registers>
-// constexpr auto first(Register min, Register2 current, Registers ...regs) {
-//     return first_impl(min, regs...);
-//}
-
 template <typename Register, typename... Registers>
 constexpr auto first(Register reg, Registers... regs) {
     return reg;
