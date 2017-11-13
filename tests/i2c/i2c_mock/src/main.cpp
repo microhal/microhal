@@ -314,11 +314,92 @@ bool deviceTest() {
         loging << lock << MICROHAL_DEBUG << "Unable to write multiple registers." << unlock;
         return false;
     }
+    /////////////////////////////////////////////////////////////////////////////////
+    // crate registers
+    static constexpr auto reg4 = microhal::makeRegister<uint16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x06>{});
+    static constexpr auto reg5 = microhal::makeRegister<uint16_t, Access::ReadWrite, Endianness::Big>(microhal::Address<uint8_t, 0x08>{});
 
-    std::get<0>(tupReg) = 0x85;
-    std::get<1>(tupReg) = 0xAABB;
-    if (dev.writeRegisters(tupReg, reg1, reg2) == I2C::Error::None) {
-        if (device[1] == std::get<0>(tupReg) && (device[2] | (device[3] << 8)) == std::get<1>(tupReg))
+    if (dev.write(reg4, uint16_t{0}) == I2C::Error::None) {
+        if (device[6] == 0 && device[7] == 0)
+            loging << lock << MICROHAL_DEBUG << "data successfully written." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "written data corrupted. Reg value: " << device[0] << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to write register." << unlock;
+        return false;
+    }
+
+    uint16_t tmp3;
+    if (dev.read(reg4, tmp3) == I2C::Error::None) {
+        if (tmp3 == (device[6] << 8 | (device[7])))
+            loging << lock << MICROHAL_DEBUG << "data read successfully." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "read data corrupted. Reg value: " << device[0] << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to read register." << unlock;
+        return false;
+    }
+
+    if (dev.bitsSet(reg4, uint16_t{12}) == I2C::Error::None) {
+        if ((device[6] << 8 | (device[7])) == 12)
+            loging << lock << MICROHAL_DEBUG << "Bits set correctly." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "Bits set incorrectly. Reg value: " << device[0] << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to set bits." << unlock;
+        return false;
+    }
+
+    dev.write(reg4, uint16_t{0b1010101010101010});
+    if ((device[6] << 8 | (device[7])) == 0b1010101010101010) loging << lock << MICROHAL_DEBUG << "data successfully written." << unlock;
+
+    if (dev.bitsClear(reg4, uint16_t{0b00000010}) == I2C::Error::None) {
+        if ((device[6] << 8 | (device[7])) == 0b1010101010101000)
+            loging << lock << MICROHAL_DEBUG << "Bits clear correctly." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "Bits clear incorrectly. Reg value: " << device[0] << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to clear bits." << unlock;
+        return false;
+    }
+
+    if (dev.bitsModify(reg4, uint16_t{0b01000010}, uint16_t{0b11000010}) == I2C::Error::None) {
+        if ((device[6] << 8 | (device[7])) == 0b1010101001101010)
+            loging << lock << MICROHAL_DEBUG << "Bits modified correctly." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "Bits modified incorrectly. Reg value: " << device[0] << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to modify bits." << unlock;
+        return false;
+    }
+
+    std::array<uint16_t, 2> regs3;
+    if (dev.readRegisters(regs2, reg4, reg5) == I2C::Error::None) {
+        if (/*(device[6] << 8 | (device[7])) == regs3[0] &&*/ (device[8] << 8 | (device[9])) == regs3[1])
+            loging << lock << MICROHAL_DEBUG << "Multiple register read correctly." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "Data mismatch while reading multiple registers." << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to read multiple registers." << unlock;
+        return false;
+    }
+
+    regs3[0] = 0xAAFF;
+    regs3[1] = 0xBBDD;
+    if (dev.writeRegisters(regs3, reg4, reg5) == I2C::Error::None) {
+        if ((device[6] << 8 | (device[7])) == regs3[0] && (device[8] << 8 | (device[9])) == regs3[1])
             loging << lock << MICROHAL_DEBUG << "Multiple register write correctly." << unlock;
         else {
             loging << lock << MICROHAL_DEBUG << "Data mismatch while writing multiple registers." << unlock;
@@ -328,6 +409,34 @@ bool deviceTest() {
         loging << lock << MICROHAL_DEBUG << "Unable to write multiple registers." << unlock;
         return false;
     }
+
+    //    //////////////////////////////////////////////////////////////////////////////////
+    //    std::tuple<uint8_t, uint16_t> tupReg2;
+    //    if (dev.readRegisters(tupReg2, reg1, reg4) == I2C::Error::None) {
+    //        if (device[1] == std::get<0>(tupReg) && (device[4] | (device[5] << 8)) == std::get<1>(tupReg))
+    //            loging << lock << MICROHAL_DEBUG << "Multiple register read correctly." << unlock;
+    //        else {
+    //            loging << lock << MICROHAL_DEBUG << "Data mismatch while reading multiple registers." << unlock;
+    //            return false;
+    //        }
+    //    } else {
+    //        loging << lock << MICROHAL_DEBUG << "Unable to read multiple registers." << unlock;
+    //        return false;
+    //    }
+    //
+    //    std::get<0>(tupReg) = 0x85;
+    //    std::get<1>(tupReg) = 0xAABB;
+    //    if (dev.writeRegisters(tupReg2, reg1, reg4) == I2C::Error::None) {
+    //        if (device[1] == std::get<0>(tupReg) && (device[4] << 8 | (device[5])) == std::get<1>(tupReg))
+    //            loging << lock << MICROHAL_DEBUG << "Multiple register write correctly." << unlock;
+    //        else {
+    //            loging << lock << MICROHAL_DEBUG << "Data mismatch while writing multiple registers." << unlock;
+    //            return false;
+    //        }
+    //    } else {
+    //        loging << lock << MICROHAL_DEBUG << "Unable to write multiple registers." << unlock;
+    //        return false;
+    //    }
 
     return true;
 }

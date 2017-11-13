@@ -73,6 +73,28 @@ namespace microhal {
 /* **************************************************************************************************************************************************
  * CLASS
  */
+
+template <int Condition>
+class ConvertEnidianness;
+
+template <>
+class ConvertEnidianness<true> {
+ public:
+    template <typename T>
+    static T convert(T val) {
+        return microhal::convertEndianness(val, Endianness::Big, Endianness::Little);
+    }
+};
+
+template <>
+class ConvertEnidianness<false> {
+ public:
+    template <typename T>
+    static T convert(T val) {
+        return val;
+    }
+};
+
 class I2CDevice {
  public:
     using DeviceAddress = I2C::DeviceAddress;
@@ -142,8 +164,10 @@ class I2CDevice {
     I2C::Error write(Register reg, typename Register::Type value) {
         static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
         typename Register::Address::Type tmp = Register::Address::value;
+        auto valueConverted = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
+
         std::lock_guard<I2C> guard(i2c);
-        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<const uint8_t *>(&value),
+        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<const uint8_t *>(&valueConverted),
                          sizeof(value));
     }
     /**
@@ -163,7 +187,10 @@ class I2CDevice {
         static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
         const auto tmp = reg.getAddress();
         std::lock_guard<I2C> guard(i2c);
-        return i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<uint8_t *>(&value), sizeof(value));
+        const auto result =
+            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<uint8_t *>(&value), sizeof(value));
+        value = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
+        return result;
     }
     /**
      * @brief This function sets bits in register of the I2C device.
@@ -185,7 +212,7 @@ class I2CDevice {
         std::lock_guard<I2C> guard(i2c);
         const auto status = i2c.writeRead(deviceAddress, &address, sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            tmp |= value;
+            tmp |= ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
             return i2c.write(deviceAddress, &address, sizeof(address), reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp));
         }
         return status;
@@ -211,7 +238,7 @@ class I2CDevice {
         const auto status =
             i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            tmp &= ~value;
+            tmp &= ~ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
             return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
                              sizeof(tmp));
         }
@@ -241,8 +268,10 @@ class I2CDevice {
         const auto status =
             i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
+            tmp = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(tmp);
             tmp &= ~mask;
             tmp |= value & mask;
+            tmp = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(tmp);
             return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
                              sizeof(tmp));
         }
@@ -417,26 +446,13 @@ class I2CDevice {
     //////////////////////////////
     template <typename Type, size_t N, typename Register>
     void convertEndianness(std::array<Type, N> &array, Register reg) {
-        if (reg.requireEndiannessConversion()) {
-            array[array.size() - 1] = microhal::convertEndianness(array[array.size() - 1], Endianness::Big, Endianness::Little);
-        }
+        array[array.size() - 1] = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(array[array.size() - 1]);
     }
     template <typename Type, size_t N, typename Register, typename... Registers>
     void convertEndianness(std::array<Type, N> &array, Register reg, Registers... regs) {
-        if (reg.requireEndiannessConversion()) {
-            array[array.size() - sizeof...(Registers)-1] =
-                microhal::convertEndianness(array[array.size() - sizeof...(Registers)-1], Endianness::Big, Endianness::Little);
-        }
+        auto index = array.size() - sizeof...(Registers)-1;
+        array[index] = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(array[index]);
         convertEndianness(array, regs...);
-    }
-
-    template <size_t N, typename Register, typename... Registers>
-    void convertEndianness(std::array<uint8_t, N> &array, Register reg, Registers... regs) {
-        //        if (reg.requireEndiannessConversion()) {
-        //            array[array.size() - sizeof...(Registers)-1] =
-        //                microhal::convertEndianness(array[array.size() - sizeof...(Registers)-1], Endianness::Big, Endianness::Little);
-        //        }
-        //        convertEndianness(array, regs...);
     }
 };
 /**
