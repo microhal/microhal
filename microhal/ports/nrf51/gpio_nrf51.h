@@ -124,7 +124,7 @@ class GPIO : public GPIO_Interface<nrf51::GPIO> {
      * @param port - port name
      * @param mask - if bit in mask is set then corresponding pin will be set
      */
-    static inline void setMask(Port port, uint16_t mask) __attribute__((always_inline)) {
+    static inline void setMask(Port port, uint32_t mask) __attribute__((always_inline)) {
         reinterpret_cast<volatile GPIO_Type *>(port)->OUTSET = mask;
     }
     /** @brief This function set pins to low state.
@@ -132,7 +132,7 @@ class GPIO : public GPIO_Interface<nrf51::GPIO> {
      * @param port - port name
      * @param mask - if bit in mask is set then corresponding pin will be reset
      */
-    static inline void resetMask(Port port, uint16_t mask) __attribute__((always_inline)) {
+    static inline void resetMask(Port port, uint32_t mask) __attribute__((always_inline)) {
         reinterpret_cast<volatile GPIO_Type *>(port)->OUTCLR = mask;
     }
     /** @brief This function return port state.
@@ -140,7 +140,7 @@ class GPIO : public GPIO_Interface<nrf51::GPIO> {
      * @param port - port name
      * @return - read value of pins. If pin zero is set then LSB in returned value will be set.
      */
-    static inline uint16_t getMask(Port port) __attribute__((always_inline)) { return reinterpret_cast<volatile GPIO_Type *>(port)->IN; }
+    static inline uint32_t getMask(Port port) __attribute__((always_inline)) { return reinterpret_cast<volatile GPIO_Type *>(port)->IN; }
     /** This function set pin to high state.
      *
      * @param port - port name
@@ -163,7 +163,7 @@ class GPIO : public GPIO_Interface<nrf51::GPIO> {
      * @param pin - pin number
      * @return
      */
-    static inline bool get(Port port, Pin pin) { return (getMask(port) & static_cast<uint16_t>(1 << pin)); }
+    static inline bool get(Port port, Pin pin) { return (getMask(port) & static_cast<uint32_t>(1 << pin)); }
     /** This function read pin state*/
     inline bool get() const { return get(port, pin); }
     /** This function check for pin set.
