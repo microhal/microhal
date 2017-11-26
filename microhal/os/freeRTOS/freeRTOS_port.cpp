@@ -20,17 +20,6 @@ using namespace diagnostic;
 time_t sec_correction;
 suseconds_t usec_correction;
 
-// void std::this_thread::__sleep_for(std::chrono::duration<long long, std::ratio<1ll, 1ll> > s,
-//        std::chrono::duration<long long, std::ratio<1ll, 1000000000ll> > ns) {
-//
-//    uint32_t delay = ns.count() / 1000000;
-//    delay += s.count() * 1000;
-//
-//// diagChannel << Warning << "delay [ms]: " << (uint32_t) delay << endl;
-//
-//    vTaskDelay(delay);
-//}
-
 namespace microhal {
 namespace os {
 
@@ -62,7 +51,7 @@ extern "C" int _gettimeofday(struct timeval *tv, void *tzvp __attribute__((unuse
 
 #ifndef USE_WRAP_MALLOCK
 extern "C" void *malloc(size_t size) {
-	return pvPortMalloc(size);
+    return pvPortMalloc(size);
 }
 
 extern "C" void free(void *pv) {
@@ -71,19 +60,19 @@ extern "C" void free(void *pv) {
 #else
 volatile uint32_t mallock_failure_counter = 0;
 void *freeRTOS_malloc(size_t size) {
-	void *ptr = pvPortMalloc(size);
+    void *ptr = pvPortMalloc(size);
 
-	//    diagChannel << MICROHAL_DEBUG << "allocating memory: " << (uint32_t)size << " left: " << (uint32_t)xPortGetFreeHeapSize();
-	if (ptr == nullptr) {
-		diagChannel << MICROHAL_ERROR << "mallock failed, out of memory";
-		mallock_failure_counter++;
-	}
+    //    diagChannel << MICROHAL_DEBUG << "allocating memory: " << (uint32_t)size << " left: " << (uint32_t)xPortGetFreeHeapSize();
+    if (ptr == nullptr) {
+        diagChannel << MICROHAL_ERROR << "mallock failed, out of memory";
+        mallock_failure_counter++;
+    }
 
-	return ptr;
+    return ptr;
 }
 
 void freeRTOS_free(void *ptr) {
-	vPortFree(ptr);
+    vPortFree(ptr);
 }
 
 extern "C" void *__wrap_malloc(size_t size) {
@@ -102,4 +91,3 @@ extern "C" void __wrap__free_r(struct _reent *r_ptr, void *ptr) {
     freeRTOS_free(ptr);
 }
 #endif
-

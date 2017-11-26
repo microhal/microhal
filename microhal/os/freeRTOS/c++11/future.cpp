@@ -32,7 +32,7 @@
  */
 
 #if __GNUC__ >= 6
-#include "gcc_6.2.0/thread.cc.incl"
+#include "gcc_6.2.0/future.cc.incl"
 #else
-#include "gcc_5/thread.cc.incl"
+#include "gcc_5/future.cc.incl"
 #endif
