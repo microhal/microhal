@@ -66,6 +66,19 @@ static inline int get_nprocs() {
 #endif
 #endif
 
+volatile static size_t defaultStackSize = configMINIMAL_STACK_SIZE;
+namespace microhal {
+namespace os {
+void setDefaultStackSize(size_t size) noexcept {
+    defaultStackSize = (size % 4) ? size / 4 : size / 4 + 1;  // freeRTOS is assaining stack in words (4bytes), so we need to divide required stack
+                                                              // size by 4 to get correct amount of stack memory
+}
+size_t getDefaultStackSize() noexcept {
+    return defaultStackSize * 4;
+}
+}  // namespace os
+}  // namesapce microhal
+
 namespace std _GLIBCXX_VISIBILITY(default) {
     class RAIITaskDelete {
      public:
@@ -172,7 +185,7 @@ namespace std _GLIBCXX_VISIBILITY(default) {
     void thread::_M_start_thread(_State_ptr state, void (*)()) {
         // const int err = __gthread_create(&_M_id._M_thread, &execute_native_thread_routine, state.get());
         this->state = state.get();
-        BaseType_t err = xTaskCreate(&execute_native_thread_routine, NULL, 512, state.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
+        BaseType_t err = xTaskCreate(&execute_native_thread_routine, NULL, defaultStackSize, state.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
         if (err != pdPASS) __throw_system_error(err);
         state.release();
     }
@@ -194,7 +207,7 @@ namespace std _GLIBCXX_VISIBILITY(default) {
         // Create a reference cycle that will be broken in the new thread.
         ptr->_M_this_ptr = std::move(__b);
         // int __e = __gthread_create(&_M_id._M_thread, &execute_native_thread_routine_compat, ptr);
-        BaseType_t __e = xTaskCreate(&execute_native_thread_routine, NULL, 512, __b.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
+        BaseType_t __e = xTaskCreate(&execute_native_thread_routine, NULL, defaultStackSize, __b.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
         if (__e != pdPASS) {
             ptr->_M_this_ptr.reset();  // break reference cycle, destroying *ptr.
             __throw_system_error(__e);
