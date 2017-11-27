@@ -70,9 +70,6 @@ void worker_thread() {
 }
 
 void example() {
-    std::thread worker(worker_thread);
-    std::this_thread::yield();
-
     data = "Example data";
     // send data to the worker thread
     {
@@ -80,7 +77,11 @@ void example() {
         ready = true;
         diagChannel << lock << MICROHAL_DEBUG << "main() signals data ready for processing" << unlock;
     }
+
+
+    std::thread worker(worker_thread);
     cv.notify_one();
+    std::thread worker2(worker_thread);
 
     // wait for the worker
     {
@@ -90,6 +91,7 @@ void example() {
     diagChannel << lock << MICROHAL_DEBUG << "Back in main(), data = " << data << unlock;
 
     worker.join();
+    worker2.join();
 }
 
 /////////////////////////////////////////////
@@ -182,7 +184,7 @@ int main(int argc, char *argv[]) {
 
     diagChannel.setOutputDevice(debugPort);
 
-    std::thread threadA(runTests);
+    std::thread t(runTests);
 
 #ifdef HAL_RTOS_FreeRTOS
     vTaskStartScheduler();

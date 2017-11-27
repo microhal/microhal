@@ -81,13 +81,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   void
   condition_variable::notify_one() noexcept
   {
-    int __e = 1;//__gthread_cond_signal(&_M_cond);
+    int __e = 0;//__gthread_cond_signal(&_M_cond);
 
     xTaskHandle task = _M_cond.get_waiting_task();
 
     if(task){
     	xTaskNotifyGive(task);
-    	__e = 0;
+    	//__e = 0;
     }
 
     // XXX not in spec

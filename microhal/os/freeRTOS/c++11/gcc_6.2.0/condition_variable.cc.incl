@@ -1,6 +1,6 @@
 // condition_variable -*- C++ -*-
 
-// Copyright (C) 2008-2014 Free Software Foundation, Inc.
+// Copyright (C) 2008-2016 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -23,97 +23,136 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <condition_variable>
+#include <cstdlib>
 
 #if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
 
-bool __microhal_cond_timeout_wait(Microhal_cond_impl *impl, SemaphoreHandle_t *mutex, TickType_t timeout){
-
-	impl->add_waiting_task(xTaskGetCurrentTaskHandle());
-	xSemaphoreGive(*mutex);
-	const uint32_t status = ulTaskNotifyTake( pdTRUE, timeout );
-	if(status != pdTRUE){
-		//impl->delete_waiting_task(xTaskGetCurrentTaskHandle());
-	}
-	xSemaphoreTake(*mutex, portMAX_DELAY);
-	return status;
+bool __microhal_cond_timeout_wait(Microhal_cond_impl* impl, SemaphoreHandle_t* mutex, TickType_t timeout) {
+    impl->add_waiting_task(xTaskGetCurrentTaskHandle());
+    xSemaphoreGive(*mutex);
+    const uint32_t status = ulTaskNotifyTake(pdTRUE, timeout);
+    if (status != pdTRUE) {
+        // impl->delete_waiting_task(xTaskGetCurrentTaskHandle());
+    }
+    xSemaphoreTake(*mutex, portMAX_DELAY);
+    return status;
 }
 
-namespace std _GLIBCXX_VISIBILITY(default)
-{
-_GLIBCXX_BEGIN_NAMESPACE_VERSION
+namespace std _GLIBCXX_VISIBILITY(default) {
+    _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #ifdef __GTHREAD_COND_INIT
-  condition_variable::condition_variable() noexcept = default;
+    condition_variable::condition_variable() noexcept = default;
 #else
-  condition_variable::condition_variable() noexcept
-  {
-    //__GTHREAD_COND_INIT_FUNCTION(&_M_cond);
-	  //_M_cond = new Microhal_cond_impl;
-  }
+    condition_variable::condition_variable() noexcept { /*__GTHREAD_COND_INIT_FUNCTION(&_M_cond); */
+    }
 #endif
 
-  condition_variable::~condition_variable() noexcept
-  {
-    // XXX no thread blocked
-    /* int __e = */ //__gthread_cond_destroy(&_M_cond);
-	  //delete _M_cond;
-    // if __e == EBUSY then blocked
-  }
-
-  void
-  condition_variable::wait(unique_lock<mutex>& __lock)
-  {
-    //int __e = __gthread_cond_wait(&_M_cond, __lock.mutex()->native_handle());
-
-	//int __e = _M_cond.add_waiting_task(NULL);
-	//__lock.unlock();
-	//ulTaskNotifyTake( pdTRUE,          /* Clear the notification value before exiting. */
-	 //                 portMAX_DELAY ); /* Block indefinitely. */
-
-	bool __e = !__microhal_cond_timeout_wait(&_M_cond, __lock.mutex()->native_handle(),
-					static_cast<TickType_t>(portMAX_DELAY));
-    //__lock.lock();
-
-    if (__e)
-      __throw_system_error(__e);
-  }
-
-  void
-  condition_variable::notify_one() noexcept
-  {
-    int __e = 1;//__gthread_cond_signal(&_M_cond);
-
-    xTaskHandle task = _M_cond.get_waiting_task();
-
-    if(task){
-    	xTaskNotifyGive(task);
-    	__e = 0;
+    condition_variable::~condition_variable() noexcept {
+        // XXX no thread blocked
+        /* int __e = */  // __gthread_cond_destroy(&_M_cond);
+        // if __e == EBUSY then blocked
     }
 
-    // XXX not in spec
-    // EINVAL
-    if (__e)
-      __throw_system_error(__e);
-  }
+    void condition_variable::wait(unique_lock<mutex> & __lock) noexcept {
+        // int __e = __gthread_cond_wait(&_M_cond, __lock.mutex()->native_handle());
+        bool __e = !__microhal_cond_timeout_wait(&_M_cond, __lock.mutex()->native_handle(), static_cast<TickType_t>(portMAX_DELAY));
 
-  void
-  condition_variable::notify_all() noexcept
-  {
-    //int __e = 1;//__gthread_cond_broadcast(&_M_cond);
-	taskENTER_CRITICAL();
-    uint8_t task_count = _M_cond.get_waiting_task_count();
-    while(task_count--){
-    	xTaskNotifyGive(_M_cond.get_waiting_task());
-    	//__e = 0;
+        if (__e) std::terminate();
     }
-    taskEXIT_CRITICAL();
-    // XXX not in spec
-    // EINVAL
-    //if (__e)
-      //__throw_system_error(__e);
-  }
 
-_GLIBCXX_END_NAMESPACE_VERSION
-} // namespace
+    void condition_variable::notify_one() noexcept {
+        int __e = 0;  //__gthread_cond_signal(&_M_cond);
 
-#endif // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1
+        xTaskHandle task = _M_cond.get_waiting_task();
+
+        if (task) {
+            xTaskNotifyGive(task);
+            //__e = 0;
+        }
+
+        // XXX not in spec
+        // EINVAL
+        if (__e) __throw_system_error(__e);
+    }
+
+    void condition_variable::notify_all() noexcept {
+        int __e = 0;  // __gthread_cond_broadcast(&_M_cond);
+
+        taskENTER_CRITICAL();
+        uint8_t task_count = _M_cond.get_waiting_task_count();
+        while (task_count--) {
+            xTaskNotifyGive(_M_cond.get_waiting_task());
+            // __e = 0;
+        }
+        taskEXIT_CRITICAL();
+
+        // XXX not in spec
+        // EINVAL
+        if (__e) __throw_system_error(__e);
+    }
+
+    extern void __at_thread_exit(__at_thread_exit_elt*);
+
+    namespace {
+    __gthread_key_t key;
+
+    void run(void* p) {
+        auto elt = (__at_thread_exit_elt*)p;
+        while (elt) {
+            auto next = elt->_M_next;
+            elt->_M_cb(elt);
+            elt = next;
+        }
+    }
+
+    void run() {
+        // auto elt = (__at_thread_exit_elt*)__gthread_getspecific(key);
+        // __gthread_setspecific(key, nullptr);
+        // run(elt);
+    }
+
+    struct notifier final : __at_thread_exit_elt {
+        notifier(condition_variable& cv, unique_lock<mutex>& l) : cv(&cv), mx(l.release()) {
+            _M_cb = &notifier::run;
+            __at_thread_exit(this);
+        }
+
+        ~notifier() {
+            mx->unlock();
+            cv->notify_all();
+        }
+
+        condition_variable* cv;
+        mutex* mx;
+
+        static void run(void* p) { delete static_cast<notifier*>(p); }
+    };
+
+    //    void key_init() {
+    //        struct key_s {
+    //            key_s() { /*__gthread_key_create(&key, run); */
+    //            }
+    //            ~key_s() { __gthread_key_delete(key); }
+    //        };
+    //        static key_s ks;
+    //        // Also make sure the callbacks are run by std::exit.
+    //        std::atexit(run);
+    //    }
+    }
+
+    void __at_thread_exit(__at_thread_exit_elt * elt) {
+        // static __gthread_once_t once = __GTHREAD_ONCE_INIT;
+        //__gthread_once(&once, key_init);
+
+        // elt->_M_next = (__at_thread_exit_elt*)__gthread_getspecific(key);
+        // __gthread_setspecific(key, elt);
+        std::terminate(); // unimplemented
+    }
+
+    void notify_all_at_thread_exit(condition_variable & cv, unique_lock<mutex> l) { (void)new notifier{cv, l}; }
+
+    _GLIBCXX_END_NAMESPACE_VERSION
+}  // namespace
+
+#endif  // _GLIBCXX_HAS_GTHREADS && _GLIBCXX_USE_C99_STDINT_TR1

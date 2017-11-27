@@ -25,12 +25,15 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                         */
+                                                                                                                                                                                                                                                                           */
 
+#include "bsp.h"
+#include "consoleIODevice_linux.h"
 #include "microhal.h"
-#include "../linux/bsp.h"
 
 using namespace microhal;
 using namespace diagnostic;
+
+microhal::IODevice &debugPort = linux::consoleIODev;
 
 void initialize(int argc, char *argv[]) {}
