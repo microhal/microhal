@@ -28,12 +28,16 @@
 #if defined(_GLIBCXX_HAS_GTHREADS) && defined(_GLIBCXX_USE_C99_STDINT_TR1)
 
 bool __microhal_cond_timeout_wait(Microhal_cond_impl* impl, SemaphoreHandle_t* mutex, TickType_t timeout) {
+    taskENTER_CRITICAL();
     impl->add_waiting_task(xTaskGetCurrentTaskHandle());
     xSemaphoreGive(*mutex);
+    taskEXIT_CRITICAL();
     const uint32_t status = ulTaskNotifyTake(pdTRUE, timeout);
+    taskENTER_CRITICAL();
     if (status != pdTRUE) {
-        // impl->delete_waiting_task(xTaskGetCurrentTaskHandle());
+        impl->delete_waiting_task(xTaskGetCurrentTaskHandle());
     }
+    taskEXIT_CRITICAL();
     xSemaphoreTake(*mutex, portMAX_DELAY);
     return status;
 }
@@ -48,48 +52,30 @@ namespace std _GLIBCXX_VISIBILITY(default) {
     }
 #endif
 
-    condition_variable::~condition_variable() noexcept {
-        // XXX no thread blocked
-        /* int __e = */  // __gthread_cond_destroy(&_M_cond);
-        // if __e == EBUSY then blocked
-    }
+    condition_variable::~condition_variable() noexcept { notify_all(); }
 
     void condition_variable::wait(unique_lock<mutex> & __lock) noexcept {
-        // int __e = __gthread_cond_wait(&_M_cond, __lock.mutex()->native_handle());
         bool __e = !__microhal_cond_timeout_wait(&_M_cond, __lock.mutex()->native_handle(), static_cast<TickType_t>(portMAX_DELAY));
 
         if (__e) std::terminate();
     }
 
     void condition_variable::notify_one() noexcept {
-        int __e = 0;  //__gthread_cond_signal(&_M_cond);
-
+        taskENTER_CRITICAL();
         xTaskHandle task = _M_cond.get_waiting_task();
-
         if (task) {
             xTaskNotifyGive(task);
-            //__e = 0;
         }
-
-        // XXX not in spec
-        // EINVAL
-        if (__e) __throw_system_error(__e);
+        taskEXIT_CRITICAL();
     }
 
     void condition_variable::notify_all() noexcept {
-        int __e = 0;  // __gthread_cond_broadcast(&_M_cond);
-
         taskENTER_CRITICAL();
-        uint8_t task_count = _M_cond.get_waiting_task_count();
+        auto task_count = _M_cond.get_waiting_task_count();
         while (task_count--) {
             xTaskNotifyGive(_M_cond.get_waiting_task());
-            // __e = 0;
         }
         taskEXIT_CRITICAL();
-
-        // XXX not in spec
-        // EINVAL
-        if (__e) __throw_system_error(__e);
     }
 
     extern void __at_thread_exit(__at_thread_exit_elt*);
@@ -147,7 +133,7 @@ namespace std _GLIBCXX_VISIBILITY(default) {
 
         // elt->_M_next = (__at_thread_exit_elt*)__gthread_getspecific(key);
         // __gthread_setspecific(key, elt);
-        std::terminate(); // unimplemented
+        std::terminate();  // unimplemented
     }
 
     void notify_all_at_thread_exit(condition_variable & cv, unique_lock<mutex> l) { (void)new notifier{cv, l}; }
