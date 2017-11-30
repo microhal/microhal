@@ -70,6 +70,8 @@ void worker_thread() {
 }
 
 void example() {
+    std::thread worker(worker_thread);
+
     data = "Example data";
     // send data to the worker thread
     {
@@ -77,11 +79,7 @@ void example() {
         ready = true;
         diagChannel << lock << MICROHAL_DEBUG << "main() signals data ready for processing" << unlock;
     }
-
-
-    std::thread worker(worker_thread);
     cv.notify_one();
-    std::thread worker2(worker_thread);
 
     // wait for the worker
     {
@@ -91,7 +89,6 @@ void example() {
     diagChannel << lock << MICROHAL_DEBUG << "Back in main(), data = " << data << unlock;
 
     worker.join();
-    worker2.join();
 }
 
 /////////////////////////////////////////////
@@ -122,6 +119,9 @@ void signals() {
         i = 1;
         diagChannel << lock << MICROHAL_DEBUG << "Notifying again..." << unlock;
     }
+    cv.notify_one();
+
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     cv.notify_all();
 }
 
@@ -168,11 +168,15 @@ void testWaitFor() {
 void runTests() {
     // diagChannel << lock << MICROHAL_DEBUG << "Test notify all" << unlock;
     // testNotifyAll();
-    // diagChannel << lock << MICROHAL_DEBUG << "Test wait for" << unlock;
+    diagChannel << lock << MICROHAL_DEBUG << "Test wait for" << unlock;
     // testWaitFor();
 
     example();
     diagChannel << lock << MICROHAL_DEBUG << "--- End of tests ---" << unlock;
+#ifdef HAL_RTOS_FreeRTOS
+    while (1) {
+    }
+#endif
 }
 
 int main(int argc, char *argv[]) {

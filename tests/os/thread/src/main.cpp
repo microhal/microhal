@@ -32,6 +32,7 @@
 #include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
+#include "os/os.h"
 
 using namespace std::literals::chrono_literals;
 using namespace microhal;
@@ -97,7 +98,10 @@ void runTest() {
     testJoin();
     testJoinable();
     testDetach();
+    diagChannel << lock << MICROHAL_DEBUG << "--- End of tests ---" << endl << unlock;
 }
+
+void stackThread() {}
 
 int main(int argc, char *argv[]) {
 #if defined(LINUX)
@@ -107,6 +111,11 @@ int main(int argc, char *argv[]) {
     debugPort.open(SerialPort::ReadWrite);
 
     diagChannel.setOutputDevice(debugPort);
+
+    microhal::os::setDefaultStackSize(1024);
+    std::thread smallStack(stackThread);
+    microhal::os::setDefaultStackSize(4 * 1024);
+    std::thread largeStack(stackThread);
 
     std::thread t(runTest);
 
