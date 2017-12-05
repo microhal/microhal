@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    pawel
  * created on: 24-05-2016
@@ -33,15 +33,17 @@
  * INCLUDES
  */
 #include <chrono>
+#include <cstdint>
 
 namespace microhal {
 namespace os {
-
 
 /* **************************************************************************************************************************************************
  * CLASS
  */
 void set_system_clock_time(const std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration>& actual_time) noexcept;
+void setDefaultStackSize(size_t size) noexcept;
+size_t getDefaultStackSize() noexcept;
 
 }  // namespace os
 }  // namespace microhal
