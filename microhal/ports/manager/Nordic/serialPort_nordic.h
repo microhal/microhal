@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    pawel
  * created on: 27-12-2016
@@ -32,11 +32,13 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-
+#if defined(MCU_TYPE_NRF51)
+#include "ports/nrf51/serialPort_nrf51.h"
+namespace microhal {
+namespace activePort = nrf51;
+}
+#else
+#error "MCU type must be specified."
+#endif
 
 #endif  // _MICROHAL_SERIALPORT_NORDIC_H_

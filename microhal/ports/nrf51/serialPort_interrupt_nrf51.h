@@ -67,7 +67,10 @@ class SerialPort_interrupt : public SerialPort_BufferedBase<SerialPort_interrupt
     inline SerialPort_interrupt(NRF_UART_Type &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize);
 
     //--------------------------------------------- functions ---------------------------------------//
-    void startTransmission_impl() { uart.TASKS_STARTTX = 1; }
+    void startTransmission_impl() {
+        uart.TASKS_STARTTX = 1;
+        uart.TXD = txBuffer.get_unsafe();
+    }
 
     void updateRxBuffer_impl() {}
 

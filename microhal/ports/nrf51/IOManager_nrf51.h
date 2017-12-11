@@ -5,10 +5,10 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 27-12-2016
- * last modification: 6-12-2017
+ * created on: 06-12-2017
+ * last modification: 06-12-2017
  *
- * @copyright Copyright (c) 2016-2017, Pawel Okas
+ * @copyright Copyright (c) 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,20 +27,56 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_IOMANAGER_NORDIC_H_
-#define _MICROHAL_IOMANAGER_NORDIC_H_
+#ifndef _MICROHAL_IOMANAGER_NRF51_H_
+#define _MICROHAL_IOMANAGER_NRF51_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#ifdef MCU_TYPE_NRF51
-#include "ports/nrf51/IOManager_nrf51.h"
-namespace microhal {
-namespace activePort = nrf51;
-}
-#elif defined(MCU_TYPE_NRF51)
-#error "Unsupported device."
-#else
-#error "MCU type must be specified."
-#endif
+#include "gpio_nrf51.h"
+#include "nrf.h"
+#include "serialPort.h"
 
-#endif  // _MICROHAL_IOMANAGER_NORDIC_H_
+namespace microhal {
+typedef enum {
+    Rxd,
+    Txd,
+    Rts,
+    Cts,
+} SerialPinType;
+
+namespace nrf51 {
+
+class IOManager {
+ public:
+    IOManager() = delete;
+
+    template <int serial, SerialPinType serialType, nrf51::GPIO::Port port, nrf51::GPIO::Pin pinNr>
+    static void routeSerial(nrf51::GPIO::PullType pull = nrf51::GPIO::NoPull, nrf51::GPIO::OutputType type = nrf51::GPIO::PushPull) {
+        // assert for Serial1
+        static_assert(pinNr <= 31, "NRF51 has only 32 pins, numbered from 0 to 31");
+
+        // switch (serial) {
+        //  case 1:
+        if (serialType == SerialPinType::Rxd) {
+            nrf51::GPIO::setDirection(port, pinNr, nrf51::GPIO::Direction::Input);
+            NRF_UART0->PSELRXD = pinNr;
+        }
+        if (serialType == SerialPinType::Txd) {
+            nrf51::GPIO::setDirection(port, pinNr, nrf51::GPIO::Direction::Output);
+            NRF_UART0->PSELTXD = pinNr;
+        }
+        if (serialType == SerialPinType::Rts) {
+            NRF_UART0->PSELRTS = pinNr;
+        }
+        if (serialType == SerialPinType::Cts) {
+            NRF_UART0->PSELCTS = pinNr;
+        }
+        //    break;
+        //}
+    }
+};
+
+}  // namespace nrf51
+}  // namespace microhal
+
+#endif  // _MICROHAL_IOMANAGER_NRF51_H_

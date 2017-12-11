@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief
  *
@@ -35,6 +35,7 @@
 #include <cstdint>
 #include "device/nrf.h"
 #include "interfaces/serialPort_interface.h"
+#include "microhalPortConfig_nrf51.h"
 
 namespace microhal {
 namespace nrf51 {
@@ -50,44 +51,44 @@ class SerialPort : public microhal::SerialPort {
 #endif
 
     bool open(OpenMode mode) noexcept override = 0;
-    bool isOpen(void) const noexcept final { return uart.ENABLE == UART_ENABLE_ENABLE_Enabled; }
-    void close() noexcept final { uart.ENABLE = UART_ENABLE_ENABLE_Disabled; }
+    bool isOpen(void) const noexcept final { return uart.ENABLE == (UART_ENABLE_ENABLE_Enabled << UART_ENABLE_ENABLE_Pos); }
+    void close() noexcept final { uart.ENABLE = (UART_ENABLE_ENABLE_Disabled << UART_ENABLE_ENABLE_Pos); }
 
     bool setBaudRate(uint32_t baudrate) noexcept final {
         auto baudToRegValue = [](uint32_t baudrate) -> uint32_t {
             switch (baudrate) {
                 case Baud1200:
-                    return 0x0004F000;  // 1200 baud (actual rate: 1205)
+                    return UART_BAUDRATE_BAUDRATE_Baud1200;  // 1200 baud (actual rate: 1205)
                 case Baud2400:
-                    return 0x0009D000;  // 2400 baud (actual rate: 2396)
+                    return UART_BAUDRATE_BAUDRATE_Baud2400;  // 2400 baud (actual rate: 2396)
                 case Baud4800:
-                    return 0x0013B000;  // 4800 baud (actual rate: 4808)
+                    return UART_BAUDRATE_BAUDRATE_Baud4800;  // 4800 baud (actual rate: 4808)
                 case Baud9600:
-                    return 0x00275000;  // 9600 baud (actual rate: 9598)
+                    return UART_BAUDRATE_BAUDRATE_Baud9600;  // 9600 baud (actual rate: 9598)
                 case 14400:
-                    return 0x003AF000;  // 14400 baud (actual rate: 14401)
+                    return UART_BAUDRATE_BAUDRATE_Baud14400;  // 14400 baud (actual rate: 14401)
                 case Baud19200:
-                    return 0x004EA000;  // 19200 baud (actual rate: 19208)
+                    return UART_BAUDRATE_BAUDRATE_Baud19200;  // 19200 baud (actual rate: 19208)
                 case 28800:
-                    return 0x0075C000;  // 28800 baud (actual rate: 28777)
+                    return UART_BAUDRATE_BAUDRATE_Baud28800;  // 28800 baud (actual rate: 28777)
                 case Baud38400:
-                    return 0x009D0000;  // 38400 baud (actual rate: 38369)
+                    return UART_BAUDRATE_BAUDRATE_Baud38400;  // 38400 baud (actual rate: 38369)
                 case Baud57600:
-                    return 0x00EB0000;  // 57600 baud (actual rate: 57554)
+                    return UART_BAUDRATE_BAUDRATE_Baud57600;  // 57600 baud (actual rate: 57554)
                 case 76800:
-                    return 0x013A9000;  // 76800 baud (actual rate: 76923)
+                    return UART_BAUDRATE_BAUDRATE_Baud76800;  // 76800 baud (actual rate: 76923)
                 case Baud115200:
-                    return 0x01D60000;  // 115200 baud (actual rate: 115108)
+                    return UART_BAUDRATE_BAUDRATE_Baud115200;  // 115200 baud (actual rate: 115108)
                 case Baud230400:
-                    return 0x03B00000;  // 230400 baud (actual rate: 231884)
+                    return UART_BAUDRATE_BAUDRATE_Baud230400;  // 230400 baud (actual rate: 231884)
                 case 250000:
-                    return 0x04000000;  // 250000 baud
+                    return UART_BAUDRATE_BAUDRATE_Baud250000;  // 250000 baud
                 case Baud460800:
-                    return 0x07400000;  // 460800 baud (actual rate: 457143)
+                    return UART_BAUDRATE_BAUDRATE_Baud460800;  // 460800 baud (actual rate: 457143)
                 case Baud921600:
-                    return 0x0F000000;  // 921600 baud (actual rate: 941176)
+                    return UART_BAUDRATE_BAUDRATE_Baud921600;  // 921600 baud (actual rate: 941176)
                 case Baud1M:
-                    return 0x10000000;  // 1Mega baud
+                    return UART_BAUDRATE_BAUDRATE_Baud1M;  // 1Mega baud
                 default:
                     return 0;  // unsupported baud
             }
@@ -103,37 +104,37 @@ class SerialPort : public microhal::SerialPort {
     uint32_t getBaudRate() const noexcept final {
         auto regValueToBaud = [&]() -> uint32_t {
             switch (uart.BAUDRATE) {
-                case 0x0004F000:
+                case UART_BAUDRATE_BAUDRATE_Baud1200:
                     return 1200;  // 1200 baud (actual rate: 1205)
-                case 0x0009D000:
+                case UART_BAUDRATE_BAUDRATE_Baud2400:
                     return 2400;  // 2400 baud (actual rate: 2396)
-                case 0x0013B000:
+                case UART_BAUDRATE_BAUDRATE_Baud4800:
                     return 4800;  // 4800 baud (actual rate: 4808)
-                case 0x00275000:
+                case UART_BAUDRATE_BAUDRATE_Baud9600:
                     return 9600;  // 9600 baud (actual rate: 9598)
-                case 0x003AF000:
+                case UART_BAUDRATE_BAUDRATE_Baud14400:
                     return 14400;  // 14400 baud (actual rate: 14401)
-                case 0x004EA000:
+                case UART_BAUDRATE_BAUDRATE_Baud19200:
                     return 19200;  // 19200 baud (actual rate: 19208)
-                case 0x0075C000:
+                case UART_BAUDRATE_BAUDRATE_Baud28800:
                     return 28800;  // 28800 baud (actual rate: 28777)
-                case 0x009D0000:
+                case UART_BAUDRATE_BAUDRATE_Baud38400:
                     return 38400;  // 38400 baud (actual rate: 38369)
-                case 0x00EB0000:
+                case UART_BAUDRATE_BAUDRATE_Baud57600:
                     return 57600;  // 57600 baud (actual rate: 57554)
-                case 0x013A9000:
+                case UART_BAUDRATE_BAUDRATE_Baud76800:
                     return 76800;  // 76800 baud (actual rate: 76923)
-                case 0x01D60000:
+                case UART_BAUDRATE_BAUDRATE_Baud115200:
                     return 115200;  // 115200 baud (actual rate: 115108)
-                case 0x03B00000:
+                case UART_BAUDRATE_BAUDRATE_Baud230400:
                     return 230400;  // 230400 baud (actual rate: 231884)
-                case 0x04000000:
+                case UART_BAUDRATE_BAUDRATE_Baud250000:
                     return 250000;  // 250000 baud
-                case 0x07400000:
+                case UART_BAUDRATE_BAUDRATE_Baud460800:
                     return 460800;  // 460800 baud (actual rate: 457143)
-                case 0x0F000000:
+                case UART_BAUDRATE_BAUDRATE_Baud921600:
                     return 921600;  // 921600 baud (actual rate: 941176)
-                case 0x10000000:
+                case UART_BAUDRATE_BAUDRATE_Baud1M:
                     return 1000000;  // 1Mega baud
                 default:
                     std::terminate();  // unsupported value
@@ -177,6 +178,7 @@ class SerialPort : public microhal::SerialPort {
     void enableInterrupt(uint32_t priority) {
         switch (reinterpret_cast<uint32_t>(&uart)) {
             case reinterpret_cast<uint32_t>(NRF_UART0):
+                NVIC_ClearPendingIRQ(UART0_IRQn);
                 NVIC_EnableIRQ(UART0_IRQn);
                 NVIC_SetPriority(UART0_IRQn, priority);
                 break;

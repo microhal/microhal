@@ -42,14 +42,14 @@ namespace nrf51 {
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
 static char txBufferData_1[MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE];
 static char rxBufferData_1[MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial1(*USART0, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1), sizeof(txBufferData_1));
+SerialPort_interrupt SerialPort_interrupt::Serial1(*NRF_UART0, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1), sizeof(txBufferData_1));
 SerialPort &SerialPort::Serial1 = SerialPort_interrupt::Serial1;
 #endif
 
 SerialPort_interrupt::SerialPort_interrupt(NRF_UART_Type &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
-    //    ClockManager::enable(usart);
-    // enableInterrupt(0);
+    usart.INTENCLR = 0xffffffffUL;
+    enableInterrupt(2);
 }
 
 bool SerialPort_interrupt::open(OpenMode mode) noexcept {
@@ -60,6 +60,10 @@ bool SerialPort_interrupt::open(OpenMode mode) noexcept {
     if (isOpen()) return false;
 
     uart.ENABLE |= UART_ENABLE_ENABLE_Enabled;
+
+    uart.EVENTS_RXDRDY = 0;
+    uart.EVENTS_TXDRDY = 0;
+    uart.CONFIG &= ~(UART_CONFIG_HWFC_Enabled << UART_CONFIG_HWFC_Pos);
     uart.INTENSET = UART_INTENSET_TXDRDY_Set << UART_INTENSET_TXDRDY_Pos;
     if (mode != OpenMode::WriteOnly) {
         uart.TASKS_STARTRX = 1;
@@ -72,7 +76,7 @@ bool SerialPort_interrupt::open(OpenMode mode) noexcept {
 //                                     interrupt functions                                       //
 //***********************************************************************************************//
 inline void serialPort_interruptFunction(NRF_UART_Type *const uart, SerialPort_interrupt &serial) {
-    if (uart->EVENTS_RXDRDY) {
+    if ((uart->EVENTS_RXDRDY != 0) && (uart->INTENSET & UART_INTENSET_RXDRDY_Msk)) {
         uart->EVENTS_RXDRDY = 0;
         char tmp = uart->RXD;
         serial.rxBuffer.append(tmp);
@@ -86,7 +90,8 @@ inline void serialPort_interruptFunction(NRF_UART_Type *const uart, SerialPort_i
 #endif
         }
     }
-    if ((uart->EVENTS_TXDRDY) && (uart->TASKS_STARTTX)) {
+    if ((uart->EVENTS_TXDRDY != 0) && (uart->INTENSET & UART_INTENSET_TXDRDY_Msk)) {
+        uart->EVENTS_TXDRDY = 0;
         if (serial.txBuffer.isEmpty()) {
             uart->TASKS_STOPTX = 1;
             if (serial.txWait) {
@@ -101,13 +106,18 @@ inline void serialPort_interruptFunction(NRF_UART_Type *const uart, SerialPort_i
             uart->TXD = serial.txBuffer.get_unsafe();
         }
     }
+
+    if ((uart->EVENTS_ERROR != 0) && (uart->INTENSET & UART_INTENSET_ERROR_Msk)) {
+        // todo add error handling
+        uart->EVENTS_ERROR = 0;
+    }
 }
 //***********************************************************************************************//
 //                                          IRQHandlers                                          //
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
 void UART0_IRQHandler(void) {
-    serialPort_interruptFunction(UART0, SerialPort_interrupt::Serial1);
+    serialPort_interruptFunction(NRF_UART0, SerialPort_interrupt::Serial1);
 }
 #endif
 
