@@ -402,6 +402,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/gsl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/os}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/ports}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1722122048" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
@@ -655,6 +656,9 @@
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1381051593;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1381051593.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.570951126;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.875480182">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.781225250;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.781225250.;cdt.managedbuild.tool.gnu.c.compiler.base.678780899;cdt.managedbuild.tool.gnu.c.compiler.input.1424139184">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1622294745;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1622294745.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.2085848987;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1805166921">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
@@ -668,6 +672,9 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1622294745.1402760804;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1622294745.1402760804.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.723162035;cdt.managedbuild.tool.gnu.c.compiler.input.1291106230">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.781225250;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.781225250.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1677239368;cdt.managedbuild.tool.gnu.cpp.compiler.input.1213251150">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1622294745.1533350163.1918333971;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1622294745.1533350163.1918333971.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1705653827;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1525070114">
