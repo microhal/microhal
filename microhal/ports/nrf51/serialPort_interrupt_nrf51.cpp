@@ -49,7 +49,7 @@ SerialPort &SerialPort::Serial1 = SerialPort_interrupt::Serial1;
 SerialPort_interrupt::SerialPort_interrupt(NRF_UART_Type &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
     usart.INTENCLR = 0xffffffffUL;
-    enableInterrupt(2);
+    enableInterrupt(serialPort1_priority);  // serialPort1_priority have to be defined in port configuration file
 }
 
 bool SerialPort_interrupt::open(OpenMode mode) noexcept {

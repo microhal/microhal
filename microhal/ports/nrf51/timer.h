@@ -76,7 +76,11 @@ class Timer {
     void shutdown() { timer.TASKS_SHUTDOWN = 1; }
     void clear() { timer.TASKS_CLEAR = 1; }
 
-    void enableInterrupt() { NVIC_EnableIRQ(getIRQNumber()); }
+    void enableInterrupt(uint32_t priority) {
+        NVIC_ClearPendingIRQ(getIRQNumber());
+        NVIC_SetPriority(getIRQNumber(), priority);
+        NVIC_EnableIRQ(getIRQNumber());
+    }
     void disableInterrupt() { NVIC_DisableIRQ(getIRQNumber()); }
 
     struct CC {
