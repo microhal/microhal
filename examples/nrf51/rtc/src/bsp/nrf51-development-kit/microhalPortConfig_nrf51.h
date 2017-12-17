@@ -30,15 +30,18 @@
 #ifndef MICROHALPORTCONFIG_H_
 #define MICROHALPORTCONFIG_H_
 
+#include <cstdint>
 //***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//
 //***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
+
 #define MICROHAL_USE_SERIAL_PORT1_INTERRUPT  // available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
 //						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
 //						 MICROHAL_USE_SERIAL_PORTx_DMA
+constexpr uint32_t serialPort1_priority = 2;
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
 
