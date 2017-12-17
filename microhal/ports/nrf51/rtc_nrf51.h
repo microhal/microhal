@@ -74,6 +74,11 @@ class RTC {
         return std::time_t(std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch()).count());
     }
 
+    static time_point from_time_t(std::time_t t) noexcept {
+        using from = std::chrono::time_point<RTC, std::chrono::seconds>;
+        return std::chrono::time_point_cast<RTC::duration>(from(std::chrono::seconds(t)));
+    }
+
     enum class Event : uint32_t {
         Tick = RTC_EVTENCLR_TICK_Enabled << RTC_EVTENCLR_TICK_Pos,
         Overflow = RTC_EVTENCLR_OVRFLW_Enabled << RTC_EVTENCLR_OVRFLW_Pos,
