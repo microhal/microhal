@@ -55,11 +55,13 @@ class ClockManager {
     struct LFCLK {
         enum class Source : uint32_t { RC = 0, Xtal = 1, Synth = 2 };
 
-        void source(Source source) { NRF_CLOCK->LFCLKSRC = static_cast<uint32_t>(source); }
-        Source source() { return static_cast<Source>(NRF_CLOCK->LFCLKSTAT & 0b11); }
-        void enable() { NRF_CLOCK->TASKS_LFCLKSTART = 1; }
-        void disable() { NRF_CLOCK->TASKS_LFCLKSTOP = 1; }
-        bool isEnabled() { return NRF_CLOCK->LFCLKRUN & 1; }
+        static void source(Source source) { NRF_CLOCK->LFCLKSRC = static_cast<uint32_t>(source); }
+        static Source source() { return static_cast<Source>(NRF_CLOCK->LFCLKSTAT & 0b11); }
+        static void enable() { NRF_CLOCK->TASKS_LFCLKSTART = 1; }
+        static void disable() { NRF_CLOCK->TASKS_LFCLKSTOP = 1; }
+        static bool isEnabled() { return NRF_CLOCK->LFCLKRUN & 1; }
+
+        constexpr static uint32_t frequency() { return 32768; }
     };
 
     struct HFXO {
