@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      ADC port include file
  *
@@ -8,7 +8,7 @@
  * created on: 12-06-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, microHAL
+ * @copyright Copyright (c) 2014-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,19 +33,21 @@
  * INCLUDES
  */
 #if defined(VENDOR_RENESAS)
-	#include "Renesas/adc_renesas.h"
+#include "Renesas/adc_renesas.h"
 #elif defined(VENDOR_NORDIC)
-	#include "Nordic/adc_nordic.h"
+#include "Nordic/adc_nordic.h"
 #elif defined(VENDOR_SILICON_LABS)
-    #include "SiliconLabs/adc_siliconLabs.h"
+#include "SiliconLabs/adc_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
-	#include "STMicroelectronics/adc_stm.h"
+#include "STMicroelectronics/adc_stm.h"
 #elif defined(VENDOR_ATMEL)
-	#include "Atmel/adc_atmel.h"
+#include "Atmel/adc_atmel.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+
 #elif defined(LINUX_PORT)
-	#include "linux/adc_linux.h"
+#include "linux/adc_linux.h"
 #else
-	#error "Microcontroler vendor undefined."
+#error "Microcontroler vendor undefined."
 #endif
 
 #endif  // _MICROHAL_ADC_PORT_H_

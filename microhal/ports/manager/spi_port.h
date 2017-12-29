@@ -43,6 +43,8 @@
     #include "SiliconLabs/spi_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
     #include "STMicroelectronics/spi_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+
 #elif defined(LINUX_PORT)
     #include "linux/General/spi_linux.h"
 #elif defined(WINDOWS_PORT)

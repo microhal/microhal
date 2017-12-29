@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      GPIO port include file
  *
@@ -8,7 +8,7 @@
  * created on: 9-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,19 +33,21 @@
  * INCLUDES
  */
 #if defined(VENDOR_ATMEL)
-	#include "Atmel/gpio_atmel.h"
+#include "Atmel/gpio_atmel.h"
 #elif defined(VENDOR_NORDIC)
-	#include "Nordic/gpio_nordic.h"
+#include "Nordic/gpio_nordic.h"
 #elif defined(VENDOR_RENESAS)
-	#include "Renesas/gpio_renesas.h"
+#include "Renesas/gpio_renesas.h"
 #elif defined(VENDOR_SILICON_LABS)
-    #include "SiliconLabs/gpio_siliconLabs.h"
+#include "SiliconLabs/gpio_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
-	#include "STMicroelectronics/gpio_stm.h"
+#include "STMicroelectronics/gpio_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+#include "TexasInstruments/gpio_ti.h"
 #elif defined(LINUX_PORT)
-	#include "ports/linux/gpio_linux.h"
+#include "ports/linux/gpio_linux.h"
 #else
-	#error "Microcontroller vendor undefined."
+#error "Microcontroller vendor undefined."
 #endif
 
-#endif // _MICROHAL_GPIO_PORT_H_
+#endif  // _MICROHAL_GPIO_PORT_H_

@@ -2,13 +2,13 @@
  * @license    BSD 3-Clause
  * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      externalInterrupt port include file
+ * @brief
  *
  * @authors    Pawel Okas
- * created on: 9-04-2014
- * last modification: <DD-MM-YYYY>
+ * created on: 26-12-2017
+ * last modification: 26-12-2017
  *
- * @copyright Copyright (c) 2015-2017, Pawel Okas
+ * @copyright Copyright (c) 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,27 +27,23 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_EXTERNALINTERRUPT_PORT_H_
-#define _MICROHAL_EXTERNALINTERRUPT_PORT_H_
-/* ************************************************************************************************
+#ifndef _MICROHAL_CLOCKMANAGER_H_
+#define _MICROHAL_CLOCKMANAGER_H_
+/* **************************************************************************************************************************************************
  * INCLUDES
  */
-#if defined(VENDOR_ATMEL)
-#include "Atmel/externalInterrupt_atmel.h"
-#elif defined(VENDOR_NORDIC)
-#include "Nordic/externalInterrupts_nordic.h"
-#elif defined(VENDOR_RENESAS)
-#include "Renesas/externalInterrupt_renesas.h"
-#elif defined(VENDOR_SILICON_LABS)
-#include "SiliconLabs/externalInterrupt_siliconLabs.h"
-#elif defined(VENDOR_STMICROELECTRONICS)
-#include "STMicroelectronics/externalInterrupt_stm.h"
-#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+namespace microhal {
+namespace rm57x {
 
-#elif defined(LINUX_PORT)
-//#include "Linux/externalInterrupt_linux.h"
-#else
-#error "Microcontroller vendor undefined."
-#endif
+/* **************************************************************************************************************************************************
+ * CLASS
+ */
+class ClockManager {
+ public:
+    static uint32_t VCLKFrequency() { return 75000000; }
+    static uint32_t VBUSPLCKFrequency() { return 50000000; }
+};
 
-#endif  // _MICROHAL_EXTERNALINTERRUPT_PORT_H_
+}  // namespace microhal
+}  // namespace rm57x
+#endif  // _MICROHAL_CLOCKMANAGER_H_

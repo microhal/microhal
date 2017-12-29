@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      serialPort port include file
  *
@@ -8,7 +8,7 @@
  * created on: 9-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,21 +33,23 @@
  * INCLUDES
  */
 #if defined(VENDOR_ATMEL)
-	#include "Atmel/serialPort_atmel.h"
+#include "Atmel/serialPort_atmel.h"
 #elif defined(VENDOR_NORDIC)
-	#include "Nordic/serialPort_nordic.h"
-#elif defined (VENDOR_RENESAS)
-	#include "Renesas/serialPort_renesas.h"
+#include "Nordic/serialPort_nordic.h"
+#elif defined(VENDOR_RENESAS)
+#include "Renesas/serialPort_renesas.h"
 #elif defined(VENDOR_SILICON_LABS)
-    #include "SiliconLabs/serialPort_siliconLabs.h"
+#include "SiliconLabs/serialPort_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
-	#include "STMicroelectronics/serialPort_stm.h"
+#include "STMicroelectronics/serialPort_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+#include "TexasInstruments/serialPort_ti.h"
 #elif defined(LINUX_PORT)
-	#include "ports/linux/General/serialPort_linux.h"
+#include "ports/linux/General/serialPort_linux.h"
 #elif defined(WINDOWS_PORT)
-	#include "ports/windows/General/serialPort_windows.h"
+#include "ports/windows/General/serialPort_windows.h"
 #else
-	#error "Microcontroller vendor undefined."
+#error "Microcontroller vendor undefined."
 #endif
 
-#endif // _MICROHAL_SERIALPORT_PORT_H_
+#endif  // _MICROHAL_SERIALPORT_PORT_H_

@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      IOManager port include file
  *
@@ -8,7 +8,7 @@
  * created on: 9-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,19 +33,21 @@
  * INCLUDES
  */
 #if defined(VENDOR_ATMEL)
-	#include "Atmel/IOManager_atmel.h"
+#include "Atmel/IOManager_atmel.h"
 #elif defined(VENDOR_NORDIC)
-	#include "Nordic/IOManager_nordic.h"
+#include "Nordic/IOManager_nordic.h"
 #elif defined(VENDOR_RENESAS)
-	#include "Renesas/IOManager_renesas.h"
+#include "Renesas/IOManager_renesas.h"
 #elif defined(VENDOR_SILICON_LABS)
-    #include "SiliconLabs/IOManager_siliconLabs.h"
+#include "SiliconLabs/IOManager_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
-	#include "STMicroelectronics/IOManager_stm.h"
+#include "STMicroelectronics/IOManager_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+
 #elif defined(LINUX_PORT)
-	//#include "Linux/IOManager_linux.h"
+//#include "Linux/IOManager_linux.h"
 #else
-	#error "Microcontroller vendor undefined."
+#error "Microcontroller vendor undefined."
 #endif
 
-#endif // _MICROHAL_IOMANAGER_PORT_H_
+#endif  // _MICROHAL_IOMANAGER_PORT_H_

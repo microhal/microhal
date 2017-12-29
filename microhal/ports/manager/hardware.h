@@ -1,14 +1,14 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      
+ * @brief
  *
- * @authors    pawel
+ * @authors    Pawel Okas
  * created on: 17-12-2016
  * last modification: 17-12-2016
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2016 - 2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,31 +29,25 @@
 
 #ifndef _MICROHAL_HARDWARE_H_
 #define _MICROHAL_HARDWARE_H_
-/* **************************************************************************************************************************************************
- * INCLUDES
- */
 /* ************************************************************************************************
  * INCLUDES
  */
 #if defined(VENDOR_ATMEL)
-	#include "Atmel/hardware_atmel.h"
+#include "Atmel/hardware_atmel.h"
 #elif defined(VENDOR_NORDIC)
-	#include "Nordic/hardware_nordic.h"
+#include "Nordic/hardware_nordic.h"
 #elif defined(VENDOR_RENESAS)
-	#include "Renesas/hardware_renesas.h"
+#include "Renesas/hardware_renesas.h"
 #elif defined(VENDOR_SILICON_LABS)
-    #include "SiliconLabs/hardware_siliconLabs.h"
+#include "SiliconLabs/hardware_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
-	#include "STMicroelectronics/hardware_stm.h"
+#include "STMicroelectronics/hardware_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+#include "TexasInstruments/hardware_ti.h"
 #elif defined(LINUX_PORT)
-	#include "ports/linux/hardware_linux.h"
+#include "ports/linux/hardware_linux.h"
 #else
-	#error "Microcontroller vendor undefined."
+#error "Microcontroller vendor undefined."
 #endif
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-
 
 #endif  // _MICROHAL_HARDWARE_H_
