@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                         */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */
 
 #include "bsp.h"
 #include "microhal.h"
@@ -37,6 +37,11 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
+    SysTick_Config(8000000 / 1000);
+}
+
+namespace bsp {
+void init() {
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
 
@@ -45,12 +50,10 @@ void hardwareConfig(void) {
     debugPort.setDataBits(stm32f3xx::SerialPort::Data8);
     debugPort.setStopBits(stm32f3xx::SerialPort::OneStop);
     debugPort.setParity(stm32f3xx::SerialPort::NoParity);
-
-    SysTick_Config(8000000 / 1000);
 }
+}  // namespace bsp
 
 uint64_t SysTick_time = 0;
-;
 
 extern "C" void SysTick_Handler(void) {
     SysTick_time++;

@@ -40,6 +40,7 @@
 #include "diagnostic_base.h"
 #include "diagnostic_headerGenerator.h"
 #include "diagnostics_conversion.h"
+#include "microhalConfig.h"
 
 // check if needed macros are defined
 #ifndef MICROHAL_DIAGNOSTIC_LOG_LEVEL

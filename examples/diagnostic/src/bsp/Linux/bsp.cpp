@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                         */
+                                                                                                                                                                                                                                                                                                                                                                                                             */
 
 #include "bsp.h"
 #include "consoleIODevice_linux.h"
@@ -35,15 +35,7 @@ using namespace microhal;
 using namespace diagnostic;
 
 microhal::IODevice &debugPort = linux::consoleIODev;
+namespace bsp {
+void init(void) {}
 
-bool BSP_Init(void) {
-    // setup diagnostic port
-    if (debugPort.open(SerialPort::ReadWrite)) {
-        return true;
-    }
-    return false;
-}
-
-bool BSP_Deinit(void) {
-    return true;
-}
+}  // namespace bsp

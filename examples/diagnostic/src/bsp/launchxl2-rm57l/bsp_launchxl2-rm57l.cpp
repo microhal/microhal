@@ -1,15 +1,15 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for TI Hercules Launchxl2-RM57L
  *
  * @authors    Pawel Okas
- * created on: 18-11-2016
+ * created on: 26-12-2017
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2017, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,31 +31,25 @@
 #include "bsp.h"
 #include "microhal.h"
 
-using namespace microhal;
-using namespace stm32f4xx;
+using namespace microhal::rm57x;
+// using namespace rm57x;
 
-void hardwareConfig(void) {
-    // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
-
-    SysTick_Config(168000000 / 1000);
-}
+void hardwareConfig(void) {}
 
 namespace bsp {
-void init() {
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
-    debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
-    debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
-    debugPort.setParity(stm32f4xx::SerialPort::NoParity);
-    debugPort.open(stm32f4xx::SerialPort::ReadWrite);
-    debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+void configureSerialPort(microhal::SerialPort &serial) {
+    serial.setBaudRate(microhal::SerialPort::Baud115200);
+    serial.setDataBits(microhal::SerialPort::Data8);
+    serial.setStopBits(microhal::SerialPort::OneStop);
+    serial.setParity(microhal::SerialPort::NoParity);
+    // serial.open(SerialPort::ReadWrite);
 }
+
+void init() {
+    configureSerialPort(debugPort);
+    __asm volatile("cpsie i" : : : "memory");
 }
+}  // namespace bsp
 
 uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void) {
-    SysTick_time++;
-}

@@ -35,4 +35,8 @@
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
+namespace bsp {
+void init();
+}
+
 #endif  // NUCLEO_F411RE_H_
