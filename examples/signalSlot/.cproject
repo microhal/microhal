@@ -96,10 +96,8 @@
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS=1"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX=1"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.161181225" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.gnucpp1y" valueType="enumerated"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.463412486" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
@@ -149,7 +147,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -187,7 +185,6 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.402748032" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="WINDOWS_PORT"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.1759131076" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.767702430" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
@@ -205,7 +202,6 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1671351386" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="WINDOWS_PORT"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 								</option>
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.2137538903" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1143011470" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
@@ -222,7 +218,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/microhal/core/button|src/microhal/os/noRTOS|src/microhal/os/linux|src/microhal/os/freeRTOS|src/microhal/ports/windows/General/tests|src/microhal/ports/stm32f4xx|src/microhal/ports/linux|src/gsl/tests|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/microhal/core/button|src/microhal/os/noRTOS|src/microhal/os/linux|src/microhal/os/freeRTOS|src/microhal/ports/windows/General/tests|src/microhal/ports/stm32f4xx|src/microhal/ports/linux|src/gsl/tests|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -299,7 +295,6 @@
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS=1"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX=1"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
@@ -323,11 +318,9 @@
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS=1"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX=1"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.87316616" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.gnucpp1y" valueType="enumerated"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1178295131" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
@@ -377,7 +370,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/stm32f4-discovery|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/stm32f4-discovery|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -414,8 +407,6 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.8558731" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 									<listOptionValue builtIn="false" value="LINUX_PORT"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.674366413" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
@@ -434,8 +425,6 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.19002621" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 									<listOptionValue builtIn="false" value="LINUX_PORT"/>
 								</option>
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1644044100" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.most" valueType="enumerated"/>
@@ -460,7 +449,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/bsp/windows|src/microhal/ports/common|src/microhal/os/freeRTOS|src/microhal/os/windows|src/microhal/ports/windows|src/microhal/os/noRTOS|src/gsl/tests|src/microhal/core/button|src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/bsp/Windows|src/microhal/ports/stm32f4xx|src/microhal/ports/cmsis|src/microhal/core/buffers/tests|src/bsp/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/bsp/windows|src/microhal/ports/common|src/microhal/os/freeRTOS|src/microhal/os/windows|src/microhal/ports/windows|src/microhal/os/noRTOS|src/gsl/tests|src/microhal/core/button|src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/bsp/Windows|src/microhal/ports/stm32f4xx|src/microhal/ports/cmsis|src/microhal/core/buffers/tests|src/bsp/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -560,11 +549,9 @@
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS=1"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F3XX"/>
 									<listOptionValue builtIn="false" value="STM32F334x8"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.2046626890" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.gnucpp1y" valueType="enumerated"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.2075188413" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
@@ -614,7 +601,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/microhal/ports/stm32f3xx/startup/startup.c|src/microhal/ports/stm32f4xx|src/bsp/stm32f4-discovery|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx/startup/startup.c|src/microhal/ports/stm32f4xx|src/bsp/stm32f4-discovery|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
