@@ -199,21 +199,21 @@ SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxD
     uint32_t rccEnableFlag;
 
     switch (reinterpret_cast<uint32_t>(&usart)) {
-        case reinterpret_cast<uint32_t>(USART1):
+        case reinterpret_cast<uint32_t>(USART1_BASE):
             rccEnableFlag = RCC_APB2ENR_USART1EN;
             NVIC_SetPriority(USART1_IRQn, 0);
             NVIC_ClearPendingIRQ(USART1_IRQn);
             NVIC_EnableIRQ(USART1_IRQn);
 
             break;
-        case reinterpret_cast<uint32_t>(USART2):
+        case reinterpret_cast<uint32_t>(USART2_BASE):
             rccEnableFlag = RCC_APB1ENR_USART2EN;
             NVIC_SetPriority(USART2_IRQn, 0);
             NVIC_ClearPendingIRQ(USART2_IRQn);
             NVIC_EnableIRQ(USART2_IRQn);
 
             break;
-        case reinterpret_cast<uint32_t>(USART3):
+        case reinterpret_cast<uint32_t>(USART3_BASE):
             rccEnableFlag = RCC_APB1ENR_USART3EN;
             NVIC_SetPriority(USART3_IRQn, 0);
             NVIC_ClearPendingIRQ(USART3_IRQn);
@@ -221,7 +221,7 @@ SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxD
 
             break;
         default:
-        	std::terminate();
+            std::terminate();
     }
     if (reinterpret_cast<uint32_t>(&usart) == reinterpret_cast<uint32_t>(USART1)) {
         RCC->APB2ENR |= rccEnableFlag;

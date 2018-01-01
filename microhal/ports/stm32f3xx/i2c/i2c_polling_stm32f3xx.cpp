@@ -224,7 +224,7 @@ I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t
     // read data from I2C data register
     ((uint8_t *)dataB)[i] = i2c.RXDR;
     return Error::None;
-};
+}
 
 }  // namespace stm32f3xx
 }  // namespace microhal

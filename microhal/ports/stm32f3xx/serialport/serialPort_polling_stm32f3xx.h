@@ -58,13 +58,13 @@ class SerialPort_polling : public stm32f3xx::SerialPort {
         uint32_t rccEnableFlag;
 
         switch (reinterpret_cast<uint32_t>(&usart)) {
-            case reinterpret_cast<uint32_t>(USART1):
+            case reinterpret_cast<uint32_t>(USART1_BASE):
                 rccEnableFlag = RCC_APB2ENR_USART1EN;
                 break;
-            case reinterpret_cast<uint32_t>(USART2):
+            case reinterpret_cast<uint32_t>(USART2_BASE):
                 rccEnableFlag = RCC_APB1ENR_USART2EN;
                 break;
-            case reinterpret_cast<uint32_t>(USART3):
+            case reinterpret_cast<uint32_t>(USART3_BASE):
                 rccEnableFlag = RCC_APB1ENR_USART3EN;
                 break;
         }
