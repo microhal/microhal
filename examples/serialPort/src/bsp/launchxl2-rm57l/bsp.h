@@ -1,15 +1,15 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for TI Hercules Launchxl2-RM57L
  *
  * @authors    Pawel Okas
- * created on: 18-11-2016
+ * created on: 26-12-2017
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2017, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,31 +28,17 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bsp.h"
+#ifndef LAUNCHXL2_RM57L_H_
+#define LAUNCHXL2_RM57L_H_
+
 #include "microhal.h"
-
-using namespace microhal;
-using namespace stm32f4xx;
-
-void hardwareConfig(void) {
-    // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
-
-    SysTick_Config(168000000 / 1000);
-}
-
 namespace bsp {
-void init() {
-    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
-    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
-}
+static microhal::SerialPort &serialPortA = microhal::rm57x::SerialPort::Serial1;
+static microhal::SerialPort &serialPortB = microhal::rm57x::SerialPort::Serial2;
+
+void init();
+
 }  // namespace bsp
 
-uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void) {
-    SysTick_time++;
-}
+#endif  // LAUNCHXL2_RM57L_H_

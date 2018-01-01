@@ -33,42 +33,43 @@
 using namespace microhal;
 
 void configureSerialPort(SerialPort &serial) {
-    serial.open(SerialPort::ReadWrite);
     serial.setBaudRate(SerialPort::Baud115200);
     serial.setDataBits(SerialPort::Data8);
     serial.setStopBits(SerialPort::OneStop);
     serial.setParity(SerialPort::NoParity);
+    serial.open(SerialPort::ReadWrite);
 }
 
-int main(void) {
-    configureSerialPort(serialPortA);
-    configureSerialPort(serialPortB);
+extern "C" void vPortSWI(void) {}
 
-    serialPortA.write("\n\r----------------------------- SerialPort DEMO Interrupt-----------------------------\n\r");
-    serialPortB.write("\n\r----------------------------- SerialPort DEMO DMA-----------------------------\n\r");
+int main(void) {
+    bsp::init();
+    configureSerialPort(bsp::serialPortA);
+    configureSerialPort(bsp::serialPortB);
+
+    bsp::serialPortA.write("\n\r----------------------------- SerialPort DEMO Interrupt-----------------------------\n\r");
+    bsp::serialPortB.write("\n\r----------------------------- SerialPort DEMO DMA-----------------------------\n\r");
 
     char buffer[100];
     while (1) {
-        auto availableBytesOnA = serialPortA.availableBytes();
-        auto availableBytesOnB = serialPortB.availableBytes();
+        auto availableBytesOnA = bsp::serialPortA.availableBytes();
+        auto availableBytesOnB = bsp::serialPortB.availableBytes();
         // if some data available
         if (availableBytesOnA != 0) {
             // prevent buffer overflow
             if (availableBytesOnA > sizeof(buffer)) {
                 availableBytesOnA = sizeof(buffer);
             }
-            // make echo
-            serialPortA.read(buffer, availableBytesOnA);
-            serialPortB.write(buffer, availableBytesOnA);
+            bsp::serialPortA.read(buffer, availableBytesOnA);
+            bsp::serialPortB.write(buffer, availableBytesOnA);
         }
         if (availableBytesOnB != 0) {
             // prevent buffer overflow
             if (availableBytesOnB > sizeof(buffer)) {
                 availableBytesOnB = sizeof(buffer);
             }
-            // make echo
-            serialPortB.read(buffer, availableBytesOnB);
-            serialPortA.write(buffer, availableBytesOnB);
+            bsp::serialPortB.read(buffer, availableBytesOnB);
+            bsp::serialPortA.write(buffer, availableBytesOnB);
         }
     }
 
