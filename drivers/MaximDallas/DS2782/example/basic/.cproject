@@ -55,10 +55,7 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.412854565" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.851295313" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1130928859" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="STM32F407xx"/>
-									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1826835210" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
@@ -100,7 +97,6 @@
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 								</option>
@@ -149,7 +145,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f4xx/spi|microhal/core/signalSlot|microhal/math|microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/nucleo-f411re|microhal/core/SPIDevice|microhal/core/button|microhal/ports/windows|microhal/ports/linux|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/thread.cc|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/buffers|microHAL/boost|microHAL/usb|ds2782|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/rm57x|microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f4xx/spi|microhal/core/signalSlot|microhal/math|microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/nucleo-f411re|microhal/core/SPIDevice|microhal/core/button|microhal/ports/windows|microhal/ports/linux|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/thread.cc|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/buffers|microHAL/boost|microHAL/usb|ds2782|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ds2782"/>
 					</sourceEntries>
 				</configuration>
@@ -210,9 +206,7 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.789259348" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1645057953" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.85894857" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="STM32F411xE"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.589468907" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
@@ -252,7 +246,6 @@
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="STM32F411xE"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
@@ -302,7 +295,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f4xx/spi|microhal/core/signalSlot|microhal/math|microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/stm32f4-discovery|microhal/core/SPIDevice|microhal/core/button|microhal/ports/windows|microhal/ports/linux|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/thread.cc|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/buffers|microHAL/boost|microHAL/usb|ds2782|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/rm57x|microhal/ports/stm32f4xx/externalInterrupt_stm32f4xx.cpp|microhal/ports/stm32f4xx/spi|microhal/core/signalSlot|microhal/math|microhal/ports/stm32f3xx|bsp/nucleo-f334r8|bsp/stm32f4-discovery|microhal/core/SPIDevice|microhal/core/button|microhal/ports/windows|microhal/ports/linux|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/thread.cc|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/buffers|microHAL/boost|microHAL/usb|ds2782|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ds2782"/>
 					</sourceEntries>
 				</configuration>
@@ -363,10 +356,8 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1447951688" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.843618351" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.145579592" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="STM32F334x8"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.361330439" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -405,7 +396,6 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.103214996" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_None"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 									<listOptionValue builtIn="false" value="STM32F334x8"/>
@@ -456,7 +446,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi|microhal/core/signalSlot|microhal/math|microhal/ports/stm32f3xx/startup/startup.c|microhal/ports/stm32f4xx|bsp/nucleo-f411re|bsp/stm32f4-discovery|microhal/core/SPIDevice|microhal/core/button|microhal/ports/windows|microhal/ports/linux|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/thread.cc|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/buffers|microHAL/boost|microHAL/usb|ds2782|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/ports/rm57x|microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|microhal/ports/stm32f3xx/spi|microhal/core/signalSlot|microhal/math|microhal/ports/stm32f3xx/startup/startup.c|microhal/ports/stm32f4xx|bsp/nucleo-f411re|bsp/stm32f4-discovery|microhal/core/SPIDevice|microhal/core/button|microhal/ports/windows|microhal/ports/linux|microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|gsl/tests|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/thread.cc|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/Windows|microHAL/ports/templatePort|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/Atmel|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/buffers|microHAL/boost|microHAL/usb|ds2782|boards" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="ds2782"/>
 					</sourceEntries>
 				</configuration>
