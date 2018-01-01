@@ -44,12 +44,16 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
-
     TaskHandle_t xHandle = NULL;
 
     xTaskCreate(run_main, "NAME", 256, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }
+
+namespace bsp {
+void init() {
+    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+}
+}  // namespace bsp

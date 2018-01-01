@@ -1,15 +1,15 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for TI Hercules Launchxl2-RM57L
  *
  * @authors    Pawel Okas
- * created on: 18-11-2016
+ * created on: 26-12-2017
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2017, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,23 +28,44 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NUCLEO_F411RE_H_
-#define NUCLEO_F411RE_H_
-
+#include "bsp.h"
 #include "microhal.h"
 
-static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial2;
+using namespace microhal;
+using namespace rm57x;
 
-constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+extern "C" int main(int, void *);
 
-constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+static void run_main(void *) {
+    main(0, nullptr);
+}
 
-constexpr microhal::GPIO::IOPin GreenLed = ld2_pin;
-constexpr microhal::GPIO::IOPin RedLed = Led3;
+void hardwareConfig(void) {
+    TaskHandle_t xHandle = NULL;
+
+    xTaskCreate(run_main, "NAME", 256, NULL, tskIDLE_PRIORITY, &xHandle);
+
+    vTaskStartScheduler();
+}
+
+#if configSUPPORT_STATIC_ALLOCATION
+/* static memory allocation for the IDLE task */
+static StaticTask_t xIdleTaskTCBBuffer;
+#define IDLE_TASK_SIZE 128
+static StackType_t xIdleStack[IDLE_TASK_SIZE];
+
+extern "C" void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer,
+                                              uint32_t *pulIdleTaskStackSize) {
+    *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
+    *ppxIdleTaskStackBuffer = &xIdleStack[0];
+    *pulIdleTaskStackSize = IDLE_TASK_SIZE;
+}
+#endif
 
 namespace bsp {
-void init();
+void init() {
+    __asm volatile("cpsie i" : : : "memory");
+}
 }  // namespace bsp
 
-#endif  // NUCLEO_F411RE_H_
+uint64_t SysTick_time = 0;

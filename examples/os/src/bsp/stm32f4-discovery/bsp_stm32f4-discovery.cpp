@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                        */
+                                                                                                                                                                                                                                                                                                                                                                                                          */
 
 #include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
@@ -46,12 +46,16 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
-
     TaskHandle_t xHandle = NULL;
 
     xTaskCreate(run_main, "NAME", 256, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }
+
+namespace bsp {
+void init() {
+    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+}
+}  // namespace bsp

@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
 #ifndef STM32F3DISCOVERY_H_
 #define STM32F3DISCOVERY_H_
@@ -40,10 +41,13 @@ constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f3xx::GPIO::Port::PortD,
 
 constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f3xx::GPIO::Port::PortC, 13);
 
-
 constexpr microhal::GPIO::IOPin GreenLed = ld2_pin;
 constexpr microhal::GPIO::IOPin RedLed = led5_pin;
 constexpr microhal::GPIO::IOPin blueLed_pin = led6_pin;
 constexpr microhal::GPIO::IOPin orangeLed_pin = led3_pin;
 
-#endif // STM32F3DISCOVERY_H_
+namespace bsp {
+void init();
+}  // namespace bsp
+
+#endif  // STM32F3DISCOVERY_H_
