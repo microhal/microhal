@@ -68,7 +68,7 @@ int main(void) {
     // initialize external interrupt module
     ExternalInterrupt::init();
 
-    // NOTICE: We are using button as an interrupt source. To see to which pin the button is connected open boards folder
+    // NOTICE: We are using button as an interrupt source. To see to which pin the button is connected open bsp folder
     //         and find microhal_bsp.h for your development board.
 
     // ------------------ using external interrupts without object -------------------------------------
