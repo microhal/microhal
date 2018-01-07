@@ -1,0 +1,20 @@
+import re
+
+targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+executionTime = 1
+	
+def projectName():
+	return 'sht21'	
+	
+def binaryName(configuration):
+	return 'sht21.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- SHT21 Demo -------------------------\n\r")
+															
+	if (data.startswith(correctOutput) == False):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return data.startswith(correctOutput)

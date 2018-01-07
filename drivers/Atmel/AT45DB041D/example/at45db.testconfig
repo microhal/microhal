@@ -1,0 +1,20 @@
+import re
+
+targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+executionTime = 1
+	
+def projectName():
+	return 'at45db'	
+	
+def binaryName(configuration):
+	return 'at45db.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- AT45DB41D Demo -------------------------\n\r")
+															
+	if (correctOutput not in data):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return correctOutput in data

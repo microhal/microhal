@@ -1,0 +1,40 @@
+import re
+
+targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+executionTime = 1
+
+def projectName():
+	return 'diagnostic'	
+	
+def binaryName(configuration):
+	return 'diagnostic.elf'
+	
+def passed(data):	
+	correctOutput =("\n\r------------------- Diagnostic Demo -------------------------\n\r" #0-64
+					"\n\r\d+ First log channel, main\.cpp:62, Warning, W13738979:	This is a warning" #65-137
+					"\n\r\d+ First log channel, main\.cpp:62, Notice, N13738979:	Notice:you can ignore it"
+					"\n\r\d+ First log channel, main\.cpp:67, Warning, W6E047D3C:	This is a warning " 
+					"\n\r\d+ First log channel, main\.cpp:67, Notice, N6E047D3C:	Notice: you can ignore it " 
+					"\n\r\d+ First log channel, main\.cpp:84, Notice, N4FB703F5:	This is notice, after this communicate we try to print some log with 'Informational' priority, it shouldn't be visible " 
+					"\n\r---> Unable to set log level to: Informational, because this value has lower priority than compile time set: Notice. <---\n\r"					
+					"\n\r\d+ First log channel, main\.cpp:100, Warning, WBADD8FB8:	This is a warning "
+					"\n\r\d+ First log channel, main\.cpp:105, Emergency, EC7AA7BFD:	variable value is printed in decimal by default:  10 " 
+					"\n\r\d+ First log channel, main\.cpp:106, Emergency, EEC87283E:	but we can print it in binary form:  0b1010 " 
+					"\n\r\d+ First log channel, main\.cpp:107, Emergency, EF59C197F:	octal:  12 "
+					"\n\r\d+ First log channel, main\.cpp:108, Emergency, E720405B0:	or hexadecimal:  A "
+					"\n\r\d+ First log channel, main\.cpp:113, Emergency, E9032B64C:	lets print our array in hex:  1:2:3:9:F"
+					"\n\r\d+ First log channel, main\.cpp:114, Emergency, EDF73208B:	now in binary form:  1:10:11:1001:1111"
+					"\n\r\d+ First log channel, main\.cpp:115, Emergency, EC66811CA:	and octal:  1:2:3:11:17"
+					"\n\r\d+ First log channel, main\.cpp:116, Emergency, EED454209:	boring... "
+					"\n\r\d+ First log channel, main\.cpp:119, Emergency, E6ADD5EC6:	After this text we will wait 500ms "
+					"\n\r\d+ First log channel, main\.cpp:121, Emergency, EA0426A97:	done, this log is printed 500ms later. "
+					"\n\r\d+ First log channel, main\.cpp:131, Warning, WA18000A0:	Trying initialize some important thing... OK. Important thing was initialized successfully. " 
+					"\n\r\d+ microHAL, main\.cpp:147, Emergency, EF295B1A3:	microHAL embedded diagChannel is working:\)"
+					"\n\r\d+ microHAL, main\.cpp:148, Emergency, E750DAD6C:	end of example, I hope it was useful.")
+	reg = re.compile(correctOutput)
+	if reg.match(data) == None:
+	#if (data != correctOutput):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))		
+		
+	return reg.match(data) != None

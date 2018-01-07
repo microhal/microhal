@@ -1,0 +1,25 @@
+targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+executionTime = 1
+	
+def projectName():
+	return 'signal slot'	
+	
+def binaryName(configuration):
+	return 'signal slot.elf'
+	
+def passed(data):	
+	correctOutput =("\n\r------------------- Signal Slot Demo -------------------------\n\r"
+					"Text from free function. No parameter.\n\r"
+					"Text from free function with bool parameter. Value: true\n\r"
+					"\n\radd new slots\n\r\n\r"
+					"Text from free function. No parameter.\n\r"
+					"Text from class function. No parameter.\n\r"
+					"Text from free function with bool parameter. Value: true\n\r"
+					"Text from class function with bool parameter. Value: true\n\r")
+															
+	if (data != correctOutput):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return data == correctOutput

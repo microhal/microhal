@@ -1,0 +1,33 @@
+import re
+
+targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+executionTime = 1
+	
+def projectName():
+	return 'ticToc'	
+	
+def binaryName(configuration):
+	return 'ticToc.elf'
+	
+def passed(data):	
+	regexpr = ( "\n\r------------------- TicToc Demo -------------------------\n\r"
+				"\n\r\d+ microHAL, main\.cpp:69, Debug, DF08750B2:	Only tic and toc function was called so execution time should be equal 0, execution time = \d+us\n\r"
+				"\n\r\d+ microHAL, main\.cpp:40, Debug, D22C13F95:	Text from function\. Starting 5ms delay\."
+				"\n\r\d+ microHAL, main\.cpp:42, Debug, D10F75D17:	End of delay\. Returning from function\."
+				"\n\r\d+ microHAL, main\.cpp:77, Debug, D6FC6170B:	Function execution take: \d+us\n\r"
+				"\n\r\d+ microHAL, main\.cpp:79, Debug, DF1453A85:	Calling function with 5ms delay\."
+				"\n\r\d+ microHAL, main\.cpp:85, Debug, D56AC32B4:	Function execution take: \d+us")
+				
+#	correctOutput =("\n\r------------------- TicToc Demo -------------------------\n\r"
+#					"\n\r0 microHAL, main.cpp:69, Debug, DF08750B2:	Only tic and toc function was called so execution time should be equal 0, execution time = 0us\n\r"
+#					"\n\r0 microHAL, main.cpp:40, Debug, D22C13F95:	Text from function. Starting 5ms delay."
+#					"\n\r2 microHAL, main.cpp:42, Debug, D10F75D17:	End of delay. Returning from function."
+#					"\n\r2 microHAL, main.cpp:77, Debug, D6FC6170B:	Function execution take: 2000us\n\r"
+#					"\n\r2 microHAL, main.cpp:79, Debug, DF1453A85:	Calling function with 5ms delay."
+#					"\n\r4 microHAL, main.cpp:85, Debug, D56AC32B4:	Function execution take: 2000us")										
+	if (re.match(regexpr, data) == None):		
+		print 'length of received data =' + str(len(data))
+		#print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return re.match(regexpr, data) != None
