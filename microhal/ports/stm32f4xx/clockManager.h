@@ -1304,7 +1304,7 @@ class ClockManager {
             static bool N(uint32_t n) noexcept {
                 if (n < 2 || n > 432) return false;
                 uint32_t tmp = RCC->PLLCFGR;
-                tmp &= ~0x1FF << 6;
+                tmp &= ~0x1FFU << 6;
                 tmp |= n << 6;
                 RCC->PLLCFGR = tmp;
                 return true;
@@ -1313,7 +1313,7 @@ class ClockManager {
             static bool P(uint32_t p) noexcept {
                 if ((p > 8) || (p & 0b1)) return false;
                 uint32_t tmp = RCC->PLLCFGR;
-                tmp &= ~0b11 << 16;
+                tmp &= ~0b11U << 16;
                 tmp |= (p / 2 - 1) << 16;
                 RCC->PLLCFGR = tmp;
                 return true;
@@ -1322,7 +1322,7 @@ class ClockManager {
             static bool Q(uint32_t q) noexcept {
                 if (q < 3 || q > 15) return false;
                 uint32_t tmp = RCC->PLLCFGR;
-                tmp &= ~0xF << 24;
+                tmp &= ~0xFU << 24;
                 tmp |= q << 24;
                 RCC->PLLCFGR = tmp;
                 return true;
