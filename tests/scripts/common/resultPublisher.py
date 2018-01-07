@@ -1,10 +1,5 @@
 from tabulate import tabulate
 
-def statusToText(status):
-	if status == True:
-		return 'pass'
-	return 'fail'
-
 def createEmptyTable(tests, targets):
     out = {}
 
@@ -25,7 +20,7 @@ def showResult(data):
     
     table = createEmptyTable(tests, targets)
     for result in data:
-        table[result['testName']][result['target']] = statusToText(result['status'])   
+        table[result['testName']][result['target']] = result['status']
 
     printableTable = []
     for test in tests:                
