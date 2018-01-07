@@ -34,10 +34,10 @@
 #include "microhal.h"
 
 namespace bsp {
-static microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial1;
-static microhal::SerialPort &serialPortB = microhal::stm32f4xx::SerialPort::Serial2;
+static microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial2;
 
 void init();
+
 }  // namespace bsp
 
 #endif  // NUCLEO_F411RE_H_

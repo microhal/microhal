@@ -35,7 +35,6 @@
 namespace bsp {
 
 static microhal::SerialPort &serialPortA = microhal::rm57x::SerialPort::Serial1;
-static microhal::SerialPort &serialPortB = microhal::rm57x::SerialPort::Serial2;
 
 void init();
 

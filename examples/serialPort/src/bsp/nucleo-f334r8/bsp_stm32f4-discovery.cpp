@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                         */
+                                                                                                                                                                                                                                                                                                                                                                                                          */
 
 #include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
@@ -43,9 +43,6 @@ void hardwareConfig(void) {
 
 namespace bsp {
 void init() {
-    IOManager::routeSerial<3, Txd, stm32f3xx::GPIO::PortC, 10>();
-    IOManager::routeSerial<3, Rxd, stm32f3xx::GPIO::PortC, 11>();
-
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
 }

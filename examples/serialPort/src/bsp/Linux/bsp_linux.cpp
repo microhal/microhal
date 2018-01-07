@@ -25,17 +25,15 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                             */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               */
 
+#include "bsp.h"
 #include "microhal.h"
-#include "microhal_bsp.h"
 #include "serialPort_linux.h"
 
 using namespace microhal;
 using namespace diagnostic;
 
 microhal::linux::SerialPort serialPort_linux1("tty1");
-microhal::linux::SerialPort serialPort_linux2("tty2");
 
 microhal::SerialPort &serialPortA = serialPort_linux1;
-microhal::SerialPort &serialPortB = serialPort_linux2;

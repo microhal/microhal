@@ -40,36 +40,24 @@ void configureSerialPort(SerialPort &serial) {
     serial.open(SerialPort::ReadWrite);
 }
 
-extern "C" void vPortSWI(void) {}
-
 int main(void) {
     bsp::init();
     configureSerialPort(bsp::serialPortA);
-    configureSerialPort(bsp::serialPortB);
 
-    bsp::serialPortA.write("\n\r----------------------------- SerialPort DEMO Interrupt-----------------------------\n\r");
-    bsp::serialPortB.write("\n\r----------------------------- SerialPort DEMO DMA-----------------------------\n\r");
+    bsp::serialPortA.write("\n\r----------------------------- SerialPort DEMO -----------------------------\n\r");
 
     char buffer[100];
     while (1) {
-        auto availableBytesOnA = bsp::serialPortA.availableBytes();
-        auto availableBytesOnB = bsp::serialPortB.availableBytes();
+        auto availableBytes = bsp::serialPortA.availableBytes();
+
         // if some data available
-        if (availableBytesOnA != 0) {
+        if (availableBytes != 0) {
             // prevent buffer overflow
-            if (availableBytesOnA > sizeof(buffer)) {
-                availableBytesOnA = sizeof(buffer);
+            if (availableBytes > sizeof(buffer)) {
+                availableBytes = sizeof(buffer);
             }
-            bsp::serialPortA.read(buffer, availableBytesOnA);
-            bsp::serialPortB.write(buffer, availableBytesOnA);
-        }
-        if (availableBytesOnB != 0) {
-            // prevent buffer overflow
-            if (availableBytesOnB > sizeof(buffer)) {
-                availableBytesOnB = sizeof(buffer);
-            }
-            bsp::serialPortB.read(buffer, availableBytesOnB);
-            bsp::serialPortA.write(buffer, availableBytesOnB);
+            // make echo
+            bsp::serialPortA.write(buffer, availableBytes);
         }
     }
 

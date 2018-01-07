@@ -51,7 +51,7 @@ namespace rm57xConfig {
 static constexpr size_t serialPort1_txBufferSize = 1024;
 static constexpr size_t serialPort1_rxBufferSize =  128;
 
-#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+//#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
 static constexpr size_t serialPort2_txBufferSize = 1024;
 static constexpr size_t serialPort2_rxBufferSize =  128;
 

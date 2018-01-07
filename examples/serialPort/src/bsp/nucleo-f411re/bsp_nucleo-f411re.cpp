@@ -43,9 +43,6 @@ void hardwareConfig(void) {
 
 namespace bsp {
 void init() {
-    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
-    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
-
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 }
