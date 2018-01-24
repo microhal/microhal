@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,16 +24,18 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                        */
 
 #ifndef MICROHALPORTCONFIG_H_
 #define MICROHALPORTCONFIG_H_
 
 #include <cstdint>
+// clang-format off
 //***********************************************************************************************//
 //                                     Hardware Configuration                                    //
 //***********************************************************************************************//
-static constexpr bool externalClockPresent = true;
+static constexpr bool externalClockPresent = false;
 static constexpr uint32_t externalClockFrequency = 8000000; // this is HSE frequency
 static constexpr bool externalLSEPresent = false;
 static constexpr uint32_t externalLSEFrequency = 32768;
@@ -99,5 +101,5 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //#define MICROHAL_USE_SPI6_DMA
 //SPI 6 DMA can be connected only to stream 5 and 6
 
-
+// clang-format on
 #endif /* MICROHALPORTCONFIG_H_ */

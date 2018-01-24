@@ -607,7 +607,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/microhal/ports/stm32f3xx|src/microhal/core/buffers/tests|src/microhal/core|src/microhal/ports/windows|src/bsp/stm32f4-discovery|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/os/windows|src/microhal/ports/stm32f4xx|src/microhal/ports/linux|src/microhal/math|src/microhal/os/linux|src/bsp/nucleo-f334r8|src/gsl/tests|src/bsp/nucleo-f411re|src/microhal/os/freeRTOS" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/microhal/ports/tms570x|src/microhal/ports/stm32f3xx|src/microhal/core/buffers/tests|src/microhal/core|src/microhal/ports/windows|src/bsp/stm32f4-discovery|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/os/windows|src/microhal/ports/stm32f4xx|src/microhal/ports/linux|src/microhal/math|src/microhal/os/linux|src/bsp/nucleo-f334r8|src/gsl/tests|src/bsp/nucleo-f411re|src/microhal/os/freeRTOS" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

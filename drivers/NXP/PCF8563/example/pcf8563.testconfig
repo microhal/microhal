@@ -2,12 +2,16 @@ import re
 
 targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
 executionTime = 1
+requireHardware = True
 	
 def projectName():
 	return 'pcf8563'	
 	
 def binaryName(configuration):
 	return 'pcf8563.elf'
+	
+def getDeviceName(configuration):
+	return 'pcf8563'
 	
 def passed(data):				
 	correctOutput =("\n\r------------------- PCF8563 Demo -------------------------\n\r")

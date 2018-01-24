@@ -13,7 +13,7 @@ print projectDir
 
 import imp
 
-targets=['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+targets=['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery', 'linux']
 #targets=['NUCLEO-F411RE']
 testSpecificProjects=[]
 # lets find *.testconfig files in subdirectorys, if file is found lets add them into projectToTest list
@@ -54,8 +54,9 @@ for i, project in enumerate(projectsToTest):
                     else:
                         result.append({'testName':test.projectName(), 'target': target, 'status': '\033[91m' + 'Flashing failed' + '\033[0m'})
                         print '\033[91m' + 'Flashing failed' + '\033[0m'
-                else:
-                    result.append({'testName':test.projectName(), 'target': target, 'status': 'configuration unspported'})
+                else:                    
+                    result.append({'testName':test.projectName(), 'target': target, 'status': 'build pass'})
+                    #todo add running example
             else:
                 result.append({'testName':test.projectName(), 'target': target, 'status': '\033[91m' + 'build fail' + '\033[0m'})
                 print '\033[91m' + 'build fail' + '\033[0m'

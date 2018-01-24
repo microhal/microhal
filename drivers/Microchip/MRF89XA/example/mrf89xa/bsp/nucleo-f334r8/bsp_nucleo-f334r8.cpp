@@ -31,20 +31,29 @@
 #include "bsp.h"
 #include "microhal.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
+
+extern "C" int main(int, void *);
+
+static void run_main(void *) {
+    main(0, nullptr);
+}
 
 void hardwareConfig(void) {
     (void)bsp::moduleA::spi;
     (void)bsp::moduleB::spi;
     (void)bsp::debugPort;
     Core::fpu_enable();
-    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
-    stm32f3xx::ClockManager::PLL::frequency(51200000);
-    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
-    while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
-        ;
+    //    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
+    //    stm32f3xx::ClockManager::PLL::frequency(64000000);
+    //    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
+    //    while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
+    //        ;
 
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
@@ -62,4 +71,9 @@ void hardwareConfig(void) {
 
     stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
     stm32f3xx::SPI::spi1.enable();
+
+    xTaskHandle mainHandle;
+    xTaskCreate(run_main, (const char *)"main", (10 * 1024), 0, tskIDLE_PRIORITY, &mainHandle);
+
+    vTaskStartScheduler();
 }

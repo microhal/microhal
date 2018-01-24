@@ -12,9 +12,9 @@ def binaryName(configuration):
 def passed(data):				
 	correctOutput =("\n\r------------------- uCAM-II driver example -------------------------\n\r")
 															
-	if (data.startswith(correctOutput) == False):		
+	if (correctOutput not in data):		
 		print 'length of received data =' + str(len(data))
 		print 'length of correct data =' + str(len(correctOutput))
 		print data		
 		
-	return data.startswith(correctOutput)
+	return correctOutput in data
