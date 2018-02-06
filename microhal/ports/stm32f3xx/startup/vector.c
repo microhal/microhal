@@ -37,8 +37,13 @@ static void __Default_Handler(void) {
         ;
 }
 
+static void __Default_HardFault_Handler(void) {
+    while (1)
+        ;
+}
+
 void NMI_Handler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void HardFault_Handler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void HardFault_Handler(void) __attribute__((interrupt, weak, alias("__Default_HardFault_Handler")));
 void MemManage_Handler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void BusFault_Handler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void UsageFault_Handler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
