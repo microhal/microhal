@@ -113,16 +113,12 @@ class Diagnostic : public Diagnostic_base {
     //------------------------------------------ functions ----------------------------------------
     template <class _Rep, class _Period>
     inline bool tryLock(const std::chrono::duration<_Rep, _Period> &__rtime) {
-        return locked = ioDevice->mutex.try_lock_for(__rtime);
+        // return locked = ioDevice->mutex.try_lock_for(__rtime);
+        return ioDevice->mutex.try_lock_for(__rtime);
     }
     //------------------------------------------ operators ----------------------------------------
     inline Diagnostic<compileTimeLogLevel> &operator<<(const UnlockType) __attribute__((always_inline)) {
-        needLock = false;
-        // unlock mutex only if was earlier locked
-        if (locked) {
-            locked = false;
-            ioDevice->mutex.unlock();
-        }
+        ioDevice->mutex.unlock();
         return *this;
     }
 
@@ -130,7 +126,8 @@ class Diagnostic : public Diagnostic_base {
         // lazy evaluation of mutex locking. We will lock mutex only when this will be needed.
         // because user can change 'log level' at runtime we can suppose that sometimes message between 'lock' and 'unlock' commands won't be shown
         // on screen, so mutex locking and unlocking will be waste of MCU resources.
-        needLock = true;
+        // needLock = true;
+        ioDevice->mutex.lock();
         return *this;
     }
 
@@ -146,18 +143,11 @@ class Diagnostic : public Diagnostic_base {
         } else {
             logLevel = compileTimeLogLevel;
 
-            bool needUnlock = false;
-            if (!locked) {
-                ioDevice->mutex.lock();
-                needUnlock = true;
-            }
-
             ioDevice->write("\n\r---> Unable to set log level to: ");
             ioDevice->write(levelName[static_cast<unsigned int>(level)]);
             ioDevice->write(", because this value has lower priority than compile time set: ");
             ioDevice->write(levelName[static_cast<unsigned int>(compileTimeLogLevel)]);
             ioDevice->write(". <---\n\r");
-            if (needUnlock) ioDevice->mutex.unlock();
         }
     }
     // This friend operator will be called when user write: "DiagnosticObject << LogingLevel ..." for example "diagChannel << Debug ...". This
@@ -173,9 +163,6 @@ class Diagnostic : public Diagnostic_base {
                                                                                            const LogLevelHeader<level> &header);
 
  private:
-    bool locked = false;
-    bool needLock = false;
-
     template <LogLevel compileLogLevel, bool B>
     friend class LogLevelChannel;
 };
@@ -377,14 +364,6 @@ class LogLevelChannel {
 template <LogLevel compileTimeLogLevel, LogLevel level>
 constexpr LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level> operator<<(Diagnostic<compileTimeLogLevel> &diagnostic,
                                                                                         const LogLevels<level>) {
-    if (compileTimeLogLevel >= level) {
-        if (diagnostic.logLevel >= level) {
-            if (diagnostic.locked == false && diagnostic.needLock == true) {
-                diagnostic.locked = true;
-                diagnostic.ioDevice->mutex.lock();
-            }
-        }
-    }
     return LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level>(level, diagnostic);
 }
 
@@ -393,10 +372,6 @@ constexpr LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level> ope
                                                                                         const LogLevelHeader<level> &header) {
     if (compileTimeLogLevel >= level) {
         if (diagnostic.logLevel >= level) {
-            if (diagnostic.locked == false && diagnostic.needLock == true) {
-                diagnostic.locked = true;
-                diagnostic.ioDevice->mutex.lock();
-            }
             diagnostic.printHeader(header, level);
         }
     }
