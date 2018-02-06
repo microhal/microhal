@@ -124,7 +124,7 @@ bool OneWire::sendResetPulse() const {
         if (serial.putChar(0xF0)) {
             char response;
             if (serial.read(&response, 1, std::chrono::milliseconds{3})) {
-                if (response != 0xF0) {
+                if (response != 0xF0U) {
                     serial.setBaudRate(SerialPort::Baud115200);
                     return true;
                 } else {
