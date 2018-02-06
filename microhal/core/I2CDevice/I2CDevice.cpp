@@ -78,10 +78,10 @@ bool I2CDevice::setBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endia
     i2c.lock();
 
     T tmp;
-    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
+    I2C::Error status = i2c.writeRead(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
     if (status == I2C::Error::None) {
         tmp |= bitMask;
-        status = i2c.write(deviceAddress, &registerAddress, 1, &tmp, sizeof(tmp));
+        status = i2c.write(deviceAddress, &registerAddress, 1, reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
     }
 
     i2c.unlock();
@@ -94,11 +94,11 @@ bool I2CDevice::setBitsInRegister_impl(uint8_t registerAddress, T bitMask, Endia
 }
 
 bool I2CDevice::setBitsInRegister(uint8_t registerAddress, uint16_t bitMask, Endianness endianness) {
-    return setBitsInRegister(registerAddress, bitMask, endianness);
+    return setBitsInRegister_impl(registerAddress, bitMask, endianness);
 }
 
 bool I2CDevice::setBitsInRegister(uint8_t registerAddress, uint32_t bitMask, Endianness endianness) {
-    return setBitsInRegister(registerAddress, bitMask, endianness);
+    return setBitsInRegister_impl(registerAddress, bitMask, endianness);
 }
 
 /**
