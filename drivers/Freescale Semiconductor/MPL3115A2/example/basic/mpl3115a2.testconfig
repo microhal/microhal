@@ -2,6 +2,9 @@ import re
 
 targets = []
 executionTime = 1
+requireHardware = True
+requireDevice = True
+deviceName = 'mpl3115a2'
 	
 def projectName():
 	return 'mpl3115a2'	
