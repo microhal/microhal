@@ -33,6 +33,7 @@
  * INCLUDES
  */
 #include <cstdint>
+#include <vector>
 #include "interfaces/i2c_interface.h"
 #include "mockDevice.h"
 

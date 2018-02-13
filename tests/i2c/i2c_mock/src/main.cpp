@@ -410,33 +410,33 @@ bool deviceTest() {
         return false;
     }
 
-    //    //////////////////////////////////////////////////////////////////////////////////
-    //    std::tuple<uint8_t, uint16_t> tupReg2;
-    //    if (dev.readRegisters(tupReg2, reg1, reg4) == I2C::Error::None) {
-    //        if (device[1] == std::get<0>(tupReg) && (device[4] | (device[5] << 8)) == std::get<1>(tupReg))
-    //            loging << lock << MICROHAL_DEBUG << "Multiple register read correctly." << unlock;
-    //        else {
-    //            loging << lock << MICROHAL_DEBUG << "Data mismatch while reading multiple registers." << unlock;
-    //            return false;
-    //        }
-    //    } else {
-    //        loging << lock << MICROHAL_DEBUG << "Unable to read multiple registers." << unlock;
-    //        return false;
-    //    }
-    //
-    //    std::get<0>(tupReg) = 0x85;
-    //    std::get<1>(tupReg) = 0xAABB;
-    //    if (dev.writeRegisters(tupReg2, reg1, reg4) == I2C::Error::None) {
-    //        if (device[1] == std::get<0>(tupReg) && (device[4] << 8 | (device[5])) == std::get<1>(tupReg))
-    //            loging << lock << MICROHAL_DEBUG << "Multiple register write correctly." << unlock;
-    //        else {
-    //            loging << lock << MICROHAL_DEBUG << "Data mismatch while writing multiple registers." << unlock;
-    //            return false;
-    //        }
-    //    } else {
-    //        loging << lock << MICROHAL_DEBUG << "Unable to write multiple registers." << unlock;
-    //        return false;
-    //    }
+    //////////////////////////////////////////////////////////////////////////////////
+    std::tuple<uint8_t, uint16_t> tupReg2;
+    if (dev.readRegisters(tupReg2, reg1, reg2) == I2C::Error::None) {
+        if (device[1] == std::get<0>(tupReg2) && (device[2] | (device[3] << 8)) == std::get<1>(tupReg2))
+            loging << lock << MICROHAL_DEBUG << "Multiple register read correctly." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "Data mismatch while reading multiple registers." << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to read multiple registers." << unlock;
+        return false;
+    }
+
+    std::get<0>(tupReg2) = 0x85;
+    std::get<1>(tupReg2) = 0xAABB;
+    if (dev.writeRegisters(tupReg2, reg1, reg2) == I2C::Error::None) {
+        if (device[1] == std::get<0>(tupReg2) && (device[2] | (device[3] << 8)) == std::get<1>(tupReg2))
+            loging << lock << MICROHAL_DEBUG << "Multiple register write correctly." << unlock;
+        else {
+            loging << lock << MICROHAL_DEBUG << "Data mismatch while writing multiple registers." << unlock;
+            return false;
+        }
+    } else {
+        loging << lock << MICROHAL_DEBUG << "Unable to write multiple registers." << unlock;
+        return false;
+    }
 
     return true;
 }
