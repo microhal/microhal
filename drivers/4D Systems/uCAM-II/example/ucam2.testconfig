@@ -1,0 +1,20 @@
+import re
+
+targets = ['stm32f4-discovery']
+executionTime = 1
+	
+def projectName():
+	return 'uCAM-II'	
+	
+def binaryName(configuration):
+	return 'uCAM-II.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- uCAM-II driver example -------------------------\n\r")
+															
+	if (correctOutput not in data):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return correctOutput in data

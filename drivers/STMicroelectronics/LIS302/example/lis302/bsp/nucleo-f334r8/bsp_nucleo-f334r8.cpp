@@ -52,6 +52,15 @@ void hardwareConfig(void) {
     stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
     stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
 
+    // configure Serial Port interfaces
+    stm32f3xx::SerialPort::Serial2.clear();
+
+    stm32f3xx::SerialPort::Serial2.setDataBits(stm32f3xx::SerialPort::Data8);
+    stm32f3xx::SerialPort::Serial2.setStopBits(stm32f3xx::SerialPort::OneStop);
+    stm32f3xx::SerialPort::Serial2.setParity(stm32f3xx::SerialPort::NoParity);
+    stm32f3xx::SerialPort::Serial2.setBaudRate(stm32f3xx::SerialPort::Baud115200);
+    stm32f3xx::SerialPort::Serial2.open(stm32f3xx::SerialPort::ReadWrite);
+
     stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
     stm32f3xx::SPI::spi1.enable();
 

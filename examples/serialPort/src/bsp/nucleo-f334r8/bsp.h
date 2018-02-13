@@ -25,14 +25,16 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                        */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            */
 
 #ifndef STM32F3DISCOVERY_H_
 #define STM32F3DISCOVERY_H_
 
 #include "microhal.h"
+namespace bsp {
+static microhal::SerialPort &serialPortA = microhal::stm32f3xx::SerialPort::Serial2;
 
-static microhal::SerialPort &serialPortA = microhal::stm32f3xx::SerialPort::Serial3;
-static microhal::SerialPort &serialPortB = microhal::stm32f3xx::SerialPort::Serial2;
+void init();
+}  // namesapce bsp
 
 #endif  // STM32F3DISCOVERY_H_

@@ -102,7 +102,7 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const uint8_t *writ
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
-};
+}
 I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t length) noexcept {
     uint32_t cr2 = i2c.CR2;
     // clear device address and number of bytes
@@ -155,7 +155,7 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t data
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
-};
+}
 
 I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write, size_t write_size, uint8_t *read, size_t read_size) noexcept {
     uint32_t cr2 = i2c.CR2;

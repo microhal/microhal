@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                        */
+                                                                                                                                                                                                                                                                         */
 
 #include "bsp.h"
 #include "diagnostic/diagnostic.h"
@@ -43,8 +43,8 @@ int main(void) {
     bsp::debugPort.setDataBits(SerialPort::Data8);
     bsp::debugPort.setStopBits(SerialPort::OneStop);
     bsp::debugPort.setParity(SerialPort::NoParity);
-    bsp::debugPort.open(SerialPort::ReadWrite);
     bsp::debugPort.setBaudRate(SerialPort::Baud115200);
+    bsp::debugPort.open(SerialPort::ReadWrite);
 
     bsp::debugPort.write("\n\r------------------- ISL29023 Demo -------------------------\n\r");
 

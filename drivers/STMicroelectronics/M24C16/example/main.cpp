@@ -25,11 +25,10 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
+#include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "m24c16.h"
-#include "bsp.h"
-
+#include "microhal.h"
 
 using namespace microhal;
 using namespace diagnostic;
@@ -40,27 +39,26 @@ int main(void) {
     debugPort.write("\n\r----------------- M24C16 Demo -----------------\n\r");
     diagChannel.setOutputDevice(debugPort);
 
-
-    uint8_t data[10];
+    uint8_t data[27];
     sensorI2C.read(0xA2, data, sizeof(data));
     m24c16.read(0x00, data, sizeof(data));
 
     for (uint8_t &x : data) {
-    	diagChannel << lock << Debug << "value: " << x << endl <<unlock;
+        diagChannel << lock << Debug << "value: " << x << endl << unlock;
     }
 
     if (data[0] == 0xFF) {
-    	const uint8_t txt[] = "ala ma kota. Kot ma ale...";
-    	m24c16.write(0x00, txt, sizeof(txt));
-    	// wait for write
-    	std::this_thread::sleep_for(std::chrono::milliseconds {10});
+        const uint8_t txt[] = "ala ma kota. Kot ma ale...";
+        m24c16.write(0x00, txt, sizeof(txt));
+        // wait for write
+        std::this_thread::sleep_for(std::chrono::milliseconds{10});
     }
 
     while (1) {
-    	std::this_thread::sleep_for(std::chrono::milliseconds {2000});
-    	m24c16.read(0x00, data, sizeof(data));
-    	diagChannel << lock << Debug << "EEPROM: " << (char*)data << endl <<unlock;
+        m24c16.read(0x00, data, sizeof(data));
+        diagChannel << lock << Debug << "EEPROM: " << (char *)data << endl << unlock;
+        std::this_thread::sleep_for(std::chrono::milliseconds{2000});
     }
 
-    return -1; // indicate error
+    return -1;  // indicate error
 }

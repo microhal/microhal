@@ -1,0 +1,27 @@
+import re
+
+targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+executionTime = 1
+requireHardware = True
+requireDevice = True
+deviceName = 'pcf8563'
+	
+def projectName():
+	return 'pcf8563'	
+	
+def binaryName(configuration):
+	return 'pcf8563.elf'
+	
+def getDeviceName(configuration):
+	return 'pcf8563'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- PCF8563 Demo -------------------------\n\rtime: \d{2}:\d{2}:\d{2}\n\rday: 22\n\rmonth: 2.*")
+													
+	reg = re.compile(correctOutput)
+	if reg.match(data) == None:			
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))		
+		print data	
+		
+	return reg.match(data) != None

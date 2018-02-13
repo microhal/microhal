@@ -38,17 +38,17 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
-    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
-
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
-
     SysTick_Config(168000000 / 1000);
 }
 
+namespace bsp {
+void init() {
+    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+}
+}  // namespace bsp
+
 uint64_t SysTick_time = 0;
-;
 
 extern "C" void SysTick_Handler(void) {
     SysTick_time++;

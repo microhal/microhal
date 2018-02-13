@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                        */
+                                                                                                                                                                                                                                                                                                                                                                                                          */
 
 #include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
@@ -38,17 +38,17 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
-
-    IOManager::routeSerial<4, Txd, stm32f4xx::GPIO::PortC, 10>();
-    IOManager::routeSerial<4, Rxd, stm32f4xx::GPIO::PortC, 11>();
-
     SysTick_Config(168000000 / 1000);
 }
 
+namespace bsp {
+void init() {
+    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+}
+}
+
 uint64_t SysTick_time = 0;
-;
 
 extern "C" void SysTick_Handler(void) {
     SysTick_time++;

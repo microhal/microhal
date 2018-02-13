@@ -64,20 +64,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/hostComm/source}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
 								</option>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.987002257" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="STM32F407xx"/>
-									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
-									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
-									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
-									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
-									<listOptionValue builtIn="false" value="__FPU_PRESENT"/>
-									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
-								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.987002257" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.asmlisting.667175387" name="Generate assembler listing (-Wa,-adhlns=&quot;$@.lst&quot;)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.asmlisting" value="true" valueType="boolean"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.863526930" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -92,17 +79,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.743338449" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="STM32F407xx"/>
-									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
-									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
-									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
-									<listOptionValue builtIn="false" value="__FPU_PRESENT"/>
-									<listOptionValue builtIn="false" value="__USES_CXX"/>
 									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.asmlisting.411650488" name="Generate assembler listing (-Wa,-adhlns=&quot;$@.lst&quot;)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.asmlisting" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -123,17 +100,7 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nousecxaatexit.1896523724" name="Do not use _cxa_atexit() (-fno-use-cxa-atexit)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nousecxaatexit" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.1628457817" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="false" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1768889693" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="STM32F407xx"/>
-									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
-									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
-									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
-									<listOptionValue builtIn="false" value="__FPU_PRESENT"/>
-									<listOptionValue builtIn="false" value="__USES_CXX"/>
 									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1160246437" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp1y" valueType="enumerated"/>
@@ -187,7 +154,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/linux|bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/os/linux|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/os/linux|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="stm32f4-discovery|linux_lepton_emulator|Windows|linux|stm32f4-discovery_lepton_emulator|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
 					</sourceEntries>
 				</configuration>
@@ -223,12 +190,11 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/hostComm/source}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/ports}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1177752418" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="LINUX_PORT"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.1015204637" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.299952147" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
@@ -247,9 +213,7 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.15357039" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="LINUX_PORT"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
 									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 								</option>
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.241383070" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.937595122" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
@@ -278,7 +242,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="stm32f4-discovery|linux_lepton_emulator|Windows|stm32f4-discovery_lepton_emulator|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
 					</sourceEntries>
 				</configuration>
@@ -314,10 +278,9 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/os}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/ports}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1739018772" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 									<listOptionValue builtIn="false" value="LINUX_PORT"/>
 									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
 								</option>
@@ -336,8 +299,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal}&quot;"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1011333281" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
 									<listOptionValue builtIn="false" value="LINUX_PORT"/>
 									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
 								</option>
@@ -368,7 +329,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/linux|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|reader.cpp|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|reader.cpp|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="stm32f4-discovery|Windows|linux|stm32f4-discovery_lepton_emulator|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
 					</sourceEntries>
 				</configuration>
@@ -442,19 +403,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1372543268" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="STM32F407xx"/>
-									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
-									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
-									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
-									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
-									<listOptionValue builtIn="false" value="__FPU_PRESENT"/>
 									<listOptionValue builtIn="false" value="__USES_CXX"/>
-									<listOptionValue builtIn="false" value="HAL_RTOS_FreeRTOS"/>
-									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.asmlisting.1555050646" name="Generate assembler listing (-Wa,-adhlns=&quot;$@.lst&quot;)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.asmlisting" value="true" valueType="boolean"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1790033646" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
@@ -474,17 +424,10 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.2099112186" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
-									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
-									<listOptionValue builtIn="false" value="__FPU_PRESENT"/>
-									<listOptionValue builtIn="false" value="__USES_CXX"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_FreeRTOS"/>
-									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.asmlisting.1550718736" name="Generate assembler listing (-Wa,-adhlns=&quot;$@.lst&quot;)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.asmlisting" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1332525127" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
@@ -508,15 +451,9 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1393718043" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="HSE_VALUE=8000000"/>
-									<listOptionValue builtIn="false" value="STM32F40_41xxx"/>
-									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
 									<listOptionValue builtIn="false" value="VENDOR_STMICROELECTRONICS"/>
 									<listOptionValue builtIn="false" value="MCU_TYPE_STM32F4XX"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_LOG_LEVEL=Debug"/>
-									<listOptionValue builtIn="false" value="MICROHAL_DIAGNOSTIC_TEXT_VISIBLE"/>
-									<listOptionValue builtIn="false" value="__FPU_PRESENT"/>
-									<listOptionValue builtIn="false" value="__USES_CXX"/>
 									<listOptionValue builtIn="false" value="HAL_RTOS_FreeRTOS"/>
 									<listOptionValue builtIn="false" value="MICROHAL_HOSTCOMM_MAXPACKETSIZE=10000"/>
 								</option>
@@ -571,7 +508,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/linux|bsp/linux_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|FreeRTOS/portable/GCC/RX100|microHAL/DSP|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/BCC|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/Tasking|microHAL/math|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/MemMang/heap_2.c|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|FreeRTOS/portable/GCC/IA32_flat|microHAL/cli|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/RL78|microHAL/usb|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/ARM7_LPC23xx|microHAL/ports/Windows|microHAL/ports/SiliconLabs|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|FreeRTOS/portable/WizC|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/ARM7_AT91FR40008|microHAL/os/Windows|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/Softune|microHAL/os/FreeRTOS|FreeRTOS/portable/MemMang/heap_3.c|FreeRTOS/portable/Rowley|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/RVDS|microHAL/units|microHAL/ports/helpers|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/ARM_CM7|FreeRTOS/portable/Renesas|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/oWatcom|microHAL/ports/ SiliconLabs|FreeRTOS/portable/GCC/NiosII|system|microHAL/ports/templatePort|FreeRTOS/portable/GCC/AVR32_UC3|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/Paradigm|FreeRTOS/portable/Keil|FreeRTOS/portable/SDCC|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/GCC/MicroBlaze|reader.cpp|microHAL/SPIDevice|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/I2CDevice|microHAL/buffers/tests|FreeRTOS/portable/GCC/ColdFire_V2|microHAL/ports/Renesas|FreeRTOS/portable/GCC/TriCore_1782|microHAL/hostComm|FreeRTOS/portable/CCS|microHAL/os/noRTOSport|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/RX600|microHAL/ports/Atmel|microHAL/info|FreeRTOS/portable/GCC/ARM_CM3_MPU|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/linux|microHAL/boost|microHAL/os/thread.cc|main.cpp|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/IAR|FreeRTOS/portable/MPLAB|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ARM_CM3|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/linux_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|FreeRTOS/portable/GCC/RX100|microHAL/DSP|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/BCC|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/Tasking|microHAL/math|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/MemMang/heap_2.c|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|FreeRTOS/portable/GCC/IA32_flat|microHAL/cli|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/RL78|microHAL/usb|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/ARM7_LPC23xx|microHAL/ports/Windows|microHAL/ports/SiliconLabs|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|FreeRTOS/portable/WizC|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/ARM7_AT91FR40008|microHAL/os/Windows|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/Softune|microHAL/os/FreeRTOS|FreeRTOS/portable/MemMang/heap_3.c|FreeRTOS/portable/Rowley|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/RVDS|microHAL/units|microHAL/ports/helpers|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/ARM_CM7|FreeRTOS/portable/Renesas|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/oWatcom|microHAL/ports/ SiliconLabs|FreeRTOS/portable/GCC/NiosII|system|microHAL/ports/templatePort|FreeRTOS/portable/GCC/AVR32_UC3|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/Paradigm|FreeRTOS/portable/Keil|FreeRTOS/portable/SDCC|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/GCC/MicroBlaze|reader.cpp|microHAL/SPIDevice|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/I2CDevice|microHAL/buffers/tests|FreeRTOS/portable/GCC/ColdFire_V2|microHAL/ports/Renesas|FreeRTOS/portable/GCC/TriCore_1782|microHAL/hostComm|FreeRTOS/portable/CCS|microHAL/os/noRTOSport|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/RX600|microHAL/ports/Atmel|microHAL/info|FreeRTOS/portable/GCC/ARM_CM3_MPU|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/linux|microHAL/boost|microHAL/os/thread.cc|main.cpp|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/IAR|FreeRTOS/portable/MPLAB|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ARM_CM3|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="stm32f4-discovery|linux_lepton_emulator|Windows|linux|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
 					</sourceEntries>
 				</configuration>

@@ -1,0 +1,20 @@
+import re
+
+targets = ['NUCLEO-F411RE', 'stm32f4-discovery']
+executionTime = 25
+	
+def projectName():
+	return 'mrf89xa'	
+	
+def binaryName(configuration):
+	return 'mrf89xa.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- MRF89XA Demo -------------------------\n\r")
+															
+	if (data.startswith(correctOutput) == False):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return data.startswith(correctOutput)

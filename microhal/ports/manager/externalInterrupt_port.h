@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      externalInterrupt port include file
  *
@@ -8,7 +8,7 @@
  * created on: 9-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,19 +33,21 @@
  * INCLUDES
  */
 #if defined(VENDOR_ATMEL)
-	#include "Atmel/externalInterrupt_atmel.h"
+#include "Atmel/externalInterrupt_atmel.h"
 #elif defined(VENDOR_NORDIC)
-	#include "Nordic/externalInterrupts_nordic.h"
+#include "Nordic/externalInterrupts_nordic.h"
 #elif defined(VENDOR_RENESAS)
-	#include "Renesas/externalInterrupt_renesas.h"
+#include "Renesas/externalInterrupt_renesas.h"
 #elif defined(VENDOR_SILICON_LABS)
-    #include "SiliconLabs/externalInterrupt_siliconLabs.h"
+#include "SiliconLabs/externalInterrupt_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
-	#include "STMicroelectronics/externalInterrupt_stm.h"
+#include "STMicroelectronics/externalInterrupt_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+
 #elif defined(LINUX_PORT)
-	//#include "Linux/externalInterrupt_linux.h"
+//#include "Linux/externalInterrupt_linux.h"
 #else
-	#error "Microcontroller vendor undefined."
+#error "Microcontroller vendor undefined."
 #endif
 
-#endif // _MICROHAL_EXTERNALINTERRUPT_PORT_H_
+#endif  // _MICROHAL_EXTERNALINTERRUPT_PORT_H_

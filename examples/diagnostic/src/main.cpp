@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      diagnostic example main file
  *
@@ -8,7 +8,7 @@
  * created on: 2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2017, microHAL
+ * @copyright Copyright (c) 2014-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@ using namespace microhal::diagnostic;
 using namespace std::literals::chrono_literals;
 
 int main(void) {
+    bsp::init();
     // to print some diagnostic logs we need debug IODevice, to see declaration of this device go to 'boards' folder and find your active
     // configuration (i.e. Windows).
     // In this example IODevice instance is called 'debugPort', on Windows it may be connected to console, on STM32 to UART
@@ -120,9 +121,9 @@ int main(void) {
     firstDiagnosticChannel << lock << MICROHAL_EMERGENCY << "done, this log is printed 500ms later." << unlock;
 
     // what if we have limited time to print log, our 'lock' don't have timeout parameter so we can do something like this:
-    if (firstDiagnosticChannel.tryLock(1000ms)) {
-        firstDiagnosticChannel << MICROHAL_EMERGENCY << "Locked successfully." << unlock;
-    }
+    //   if (firstDiagnosticChannel.tryLock(1000ms)) {
+    //      firstDiagnosticChannel << MICROHAL_EMERGENCY << "Locked successfully." << unlock;
+    //  }
 
     // OK, what if we want to start our log and finish it with different communicate, depending on if statement
     // as you can see below we have log level 'WARNING', that is a macro which generates header with file name and log line position in file,

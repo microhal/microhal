@@ -1,0 +1,20 @@
+import re
+
+targets = ['lepton_emulator_stm32f4xx']
+executionTime = 1
+	
+def projectName():
+	return 'leptonPCSerialReceiver'	
+	
+def binaryName(configuration):
+	return 'leptonPCSerialReceiver.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- Lepton IR camera emulator -------------------------\n\r")
+															
+	if (data.startswith(correctOutput) == False):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return data.startswith(correctOutput)

@@ -1,1 +1,4 @@
 .settings
+*.pyc
+*.testconfigc
+.metadata

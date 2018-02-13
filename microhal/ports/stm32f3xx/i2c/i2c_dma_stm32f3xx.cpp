@@ -128,7 +128,7 @@ I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *dataA, siz
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
-};
+}
 
 I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t *data, size_t size) noexcept {
     rxStream.numberOfItemsToTransfer(size);
@@ -188,7 +188,7 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *dataA, size_t dataASize
     semaphore.wait(std::chrono::milliseconds::max());
 
     return error;
-};
+}
 
 I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress, const uint8_t *writeData, size_t writeSize, uint8_t *readData, size_t readSize) noexcept {
     txStream.numberOfItemsToTransfer(writeSize);

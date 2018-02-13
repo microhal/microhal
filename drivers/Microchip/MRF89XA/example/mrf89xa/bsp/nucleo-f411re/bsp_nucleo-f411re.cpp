@@ -32,23 +32,45 @@
 
 #include "bsp.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 using namespace microhal;
 using namespace stm32f4xx;
+using namespace diagnostic;
+
+extern "C" int main(int, void *);
+
+static void run_main(void *) {
+    main(0, nullptr);
+}
 
 void hardwareConfig(void) {
-	(void)bsp::moduleA::spi;
-	(void)bsp::moduleB::spi;
-	(void)bsp::debugPort;
-   // Core::pll_start(8000000, 168000000);
+    (void)bsp::moduleA::spi;
+    (void)bsp::moduleB::spi;
+    (void)bsp::debugPort;
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
+    bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
+    bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
+    bsp::debugPort.setParity(stm32f4xx::SerialPort::NoParity);
+    bsp::debugPort.open(stm32f4xx::SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
+    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
+    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
+    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
 
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler8);
+    stm32f4xx::SPI::spi1.enable();
+
+    xTaskHandle mainHandle;
+    xTaskCreate(run_main, (const char *)"main", (10 * 1024), 0, tskIDLE_PRIORITY, &mainHandle);
+
+    vTaskStartScheduler();
 }
-
-
-
-

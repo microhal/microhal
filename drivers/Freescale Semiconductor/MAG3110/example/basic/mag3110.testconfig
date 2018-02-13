@@ -1,0 +1,23 @@
+import re
+
+targets = []
+executionTime = 1
+requireHardware = True
+requireDevice = True
+deviceName = 'mag3110'
+	
+def projectName():
+	return 'mag3110'	
+	
+def binaryName(configuration):
+	return 'mag3110.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r----------------- MAG3110 Demo -----------------\n\r")
+															
+	if (data.startswith(correctOutput) == False):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return data.startswith(correctOutput)

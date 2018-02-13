@@ -34,15 +34,15 @@
  */
 #include <experimental/optional>
 #include <numeric>
+#include "diagnostic/diagnostic.h"
 #include "gsl/span"
 #include "microhal.h"
-#include "diagnostic/diagnostic.h"
 /* **************************************************************************************************************************************************
  * CLASS
  */
 
 class uCAM_II {
-	enum class ImageFormat : uint8_t { GrayScalse8bit = 0x03, CrYCbY16bit = 0x08, Colour16bit = 0x06, JPEG = 0x07 };
+    enum class ImageFormat : uint8_t { GrayScalse8bit = 0x03, CrYCbY16bit = 0x08, Colour16bit = 0x06, JPEG = 0x07 };
     enum class CommandType : uint8_t {
         Initial = 0x01,
         GetPicture = 0x04,
@@ -59,9 +59,9 @@ class uCAM_II {
 
  public:
     enum class ImageFormatRAW : uint8_t {
-    	GrayScalse8bit = ImageFormat::GrayScalse8bit,
-    	CrYCbY16bit = ImageFormat::CrYCbY16bit,
-		Colour16bit = ImageFormat::Colour16bit
+        GrayScalse8bit = static_cast<uint8_t>(ImageFormat::GrayScalse8bit),
+        CrYCbY16bit = static_cast<uint8_t>(ImageFormat::CrYCbY16bit),
+        Colour16bit = static_cast<uint8_t>(ImageFormat::Colour16bit)
     };
     enum class RawResolution : uint8_t { Image_80x60 = 0x01, Image_160x120 = 0x03, Image_128x128 = 0x09, Image_128x96 = 0x0B };
     enum class JpegResolution : uint8_t { Image_160x128 = 0x03, Image_320x240 = 0x05, Image_640x480 = 0x07 };
@@ -121,9 +121,9 @@ class uCAM_II {
         constexpr CommandType getID() const { return IDNumber; }
 
      protected:
-        constexpr Command(CommandType type, uint8_t parameter1 = 0x00, uint8_t parameter2 = 0x00, uint8_t parameter3 = 0x00, uint8_t parameter4 = 0x00)
-        : IDNumber(type), parameter1(parameter1), parameter2(parameter2), parameter3(parameter3), parameter4(parameter4) {
-        }
+        constexpr Command(CommandType type, uint8_t parameter1 = 0x00, uint8_t parameter2 = 0x00, uint8_t parameter3 = 0x00,
+                          uint8_t parameter4 = 0x00)
+            : IDNumber(type), parameter1(parameter1), parameter2(parameter2), parameter3(parameter3), parameter4(parameter4) {}
 
         template <typename T1 = uint8_t, typename T2 = uint8_t, typename T3 = uint8_t, typename T4 = uint8_t>
         constexpr Command(CommandType type, T1 parameter1 = 0x00, T2 parameter2 = 0x00, T3 parameter3 = 0x00, T4 parameter4 = 0x00)
@@ -132,10 +132,10 @@ class uCAM_II {
               parameter2(static_cast<uint8_t>(parameter2)),
               parameter3(static_cast<uint8_t>(parameter3)),
               parameter4(static_cast<uint8_t>(parameter4)) {
-        	static_assert(sizeof(T1) == 1, "");
-        	static_assert(sizeof(T2) == 1, "");
-        	static_assert(sizeof(T3) == 1, "");
-        	static_assert(sizeof(T4) == 1, "");
+            static_assert(sizeof(T1) == 1, "");
+            static_assert(sizeof(T2) == 1, "");
+            static_assert(sizeof(T3) == 1, "");
+            static_assert(sizeof(T4) == 1, "");
         }
 
         constexpr uint8_t lsb(uint16_t a) { return a & 0xFF; }
@@ -165,13 +165,15 @@ class uCAM_II {
 
     class Snapshot final : public Command {
      public:
-        explicit constexpr Snapshot(SnapshotType snapshotType, uint32_t skipFrame = 0) noexcept : Command(CommandType::Snapshot, snapshotType, lsb(skipFrame), msb(skipFrame)) {}
+        explicit constexpr Snapshot(SnapshotType snapshotType, uint32_t skipFrame = 0) noexcept
+            : Command(CommandType::Snapshot, snapshotType, lsb(skipFrame), msb(skipFrame)) {}
         static constexpr CommandType getID() { return CommandType::Snapshot; }
     };
 
     class SetPackageSize final : public Command {
      public:
-        explicit constexpr SetPackageSize(uint16_t size) noexcept : Command(CommandType::SetPackageSize, static_cast<uint8_t>(0x08), lsb(size), msb(size)) {}
+        explicit constexpr SetPackageSize(uint16_t size) noexcept
+            : Command(CommandType::SetPackageSize, static_cast<uint8_t>(0x08), lsb(size), msb(size)) {}
         static constexpr CommandType getID() { return CommandType::SetPackageSize; }
     };
 
@@ -185,7 +187,7 @@ class uCAM_II {
 
     class Reset final : public Command {
      public:
-        explicit constexpr Reset(ResetType reset) noexcept : Command(CommandType::Reset, reset,(uint8_t)0,(uint8_t)0,(uint8_t)0xff) {}
+        explicit constexpr Reset(ResetType reset) noexcept : Command(CommandType::Reset, reset, (uint8_t)0, (uint8_t)0, (uint8_t)0xff) {}
         static constexpr CommandType getID() { return CommandType::Reset; }
     };
 
@@ -208,7 +210,7 @@ class uCAM_II {
      public:
         constexpr Ack() noexcept : Command(CommandType::Ack) {}
         explicit constexpr Ack(const Command &toAck) noexcept : Command(CommandType::Ack, toAck.getID()) {}
-		static constexpr CommandType getID() { return CommandType::Ack; }
+        static constexpr CommandType getID() { return CommandType::Ack; }
         bool isAcknowledged(const Command &command) const noexcept {
             if (command.getID() == getCommandID()) return true;
             return false;
@@ -235,7 +237,7 @@ class uCAM_II {
     class Nak final : public Command {
      public:
         constexpr Nak(ErrorNumber error) noexcept : Command(CommandType::Nak, static_cast<uint8_t>(0x00), static_cast<uint8_t>(0x00), error) {}
-        uint8_t getNACKCounter() { return parameter2;}
+        uint8_t getNACKCounter() { return parameter2; }
         ErrorNumber getError() { return static_cast<ErrorNumber>(parameter3); }
     };
 
@@ -288,29 +290,29 @@ class uCAM_II {
 
     bool initJPEG(JpegResolution resolution) noexcept {
         Initial init(ImageFormat::JPEG, RawResolution::Image_128x128, resolution);
-        return writeCommandWaitForACK(init, std::chrono::milliseconds {140});
+        return writeCommandWaitForACK(init, std::chrono::milliseconds{140});
     }
 
     bool initRAW(ImageFormatRAW imageFormat, RawResolution resolution) noexcept {
         Initial init(static_cast<ImageFormat>(imageFormat), resolution, JpegResolution::Image_160x128);
-        return writeCommandWaitForACK(init, std::chrono::milliseconds {140});
+        return writeCommandWaitForACK(init, std::chrono::milliseconds{140});
     }
 
     bool setBaudrate(Baudrate baudrate);
 
-  	/**
-  	 * This function set size of data package used to image send.
-  	 */
+    /**
+     * This function set size of data package used to image send.
+     */
     bool setPackageSize(size_t size) noexcept {
         if (size > 512) return false;
         SetPackageSize packageSize(size);
-        return writeCommandWaitForACK(packageSize, std::chrono::milliseconds {140});
+        return writeCommandWaitForACK(packageSize, std::chrono::milliseconds{140});
     }
 
     bool snapshot(SnapshotType snapshotType) noexcept {
         Snapshot command(snapshotType);
         lastSnapshot = snapshotType;
-        return writeCommandWaitForACK(command, std::chrono::milliseconds {140});
+        return writeCommandWaitForACK(command, std::chrono::milliseconds{140});
     }
 
     bool getPicture(PictureType pictureType, gsl::span<uint8_t> pictureBuffer, size_t &received);
@@ -322,8 +324,8 @@ class uCAM_II {
     }
 
     bool reset(ResetType resetType) noexcept {
-    	Reset reset(resetType);
-    	return writeCommand(reset);
+        Reset reset(resetType);
+        return writeCommand(reset);
     }
 
  private:
@@ -370,7 +372,7 @@ class uCAM_II {
 
     bool writeCommand(const Command &command) {
         const bool status = serial.write(reinterpret_cast<const char *>(&command), sizeof(command));
-        serial.waitForWriteFinish(std::chrono::milliseconds {100});
+        serial.waitForWriteFinish(std::chrono::milliseconds{100});
         return status;
     }
 
@@ -382,8 +384,10 @@ class uCAM_II {
         if (size == sizeof(tmp)) {
             command = tmp;
         } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << microhal::diagnostic::Debug << "Unable to read command, received size: " << (uint32_t)size
-                                              << ", but expected " << (uint32_t)sizeof(tmp) << "\n" << microhal::diagnostic::unlock;
+            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << microhal::diagnostic::Debug
+                                              << "Unable to read command, received size: " << (uint32_t)size << ", but expected "
+                                              << (uint32_t)sizeof(tmp) << "\n"
+                                              << microhal::diagnostic::unlock;
         }
         return command;
     }
@@ -396,12 +400,14 @@ class uCAM_II {
                         Ack &ack = static_cast<Ack &>(*receivedCommand);
                         if (ack.isAcknowledged(command)) return true;
                     } break;
-                        //				case CommandType::Nak:
-                        //					break;
+                    //				case CommandType::Nak:
+                    //					break;
                     default: {
-                    	microhal::diagnostic::diagChannel << microhal::diagnostic::lock << microhal::diagnostic::Debug
-							<< "After command: " << static_cast<uint8_t>(command.getID()) << "Expected ACK but, received command: " << static_cast<uint8_t>(receivedCommand->getID())<<"\n" << microhal::diagnostic::unlock;
-                    //	asm volatile("BKPT #01");
+                        microhal::diagnostic::diagChannel
+                            << microhal::diagnostic::lock << microhal::diagnostic::Debug << "After command: " << static_cast<uint8_t>(command.getID())
+                            << "Expected ACK but, received command: " << static_cast<uint8_t>(receivedCommand->getID()) << "\n"
+                            << microhal::diagnostic::unlock;
+                        //	asm volatile("BKPT #01");
                     }
                 }
             }

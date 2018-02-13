@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      I2C port include file
  *
@@ -8,7 +8,7 @@
  * created on: 13-03-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,8 @@
     #include "SiliconLabs/i2c_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
     #include "STMicroelectronics/i2c_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+
 #elif defined(LINUX_PORT)
     // #include "Linux/i2c_linux.h"
 #elif defined(WINDOWS_PORT)

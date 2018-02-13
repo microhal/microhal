@@ -43,4 +43,8 @@ constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
 constexpr microhal::GPIO::IOPin GreenLed = ld2_pin;
 constexpr microhal::GPIO::IOPin RedLed = Led3;
 
+namespace bsp {
+void init();
+}  // namespace bsp
+
 #endif  // NUCLEO_F411RE_H_

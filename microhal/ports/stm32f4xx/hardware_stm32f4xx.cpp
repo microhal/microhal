@@ -37,7 +37,7 @@ namespace microhal {
 namespace hardware {
 
 uint32_t Device::coreFrequency() {
-    return stm32f4xx::ClockManager::SYSCLK::frequency();
+    return stm32f4xx::ClockManager::AHB::frequency();
 }
 
 }  // namespace hardware

@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                        */
+                                                                                                                                                                                                                                                                         */
 
 #include <chrono>
 #include <thread>
@@ -59,11 +59,12 @@ void task2() {
 
 // when using os main function is a thread
 int main(void) {
-    serialPort.open(SerialPort::ReadWrite);
+    bsp::init();
     serialPort.setBaudRate(SerialPort::Baud115200);
     serialPort.setDataBits(SerialPort::Data8);
     serialPort.setStopBits(SerialPort::OneStop);
     serialPort.setParity(SerialPort::NoParity);
+    serialPort.open(SerialPort::ReadWrite);
 
     serialPort.write("\n\r----------------------------- OS DEMO -----------------------------\n\r");
 

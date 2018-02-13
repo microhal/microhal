@@ -33,9 +33,9 @@
  */
 #include <cstdint>
 #include "../clockManager.h"
+#include "../device/stm32f3xx.h"
 #include "../dma_stm32f3xx.h"
 #include "../i2c_stm32f3xx.h"
-#include "../device/stm32f3xx.h"
 #include "microhal_semaphore.h"
 
 namespace microhal {
@@ -91,8 +91,8 @@ class I2C_dma : public stm32f3xx::I2C {
     os::Semaphore semaphore;
 
     struct Buffer {
-    	void *ptr;
-    	size_t length;
+        void *ptr;
+        size_t length;
     };
     struct {
         Mode mode;
@@ -103,27 +103,27 @@ class I2C_dma : public stm32f3xx::I2C {
     //---------------------------------- constructors -------------------------------
     I2C_dma(I2C_TypeDef &i2c, DMA::Channel &rxStream, DMA::Channel &txStream)
         : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), transfer() {
-    	ClockManager::enable(i2c);
-    	init();
+        ClockManager::enable(i2c);
+        init();
         switch (reinterpret_cast<uint32_t>(&i2c)) {
-            case reinterpret_cast<uint32_t>(I2C1):
+            case reinterpret_cast<uint32_t>(I2C1_BASE):
                 NVIC_EnableIRQ(I2C1_EV_IRQn);
                 NVIC_SetPriority(I2C1_EV_IRQn, 0);
                 NVIC_EnableIRQ(I2C1_ER_IRQn);
                 NVIC_SetPriority(I2C1_ER_IRQn, 0);
                 break;
-//            case reinterpret_cast<uint32_t>(I2C2):
-//                NVIC_EnableIRQ(I2C2_EV_IRQn);
-//                NVIC_SetPriority(I2C2_EV_IRQn, 0);
-//                NVIC_EnableIRQ(I2C2_ER_IRQn);
-//                NVIC_SetPriority(I2C2_ER_IRQn, 0);
-//                break;
-//            case reinterpret_cast<uint32_t>(I2C3):
-//                NVIC_EnableIRQ(I2C3_EV_IRQn);
-//                NVIC_SetPriority(I2C3_EV_IRQn, 0);
-//                NVIC_EnableIRQ(I2C3_ER_IRQn);
-//                NVIC_SetPriority(I2C3_ER_IRQn, 0);
-//                break;
+                //            case reinterpret_cast<uint32_t>(I2C2):
+                //                NVIC_EnableIRQ(I2C2_EV_IRQn);
+                //                NVIC_SetPriority(I2C2_EV_IRQn, 0);
+                //                NVIC_EnableIRQ(I2C2_ER_IRQn);
+                //                NVIC_SetPriority(I2C2_ER_IRQn, 0);
+                //                break;
+                //            case reinterpret_cast<uint32_t>(I2C3):
+                //                NVIC_EnableIRQ(I2C3_EV_IRQn);
+                //                NVIC_SetPriority(I2C3_EV_IRQn, 0);
+                //                NVIC_EnableIRQ(I2C3_ER_IRQn);
+                //                NVIC_SetPriority(I2C3_ER_IRQn, 0);
+                //                break;
         }
     }
 

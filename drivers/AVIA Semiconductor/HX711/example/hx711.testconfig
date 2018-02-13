@@ -1,0 +1,20 @@
+import re
+
+targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
+executionTime = 1
+	
+def projectName():
+	return 'hx711'	
+	
+def binaryName(configuration):
+	return 'hx711.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- HX711 Demo -------------------------\n\r")
+															
+	if (data.startswith(correctOutput) == False):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return data.startswith(correctOutput)

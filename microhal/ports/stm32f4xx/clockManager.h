@@ -1301,6 +1301,33 @@ class ClockManager {
             static float PFrequency() { return VCOOutputFrequency() / P(); }
             static float QFrequency() { return VCOOutputFrequency() / Q(); }
 
+            static bool N(uint32_t n) noexcept {
+                if (n < 2 || n > 432) return false;
+                uint32_t tmp = RCC->PLLCFGR;
+                tmp &= ~0x1FFU << 6;
+                tmp |= n << 6;
+                RCC->PLLCFGR = tmp;
+                return true;
+            }
+
+            static bool P(uint32_t p) noexcept {
+                if ((p > 8) || (p & 0b1)) return false;
+                uint32_t tmp = RCC->PLLCFGR;
+                tmp &= ~0b11U << 16;
+                tmp |= (p / 2 - 1) << 16;
+                RCC->PLLCFGR = tmp;
+                return true;
+            }
+
+            static bool Q(uint32_t q) noexcept {
+                if (q < 3 || q > 15) return false;
+                uint32_t tmp = RCC->PLLCFGR;
+                tmp &= ~0xFU << 24;
+                tmp |= q << 24;
+                RCC->PLLCFGR = tmp;
+                return true;
+            }
+
          private:
             static float VCOOutputFrequency() noexcept { return inputFrequency() * N(); }
             static uint32_t N() noexcept { return (RCC->PLLCFGR >> 6) & 0x1FF; }

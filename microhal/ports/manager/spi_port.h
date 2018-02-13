@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      SPI port include file
  *
@@ -8,7 +8,7 @@
  * created on: 23-03-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2017, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -43,8 +43,10 @@
     #include "SiliconLabs/spi_siliconLabs.h"
 #elif defined(VENDOR_STMICROELECTRONICS)
     #include "STMicroelectronics/spi_stm.h"
+#elif defined(VENDOR_TEXAS_INSTRUMENTS)
+
 #elif defined(LINUX_PORT)
-    // #include "Linux/spi_linux.h"
+    #include "linux/General/spi_linux.h"
 #elif defined(WINDOWS_PORT)
     // #include "windows/spi_windows.h"
 #else

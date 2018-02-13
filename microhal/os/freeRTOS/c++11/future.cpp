@@ -30,8 +30,9 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-
-#if __GNUC__ >= 6
+#if __GNUC__ >= 7
+#include "gcc_7.2.0/future.cc.incl"
+#elif __GNUC__ >= 6 || __GNUC__ < 7
 #include "gcc_6.2.0/future.cc.incl"
 #else
 #include "gcc_5/future.cc.incl"
