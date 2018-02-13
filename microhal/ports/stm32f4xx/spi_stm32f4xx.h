@@ -139,12 +139,12 @@ class SPI : public microhal::SPI {
         }
     }
 
-    Prescaler findClosestPrescaler(uint32_t prescaler) {
-        const uint32_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
+    Prescaler findClosestPrescaler(int32_t prescaler) {
+        const int32_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
         uint32_t bestMatch = std::numeric_limits<uint32_t>::max();
         size_t bestPos = 0;
         for (size_t i = 0; i < sizeof(prescalerValues) / sizeof(prescalerValues[0]); i++) {
-            auto distance = std::abs(prescalerValues[i] - prescaler);
+            uint32_t distance = std::abs(prescalerValues[i] - prescaler);
             if (bestMatch > distance) {
                 bestMatch = distance;
                 bestPos = i;
