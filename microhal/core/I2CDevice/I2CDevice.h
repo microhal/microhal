@@ -121,30 +121,32 @@ class I2CDevice {
      */
     constexpr DeviceAddress address() const noexcept { return deviceAddress; }
     /**
-     * @brief This function write 8 bit data into the I2C device. If an error occurred this function return false and you can use @ref getLastError
-     * function to check the error cause.
+     * @brief This function write 8 bit data into the I2C device. If an error occurred this function will return @ref I2C::Error.
+     *
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
      * @param data to write.
      *
-     * @retval true - if data was sent.
-     * @retval false - if an error occurred.
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    I2C::Error write(uint8_t data) {
+    I2C::Error write(uint8_t data) noexcept {
         std::lock_guard<I2C> guard(i2c);
         return i2c.write(deviceAddress, data);
     }
     /**
-     * @brief This function read 8 bit data from the I2C device. If an error occurred you can use @ref getLastError function
-     * to check the error cause.
+     * @brief This function read 8 bit data from the I2C device.
+     *
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
-     * @param[out] data - reference to memory where read data will be stored.
+     * @param[out] data - pointer to memory where read data will be stored.
      *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
+     * @retval This function will return I2C::Error::None if data was read correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    I2C::Error read(uint8_t *data) {
+    I2C::Error read(uint8_t *data) noexcept {
         std::lock_guard<I2C> guard(i2c);
         return i2c.read(deviceAddress, data, 1);
     }
@@ -157,17 +159,19 @@ class I2CDevice {
      * @param reg register to write.
      * @param value to write
      *
-     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return corresponding
-     * I2C::Error code.
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
     template <typename Register>
     I2C::Error write(Register reg, typename Register::Type value) {
         static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
         typename Register::Address::Type tmp = Register::Address::value;
-        auto valueConverted = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
 
         std::lock_guard<I2C> guard(i2c);
-        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<const uint8_t *>(&valueConverted),
+        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<const uint8_t *>(&value),
                          sizeof(value));
     }
     /**
@@ -189,7 +193,9 @@ class I2CDevice {
         std::lock_guard<I2C> guard(i2c);
         const auto result =
             i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<uint8_t *>(&value), sizeof(value));
-        value = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
         return result;
     }
     /**
@@ -209,10 +215,15 @@ class I2CDevice {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
+
         std::lock_guard<I2C> guard(i2c);
         const auto status = i2c.writeRead(deviceAddress, &address, sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            tmp |= ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
+            if constexpr (reg.requireEndiannessConversion()) {
+                tmp |= microhal::convertEndianness(value);
+            } else {
+                tmp |= value;
+            }
             return i2c.write(deviceAddress, &address, sizeof(address), reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp));
         }
         return status;
@@ -234,11 +245,17 @@ class I2CDevice {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
+
         std::lock_guard<I2C> guard(i2c);
         const auto status =
             i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            tmp &= ~ConvertEnidianness<reg.requireEndiannessConversion()>::convert(value);
+            if constexpr (reg.requireEndiannessConversion()) {
+                tmp &= ~microhal::convertEndianness(value);
+            } else {
+                tmp &= ~value;
+            }
+
             return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
                              sizeof(tmp));
         }
@@ -247,13 +264,13 @@ class I2CDevice {
     /**
      * @brief This function modify content of the register of the I2C device.
      * This function automatically handle endianness conversion.
-     * @example Suppose that register content is equal 0b1111; value field is set to 0b0101 and mask is set to 0b0011. As a result new register value
-     * will be equal 0b1101.
+     * @example Suppose that register content is equal to 0b1111; value field is set to 0b0101 and mask is set to 0b0011. As a result new register
+     * value will be equal to 0b1101.
      * @remark This function is thread-safe.
      * @remark This function is no-throw guarantee.
      *
      * @param reg register to modify.
-     * @param value new value to set. Bits from this field vill be written only if corresponding bits in mask parameter are set.
+     * @param value new value to set. Bits from this field will be written only if corresponding bits in mask parameter are set.
      * @param mask if bit is set then corresponding bit in register will be set.
      *
      * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
@@ -264,28 +281,34 @@ class I2CDevice {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
+
         std::lock_guard<I2C> guard(i2c);
         const auto status =
             i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            tmp = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(tmp);
-            tmp &= ~mask;
-            tmp |= value & mask;
-            tmp = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(tmp);
+            if constexpr (reg.requireEndiannessConversion()) {
+                tmp = microhal::convertEndianness(tmp);
+                tmp &= ~mask;
+                tmp |= value & mask;
+                tmp = microhal::convertEndianness(tmp);
+            } else {
+                tmp &= ~mask;
+                tmp |= value & mask;
+            }
             return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
                              sizeof(tmp));
         }
         return status;
     }
     /**
-     * @brief This function allow you to read few register in one I2C transaction.
+     * @brief This function allow you to read multiple register in one I2C transaction.
      * This function automatically handle endianness conversion.
      *
      * @remark This function is thread-safe.
      * @remark This function is no-throw guarantee.
      *
      * @param[in] array where register values will be stored.
-     * @param reg registers to read. This registers have to be sorted in rising order and continuous.
+     * @param reg registers to read. This registers have to be sorted in rising order and be continuous.
      *
      * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
      * corresponding I2C::Error code.
@@ -382,6 +405,7 @@ class I2CDevice {
     template <typename... tupleTypes, typename... Registers>
     I2C::Error writeRegisters(const std::tuple<tupleTypes...> &data, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
+        static_assert(sizeof...(tupleTypes) == sizeof...(Registers), "");
         microhal::accessCheck<Access::ReadOnly>(reg...);
         isContinous(reg...);
 
@@ -396,63 +420,37 @@ class I2CDevice {
     I2C &i2c;
     const DeviceAddress deviceAddress;  ///< address of I2C slave device
 
-    /////////////////////////////
-    template <size_t i, typename Tuple, typename Register>
-    constexpr void setTuple(Tuple &tuple, const uint8_t *data, Register reg) {
-        (void)reg;
-        using DataType = typename Register::Type;
-        DataType value = *reinterpret_cast<const DataType *>(data);
-        if (reg.requireEndiannessConversion()) {
-            value = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
-        }
-        std::get<i>(tuple) = value;
-    }
     template <size_t i, typename Tuple, typename Register, typename... Registers>
     constexpr void setTuple(Tuple &tuple, const uint8_t *data, Register reg, Registers... regs) {
         (void)reg;
         using DataType = typename Register::Type;
         DataType value = *reinterpret_cast<const DataType *>(data);
-        if (reg.requireEndiannessConversion()) {
-            value = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
         }
         std::get<i>(tuple) = value;  // convertEndiannessIfRequired(*value, reg.getEndianness());
-        setTuple<i + 1>(tuple, data + sizeof(DataType), regs...);
+        if constexpr (sizeof...(regs)) setTuple<i + 1>(tuple, data + sizeof(DataType), regs...);
     }
-    //////////////////////////////
-    template <size_t i, typename Tuple, typename Register>
-    void setArrayFromTuple(uint8_t *array, const Tuple &tuple, Register reg) {
-        using DataType = typename std::tuple_element<i, Tuple>::type;
-        static_assert(std::is_same<DataType, typename Register::Type>::value, "Tuple types and registers types are different.");
-        DataType value = std::get<i>(tuple);
-        if (reg.requireEndiannessConversion()) {
-            *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
-        } else {
-            *reinterpret_cast<DataType *>(array) = value;
-        }
-    }
+
     template <size_t i, typename Tuple, typename Register, typename... Registers>
     void setArrayFromTuple(uint8_t *array, const Tuple &tuple, Register reg, Registers... regs) {
         using DataType = typename std::tuple_element<i, Tuple>::type;
         static_assert(std::is_same<DataType, typename Register::Type>::value, "Tuple types and registers types are different.");
 
         DataType value = std::get<i>(tuple);
-        if (reg.requireEndiannessConversion()) {
-            *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value, Endianness::Big, Endianness::Little);
+        if constexpr (reg.requireEndiannessConversion()) {
+            *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value);
         } else {
             *reinterpret_cast<DataType *>(array) = value;
         }
-        setArrayFromTuple<i + 1>(array + sizeof(DataType), tuple, regs...);
+        if constexpr (sizeof...(regs)) setArrayFromTuple<i + 1>(array + sizeof(DataType), tuple, regs...);
     }
-    //////////////////////////////
-    template <typename Type, size_t N, typename Register>
-    void convertEndianness(std::array<Type, N> &array, Register reg) {
-        array[array.size() - 1] = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(array[array.size() - 1]);
-    }
+
     template <typename Type, size_t N, typename Register, typename... Registers>
     void convertEndianness(std::array<Type, N> &array, Register reg, Registers... regs) {
-        auto index = array.size() - sizeof...(Registers)-1;
+        auto index = array.size() - sizeof...(Registers) - 1;
         array[index] = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(array[index]);
-        convertEndianness(array, regs...);
+        if constexpr (sizeof...(Registers)) convertEndianness(array, regs...);
     }
 };
 /**

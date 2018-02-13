@@ -43,17 +43,18 @@ constexpr static inline T convertEndiannessIfRequired(T data, Endianness endiann
 }
 
 template <typename T>
+constexpr static inline T convertEndianness(T data) {
+    return static_cast<T>(byteswap(static_cast<typename std::make_unsigned<T>::type>(data)));
+}
+
+template <typename T>
 constexpr static inline T convertEndianness(T data, Endianness from, Endianness to) {
     if (from != to) {
-        return static_cast<T>(byteswap(static_cast<typename std::make_unsigned<T>::type>(data)));
+        return convertEndianness(data);
     }
     return data;
 }
 
-constexpr static inline uint8_t convertEndianness(uint8_t data, Endianness from, Endianness to) {
-    return data;
-}
-
-} /* namespace hal*/
+}  // namespace microhal
 
 #endif /* BASICS_H_ */

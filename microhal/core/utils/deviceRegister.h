@@ -81,7 +81,6 @@ class Register<T, _Access, AddressType> {
  public:
     using Address = AddressType;
     using Type = T;
-    // const Address address;
 
     constexpr typename Address::Type getAddress() const { return Address::value; }
 
@@ -91,28 +90,18 @@ class Register<T, _Access, AddressType> {
 };
 
 //////////////
-template <Access RequiredAccess, typename Register>
-constexpr void accessCheck(Register reg) {
-    static_assert(reg.access() != RequiredAccess, "");
-}
 template <Access RequiredAccess, typename Register, typename... Rest>
 constexpr void accessCheck(Register reg, Rest... rest) {
     static_assert(reg.access() != RequiredAccess, "");
-    accessCheck<RequiredAccess>(rest...);
+    if constexpr (sizeof...(rest)) accessCheck<RequiredAccess>(rest...);
 }
 /////////////////
-template <typename Register, typename Register2>
-constexpr void isContinous(Register reg, Register2 reg2) {
-    (void)reg;
-    (void)reg2;
-    static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "");
-}
 template <typename Register, typename Register2, typename... Rest>
 constexpr void isContinous(Register reg, Register2 reg2, Rest... regs) {
     (void)reg;
     (void)reg2;
-    static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "");
-    isContinous(reg2, regs...);
+    static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "Registers have to be continous");
+    if constexpr (sizeof...(regs)) isContinous(reg2, regs...);
 }
 ////////////////////////
 template <typename Register>
@@ -126,20 +115,15 @@ constexpr size_t sizeOfRegistersData(Register reg, Rest... regs) {
     return sizeof(typename Register::Type) + sizeOfRegistersData(regs...);
 }
 ////////////////////////
-template <typename Type, typename Register>
-void dataTypeCheck(Register reg) {
-    (void)reg;
-    static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
-}
 template <typename Type, typename Register, typename... Registers>
 void dataTypeCheck(Register reg, Registers... regs) {
     (void)reg;
     static_assert(std::is_same<Type, typename Register::Type>::value, "Unexpected register type.");
-    dataTypeCheck<Type>(regs...);
+    if constexpr (sizeof...(regs)) dataTypeCheck<Type>(regs...);
 }
 
 template <typename Register, typename... Registers>
-constexpr auto first(Register reg, Registers... regs) {
+constexpr auto first(Register reg, Registers... regs __attribute__((unused))) {
     return reg;
 }
 
