@@ -163,7 +163,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename Register>
-    I2C::Error write(Register reg, typename Register::Type value) {
+    I2C::Error writeRegister(Register reg, typename Register::Type value) {
         static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
         typename Register::Address::Type tmp = Register::Address::value;
         if constexpr (reg.requireEndiannessConversion()) {
@@ -187,7 +187,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename Register>
-    I2C::Error read(Register reg, typename Register::Type &value) {
+    I2C::Error readRegister(Register reg, typename Register::Type &value) {
         static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
         const auto tmp = reg.getAddress();
         std::lock_guard<I2C> guard(i2c);
@@ -198,6 +198,7 @@ class I2CDevice {
         }
         return result;
     }
+
     /**
      * @brief This function sets bits in register of the I2C device.
      * This function automatically handle endianness conversion.
@@ -211,7 +212,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename Register>
-    I2C::Error bitsSet(Register reg, typename Register::Type value) {
+    I2C::Error setBitsInRegister(Register reg, typename Register::Type value) {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
@@ -241,7 +242,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename Register>
-    I2C::Error bitsClear(Register reg, typename Register::Type value) {
+    I2C::Error clearBitsInRegister(Register reg, typename Register::Type value) {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
@@ -277,7 +278,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename Register>
-    I2C::Error bitsModify(Register reg, typename Register::Type value, typename Register::Type mask) {
+    I2C::Error modifyBitsInRegister(Register reg, typename Register::Type value, typename Register::Type mask) {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
         typename Register::Type tmp;
         typename Register::Address::Type address = Register::Address::value;
@@ -314,7 +315,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename ArrayType, size_t N, typename... Registers>
-    I2C::Error readRegisters(std::array<ArrayType, N> &array, Registers... reg) {
+    I2C::Error readMultipleRegisters(std::array<ArrayType, N> &array, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to read only one register, please use write function.");
         static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
         // because we are reading data to array we have to check if all registers have the same data type and type is equal
@@ -345,7 +346,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename... Registers>
-    I2C::Error readRegisters(std::tuple<typename Registers::Type...> &data, Registers... reg) {
+    I2C::Error readMultipleRegisters(std::tuple<typename Registers::Type...> &data, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to read only one register, please use write function.");
         microhal::accessCheck<Access::WriteOnly>(reg...);
         microhal::isContinous(reg...);
@@ -371,7 +372,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename ArrayType, size_t N, typename... Registers>
-    I2C::Error writeRegisters(const std::array<ArrayType, N> &array, Registers... reg) {
+    I2C::Error writeMultipleRegisters(const std::array<ArrayType, N> &array, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
         static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
         static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
@@ -403,7 +404,7 @@ class I2CDevice {
      * corresponding I2C::Error code.
      */
     template <typename... tupleTypes, typename... Registers>
-    I2C::Error writeRegisters(const std::tuple<tupleTypes...> &data, Registers... reg) {
+    I2C::Error writeMultipleRegisters(const std::tuple<tupleTypes...> &data, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
         static_assert(sizeof...(tupleTypes) == sizeof...(Registers), "");
         microhal::accessCheck<Access::ReadOnly>(reg...);

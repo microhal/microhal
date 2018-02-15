@@ -25,40 +25,40 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "microhal.h"
-#include "diagnostic/diagnostic.h"
 #include "mag3110.h"
 #include "bsp.h"
-
+#include "diagnostic/diagnostic.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace diagnostic;
 
 // MAG3110 object
-MAG3110 mag3110(sensorI2C, MAG3110::I2C_ADDRESS_0);
+MAG3110 mag3110(bsp::mag3110::i2c, MAG3110::I2C_ADDRESS_0);
 
 int main(void) {
-    debugPort.write("\n\r----------------- MAG3110 Demo -----------------\n\r");
-    diagChannel.setOutputDevice(debugPort);
+    bsp::debugPort.write("\n\r----------------- MAG3110 Demo -----------------\n\r");
+    diagChannel.setOutputDevice(bsp::debugPort);
 
     do {
         if (!mag3110.init()) {
             diagChannel << lock << MICROHAL_ERROR << "Cannot initialize MG3110" << endl << unlock;
             break;
         }
-      //  mag3110.enableAxis(MAG3110::XYZ);
+        //  mag3110.enableAxis(MAG3110::XYZ);
 
         mag3110.setODR_OSR(MAG3110::ODR_10Hz_OSR_128);
 
         if (!mag3110.setMode(MAG3110::Mode::ActiveRAW)) {
-            diagChannel<< lock << MICROHAL_ERROR << "Cannot set operation mode."<< endl << unlock;
+            diagChannel << lock << MICROHAL_ERROR << "Cannot set operation mode." << endl << unlock;
             break;
         }
 
         while (1) {
-            std::this_thread::sleep_for(std::chrono::milliseconds {250});
+            std::this_thread::sleep_for(std::chrono::milliseconds{250});
             if (const auto mag = mag3110.getMagnetic()) {
-                diagChannel << lock << MICROHAL_DEBUG << "X[g]: " << (*mag)[0] << ", Y[g]: " << (*mag)[1] << ", Z[g]: " << (*mag)[2] << endl << unlock;
+                diagChannel << lock << MICROHAL_DEBUG << "X[g]: " << (*mag)[0] << ", Y[g]: " << (*mag)[1] << ", Z[g]: " << (*mag)[2] << endl
+                            << unlock;
             }
             if (auto temperature = mag3110.temperature()) {
                 diagChannel << lock << MICROHAL_DEBUG << "Die Temperature " << temperature->getCelsius() << endl << unlock;

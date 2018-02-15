@@ -2,6 +2,7 @@ import re
 
 targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
 executionTime = 1
+requireHardware = False
 	
 def projectName():
 	return 'ws2812'	

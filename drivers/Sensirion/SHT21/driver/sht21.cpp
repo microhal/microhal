@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,7 +24,7 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ========================================================================================================================== */
 
 #include "sht21.h"
 
@@ -34,7 +34,7 @@
  * @retval false if an error occurred.
  */
 bool SHT21::reset() noexcept {
-    //return write(SOFT_RESET_CMD); //todo implement in I2Cdevice class
+    // return write(SOFT_RESET_CMD); //todo implement in I2Cdevice class
     return false;
 }
 /** @brief This function enable internal heater.
@@ -42,28 +42,30 @@ bool SHT21::reset() noexcept {
  * @retval true if heater was on.
  * @retval false if an error occurred.
  */
-bool SHT21::heaterEnable() noexcept {
+microhal::I2C::Error SHT21::heaterEnable() noexcept {
     uint8_t userReg;
 
-    if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {
+    auto status = readRegister(READ_USER_REGISTER_CMD, userReg);
+    if (status == Error::None) {
         userReg |= USER_REGISTER_ENABLE_ON_CHIP_HEATER;
         return writeRegister(WRITE_USER_REGISTER_CMD, userReg);
     }
-    return false;
+    return status;
 }
 /** @brief This function disable internal heater.
  *
  * @retval true if heater was off.
  * @retval false if an error occurred.
  */
-bool SHT21::heaterDisable() noexcept {
+microhal::I2C::Error SHT21::heaterDisable() noexcept {
     uint8_t userReg;
 
-    if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {
+    auto status = readRegister(READ_USER_REGISTER_CMD, userReg);
+    if (status == Error::None) {
         userReg &= ~USER_REGISTER_ENABLE_ON_CHIP_HEATER;
         return writeRegister(WRITE_USER_REGISTER_CMD, userReg);
     }
-    return false;
+    return status;
 }
 /** @brief This function set new temperature and humidity resolution.
  *
@@ -71,17 +73,18 @@ bool SHT21::heaterDisable() noexcept {
  * @retval true if resolution was set.
  * @retval false if an error occurred.
  */
-bool SHT21::setResolution(Resolution resolution) noexcept {
+microhal::I2C::Error SHT21::setResolution(Resolution resolution) noexcept {
     uint8_t userReg;
 
-    if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {
-        //clear actual resolution
+    auto status = readRegister(READ_USER_REGISTER_CMD, userReg);
+    if (status == Error::None) {
+        // clear actual resolution
         userReg &= ~(RESOLUTION_12_14 | RESOLUTION_8_12 | RESOLUTION_10_13 | RESOLUTION_11_11);
-        //set new resolution
+        // set new resolution
         userReg |= resolution;
         return writeRegister(WRITE_USER_REGISTER_CMD, userReg);
     }
-    return false;
+    return status;
 }
 /**@brief This function read actual temperature and humidity resolution.
  *
@@ -90,10 +93,9 @@ bool SHT21::setResolution(Resolution resolution) noexcept {
 SHT21::Resolution SHT21::getResolution() noexcept {
     uint8_t userReg;
 
-    if (readRegister(READ_USER_REGISTER_CMD, userReg) == true) {
-        //clear actual resolution
-        return (Resolution) (userReg
-                & (RESOLUTION_12_14 | RESOLUTION_8_12 | RESOLUTION_10_13 | RESOLUTION_11_11));
+    if (readRegister(READ_USER_REGISTER_CMD, userReg) == Error::None) {
+        // clear actual resolution
+        return (Resolution)(userReg & (RESOLUTION_12_14 | RESOLUTION_8_12 | RESOLUTION_10_13 | RESOLUTION_11_11));
     }
     return UNKNOWN;
 }

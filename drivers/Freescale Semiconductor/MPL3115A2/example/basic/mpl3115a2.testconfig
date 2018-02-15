@@ -1,6 +1,6 @@
 import re
 
-targets = []
+targets = ['NUCLEO-F334R8']
 executionTime = 1
 requireHardware = True
 requireDevice = True

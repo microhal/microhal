@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,11 +24,12 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */#include "microhal.h"
+ */ /* ========================================================================================================================== */
+#include "microhal.h"
 
+#include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "tmp006.h"
-#include "bsp.h"
 
 #include <cstdio>
 
@@ -36,15 +37,15 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main(void) {
-	bsp::debugPort.clear();
+    bsp::debugPort.clear();
 
-	bsp::debugPort.setDataBits(SerialPort::Data8);
-	bsp::debugPort.setStopBits(SerialPort::OneStop);
-	bsp::debugPort.setParity(SerialPort::NoParity);
-	bsp::debugPort.open(SerialPort::ReadWrite);
-	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-	bsp::debugPort.write("\n\r------------------- TMP006 Demo -------------------------\n\r");
+    bsp::debugPort.write("\n\r------------------- TMP006 Demo -------------------------\n\r");
 
     diagChannel.setOutputDevice(bsp::debugPort);
 
@@ -52,34 +53,33 @@ int main(void) {
 
     uint16_t id;
 
-    //read manufacturer id
+    // read manufacturer id
     id = tmp.getManufacturerID();
     diagChannel << MICROHAL_DEBUG << "Manufacturer ID = " << toHex(id);
 
-    //read device id
+    // read device id
     id = tmp.getDeviceID();
     diagChannel << MICROHAL_DEBUG << "Device ID = " << toHex(id);
 
-    //setting to active mode
+    // setting to active mode
     diagChannel << MICROHAL_DEBUG << "setting active mode... ";
-    if (tmp.setMode(TMP006::ModeActive) == true) {
-    	diagChannel << Debug << "OK";
+    if (tmp.setMode(TMP006::ModeActive) == I2C::Error::None) {
+        diagChannel << Debug << "OK";
     } else {
-    	diagChannel << MICROHAL_ERROR << "Unable to set mode.";
+        diagChannel << MICROHAL_ERROR << "Unable to set mode.";
     }
 
-    //setting sampling frequency
+    // setting sampling frequency
     diagChannel << MICROHAL_DEBUG << "setting conversion rate to 4Hz... ";
-    if (tmp.setConversionRate(TMP006::ConversionRate_4Hz) == true) {
-    	diagChannel << Debug << "OK" << endl;
+    if (tmp.setConversionRate(TMP006::ConversionRate_4Hz) == I2C::Error::None) {
+        diagChannel << Debug << "OK" << endl;
     } else {
-    	diagChannel << MICROHAL_ERROR << "Unable to set conversion rate." << endl;
+        diagChannel << MICROHAL_ERROR << "Unable to set conversion rate." << endl;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds {1000});
+    std::this_thread::sleep_for(std::chrono::milliseconds{1000});
     float temperature;
     while (1) {
-
         if (tmp.isNewDataAvailable() == true) {
             temperature = tmp.getObjectTemperature().getCelsius();
             diagChannel << Notice << "Temperature in Celsius degree = " << temperature << endl;
@@ -88,6 +88,6 @@ int main(void) {
             diagChannel << Notice << "Ambient temperature in Kelvin = " << temperature << endl;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds {1000});
+        std::this_thread::sleep_for(std::chrono::milliseconds{1000});
     }
 }

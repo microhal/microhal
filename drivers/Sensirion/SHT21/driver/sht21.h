@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,13 +24,14 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+     */
 
 #ifndef SHT21_H_
 #define SHT21_H_
 
-#include "microhal.h"
 #include "I2CDevice/I2CDevice.h"
+#include "microhal.h"
 
 /**
  * \addtogroup Devices
@@ -38,65 +39,70 @@
  * @class SHT21
  * @}
  */
-class SHT21: public microhal::I2CDevice {
+class SHT21 : public microhal::I2CDevice {
+ public:
+    using Endianness = microhal::Endianness;
+    using Access = microhal::Access;
+    using Error = microhal::I2C::Error;
+
+ private:
     /**
      * Registers flags
      */
     enum Flags {
-        USER_REGISTER_ENABLE_ON_CHIP_HEATER = 0x04, //!< USER_REGISTER_ENABLE_ON_CHIP_HEATER
+        USER_REGISTER_ENABLE_ON_CHIP_HEATER = 0x04,  //!< USER_REGISTER_ENABLE_ON_CHIP_HEATER
     };
     /**
-     * Possible SHT21 command
+     * SHT21 registers
      */
-    enum PossibleCommands {
-        TRIGGER_T_MEASURE_HOLD = 0xE3,    //!< TRIGGER_T_MEASURE_HOLD
-        TRIGGER_RH_MEASURE_HOLD = 0xE5,   //!< TRIGGER_RH_MEASURE_HOLD
-        TRIGGER_T_MEASURE_NO_HOLD = 0xF3, //!< TRIGGER_T_MEASURE_NO_HOLD
-        TRIGGER_RH_MEASURE_NO_HOLD = 0xF5, //!< TRIGGER_RH_MEASURE_NO_HOLD
-        WRITE_USER_REGISTER_CMD = 0xE6,   //!< WRITE_USER_REGISTER_CMD
-        READ_USER_REGISTER_CMD = 0xE7,    //!< READ_USER_REGISTER_CMD
-        SOFT_RESET_CMD = 0xFE             //!< SOFT_RESET_CMD
-    };
+    static constexpr auto TRIGGER_T_MEASURE_HOLD =
+        microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0xE3>{});  //!< TRIGGER_T_MEASURE_HOLD
+    static constexpr auto TRIGGER_RH_MEASURE_HOLD =
+        microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0xE5>{});  //!< TRIGGER_RH_MEASURE_HOLD
+    static constexpr auto TRIGGER_T_MEASURE_NO_HOLD =
+        microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0xF3>{});  //!< TRIGGER_T_MEASURE_NO_HOLD
+    static constexpr auto TRIGGER_RH_MEASURE_NO_HOLD =
+        microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0xF5>{});  //!< TRIGGER_RH_MEASURE_NO_HOLD
+    static constexpr auto WRITE_USER_REGISTER_CMD =
+        microhal::makeRegister<uint8_t, Access::WriteOnly>(microhal::Address<uint8_t, 0xE6>{});  //!< WRITE_USER_REGISTER_CMD
+    static constexpr auto READ_USER_REGISTER_CMD =
+        microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0xE7>{});  //!< READ_USER_REGISTER_CMD
+    static constexpr auto SOFT_RESET_CMD =
+        microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0xFE>{});  //!< SOFT_RESET_CMD
+
     /**
      * Possible I2C address
      */
     enum PossibleI2CAddress {
-        DEFAULT_ADDRESS = 0x80             //!< DEFAULT_ADDRESS
+        DEFAULT_ADDRESS = 0x80  //!< DEFAULT_ADDRESS
     };
-public:
+
+ public:
     /** @brief Possible temperature and humidity resolution
-     *
-     *
      *
      */
     typedef enum {
-        RESOLUTION_12_14 = 0x00, //!< RESOLUTION_12_14
-        RESOLUTION_8_12 = 0x01, //!< RESOLUTION_8_12
-        RESOLUTION_10_13 = 0x80, //!< RESOLUTION_10_13
-        RESOLUTION_11_11 = 0x81, //!< RESOLUTION_11_11
+        RESOLUTION_12_14 = 0x00,  //!< RESOLUTION_12_14
+        RESOLUTION_8_12 = 0x01,   //!< RESOLUTION_8_12
+        RESOLUTION_10_13 = 0x80,  //!< RESOLUTION_10_13
+        RESOLUTION_11_11 = 0x81,  //!< RESOLUTION_11_11
         UNKNOWN
     } Resolution;
     //---------------------------------------- constructors ---------------------------------------
-    inline SHT21(microhal::I2C &i2c) noexcept :
-                I2CDevice(i2c, DEFAULT_ADDRESS) {
-    }
+    inline SHT21(microhal::I2C &i2c) noexcept : I2CDevice(i2c, DEFAULT_ADDRESS) {}
     //------------------------------------------ functions ----------------------------------------
     bool reset() noexcept;
 
-    bool startTemperatureConversion() noexcept {
-    	return write(TRIGGER_T_MEASURE_HOLD);
-    }
+    Error startTemperatureConversion() noexcept { return write(TRIGGER_T_MEASURE_HOLD.getAddress()); }
 
-    bool readTemperature(float &temperature) noexcept {
-    	uint8_t temp;
+    Error readTemperature(float &temperature) noexcept {
+        uint8_t temp;
 
-    	if (read(temp) == true) {
-    		temperature = (float) temp * 0.002681274;
-    		temperature -= 46.85;
+        auto status = read(&temp);
+        temperature = (float)temp * 0.002681274;
+        temperature -= 46.85;
 
-    		return true;
-    	}
-    	return false;
+        return status;
     }
 
     /** @brief This function read temperature in celsius degree from SHT21 device. I2C data buss is lock until measurement is doing.
@@ -105,16 +111,11 @@ public:
      * @retval true if temperature read correctly.
      * @retval false if an error occurred.
      */
-    bool getTemperature(float &temperature) noexcept {
+    Error getTemperature(float &temperature) noexcept {
         uint16_t temp;
-
-        if (readRegister(TRIGGER_T_MEASURE_HOLD, temp, microhal::Endianness::Big) == true) {
-            temperature = (float) temp * 0.002681274;
-            temperature -= 46.85;
-
-            return true;
-        }
-        return false;
+        auto status = readRegister(TRIGGER_T_MEASURE_HOLD, temp);
+        temperature = (float)temp * 0.002681274;
+        return status;
     }
     /** This function read humidity from SHT21 device. I2C data buss is lock until measurement is doing.
      *
@@ -122,22 +123,18 @@ public:
      * @retval true if humidity read successful.
      * @retval false if an error occurred.
      */
-    bool getHumidity(float &humidity) noexcept {
+    Error getHumidity(float &humidity) noexcept {
         uint16_t tmp;
-
-        if (readRegister(TRIGGER_RH_MEASURE_HOLD, tmp, microhal::Endianness::Big) == true) {
-            humidity = (float) tmp * 0.001907349;
-            humidity -= 6;
-
-            return true;
-        }
-        return false;
+        auto status = readRegister(TRIGGER_RH_MEASURE_HOLD, tmp);
+        humidity = (float)tmp * 0.001907349;
+        humidity -= 6;
+        return status;
     }
 
-    bool heaterEnable() noexcept;
-    bool heaterDisable() noexcept;
+    Error heaterEnable() noexcept;
+    Error heaterDisable() noexcept;
 
-    bool setResolution(Resolution resolution) noexcept;
+    Error setResolution(Resolution resolution) noexcept;
     Resolution getResolution() noexcept;
 };
 #endif /* SHT21_H_ */

@@ -3,13 +3,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for nucleo-f334r8 board
+ * @brief      board support package for nucleo-f411re board
  *
  * @authors    Pawel Okas
- * created on: 12-03-2017
+ * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2017, Paweł Okas
+ * @copyright Copyright (c) 2016, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,45 +29,37 @@
  */
 
 #include "microhal.h"
+
 #include "bsp.h"
 
 using namespace microhal;
 using namespace stm32f3xx;
-using namespace diagnostic;
 
 void hardwareConfig(void) {
-	(void)bsp::at45db::spi;
-	(void)bsp::debugPort;
-	Core::fpu_enable();
-	stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
-	stm32f3xx::ClockManager::PLL::frequency(51200000);
-	stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
-	while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL);
+    // Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
 
+    IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
+
+    bsp::debugPort.open(IODevice::ReadWrite);
+    bsp::debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
     bsp::debugPort.setDataBits(stm32f3xx::SerialPort::Data8);
     bsp::debugPort.setStopBits(stm32f3xx::SerialPort::OneStop);
     bsp::debugPort.setParity(stm32f3xx::SerialPort::NoParity);
-    bsp::debugPort.open(stm32f3xx::SerialPort::ReadWrite);
-    bsp::debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
-    diagChannel.setOutputDevice(bsp::debugPort);
 
-    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::GPIO::PortA, 5>();
-    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
-    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
+    stm32f3xx::I2C::i2c1.init();
+    stm32f3xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);
+    stm32f3xx::I2C::i2c1.enable();
 
-    stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::PRESCALER_8);
-    stm32f3xx::SPI::spi1.enable();
-
-    diagChannel << Notice << "SPI frequency: " << stm32f3xx::SPI::spi1.frequency() << endl;
-
-    SysTick_Config(512000000/1000);
+    SysTick_Config(8000000 / 1000);
 }
+
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

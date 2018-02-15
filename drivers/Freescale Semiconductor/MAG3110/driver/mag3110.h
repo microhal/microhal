@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                         */
+     */
 
 #ifndef MAG3110_H_
 #define MAG3110_H_
@@ -65,21 +65,21 @@ class MAG3110 : protected microhal::I2CDevice {
 
  public:
     /**
-    * @brief This enum describes possible I2C address
-    */
+     * @brief This enum describes possible I2C address
+     */
     typedef enum : microhal::I2C::DeviceAddress {
         I2C_ADDRESS_0 = 0x0E << 1,  /// for MAG3110FCR1 device
         I2C_ADDRESS_1 = 0x0F << 1,  /// for FXMS3110CDR1 device
     } PossibleI2CAddress;
     /**
-    *  Value of fixed registers.
-    */
+     *  Value of fixed registers.
+     */
     enum ConstRegisterValues : uint8_t {
         WHO_AM_I_VALUE = 0xC4,  //!< ID VALUE
     };
     /**
-    * Possible operating mode.
-    */
+     * Possible operating mode.
+     */
     enum class Mode {
         Standby = 0x00,          //!< STANDBY
         ActiveRAW = 0x01,        //!< ACTIVE
@@ -164,14 +164,14 @@ class MAG3110 : protected microhal::I2CDevice {
      * @param offset
      * @return true if setting was successful, false otherwise
      */
-    bool setXCorrection(int16_t offset) { return write(OFF_X, offset) == Error::None; }
+    bool setXCorrection(int16_t offset) { return writeRegister(OFF_X, offset) == Error::None; }
     /**
      * @brief Set correction offset for magnetic field reading from Y ax.
      *
      * @param offset
      * @return true if setting was successful, false otherwise
      */
-    bool setYCorrection(int16_t offset) { return write(OFF_Y, offset) == Error::None; }
+    bool setYCorrection(int16_t offset) { return writeRegister(OFF_Y, offset) == Error::None; }
     /**
      * @brief Set correction offset for magnetic field reading from Z ax.
      *
@@ -179,7 +179,7 @@ class MAG3110 : protected microhal::I2CDevice {
      * @param offset
      * @return true if setting was successful, false otherwise
      */
-    bool setZCorrection(int16_t offset) { return write(OFF_Z, offset) == Error::None; }
+    bool setZCorrection(int16_t offset) { return writeRegister(OFF_Z, offset) == Error::None; }
     /**
      * @brief Set correction offset for magnetic field reading all axis.
      *
@@ -198,7 +198,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<int16_t> getXCorrection() {
         std::experimental::optional<int16_t> out;
         int16_t tmp;
-        if (read(OFF_X, tmp) == Error::None) {
+        if (readRegister(OFF_X, tmp) == Error::None) {
             out = tmp;
         }
         return out;
@@ -212,7 +212,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<int16_t> getYCorrection() {
         std::experimental::optional<int16_t> out;
         int16_t tmp;
-        if (read(OFF_Y, tmp) == Error::None) {
+        if (readRegister(OFF_Y, tmp) == Error::None) {
             out = tmp;
         }
         return out;
@@ -226,7 +226,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<int16_t> getZCorrection() {
         std::experimental::optional<int16_t> out;
         int16_t tmp;
-        if (read(OFF_Z, tmp) == Error::None) {
+        if (readRegister(OFF_Z, tmp) == Error::None) {
             out = tmp;
         }
         return out;
@@ -244,7 +244,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<microhal::Temperature> temperature() {
         std::experimental::optional<microhal::Temperature> temperature;
         int8_t tmp;
-        if (read(DIE_TEMP, tmp) == Error::None) {
+        if (readRegister(DIE_TEMP, tmp) == Error::None) {
             temperature = microhal::Temperature::fromCelcius(tmp);
         }
         return temperature;
@@ -257,7 +257,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<Mode> getMode() {
         std::experimental::optional<Mode> mode;
         uint8_t tmp;
-        if (read(SYSMOD, tmp) == Error::None) {
+        if (readRegister(SYSMOD, tmp) == Error::None) {
             mode = static_cast<Mode>(tmp);
         }
         return mode;
@@ -277,7 +277,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<int16_t> getX(void) {
         std::experimental::optional<int16_t> out;
         int16_t tmp;
-        if (read(OUT_X, tmp) == Error::None) {
+        if (readRegister(OUT_X, tmp) == Error::None) {
             out = tmp;
         }
         return out;
@@ -286,7 +286,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<int16_t> getY(void) {
         std::experimental::optional<int16_t> out;
         int16_t tmp;
-        if (read(OUT_Y, tmp) == Error::None) {
+        if (readRegister(OUT_Y, tmp) == Error::None) {
             out = tmp;
         }
         return out;
@@ -295,7 +295,7 @@ class MAG3110 : protected microhal::I2CDevice {
     std::experimental::optional<int16_t> getZ(void) {
         std::experimental::optional<int16_t> out;
         int16_t tmp;
-        if (read(OUT_Z, tmp) == Error::None) {
+        if (readRegister(OUT_Z, tmp) == Error::None) {
             out = tmp;
         }
         return out;

@@ -43,32 +43,23 @@ class BMP180 : public microhal::I2CDevice {
     using Endianness = microhal::Endianness;
     using Access = microhal::Access;
     using Error = microhal::I2C::Error;
-
-    //   template <typename Type, Access access, typename AddressType>
-    //   constexpr auto makeRegister(AddressType address)
+    // create alias to microhal::Address, we just want to type less
+    template <typename T, T i>
+    using Address = microhal::Address<T, i>;
 
     enum Flags : uint8_t {
         CTRL_MEAS_SCO = 0x20,
     };
-
     /**
      *
      */
     struct Register {
-        static constexpr auto OUT_XLSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0xF8>{});
-        static constexpr auto OUT = microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0xF6>{});
-        static constexpr auto CTRL_MEAS = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0xF4>{});
-        static constexpr auto SOFT_RESET = microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0xE0>{});
-        static constexpr auto ID = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0xD0>{});
+        static constexpr auto OUT_MSB = microhal::makeRegister<microhal::uint24_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xF6>{});
+        static constexpr auto OUT = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xF6>{});
+        static constexpr auto CTRL_MEAS = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0xF4>{});
+        static constexpr auto SOFT_RESET = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0xE0>{});
+        static constexpr auto ID = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0xD0>{});
     };
-    //    enum Registers {
-    //        OUT_XLSB = 0xF8,    //!< OUT_XLSB
-    //        OUT_LSB = 0xF7,     //!< OUT_LSB
-    //        OUT_MSB = 0xF6,     //!< OUT_MSB
-    //        CTRL_MEAS = 0xF4,   //!< CTRL_MEAS
-    //        SOFT_RESET = 0xE0,  //!< SOFT_RESET
-    //        ID = 0xD0,          //!< ID
-    //    };
     /**
      *
      */
@@ -131,7 +122,7 @@ class BMP180 : public microhal::I2CDevice {
 uint8_t BMP180::getDeviceID() {
     uint8_t id;
 
-    if (read(Register::ID, id) == Error::None) {
+    if (readRegister(Register::ID, id) == Error::None) {
         return id;
     } else {
         return 0;
@@ -142,14 +133,14 @@ uint8_t BMP180::getDeviceID() {
  * @return
  */
 microhal::I2C::Error BMP180::reset() {
-    return write(Register::SOFT_RESET, static_cast<uint8_t>(0xB6));
+    return writeRegister(Register::SOFT_RESET, static_cast<uint8_t>(0xB6));
 }
 /**
  *
  * @return
  */
 microhal::I2C::Error BMP180::startConversion() {
-    return bitsSet(Register::CTRL_MEAS, CTRL_MEAS_SCO);
+    return setBitsInRegister(Register::CTRL_MEAS, CTRL_MEAS_SCO);
 }
 /**
  *
@@ -159,7 +150,7 @@ bool BMP180::isNewDataRedy() {
     uint8_t ctrl;
     static bool lastConversionInRun = false;
 
-    if (read(Register::CTRL_MEAS, ctrl) == Error::None) {
+    if (readRegister(Register::CTRL_MEAS, ctrl) == Error::None) {
         if (ctrl & CTRL_MEAS_SCO) {
             lastConversionInRun = true;
         } else {
@@ -175,12 +166,12 @@ bool BMP180::isNewDataRedy() {
 bool BMP180::update() {
     int16_t ut;
     int32_t up;
-    uint8_t buff[3];
+    microhal::uint24_t buff;
     // read uncompressed temperature value
-    if (read(Register::OUT, (uint16_t &)ut) == Error::None) {
+    if (readRegister(Register::OUT, ut) == Error::None) {
         // read uncompressed pressure value
-        if (readRegisters(OUT_MSB, buff, 3) == Error::None) {
-            up = buff[0] << 16 | buff[1] << 8 | buff[0];
+        if (readRegister(Register::OUT_MSB, buff) == Error::None) {
+            up = buff;
             // calculate true temperature
             int32_t x1 = (ut - calibrationCoefs.AC6) * calibrationCoefs.AC5 / 2 << 15;
             int32_t x2 = calibrationCoefs.MC * 2 << 11 / (x1 + calibrationCoefs.MD);

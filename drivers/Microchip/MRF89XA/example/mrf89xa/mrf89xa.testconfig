@@ -2,6 +2,7 @@ import re
 
 targets = ['NUCLEO-F411RE', 'stm32f4-discovery']
 executionTime = 25
+requireHardware = False
 	
 def projectName():
 	return 'mrf89xa'	

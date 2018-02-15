@@ -2,6 +2,7 @@ import re
 
 targets = ['stm32f4-discovery']
 executionTime = 1
+requireHardware = False
 	
 def projectName():
 	return 'uCAM-II'	

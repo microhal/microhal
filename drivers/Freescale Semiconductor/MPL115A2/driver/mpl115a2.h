@@ -32,6 +32,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <chrono>
 #include <experimental/optional>
 #include "I2CDevice/I2CDevice.h"
 #include "microhal.h"
@@ -61,21 +62,6 @@ class MPL115A2 : microhal::I2CDevice {
             microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0xF8>{});  ///< Start Pressure and Temperature Conversion
     };
 
-    //	enum Registers {
-    //		Padc_MSB = 0x00, ///< 10-bit Pressure ADC output value MSB
-    //		Padc_LSB, ///< 10-bit Pressure ADC output value LSB
-    //		Tadc_MSB, ///< 10-bit Temperature ADC output value MSB
-    //		Tadc_LSB, ///< 10-bit Temperature ADC output value LSB
-    //		a0_MSB, ///< a0 coefficient MSB
-    //		a0_LSB, ///< a0 coefficient LSB
-    //		b1_MSB, ///< b1 coefficient MSB
-    //		b1_LSB, ///< b1 coefficient LSB
-    //		b2_MSB, ///< b2 coefficient MSB
-    //		b2_LSB, ///< b2 coefficient LSB
-    //		c12_MSB, ///< c12 coefficient MSB
-    //		c12_LSB, ///< c12 coefficient LSB
-    //		CONVERT = 0x12 ///< Start Pressure and Temperature Conversion
-    //	};
  public:
     using Pressure = microhal::Pressure<float>;
 
@@ -83,7 +69,7 @@ class MPL115A2 : microhal::I2CDevice {
 
     bool init() { return readCoefficient(); }
 
-    Error startConversion() { return write(Registers::CONVERT, (uint8_t)0x00); }
+    Error startConversion() { return writeRegister(Registers::CONVERT, (uint8_t)0x00); }
 
     std::experimental::optional<Pressure> pressure() {
         std::experimental::optional<Pressure> pressure;
@@ -109,7 +95,7 @@ class MPL115A2 : microhal::I2CDevice {
 
     bool readCoefficient() {
         std::array<int16_t, 4> tmp;
-        if (readRegisters(tmp, Registers::a0, Registers::b1, Registers::b2, Registers::c12) == Error::None) {
+        if (readMultipleRegisters(tmp, Registers::a0, Registers::b1, Registers::b2, Registers::c12) == Error::None) {
             float a0 = tmp[0];
             a0 /= 1 << 3;
             coefficient.a0 = a0;
@@ -136,12 +122,7 @@ class MPL115A2 : microhal::I2CDevice {
 
     bool readData(Pressure &compensatedPressure) {
         std::array<uint16_t, 2> tmp;
-        if (readRegisters(tmp, Registers::Padc, Registers::Tadc) == Error::None) {
-            //			uint16_t pressure = tmp[0] >> 6;
-            //			uint16_t temp = tmp[1] >> 6;
-            //
-            //			float Pcomp = coefficient.a0 + (coefficient.b1 + coefficient.c12 * temp) * pressure + coefficient.b2 * temp;
-            //			Pressure tmp(Pcomp * ((115.0-50.0)/1023.0) + 50.0);
+        if (readMultipleRegisters(tmp, Registers::Padc, Registers::Tadc) == Error::None) {
             compensatedPressure = compensate(tmp[0], tmp[1]);
             return true;
         }
