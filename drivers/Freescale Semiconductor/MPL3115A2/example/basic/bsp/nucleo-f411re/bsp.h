@@ -31,8 +31,14 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+#include "microhal.h"
+
+namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c1;
+namespace mpl3115a2 {
+static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
+}  // namespace mpl3115a2
+}  // namespace bsp
 
 #endif  // NUCLEO_F411RE_H_

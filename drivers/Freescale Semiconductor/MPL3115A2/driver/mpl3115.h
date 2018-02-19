@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */ /* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */
 
 #ifndef MPL3115_H_
 #define MPL3115_H_
@@ -34,7 +35,6 @@
 
 #include "I2CDevice/I2CDevice.h"
 #include "microhal.h"
-//#include "types/int.h"
 #include "units/pressure.h"
 #include "units/temperature.h"
 
@@ -48,18 +48,18 @@ class MPL3115 : protected microhal::I2CDevice {
 
     static constexpr auto STATUS = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x00>{});
     static constexpr auto OUT_P_MSB = microhal::makeRegister<microhal::uint24_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x01>{});
-    // static constexpr auto OUT_P_CSB = microhal::makeRegister<Access::ReadOnly, uint8_t>().address<uint8_t, 0x02>();
-    // static constexpr auto OUT_P_LSB = microhal::makeRegister<Access::ReadOnly, uint8_t>().address<uint8_t, 0x03>();
+    // OUT_P_CSB
+    // OUT_P_LSB
 
     static constexpr auto OUT_T_MSB = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x04>{});
-    // static constexpr auto OUT_T_LSB = microhal::makeRegister<Access::ReadWrite, uint8_t>().address<uint8_t, 0x05>();
+    // OUT_T_LSB
     static constexpr auto DR_STATUS = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x06>{});
     static constexpr auto OUT_P_DELTA_MSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x07>{});
     static constexpr auto OUT_P_DELTA_CSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x08>{});
     static constexpr auto OUT_P_DELTA_LSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x09>{});
 
     static constexpr auto OUT_T_DELTA_MSB = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x0A>{});
-    // static constexpr auto OUT_T_DELTA_LSB = microhal::makeRegister<Access::ReadWrite, uint8_t>().address<uint8_t, 0x0B>();
+    // OUT_T_DELTA_LSB
     static constexpr auto WHO_AM_I = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x0C>{});
     static constexpr auto F_STATUS = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x0D>{});
     static constexpr auto F_DATA = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x0E>{});
@@ -69,23 +69,23 @@ class MPL3115 : protected microhal::I2CDevice {
     static constexpr auto INT_SOURCE = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x12>{});
     static constexpr auto PT_DATA_CFG = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x13>{});
     static constexpr auto BAR_IN_MSB = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x14>{});
-    // static constexpr auto BAR_IN_LSB = microhal::makeRegister<Access::ReadWrite, uint8_t>().address<uint8_t, 0x15>();
+    // BAR_IN_LSB
     static constexpr auto P_TGT_MSB = microhal::makeRegister<uint16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x16>{});
-    // static constexpr auto P_TGT_LSB = microhal::makeRegister<Access::ReadWrite, uint8_t>().address<uint8_t, 0x17>();
+    // P_TGT_LSB
     static constexpr auto T_TGT = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x18>{});
     static constexpr auto P_WND_MSB = microhal::makeRegister<uint16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x19>{});
-    // static constexpr auto P_WND_LSB = microhal::makeRegister<Access::ReadWrite, uint8_t>().address<uint8_t, 0x1A>();
+    // P_WND_LSB
     static constexpr auto T_WND = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x1B>{});
     static constexpr auto P_MIN_MSB = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x1C>{});
     static constexpr auto P_MIN_CSB = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x1D>{});
     static constexpr auto P_MIN_LSB = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x1E>{});
     static constexpr auto T_MIN_MSB = microhal::makeRegister<uint16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x1F>{});
-    // static constexpr auto T_MIN_LSB = microhal::makeRegister<Access::ReadWrite, uint8_t>().address<uint8_t, 0x20>();
+    // T_MIN_LSB
     static constexpr auto P_MAX_MSB = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x21>{});
     static constexpr auto P_MAX_CSB = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x22>{});
     static constexpr auto P_MAX_LSB = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x23>{});
     static constexpr auto T_MAX_MSB = microhal::makeRegister<uint16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x24>{});
-    // static constexpr auto T_MAX_LSB = microhal::makeRegister<Access::ReadWrite, uint8_t>().address<uint8_t, 0x25>();
+    // T_MAX_LSB
     static constexpr auto CTRL_REG1 = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x26>{});
     static constexpr auto CTRL_REG2 = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x27>{});
     static constexpr auto CTRL_REG3 = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x28>{});
@@ -187,18 +187,20 @@ class MPL3115 : protected microhal::I2CDevice {
         return false;
     }
 
-    void read() {
-        // std::optional<std::pair<microhal::Pressure, microhal::Temperature>> data;
+    auto read() {
+        using Pressure = microhal::Pressure<float>;
+        using Temperature = microhal::Temperature;
+        using DataType = std::pair<Pressure, Temperature>;
+
+        std::optional<DataType> data;
         int16_t temp;
         microhal::uint24_t pressure;
-
-        if (readRegister(OUT_T_MSB, temp) == Error::None) {
-            //   if (read(OUT_P_MSB, pressure) == Error::None) {
-            //                data = std::make_pair(microhal::Pressure(static_cast<float>(pressure) / 64.0f),
-            //                                      microhal::Temperature::fromCelcius(static_cast<float>(temp) / 256.0f));
-            //  }
+        std::tuple<microhal::uint24_t, int16_t> regsVal;
+        if (readMultipleRegisters(regsVal, OUT_P_MSB, OUT_T_MSB) == Error::None) {
+            data = std::make_pair(microhal::Pressure(static_cast<float>(pressure) / 64.0f),
+                                  microhal::Temperature::fromCelcius(static_cast<float>(temp) / 256.0f));
         }
-        //        return data;
+        return data;
     }
     //	template <microhal::diagnostic::LogLevel level>
     //	void registerDump(microhal::diagnostic::Diagnostic<level> &log) {

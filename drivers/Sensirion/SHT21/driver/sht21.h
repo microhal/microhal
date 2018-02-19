@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-     */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         */
 
 #ifndef SHT21_H_
 #define SHT21_H_
@@ -67,8 +67,7 @@ class SHT21 : public microhal::I2CDevice {
         microhal::makeRegister<uint8_t, Access::WriteOnly>(microhal::Address<uint8_t, 0xE6>{});  //!< WRITE_USER_REGISTER_CMD
     static constexpr auto READ_USER_REGISTER_CMD =
         microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0xE7>{});  //!< READ_USER_REGISTER_CMD
-    static constexpr auto SOFT_RESET_CMD =
-        microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0xFE>{});  //!< SOFT_RESET_CMD
+    static constexpr auto SOFT_RESET_CMD = microhal::makeRegister<uint8_t, Access::ReadOnly>(microhal::Address<uint8_t, 0xFE>{});  //!< SOFT_RESET_CMD
 
     /**
      * Possible I2C address
@@ -115,6 +114,7 @@ class SHT21 : public microhal::I2CDevice {
         uint16_t temp;
         auto status = readRegister(TRIGGER_T_MEASURE_HOLD, temp);
         temperature = (float)temp * 0.002681274;
+        temperature -= 46.85;
         return status;
     }
     /** This function read humidity from SHT21 device. I2C data buss is lock until measurement is doing.

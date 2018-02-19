@@ -8,7 +8,8 @@
  @copyright   $Copyright$
  @details
 
- */ /* ============================================================================================ */
+ */ /* ============================================================================================
+                                                                                                                                                                                                                                                                                                                */
 
 /*****************************************************************************
  * INCLUDES
@@ -42,15 +43,7 @@ PCF8563::Result PCF8563::setTimer(PCF8563::TimerSourceClock sourceClock, uint8_t
  * @retval  ERROR if error occurred
  */
 PCF8563::Result PCF8563::disableTimer() {
-    uint8_t tmp;
-
     return (Result)(clearBitsInRegister(TIMER_CONTROL, TIMER_ENABLE_FLAG) == Error::None);
-    // if (read(TIMER_CONTROL, tmp) == Error) {
-    //    return ERROR;  // read control register failed, return error
-    //}
-
-    // tmp &= ~TIMER_ENABLE_FLAG;                         // clear timer enable flag
-    // return (Result)writeRegister(TIMER_CONTROL, tmp);  // applay settings
 }
 /**
  * @brief   This function enable PCF8563 timer
@@ -62,14 +55,6 @@ PCF8563::Result PCF8563::disableTimer() {
  */
 PCF8563::Result PCF8563::enableTimer() {
     return (Result)(setBitsInRegister(TIMER_CONTROL, TIMER_ENABLE_FLAG) != Error::None);
-    //	uint8_t tmp;
-    //
-    //    if (readRegister(TIMER_CONTROL, tmp) == false) {
-    //        return ERROR;  // read control register failed, return error
-    //    }
-    //
-    //    tmp |= TIMER_ENABLE_FLAG;                          // set timer enable flag
-    //    return (Result)writeRegister(TIMER_CONTROL, tmp);  // applay settings
 }
 /**
  * @brief    This function sets alarm stored in parameters
@@ -154,9 +139,6 @@ PCF8563::Result PCF8563::getTime(PCF8563::Time &time) {
     // alarm.weekends in buffer[4];    //convert weekday form BCD to uint8_t and storage in Time structure
     time.month = BCDtoUnt8_t(buffer[5] & 0x7F);  // convert month form BCD to uint8_t and storage in Time structure
     time.year = BCDtoUnt8_t(buffer[6] & 0x7F);   // convert year form BCD to uint8_t and storage in Time structure
-
-    // hal::Debug::debug() << "\n\rPCF: odczytano czas: ";
-    // hal::Debug::debug() << time.hour << ":" << time.min << ":" << time.sec;
 
     return SUCCESS;
 }

@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-     */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */
 
 #include "mag3110.h"
 
@@ -110,16 +110,9 @@ bool MAG3110::setODR_OSR(OutputDataRate_OverSamplingRate odr_osr) {
     // to change output data rate and output sampling rate we need switch Mode to STANDBY
     if (auto mode = getMode()) {
         if (setMode(Mode::Standby)) {
-            uint8_t ctrl_reg;
-            if (readRegister(CTRL_REG1, ctrl_reg) == Error::None) {
-                uint8_t ctrl_reg_1 = ctrl_reg;
-                // clear old settings
-                ctrl_reg_1 &= 0xF8;
-                // set new settings
-                ctrl_reg_1 |= odr_osr;
-                if (writeRegister(CTRL_REG1, ctrl_reg_1) == Error::None) {
-                    return setMode(*mode);
-                }
+            uint8_t ctrl_reg = odr_osr;
+            if (modifyBitsInRegister(CTRL_REG1, ctrl_reg, 0xF8) == Error::None) {
+                return setMode(*mode);
             }
         }
     }
@@ -130,16 +123,16 @@ std::experimental::optional<MAG3110::MagneticVector> MAG3110::getMagnetic() {
     std::experimental::optional<MagneticVector> mag;
     uint8_t status;
     if (readRegister(DR_STATUS, status) == Error::None) {
-        // std::tuple<int16_t, int16_t, int16_t> data;
         std::array<int16_t, 3> data;
-        readMultipleRegisters(data, OUT_X, OUT_Y, OUT_Z);
-        int16_t x = data[0];
-        int16_t y = data[1];
-        int16_t z = data[2];
+        if (readMultipleRegisters(data, OUT_X, OUT_Y, OUT_Z) == Error::None) {
+            int16_t x = data[0];
+            int16_t y = data[1];
+            int16_t z = data[2];
 
-        MagneticVector tmp;
-        convertToMagnetic(&tmp, x, y, z);
-        mag = tmp;
+            MagneticVector tmp;
+            convertToMagnetic(&tmp, x, y, z);
+            mag = tmp;
+        }
     }
     return mag;
 }

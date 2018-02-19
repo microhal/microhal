@@ -28,15 +28,40 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NUCLEO_F411RE_H_
-#define NUCLEO_F411RE_H_
-
 #include "microhal.h"
 
-namespace bsp {
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
-namespace sht21 {
-static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
+#include "bsp.h"
+
+using namespace microhal;
+using namespace stm32f4xx;
+
+void hardwareConfig(void) {
+    (void)bsp::mag3110::i2c;
+    (void)bsp::debugPort;
+    // Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
+
+    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+
+    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
+
+    bsp::debugPort.open(IODevice::ReadWrite);
+    bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
+    bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
+    bsp::debugPort.setParity(stm32f4xx::SerialPort::NoParity);
+
+    stm32f4xx::I2C::i2c1.init();
+    stm32f4xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);
+    stm32f4xx::I2C::i2c1.enable();
+
+    SysTick_Config(84000000 / 1000);
 }
-}  // namespace bsp
-#endif  // NUCLEO_F411RE_H_
+
+uint64_t SysTick_time = 0;
+
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
+}

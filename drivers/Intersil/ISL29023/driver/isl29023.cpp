@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */ /* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               */
 
 #include "isl29023.h"
 
@@ -39,18 +40,9 @@ microhal::I2C::Error ISL29023::reset() {
  */
 microhal::I2C::Error ISL29023::setMode(OperatimgModes mode) {
     if (mode == Mode_Unknown) return Error::Unknown;
-    uint8_t command;
 
-    auto status = readRegister(COMMAND_1, command);
-    if (status == Error::None) {
-        // clear actuall mode bits
-        command &= ~(Mode_PowerDown | Mode_AlsOnce | Mode_IrOnce | Mode_AlsContinuous | Mode_IrContinuous);
-        // apply new mode
-        command |= mode;
-        // write regiser
-        return writeRegister(COMMAND_1, command);
-    }
-    return status;
+    auto mask = Mode_PowerDown | Mode_AlsOnce | Mode_IrOnce | Mode_AlsContinuous | Mode_IrContinuous;
+    return modifyBitsInRegister(COMMAND_1, mode, mask);
 }
 /**@brief This function read actual operating mode.
  *
@@ -109,17 +101,9 @@ ISL29023::FullScalleRange ISL29023::getRange() {
  */
 bool ISL29023::setResolution(Resolution resolution) {
     if (resolution == Resolution_Unknown) return false;
-    uint8_t command;
-
-    if (readRegister(COMMAND_2, command) == Error::None) {
-        // clear actuall mode bits
-        command &= ~(Resolution_16bit | Resolution_12bit | Resolution_8bit | Resolution_4bit);
-        // apply new mode
-        command |= resolution;
-        // write regiser
-        if (writeRegister(COMMAND_2, command) == Error::None) {
-            return calibrate();
-        }
+    auto mask = Resolution_16bit | Resolution_12bit | Resolution_8bit | Resolution_4bit;
+    if (modifyBitsInRegister(COMMAND_2, resolution, mask) == Error::None) {
+        return calibrate();
     }
     return false;
 }

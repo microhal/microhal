@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */ /* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                         */
 
 #include "sht21.h"
 
@@ -34,8 +35,7 @@
  * @retval false if an error occurred.
  */
 bool SHT21::reset() noexcept {
-    // return write(SOFT_RESET_CMD); //todo implement in I2Cdevice class
-    return false;
+    return write(SOFT_RESET_CMD.getAddress()) == Error::None;  // todo implement in I2Cdevice class
 }
 /** @brief This function enable internal heater.
  *

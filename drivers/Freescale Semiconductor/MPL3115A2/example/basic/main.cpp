@@ -24,7 +24,8 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */ /* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   */
 
 #include "bsp.h"
 #include "diagnostic/diagnostic.h"
@@ -35,14 +36,6 @@ using namespace microhal;
 using namespace diagnostic;
 
 int main() {
-    //    debugPort.clear();
-    //
-    //    debugPort.setDataBits(SerialPort::Data8);
-    //    debugPort.setStopBits(SerialPort::OneStop);
-    //    debugPort.setParity(SerialPort::NoParity);
-    //    debugPort.open(SerialPort::ReadWrite);
-    //    debugPort.setBaudRate(SerialPort::Baud115200);
-
     bsp::debugPort.write("\n\r------------------- MPL3115 Demo -------------------------\n\r");
 
     diagChannel.setOutputDevice(bsp::debugPort);
@@ -51,15 +44,12 @@ int main() {
 
     // mpl.registerDump(diagChannel);
 
-    //	for(uint8_t i=0; i<2; i++)
-    //	{
-    //		diagChannel << DEBUG << "Initializing MPL3115...";
-    //		if(mpl.init() == true){
-    //			diagChannel << Debug << "OK";
-    //		} else{
-    //			diagChannel << ERROR << "Cannot initialize MAG3110. Maybe unconnected?";
-    //		}
-    //	}
+    diagChannel << MICROHAL_DEBUG << "Initializing MPL3115...";
+    if (mpl.init() == true) {
+        diagChannel << Debug << "OK";
+    } else {
+        diagChannel << MICROHAL_ERROR << "Cannot initialize MAG3110. Maybe unconnected?";
+    }
 
     while (1) {
     }

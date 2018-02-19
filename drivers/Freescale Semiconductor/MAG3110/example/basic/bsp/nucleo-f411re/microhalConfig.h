@@ -1,14 +1,14 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 12-02-2017
- * last modification: 12-02-2017
+ * created on: 01-01-2018
+ * last modification: 01-01-2018
  *
- * @copyright Copyright (c) 2017, Pawel Okas
+ * @copyright Copyright (c) 2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,52 +27,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _MICROHAL_MICROHALCONFIG_H_
+#define _MICROHAL_MICROHALCONFIG_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "bsp.h"
-#include "diagnostic/diagnostic.h"
-#include "microhal.h"
-#include "mpl115a2.h"
 
-using namespace microhal;
-using namespace diagnostic;
-using namespace std::literals::chrono_literals;
-
-int main() {
-    debugPort.setDataBits(SerialPort::Data8);
-    debugPort.setStopBits(SerialPort::OneStop);
-    debugPort.setParity(SerialPort::NoParity);
-    debugPort.open(SerialPort::ReadWrite);
-    debugPort.setBaudRate(SerialPort::Baud115200);
-
-    debugPort.write("\n\r------------------- MPL115 Demo -------------------------\n\r");
-
-    diagChannel.setOutputDevice(debugPort);
-
-    MPL115A2 mpl(mpl115a2::i2c);
-    GPIO mplReset(mpl115a2::resetPin, GPIO::Direction::Output);
-    mplReset.set();
-
-    diagChannel << lock << MICROHAL_DEBUG << "Initializing MPL115A2..." << unlock;
-    if (mpl.init() == true) {
-        diagChannel << Debug << "OK";
-    } else {
-        diagChannel << lock << MICROHAL_ERROR << "Cannot initialize MPL115A2. Maybe unconnected?" << unlock;
-    }
-
-    while (1) {
-        mpl.startConversion();
-        std::this_thread::sleep_for(mpl.maxConversionTime());
-
-        if (auto pressure = mpl.pressure()) {
-            diagChannel << Debug << "Pressure: " << *pressure << endl;
-        } else {
-            diagChannel << lock << MICROHAL_ERROR << "Unable to read pressure." << unlock;
-        }
-
-        std::this_thread::sleep_for(500ms);
-    }
-
-    return 0;
-}
+// clang-format off
+//***********************************************************************************************//
+//                                    Diagnostic configuration                                   //
+//***********************************************************************************************//
+#define MICROHAL_DIAGNOSTIC_TEXT_VISIBLE		// when defined message text is printed in diagnostic channel messages
+#define MICROHAL_DIAGNOSTIC_LOG_LEVEL Debug		// Set compile time log level for embedded diagnostic channel (diagChannel)
+												// Emergency -> highest log priority
+												// Alert
+												// Critical
+												// Error
+												// Warning
+												// Notice
+												// Informational
+												// Debug  -> lowest log priority
+// clang-format on
+#endif  // _MICROHAL_MICROHALCONFIG_H_

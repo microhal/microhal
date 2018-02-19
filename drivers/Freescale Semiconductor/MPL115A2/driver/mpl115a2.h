@@ -59,7 +59,7 @@ class MPL115A2 : microhal::I2CDevice {
         static constexpr auto c12 =
             microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(microhal::Address<uint8_t, 0x0A>{});  ///< c12 coefficient MSB
         static constexpr auto CONVERT =
-            microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0xF8>{});  ///< Start Pressure and Temperature Conversion
+            microhal::makeRegister<uint8_t, Access::ReadWrite>(microhal::Address<uint8_t, 0x12>{});  ///< Start Pressure and Temperature Conversion
     };
 
  public:
@@ -69,7 +69,7 @@ class MPL115A2 : microhal::I2CDevice {
 
     bool init() { return readCoefficient(); }
 
-    Error startConversion() { return writeRegister(Registers::CONVERT, (uint8_t)0x00); }
+    Error startConversion() { return writeRegister(Registers::CONVERT, 0x00); }
 
     std::experimental::optional<Pressure> pressure() {
         std::experimental::optional<Pressure> pressure;
@@ -91,7 +91,7 @@ class MPL115A2 : microhal::I2CDevice {
         float b1;
         float b2;
         float c12;
-    } coefficient;
+    } coefficient = {};
 
     bool readCoefficient() {
         std::array<int16_t, 4> tmp;

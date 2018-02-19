@@ -35,7 +35,7 @@
 
 namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
-namespace sht21 {
+namespace mag3110 {
 static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
 }
 }  // namespace bsp
