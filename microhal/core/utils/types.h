@@ -42,7 +42,8 @@ struct uint24_t {
     uint8_t a[3];
 
     uint24_t() = default;
-    constexpr uint24_t(uint32_t t) : a({t & 0xFF, (t >> 8) & 0xFF, (t >> 16) & 0xFF}) {}
+    constexpr uint24_t(uint32_t t)
+        : a{static_cast<uint8_t>(t & 0xFFU), static_cast<uint8_t>((t >> 8) & 0xFFU), static_cast<uint8_t>((t >> 16) & 0xFFU)} {}
 
     operator uint32_t() {
         uint32_t tmp = (*reinterpret_cast<uint32_t *>(a)) & 0x00FFFFFF;
