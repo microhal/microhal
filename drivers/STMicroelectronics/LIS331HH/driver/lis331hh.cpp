@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */
 
 #include "lis331hh.h"
 #include "I2CDevice.h"
@@ -34,13 +34,13 @@ using namespace microhal::diagnostic;
 using namespace microhal;
 
 bool LIS331HH::init(Axis axisEnable, PowerMode powerMode, Sensitivity sensitivity, DataRate dataRate) {
-    bool returnValue = (microhal::I2C::Error::NoError == write(CTRL_REG2, CTRL_REG2_Flags::boot));
+    bool returnValue = (microhal::I2C::Error::None == writeRegister(CTRL_REG2, CTRL_REG2_Flags::boot));
     uint8_t tmp;
     do {
-        if (microhal::I2C::Error::NoError != read(CTRL_REG2, tmp)) return false;
+        if (microhal::I2C::Error::None != readRegister(CTRL_REG2, tmp)) return false;
         if (CTRL_REG2_Flags::boot != (tmp & CTRL_REG2_Flags::boot)) break;
     } while (true);
-    returnValue &= (microhal::I2C::Error::NoError == write(CTRL_REG4, CTRL_REG4_Flags::BDU));
+    returnValue &= (microhal::I2C::Error::None == writeRegister(CTRL_REG4, CTRL_REG4_Flags::BDU));
     returnValue &= setAxis(axisEnable);
     returnValue &= setSpeed(powerMode, dataRate);
     returnValue &= setSensitivity(sensitivity);
@@ -48,20 +48,23 @@ bool LIS331HH::init(Axis axisEnable, PowerMode powerMode, Sensitivity sensitivit
 }
 
 bool LIS331HH::setAxis(Axis axis) {
-    return I2C::Error::NoError == bitsModify(CTRL_REG1, static_cast<uint8_t>(axis), CTRL_REG1_Masks::axis_mask);
+    return I2C::Error::None == modifyBitsInRegister(CTRL_REG1, static_cast<uint8_t>(axis), CTRL_REG1_Masks::axis_mask);
 }
 
 bool LIS331HH::setSpeed(PowerMode powerMode, DataRate dataRate) {
     if (PowerMode::normalMode == powerMode) {
-        if (I2C::Error::NoError != bitsModify(CTRL_REG1, static_cast<uint8_t>(dataRate) << CTRL_REG1_Offsets::DR_offset, CTRL_REG1_Masks::DR_mask)) {
+        if (I2C::Error::None !=
+            modifyBitsInRegister(CTRL_REG1, static_cast<uint8_t>(dataRate) << CTRL_REG1_Offsets::DR_offset, CTRL_REG1_Masks::DR_mask)) {
             return false;
         }
     }
-    return I2C::Error::NoError == bitsModify(CTRL_REG1, static_cast<uint8_t>(powerMode) << CTRL_REG1_Offsets::PM_offset, CTRL_REG1_Masks::PM_mask);
+    return I2C::Error::None ==
+           modifyBitsInRegister(CTRL_REG1, static_cast<uint8_t>(powerMode) << CTRL_REG1_Offsets::PM_offset, CTRL_REG1_Masks::PM_mask);
 }
 
 bool LIS331HH::setSensitivity(Sensitivity sensitivity) {
-    if (I2C::Error::NoError == bitsModify(CTRL_REG4, static_cast<uint8_t>(sensitivity) << CTRL_REG4_Offset::FS_offset, CTRL_REG4_Masks::FS_mask)) {
+    if (I2C::Error::None ==
+        modifyBitsInRegister(CTRL_REG4, static_cast<uint8_t>(sensitivity) << CTRL_REG4_Offset::FS_offset, CTRL_REG4_Masks::FS_mask)) {
         switch (sensitivity) {
             case Sensitivity::sensitivity6g:
                 sensitivityMultiplyer = 6.0 / static_cast<float>(INT16_MAX);
@@ -83,7 +86,7 @@ bool LIS331HH::setSensitivity(Sensitivity sensitivity) {
 bool LIS331HH::dataAvailable(Axis &axis) {
     uint8_t statusRegisterValue;
     axis = Axis::none;
-    if (I2C::Error::NoError == read(STATUS_REG, statusRegisterValue)) {
+    if (I2C::Error::None == readRegister(STATUS_REG, statusRegisterValue)) {
         if (STATUS_REG_Flags::ZYXDA == (statusRegisterValue & STATUS_REG_Flags::ZYXDA)) {
             axis = Axis::all;
         } else {
@@ -104,7 +107,7 @@ bool LIS331HH::dataAvailable(Axis &axis) {
 
 bool LIS331HH::dataOverrwritten(Axis &axis) {
     uint8_t statusRegisterValue;
-    if (I2C::Error::NoError == read(STATUS_REG, statusRegisterValue)) {
+    if (I2C::Error::None == readRegister(STATUS_REG, statusRegisterValue)) {
         if (STATUS_REG_Flags::ZYXOR == (statusRegisterValue & STATUS_REG_Flags::ZYXOR)) {
             axis = Axis::all;
         } else {
@@ -128,17 +131,17 @@ std::experimental::optional<Acceleration> LIS331HH::getAcceleration(Axis axis) {
     std::experimental::optional<Acceleration> returnObject;
     switch (axis) {
         case Axis::X:
-            if (I2C::Error::NoError != read(OUT_X, accelerationData)) {
+            if (I2C::Error::None != readRegister(OUT_X, accelerationData)) {
                 return returnObject;
             }
             break;
         case Axis::Y:
-            if (I2C::Error::NoError != read(OUT_Y, accelerationData)) {
+            if (I2C::Error::None != readRegister(OUT_Y, accelerationData)) {
                 return returnObject;
             }
             break;
         case Axis::Z:
-            if (I2C::Error::NoError != read(OUT_Z, accelerationData)) {
+            if (I2C::Error::None != readRegister(OUT_Z, accelerationData)) {
                 return returnObject;
             }
             break;
@@ -154,24 +157,24 @@ bool LIS331HH::getAcceleration(Acceleration &xAcceleration, Acceleration &yAccel
     int16_t accelerationDataY;
     int16_t accelerationDataZ;
     uint8_t tmpL, tmpH;
-    if (I2C::Error::NoError != read(OUT_X_L, tmpL)) {
+    if (I2C::Error::None != readRegister(OUT_X_L, tmpL)) {
         return false;
     }
-    if (I2C::Error::NoError != read(OUT_X_H, tmpH)) {
+    if (I2C::Error::None != readRegister(OUT_X_H, tmpH)) {
         return false;
     }
     accelerationDataX = tmpL | (tmpH << 8);
-    if (I2C::Error::NoError != read(OUT_Y_L, tmpL)) {
+    if (I2C::Error::None != readRegister(OUT_Y_L, tmpL)) {
         return false;
     }
-    if (I2C::Error::NoError != read(OUT_Y_H, tmpH)) {
+    if (I2C::Error::None != readRegister(OUT_Y_H, tmpH)) {
         return false;
     }
     accelerationDataY = tmpL | (tmpH << 8);
-    if (I2C::Error::NoError != read(OUT_Z_L, tmpL)) {
+    if (I2C::Error::None != readRegister(OUT_Z_L, tmpL)) {
         return false;
     }
-    if (I2C::Error::NoError != read(OUT_Z_H, tmpH)) {
+    if (I2C::Error::None != readRegister(OUT_Z_H, tmpH)) {
         return false;
     }
     accelerationDataZ = tmpL | (tmpH << 8);
@@ -182,13 +185,13 @@ bool LIS331HH::getAcceleration(Acceleration &xAcceleration, Acceleration &yAccel
     //    read(OUT_Y_H, tmp);
     //    read(OUT_Z_L, tmp);
     //    read(OUT_Z_H, tmp);
-    //    if (I2C::Error::NoError != read(OUT_X, accelerationDataX)) {
+    //    if (I2C::Error::None != read(OUT_X, accelerationDataX)) {
     //        return false;
     //    }
-    //    if (I2C::Error::NoError != read(OUT_Y, accelerationDataY)) {
+    //    if (I2C::Error::None != read(OUT_Y, accelerationDataY)) {
     //        return false;
     //    }
-    //    if (I2C::Error::NoError != read(OUT_Z, accelerationDataZ)) {
+    //    if (I2C::Error::None != read(OUT_Z, accelerationDataZ)) {
     //        return false;
     //    }
     // only if all transactions succeed fill the data variables
@@ -202,137 +205,17 @@ bool LIS331HH::test(void) {
     uint8_t data;
     bool result = true;
     diagChannel << lock << MICROHAL_NOTICE << "Reading registers:" << unlock;
-    result &= (I2C::Error::NoError == read(CTRL_REG1, data));
+    result &= (I2C::Error::None == readRegister(CTRL_REG1, data));
     diagChannel << lock << Notice << "\n\r\tCTRL_REG1: " << toHex(data) << unlock;
-    result &= (I2C::Error::NoError == read(CTRL_REG2, data));
+    result &= (I2C::Error::None == readRegister(CTRL_REG2, data));
     diagChannel << lock << Notice << "\n\r\tCTRL_REG2: " << toHex(data) << unlock;
-    result &= (I2C::Error::NoError == read(CTRL_REG3, data));
+    result &= (I2C::Error::None == readRegister(CTRL_REG3, data));
     diagChannel << lock << Notice << "\n\r\tCTRL_REG3: " << toHex(data) << unlock;
-    result &= (I2C::Error::NoError == read(CTRL_REG4, data));
+    result &= (I2C::Error::None == readRegister(CTRL_REG4, data));
     diagChannel << lock << Notice << "\n\r\tCTRL_REG4: " << toHex(data) << unlock;
-    result &= (I2C::Error::NoError == read(STATUS_REG, data));
+    result &= (I2C::Error::None == readRegister(STATUS_REG, data));
     diagChannel << lock << Notice << "\n\r\tSTATUS_REG: " << toHex(data) << unlock;
-    result &= (I2C::Error::NoError == read(REFERENCE, data));
+    result &= (I2C::Error::None == readRegister(REFERENCE, data));
     diagChannel << lock << Notice << "\n\r\tREFERENCE: " << toHex(data) << unlock;
     return result;
 }
-
-// bool MAG3110::init() {
-//  uint8_t whoAmI;
-//  if (read(WHO_AM_I, whoAmI) == Error::NoError) {
-//    if (whoAmI != WHO_AM_I_VALUE) {
-//      diagChannel << lock << MICROHAL_ERROR
-//                  << "MAG3110: error in init - ID mismatch: expected: "
-//                  << toHex(WHO_AM_I_VALUE) << ", received: " << toHex(whoAmI)
-//                  << endl
-//                  << unlock;
-//    } else {
-//      return true;
-//    }
-//  }
-//  return false;
-//}
-//
-// bool MAG3110::setMode(Mode mode) {
-//  switch (mode) {
-//    case Mode::Standby:
-//      return bitsClear(CTRL_REG1, CTRL_REG1_AC) == Error::NoError;
-//    case Mode::ActiveRAW:
-//      // enable automatic reset
-//      if (bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) {
-//        return false;
-//      }
-//      // to change value of control registers device have to be in standby
-//      mode
-//      // change mode to standby
-//      if (bitsClear(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) {
-//        return false;
-//      }
-//      // set RAW bit for enable data correction
-//      if (bitsSet(CTRL_REG2, CTRL_REG2_RAW) != Error::NoError) {
-//        return false;
-//      }
-//      // set mode to active
-//      if (bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) {
-//        return false;
-//      }
-//      break;
-//    case Mode::ActiveCorrected:
-//      // enable automatic reset
-//      if (bitsSet(CTRL_REG2, CTRL_REG2_AUTO_MRST_EN) != Error::NoError) {
-//        return false;
-//      }
-//      // to change value of control registers device have to be in standby
-//      mode
-//      // change mode to standby
-//      if (bitsClear(CTRL_REG1, (uint8_t)CTRL_REG1_AC) != Error::NoError) {
-//        return false;
-//      }
-//      // clear RAW bit for enable data correction
-//      if (bitsClear(CTRL_REG2, CTRL_REG2_RAW) != Error::NoError) {
-//        return false;
-//      }
-//      // set mode to active
-//      if (bitsSet(CTRL_REG1, CTRL_REG1_AC) != Error::NoError) {
-//        return false;
-//      }
-//      break;
-//  }
-//  return true;
-//}
-//
-// bool MAG3110::setCorrection(int16_t x, int16_t y, int16_t z) {
-//  const std::array<int16_t, 3> data = {x, y, z};
-//  return writeRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::NoError;
-//}
-//
-// bool MAG3110::getCorrection(int16_t* x, int16_t* y, int16_t* z) {
-//  std::tuple<int16_t, int16_t, int16_t> data;
-//  const bool status =
-//      readRegisters(data, OFF_X, OFF_Y, OFF_Z) == Error::NoError;
-//  *x = std::get<0>(data);
-//  *y = std::get<1>(data);
-//  *z = std::get<2>(data);
-//
-//  return status;
-//}
-//
-// bool MAG3110::setODR_OSR(OutputDataRate_OverSamplingRate odr_osr) {
-//  // to change output data rate and output sampling rate we need switch Mode
-//  to
-//  // STANDBY
-//  if (auto mode = getMode()) {
-//    if (setMode(Mode::Standby)) {
-//      uint8_t ctrl_reg;
-//      if (read(CTRL_REG1, ctrl_reg)) {
-//        uint8_t ctrl_reg_1 = ctrl_reg;
-//        // clear old settings
-//        ctrl_reg_1 &= 0xF8;
-//        // set new settings
-//        ctrl_reg_1 |= odr_osr;
-//        if (write(CTRL_REG1, ctrl_reg_1)) {
-//          return setMode(*mode);
-//        }
-//      }
-//    }
-//  }
-//  return false;
-//}
-//
-// std::experimental::optional<MAG3110::MagneticVector> MAG3110::getMagnetic() {
-//  std::experimental::optional<MagneticVector> mag;
-//  uint8_t status;
-//  if (read(DR_STATUS, status) == Error::NoError) {
-//    // std::tuple<int16_t, int16_t, int16_t> data;
-//    std::array<int16_t, 3> data;
-//    readRegisters(data, OUT_X, OUT_Y, OUT_Z);
-//    int16_t x = data[0];
-//    int16_t y = data[1];
-//    int16_t z = data[2];
-//
-//    MagneticVector tmp;
-//    convertToMagnetic(&tmp, x, y, z);
-//    mag = tmp;
-//  }
-//  return mag;
-//}
