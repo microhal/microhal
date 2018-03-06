@@ -174,79 +174,79 @@ class LIS2DH : protected microhal::I2CDevice {
         // here all register in acc must be reseted to default values
 
         // manual clearing
-        status = write(TEMP_CFG_REG, 0);
+        status = writeRegister(TEMP_CFG_REG, 0);
         if (status != Error::None) {
             return false;
         }
-        status = write(CTRL_REG1, 0x07);
+        status = writeRegister(CTRL_REG1, 0x07);
         if (status != Error::None) {
             return false;
         }
-        status = write(CTRL_REG2, 0x00);
+        status = writeRegister(CTRL_REG2, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(CTRL_REG3, 0x00);
+        status = writeRegister(CTRL_REG3, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(CTRL_REG4, 0x00);
+        status = writeRegister(CTRL_REG4, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(CTRL_REG5, 0x00);
+        status = writeRegister(CTRL_REG5, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(CTRL_REG6, 0x00);
+        status = writeRegister(CTRL_REG6, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(FIFO_CTRL_REG, 0x00);
+        status = writeRegister(FIFO_CTRL_REG, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(INT1_CFG, 0x00);
+        status = writeRegister(INT1_CFG, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(INT1_THS, 0x00);
+        status = writeRegister(INT1_THS, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(INT1_DURATION, 0x00);
+        status = writeRegister(INT1_DURATION, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(INT2_CFG, 0x00);
+        status = writeRegister(INT2_CFG, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(INT2_THS, 0x00);
+        status = writeRegister(INT2_THS, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(INT2_DURATION, 0x00);
+        status = writeRegister(INT2_DURATION, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(CLICK_CFG, 0x00);
+        status = writeRegister(CLICK_CFG, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(CLICK_THS, 0x00);
+        status = writeRegister(CLICK_THS, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(TIME_LIMIT, 0x00);
+        status = writeRegister(TIME_LIMIT, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(TIME_LATENCY, 0x00);
+        status = writeRegister(TIME_LATENCY, 0x00);
         if (status != Error::None) {
             return false;
         }
-        status = write(TIME_WINDOW, 0x00);
+        status = writeRegister(TIME_WINDOW, 0x00);
         if (status != Error::None) {
             return false;
         }
@@ -262,7 +262,7 @@ class LIS2DH : protected microhal::I2CDevice {
         // Boot procedure is complete about 5 milliseconds just after powered up the
         // device.
         uint8_t temp;
-        if (read(WHO_AM_I, temp) == Error::None) {
+        if (readRegister(WHO_AM_I, temp) == Error::None) {
             if (temp != WHO_AM_I_BITS) {
                 return false;
             }
@@ -276,13 +276,13 @@ class LIS2DH : protected microhal::I2CDevice {
         // be set to ‘1’.
         // Both OUT_TEMP_H and OUT_TEMP_L registers must be read.
         uint8_t temp = static_cast<uint8_t>(TEMP_CFG_REG_BITS::TEMP_EN0) | static_cast<uint8_t>(TEMP_CFG_REG_BITS::TEMP_EN1);
-        if (bitsSet(TEMP_CFG_REG, temp) == Error::None) {
+        if (setBitsInRegister(TEMP_CFG_REG, temp) == Error::None) {
             return true;
         }
         return false;
     }
     bool temperatureSensorDisable() {
-        if (bitsSet(TEMP_CFG_REG, 0) == Error::None) {
+        if (setBitsInRegister(TEMP_CFG_REG, 0) == Error::None) {
             return true;
         }
         return false;
@@ -291,18 +291,18 @@ class LIS2DH : protected microhal::I2CDevice {
         std::experimental::optional<microhal::Temperature> temperature;
 
         uint8_t temp1, temp2;
-        read(OUT_TEMP_L, temp1);
-        read(OUT_TEMP_H, temp2);
+        readRegister(OUT_TEMP_L, temp1);
+        readRegister(OUT_TEMP_H, temp2);
         uint16_t temp = 0;
         int8_t *temp8 = reinterpret_cast<int8_t *>(&temp);
-        if (read(OUT_TEMP, temp) == Error::None) {
+        if (readRegister(OUT_TEMP, temp) == Error::None) {
             //      temperature = microhal::Temperature::fromCelcius(temp8[1]);
         }
         return temperature;
     }
     bool isTemperatureAvailable() {
         uint8_t temp = 0;
-        if (read(STAUS_REG_AUX, temp) == Error::None) {
+        if (readRegister(STAUS_REG_AUX, temp) == Error::None) {
             if (temp & static_cast<uint8_t>(STAUS_REG_AUX_BITS::TDA)) {
                 return true;
             }
@@ -311,7 +311,7 @@ class LIS2DH : protected microhal::I2CDevice {
     }
     bool isTemperatureOverrun() {
         uint8_t temp = 0;
-        if (read(STAUS_REG_AUX, temp) == Error::None) {
+        if (readRegister(STAUS_REG_AUX, temp) == Error::None) {
             if (temp & static_cast<uint8_t>(STAUS_REG_AUX_BITS::TOR)) {
                 return true;
             }
@@ -349,7 +349,7 @@ class LIS2DH : protected microhal::I2CDevice {
     std::experimental::optional<AccelerationVector> getLastData() {
         std::array<int16_t, 3> data;
         std::experimental::optional<AccelerationVector> vector;
-        if (readRegisters(data, OUT_X, OUT_Y, OUT_Z) == Error::None) {
+        if (readMultipleRegisters(data, OUT_X, OUT_Y, OUT_Z) == Error::None) {
             int16_t x = data[0];
             int16_t y = data[1];
             int16_t z = data[2];
@@ -362,7 +362,7 @@ class LIS2DH : protected microhal::I2CDevice {
     }
     bool getLastData(AccelerationVector &vector) {
         std::array<int16_t, 3> data;
-        if (readRegisters(data, OUT_X, OUT_Y, OUT_Z) != Error::None) {
+        if (readMultipleRegisters(data, OUT_X, OUT_Y, OUT_Z) != Error::None) {
             return false;
         }
         int16_t x = data[0];
@@ -376,7 +376,7 @@ class LIS2DH : protected microhal::I2CDevice {
     }
     bool getLastData(int16_t &x, int16_t &y, int16_t &z) {
         std::array<int16_t, 3> data;
-        if (readRegisters(data, OUT_X, OUT_Y, OUT_Z) != Error::None) {
+        if (readMultipleRegisters(data, OUT_X, OUT_Y, OUT_Z) != Error::None) {
             return false;
         }
         x = data[0];
@@ -395,7 +395,7 @@ class LIS2DH : protected microhal::I2CDevice {
         if (true == z) {
             temp |= static_cast<uint8_t>(CTRL_REG1_BITS::Zen);
         }
-        if (bitsSet(CTRL_REG1, temp) == Error::None) {
+        if (setBitsInRegister(CTRL_REG1, temp) == Error::None) {
             return true;
         }
         return false;
@@ -403,11 +403,11 @@ class LIS2DH : protected microhal::I2CDevice {
     bool ContinuousUpdate(bool enable) {
         uint8_t temp = static_cast<uint8_t>(CTRL_REG4_BITS::BDU);
         if (true == enable) {
-            if (bitsClear(CTRL_REG4, temp) == Error::None) {
+            if (clearBitsInRegister(CTRL_REG4, temp) == Error::None) {
                 return true;
             }
         } else {
-            if (bitsSet(CTRL_REG4, temp) == Error::None) {
+            if (setBitsInRegister(CTRL_REG4, temp) == Error::None) {
                 return true;
             }
         }
@@ -422,16 +422,16 @@ class LIS2DH : protected microhal::I2CDevice {
     }
     void getHalfFifo() {}
     bool getLastRawX(int16_t &x) {
-        if (read(OUT_X, x) == Error::None) return true;
+        if (readRegister(OUT_X, x) == Error::None) return true;
         return false;
     }
 
     bool getLastRawY(int16_t &y) {
-        if (read(OUT_Y, y) == Error::None) return true;
+        if (readRegister(OUT_Y, y) == Error::None) return true;
         return false;
     }
     bool getLastRawZ(int16_t &z) {
-        if (read(OUT_Z, z) == Error::None) return true;
+        if (readRegister(OUT_Z, z) == Error::None) return true;
         return false;
     }
     void highSpeedEndian(Endianness endian) {
@@ -442,7 +442,7 @@ class LIS2DH : protected microhal::I2CDevice {
     bool setDataRate(DataRate rate) {
         uint8_t temp = static_cast<uint8_t>(rate);
         dataRate = rate;
-        if (bitsSet(CTRL_REG1, temp) == Error::None) {
+        if (setBitsInRegister(CTRL_REG1, temp) == Error::None) {
             return true;
         }
         return false;
@@ -502,7 +502,7 @@ class LIS2DH : protected microhal::I2CDevice {
     bool setScale(Scale scale) {
         uint8_t temp = static_cast<uint8_t>(scale);
         this->scale = scale;
-        if (write(CTRL_REG4, temp) == Error::None) {
+        if (writeRegister(CTRL_REG4, temp) == Error::None) {
             return true;
         }
         return false;
@@ -553,12 +553,12 @@ class LIS2DH : protected microhal::I2CDevice {
 
     bool checkInterrupt1Source(interruptSource &source) {
         uint8_t temp;
-        if (read(INT1_SOURCE, temp) != Error::None) return false;
+        if (readRegister(INT1_SOURCE, temp) != Error::None) return false;
         source.value = temp;
         return true;
     }
     bool checkInterrupt2Source(uint8_t &source) {
-        if (read(INT1_SOURCE, source) == Error::None) return true;
+        if (readRegister(INT1_SOURCE, source) == Error::None) return true;
         return false;
     }
 
@@ -610,12 +610,12 @@ class LIS2DH : protected microhal::I2CDevice {
                 clear = INT1_CFG_BITS::AIO | INT1_CFG_BITS::_6D;
         }
         if (clear) {
-            if (bitsClear(INT1_CFG, clear) != Error::None) {
+            if (clearBitsInRegister(INT1_CFG, clear) != Error::None) {
                 return false;
             }
         }
         if (set) {
-            if (bitsSet(INT1_CFG, set) != Error::None) {
+            if (setBitsInRegister(INT1_CFG, set) != Error::None) {
                 return false;
             }
         }
@@ -636,7 +636,7 @@ class LIS2DH : protected microhal::I2CDevice {
     bool interrupt1EnableSource(Interrupt1Sources source) {
         uint8_t temp = static_cast<uint8_t>(source);
 
-        if (bitsSet(CTRL_REG3, temp) == Error::None) {
+        if (setBitsInRegister(CTRL_REG3, temp) == Error::None) {
             return true;
         }
         return false;
@@ -644,12 +644,12 @@ class LIS2DH : protected microhal::I2CDevice {
     bool interrupt1DisableSource(Interrupt1Sources source) {
         uint8_t temp = static_cast<uint8_t>(source);
 
-        if (bitsSet(CTRL_REG3, temp) == Error::None) {
+        if (setBitsInRegister(CTRL_REG3, temp) == Error::None) {
             return true;
         }
     }
     bool interrupt1DisableAll() {
-        if (write(CTRL_REG3, 0) == Error::None) {
+        if (writeRegister(CTRL_REG3, 0) == Error::None) {
             return true;
         }
     }
@@ -670,7 +670,7 @@ class LIS2DH : protected microhal::I2CDevice {
     };
     bool checkClickSource(clickinterruptSource &source) {
         uint8_t temp;
-        if (read(CLICK_SRC, temp) != Error::None) return false;
+        if (readRegister(CLICK_SRC, temp) != Error::None) return false;
         source.value = temp;
         return true;
     }
@@ -691,19 +691,19 @@ class LIS2DH : protected microhal::I2CDevice {
         if (rawThreshold > 126) return false;
         if (rawTimeLimit > 126) return false;
 
-        if (write(CLICK_THS, static_cast<uint8_t>(rawThreshold)) != Error::None) {
+        if (writeRegister(CLICK_THS, static_cast<uint8_t>(rawThreshold)) != Error::None) {
             return false;
         }
 
-        if (write(TIME_LIMIT, static_cast<uint8_t>(rawTimeLimit)) != Error::None) {
+        if (writeRegister(TIME_LIMIT, static_cast<uint8_t>(rawTimeLimit)) != Error::None) {
             return false;
         }
 
-        if (write(TIME_LATENCY, rawTimeLatency) != Error::None) {
+        if (writeRegister(TIME_LATENCY, rawTimeLatency) != Error::None) {
             return false;
         }
 
-        if (write(TIME_WINDOW, rawTimeWindow) != Error::None) {
+        if (writeRegister(TIME_WINDOW, rawTimeWindow) != Error::None) {
             return false;
         }
 
@@ -731,7 +731,7 @@ class LIS2DH : protected microhal::I2CDevice {
             }
         }
 
-        if (bitsSet(CLICK_CFG, temp) != Error::None) {
+        if (setBitsInRegister(CLICK_CFG, temp) != Error::None) {
             return false;
         }
         return true;
@@ -739,11 +739,11 @@ class LIS2DH : protected microhal::I2CDevice {
     enum class interruptLevel { LOW = 0, HIGH };
     bool interruptSetLevel(interruptLevel level) {
         if (level == interruptLevel::LOW) {
-            if (bitsSet(CTRL_REG6, static_cast<uint8_t>(CTRL_REG6_BITS::H_LACTIVE)) != Error::None) {
+            if (setBitsInRegister(CTRL_REG6, static_cast<uint8_t>(CTRL_REG6_BITS::H_LACTIVE)) != Error::None) {
                 return false;
             }
         } else {
-            if (bitsClear(CTRL_REG6, static_cast<uint8_t>(CTRL_REG6_BITS::H_LACTIVE)) != Error::None) {
+            if (clearBitsInRegister(CTRL_REG6, static_cast<uint8_t>(CTRL_REG6_BITS::H_LACTIVE)) != Error::None) {
                 return false;
             }
         }
@@ -751,29 +751,29 @@ class LIS2DH : protected microhal::I2CDevice {
     }
     bool interrupt1LatchRequest(bool enable) {
         if (enable) {
-            if (bitsSet(CTRL_REG5, static_cast<uint8_t>(CTRL_REG5_BITS::LIR_INT1)) != Error::None) {
+            if (setBitsInRegister(CTRL_REG5, static_cast<uint8_t>(CTRL_REG5_BITS::LIR_INT1)) != Error::None) {
                 return false;
             }
         } else {
-            if (bitsClear(CTRL_REG5, static_cast<uint8_t>(CTRL_REG5_BITS::LIR_INT1)) != Error::None) {
+            if (clearBitsInRegister(CTRL_REG5, static_cast<uint8_t>(CTRL_REG5_BITS::LIR_INT1)) != Error::None) {
                 return false;
             }
         }
         return true;
     }
     bool configureFreefall(uint8_t threshold, uint8_t eventDuration) {
-        if (write(INT1_THS, threshold) != Error::None) {
+        if (writeRegister(INT1_THS, threshold) != Error::None) {
             return false;
         }
 
-        if (write(INT1_DURATION, eventDuration) != Error::None) {
+        if (writeRegister(INT1_DURATION, eventDuration) != Error::None) {
             return false;
         }
         return true;
     }
 
     bool disableHighPassFilters() {
-        if (write(CTRL_REG2, 0) != Error::None) {
+        if (writeRegister(CTRL_REG2, 0) != Error::None) {
             return false;
         }
         return true;
@@ -782,7 +782,7 @@ class LIS2DH : protected microhal::I2CDevice {
     // used to debug
     void test() {
         uint8_t temp;
-        read(CTRL_REG1, temp);
+        readRegister(CTRL_REG1, temp);
     }
 };
 
