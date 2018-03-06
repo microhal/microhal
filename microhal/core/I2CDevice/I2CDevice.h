@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      I2C device driver
  *
@@ -8,7 +8,7 @@
  * created on: 22-11-2013
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
  * INCLUDES
  */
 #include <cstdint>
+#include <type_traits>
 #include "../i2c.h"
 #include "../utils/deviceRegister.h"
 #include "byteswap.h"
@@ -54,46 +55,25 @@ namespace microhal {
  * int32_t</b> types. If the register of a device has length greater than 8 bits it may have different endianness. Thanks to @a endianness parameter
  * your driver is platform independent because all necessary conversions are implemented inside I2CDevice class. Briefly, API of I2CDevice class looks
  * like this: @n <b>
- * I2C::Error write(register, value) @n
- * I2C::Error read(register, value) @n
- * I2C::Error bitsSet(register, value) @n
- * I2C::Error bitsClear(register, value) @n
- * I2C::Error bitsModify(register, value, mask) @n</b>
+ * I2C::Error writeRegister(register, value) @n
+ * I2C::Error readRegister(register, value) @n
+ * I2C::Error setBitsInRegister(register, value) @n
+ * I2C::Error clearBitsInRegister(register, value) @n
+ * I2C::Error modifyBitsInRegister(register, value, mask) @n</b>
  * When you want to write or read few registers in one I2C transaction you can use:
- * I2C::Error writeRegisters(std::array, registers)
- * I2C::Error writeRegisters(std::tuple, registers)
- * I2C::Error readRegisters(std::array, registers)
- * I2C::Error readRegisters(std::tuple, registers)
+ * I2C::Error writeMultipleRegisters(std::array, registers...)
+ * I2C::Error writeMultipleRegisters(std::tuple, registers...)
+ * I2C::Error readMultipleRegisters(std::array, registers...)
+ * I2C::Error readMultipleRegisters(std::tuple, registers...)
  * Also when you just want to write and read data from a device you can use: @n <b>
- * bool write(uint8_t data) @n
- * bool read(uint8_t &data) @n</b>
+ * I2C::Error write(uint8_t data) @n
+ * I2C::Error read(uint8_t &data) @n</b>
  * All methods mentioned above are thread safe, so you can use them in multithread environment.
  * For more information read description of each methods.
  */
 /* **************************************************************************************************************************************************
  * CLASS
  */
-
-template <int Condition>
-class ConvertEnidianness;
-
-template <>
-class ConvertEnidianness<true> {
- public:
-    template <typename T>
-    static T convert(T val) {
-        return microhal::convertEndianness(val, Endianness::Big, Endianness::Little);
-    }
-};
-
-template <>
-class ConvertEnidianness<false> {
- public:
-    template <typename T>
-    static T convert(T val) {
-        return val;
-    }
-};
 
 class I2CDevice {
  public:
@@ -165,15 +145,16 @@ class I2CDevice {
     template <typename Register>
     I2C::Error writeRegister(Register reg, typename Register::Type value) {
         static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
-        typename Register::Address::Type tmp = Register::Address::value;
+        const auto address = reg.getAddress();
         if constexpr (reg.requireEndiannessConversion()) {
             value = microhal::convertEndianness(value);
         }
 
         std::lock_guard<I2C> guard(i2c);
-        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<const uint8_t *>(&value),
+        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&value),
                          sizeof(value));
     }
+
     /**
      * @brief This function write data into register of the I2C device.
      * This function automatically handle endianness conversion.
@@ -189,10 +170,10 @@ class I2CDevice {
     template <typename Register>
     I2C::Error readRegister(Register reg, typename Register::Type &value) {
         static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
-        const auto tmp = reg.getAddress();
+        const auto address = reg.getAddress();
         std::lock_guard<I2C> guard(i2c);
         const auto result =
-            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&tmp), sizeof(tmp), reinterpret_cast<uint8_t *>(&value), sizeof(value));
+            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&value), sizeof(value));
         if constexpr (reg.requireEndiannessConversion()) {
             value = microhal::convertEndianness(value);
         }
@@ -214,10 +195,10 @@ class I2CDevice {
     template <typename Register>
     I2C::Error setBitsInRegister(Register reg, typename Register::Type value) {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
-        typename Register::Type tmp;
-        typename Register::Address::Type address = Register::Address::value;
+        const auto address = reg.getAddress();
 
         std::lock_guard<I2C> guard(i2c);
+        typename Register::Type tmp;
         const auto status = i2c.writeRead(deviceAddress, &address, sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
             if constexpr (reg.requireEndiannessConversion()) {
@@ -244,10 +225,10 @@ class I2CDevice {
     template <typename Register>
     I2C::Error clearBitsInRegister(Register reg, typename Register::Type value) {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
-        typename Register::Type tmp;
-        typename Register::Address::Type address = Register::Address::value;
+        const auto address = reg.getAddress();
 
         std::lock_guard<I2C> guard(i2c);
+        typename Register::Type tmp;
         const auto status =
             i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
@@ -256,7 +237,6 @@ class I2CDevice {
             } else {
                 tmp &= ~value;
             }
-
             return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
                              sizeof(tmp));
         }
@@ -280,10 +260,10 @@ class I2CDevice {
     template <typename Register>
     I2C::Error modifyBitsInRegister(Register reg, typename Register::Type value, typename Register::Type mask) {
         static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
-        typename Register::Type tmp;
-        typename Register::Address::Type address = Register::Address::value;
+        const auto address = reg.getAddress();
 
         std::lock_guard<I2C> guard(i2c);
+        typename Register::Type tmp;
         const auto status =
             i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
@@ -318,9 +298,10 @@ class I2CDevice {
     I2C::Error readMultipleRegisters(std::array<ArrayType, N> &array, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to read only one register, please use write function.");
         static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
-        // because we are reading data to array we have to check if all registers have the same data type and type is equal
-        // with std::array type
-        microhal::dataTypeCheck<ArrayType>(reg...);
+        static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>, "Incompatible array type with register types.");
+        if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
+            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+        }
         microhal::isContinous(reg...);
         microhal::accessCheck<Access::WriteOnly>(reg...);
 
@@ -375,10 +356,13 @@ class I2CDevice {
     I2C::Error writeMultipleRegisters(const std::array<ArrayType, N> &array, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
         static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
-        static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
-        // because we are reading data to array we have to check if all registers have the same data type and type is equal
-        // with std::array type
-        microhal::dataTypeCheck<ArrayType>(reg...);
+        static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>,
+                      "Incompatible array and register types. Using this function you can write data into registers with the same type and your "
+                      "array have to have the same type as registers. If you want to write multiple registers with different types please use "
+                      "std::tuple instead of std::aray.");
+        if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
+            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+        }
         isContinous(reg...);
         accessCheck<Access::ReadOnly>(reg...);
 
@@ -407,6 +391,7 @@ class I2CDevice {
     I2C::Error writeMultipleRegisters(const std::tuple<tupleTypes...> &data, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
         static_assert(sizeof...(tupleTypes) == sizeof...(Registers), "");
+        static_assert(std::conjunction_v<std::is_same<tupleTypes, typename Registers::Type>...>, "Incompatible tuple and register types.");
         microhal::accessCheck<Access::ReadOnly>(reg...);
         isContinous(reg...);
 
@@ -429,14 +414,14 @@ class I2CDevice {
         if constexpr (reg.requireEndiannessConversion()) {
             value = microhal::convertEndianness(value);
         }
-        std::get<i>(tuple) = value;  // convertEndiannessIfRequired(*value, reg.getEndianness());
+        std::get<i>(tuple) = value;
         if constexpr (sizeof...(regs)) setTuple<i + 1>(tuple, data + sizeof(DataType), regs...);
     }
 
     template <size_t i, typename Tuple, typename Register, typename... Registers>
     void setArrayFromTuple(uint8_t *array, const Tuple &tuple, Register reg, Registers... regs) {
         using DataType = typename std::tuple_element<i, Tuple>::type;
-        static_assert(std::is_same<DataType, typename Register::Type>::value, "Tuple types and registers types are different.");
+        static_assert(std::is_same<DataType, typename Register::Type>::value, "Tuple types and registers types are incompatible.");
 
         DataType value = std::get<i>(tuple);
         if constexpr (reg.requireEndiannessConversion()) {
@@ -450,7 +435,9 @@ class I2CDevice {
     template <typename Type, size_t N, typename Register, typename... Registers>
     void convertEndianness(std::array<Type, N> &array, Register reg, Registers... regs) {
         auto index = array.size() - sizeof...(Registers) - 1;
-        array[index] = ConvertEnidianness<reg.requireEndiannessConversion()>::convert(array[index]);
+        if constexpr (reg.requireEndiannessConversion()) {
+            array[index] = microhal::convertEndianness(array[index]);
+        }
         if constexpr (sizeof...(Registers)) convertEndianness(array, regs...);
     }
 };

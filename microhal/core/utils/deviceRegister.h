@@ -138,7 +138,7 @@ constexpr auto makeRegister(AddressType address) {
 template <typename Type, Access access, Endianness endianness, typename AddressType>
 constexpr auto makeRegister(AddressType address) {
     (void)address;
-    static_assert(sizeof(Type) > 1, "");
+    static_assert(sizeof(Type) > 1, "One byte data can't have endianness parameter.");
     return Register<Type, access, AddressType, endianness>{};
 }
 
