@@ -105,9 +105,6 @@ constexpr microhal::GPIO::IOPin Sw2(microhal::stm32f3xx::GPIO::Port::PortC, 4);
 // end of microhal extension board definition
 namespace mag3110 {
 static microhal::I2C &i2c = microhal::stm32f3xx::I2C::i2c1;
-constexpr microhal::GPIO::IOPin ce = con1::a::ss;
-constexpr microhal::GPIO::IOPin reset = con1::a::io1;
-constexpr microhal::GPIO::IOPin wp = con1::a::io2;
 }
 static microhal::SerialPort &debugPort = microhal::stm32f3xx::SerialPort::Serial2;
 }

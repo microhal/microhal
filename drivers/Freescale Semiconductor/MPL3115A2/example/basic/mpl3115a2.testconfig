@@ -1,5 +1,6 @@
 import re
 
+testType = 'deviceTest'
 targets = ['NUCLEO-F334R8']
 executionTime = 1
 requireHardware = True

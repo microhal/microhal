@@ -147,7 +147,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="bsp/nucleo-f334r8|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f3xx|microhal/ports/tms570x|microhal/ports/rm57x|gsl/tests|microhal/ports/windows|microhal/ports/linux|devices/common|microHAL" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="bsp/nucleo-f411re|bsp/nucleo-f334r8|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f3xx|microhal/ports/tms570x|microhal/ports/rm57x|gsl/tests|microhal/ports/windows|microhal/ports/linux|devices/common|microHAL" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -299,7 +299,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="microhal/ports/stm32f3xx/startup/startup.c|bsp/stm32f4-discovery|microhal/ports/stm32f4xx|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/tms570x|microhal/ports/rm57x|gsl/tests|microhal/ports/windows|microhal/ports/linux|devices/common|microHAL" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="bsp/nucleo-f411re|microhal/ports/stm32f3xx/startup/startup.c|bsp/stm32f4-discovery|microhal/ports/stm32f4xx|microhal/os/windows|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/tms570x|microhal/ports/rm57x|gsl/tests|microhal/ports/windows|microhal/ports/linux|devices/common|microHAL" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

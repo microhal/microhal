@@ -1,6 +1,7 @@
 import re
 
-targets = ['NUCLEO-F334R8', 'stm32f4-discovery']
+testType = 'deviceTest'
+targets = ['NUCLEO-F334R8', 'stm32f4-discovery', 'NUCLEO-F411RE']
 executionTime = 2
 requireHardware = True
 requireDevice = True
