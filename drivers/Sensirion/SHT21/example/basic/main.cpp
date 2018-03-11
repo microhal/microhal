@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,11 +24,11 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ========================================================================================================================== */
 
+#include "bsp.h"
 #include "microhal.h"
 #include "sht21.h"
-#include "bsp.h"
 
 #include <cstdio>
 
@@ -37,13 +37,13 @@ using namespace diagnostic;
 using namespace std::literals::chrono_literals;
 
 int main(void) {
-	bsp::debugPort.setDataBits(SerialPort::Data8);
-	bsp::debugPort.setStopBits(SerialPort::OneStop);
-	bsp::debugPort.setParity(SerialPort::NoParity);
-	bsp::debugPort.open(SerialPort::ReadWrite);
-	bsp::debugPort.setBaudRate(SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-	bsp::debugPort.write("\n\r------------------- SHT21 Demo -------------------------\n\r");
+    bsp::debugPort.write("\n\r------------------- SHT21 Demo -------------------------\n\r");
     diagChannel.setOutputDevice(bsp::debugPort);
 
     SHT21 sht(bsp::sht21::i2c);
@@ -52,10 +52,10 @@ int main(void) {
     std::this_thread::sleep_for(1000ms);
     float temp = {}, humidity = {};
     while (1) {
-        if (sht.getTemperature(temp) == false) {
+        if (sht.getTemperature(temp) != SHT21::Error::None) {
             diagChannel << lock << MICROHAL_ERROR << "Error in reading temperature\n\r" << unlock;
         }
-        if (sht.getHumidity(humidity) == false) {
+        if (sht.getHumidity(humidity) != SHT21::Error::None) {
             diagChannel << lock << MICROHAL_ERROR << "Error in reading humidity\n\r" << unlock;
         }
 

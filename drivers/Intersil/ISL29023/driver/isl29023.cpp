@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,12 +24,13 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               */
 
 #include "isl29023.h"
 
-bool ISL29023::reset(){
-	return writeRegister(COMMAND_1, static_cast<uint16_t>(0), microhal::Endianness::Little);
+microhal::I2C::Error ISL29023::reset() {
+    return writeRegister(COMMAND_1, uint16_t{0});
 }
 
 /** @brief This function set operating mode.
@@ -37,20 +38,11 @@ bool ISL29023::reset(){
  * @param mode new mode to set.
  * @return
  */
-bool ISL29023::setMode(OperatimgModes mode) {
-    if (mode == Mode_Unknown) return false;
-    uint8_t command;
+microhal::I2C::Error ISL29023::setMode(OperatimgModes mode) {
+    if (mode == Mode_Unknown) return Error::Unknown;
 
-    if (readRegister(COMMAND_1, command) == true) {
-        //clear actuall mode bits
-        command &= ~(Mode_PowerDown | Mode_AlsOnce | Mode_IrOnce | Mode_AlsContinuous
-                | Mode_IrContinuous);
-        //apply new mode
-        command |= mode;
-        //write regiser
-        return writeRegister(COMMAND_1, command);
-    }
-    return false;
+    auto mask = Mode_PowerDown | Mode_AlsOnce | Mode_IrOnce | Mode_AlsContinuous | Mode_IrContinuous;
+    return modifyBitsInRegister(COMMAND_1, mode, mask);
 }
 /**@brief This function read actual operating mode.
  *
@@ -59,10 +51,9 @@ bool ISL29023::setMode(OperatimgModes mode) {
 ISL29023::OperatimgModes ISL29023::getMode() {
     uint8_t command;
 
-    if (readRegister(COMMAND_1, command) == true) {
-        command &= Mode_PowerDown | Mode_AlsOnce | Mode_IrOnce | Mode_AlsContinuous
-                | Mode_IrContinuous;
-        return (OperatimgModes) command;
+    if (readRegister(COMMAND_1, command) == Error::None) {
+        command &= Mode_PowerDown | Mode_AlsOnce | Mode_IrOnce | Mode_AlsContinuous | Mode_IrContinuous;
+        return (OperatimgModes)command;
     } else {
         return Mode_Unknown;
     }
@@ -77,13 +68,13 @@ bool ISL29023::setRange(FullScalleRange range) {
     if (range == RangeUnknown) return false;
     uint8_t command;
 
-    if (readRegister(COMMAND_2, command) == true) {
-        //clear actuall mode bits
+    if (readRegister(COMMAND_2, command) == Error::None) {
+        // clear actuall mode bits
         command &= ~(Range1 | Range2 | Range3 | Range4);
-        //apply new mode
+        // apply new mode
         command |= range;
-        //write regiser
-        if (writeRegister(COMMAND_2, command) == true) {
+        // write regiser
+        if (writeRegister(COMMAND_2, command) == Error::None) {
             return calibrate();
         }
     }
@@ -96,9 +87,9 @@ bool ISL29023::setRange(FullScalleRange range) {
 ISL29023::FullScalleRange ISL29023::getRange() {
     uint8_t command;
 
-    if (readRegister(COMMAND_2, command) == true) {
+    if (readRegister(COMMAND_2, command) == Error::None) {
         command &= Range1 | Range2 | Range3 | Range4;
-        return (FullScalleRange) command;
+        return (FullScalleRange)command;
     } else {
         return RangeUnknown;
     }
@@ -110,17 +101,9 @@ ISL29023::FullScalleRange ISL29023::getRange() {
  */
 bool ISL29023::setResolution(Resolution resolution) {
     if (resolution == Resolution_Unknown) return false;
-    uint8_t command;
-
-    if (readRegister(COMMAND_2, command) == true) {
-        //clear actuall mode bits
-        command &= ~(Resolution_16bit | Resolution_12bit | Resolution_8bit | Resolution_4bit);
-        //apply new mode
-        command |= resolution;
-        //write regiser
-        if (writeRegister(COMMAND_2, command) == true) {
-            return calibrate();
-        }
+    auto mask = Resolution_16bit | Resolution_12bit | Resolution_8bit | Resolution_4bit;
+    if (modifyBitsInRegister(COMMAND_2, resolution, mask) == Error::None) {
+        return calibrate();
     }
     return false;
 }
@@ -130,10 +113,10 @@ bool ISL29023::setResolution(Resolution resolution) {
  */
 ISL29023::Resolution ISL29023::getResolution() {
     uint8_t command;
-    if (readRegister(COMMAND_2, command) == true) {
-        //clear other bits than resolution
+    if (readRegister(COMMAND_2, command) == Error::None) {
+        // clear other bits than resolution
         command &= Resolution_16bit | Resolution_12bit | Resolution_8bit | Resolution_4bit;
-        return (Resolution) command;
+        return (Resolution)command;
     } else {
         return Resolution_Unknown;
     }
@@ -150,37 +133,37 @@ bool ISL29023::calibrate() {
     const FullScalleRange range = getRange();
 
     switch (resolution) {
-    case Resolution_16bit:
-        count = 65536.0;
-        break;
-    case Resolution_12bit:
-        count = 4096.0;
-        break;
-    case Resolution_8bit:
-        count = 256.0;
-        break;
-    case Resolution_4bit:
-        count = 16.0;
-        break;
-    default:
-        return false;
+        case Resolution_16bit:
+            count = 65536.0;
+            break;
+        case Resolution_12bit:
+            count = 4096.0;
+            break;
+        case Resolution_8bit:
+            count = 256.0;
+            break;
+        case Resolution_4bit:
+            count = 16.0;
+            break;
+        default:
+            return false;
     }
 
     switch (range) {
-    case Range1:
-        range_k = 1000.0;
-        break;
-    case Range2:
-        range_k = 4000.0;
-        break;
-    case Range3:
-        range_k = 16000.0;
-        break;
-    case Range4:
-        range_k = 64000.0;
-        break;
-    default:
-        return false;
+        case Range1:
+            range_k = 1000.0;
+            break;
+        case Range2:
+            range_k = 4000.0;
+            break;
+        case Range3:
+            range_k = 16000.0;
+            break;
+        case Range4:
+            range_k = 64000.0;
+            break;
+        default:
+            return false;
     }
 
     alfa = range_k / count;

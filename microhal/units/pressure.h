@@ -35,15 +35,17 @@ template <typename T = float>
 class Pressure {
  public:
     explicit Pressure(T pressure) : pressure(pressure) {}
-    Pressure() {}
+    Pressure() = default;
 
     T getRAW() const { return pressure; }
+
  private:
     T pressure;
 };
 
 template <microhal::diagnostic::LogLevel level, bool B, typename T>
-inline microhal::diagnostic::LogLevelChannel<level, B> operator<< (microhal::diagnostic::LogLevelChannel<level, B> logChannel, const Pressure<T>& pressure) {
+inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel,
+                                                                  const Pressure<T>& pressure) {
     return logChannel << pressure.getRAW();
 }
 

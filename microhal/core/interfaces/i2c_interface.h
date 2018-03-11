@@ -42,8 +42,8 @@ class I2C {
 
     enum class Error { None, Timeout, Bus, AcknowledgeFailure, ArbitrationLost, Overrun, Unknown };
 
-    enum class Mode {
-        Standard,      // 100kHz
+    enum class Mode : uint_fast8_t {
+        Standard = 0,  // 100kHz
         Fast,          // 400kHz
         FastModePlus,  // 1MHz
         HighSpeed      // 3.4 MHz

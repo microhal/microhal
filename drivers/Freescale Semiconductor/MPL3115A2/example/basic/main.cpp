@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,46 +24,35 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   */
 
-#include "microhal.h"
-#include "diagnostic/diagnostic.h"
 #include "bsp.h"
+#include "diagnostic/diagnostic.h"
+#include "microhal.h"
 #include "mpl3115.h"
 
 using namespace microhal;
 using namespace diagnostic;
 
-int main(){
-	debugPort.clear();
+int main() {
+    bsp::debugPort.write("\n\r------------------- MPL3115 Demo -------------------------\n\r");
 
-	debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
-	debugPort.write("\n\r------------------- MPL3115 Demo -------------------------\n\r");
+    MPL3115 mpl(bsp::mpl3115a2::i2c);
 
-	diagChannel.setOutputDevice(debugPort);
+    // mpl.registerDump(diagChannel);
 
-	MPL3115 mpl(sensorI2C);
+    diagChannel << MICROHAL_DEBUG << "Initializing MPL3115...";
+    if (mpl.init() == true) {
+        diagChannel << Debug << "OK";
+    } else {
+        diagChannel << MICROHAL_ERROR << "Cannot initialize MAG3110. Maybe unconnected?";
+    }
 
-	mpl.registerDump(diagChannel);
+    while (1) {
+    }
 
-//	for(uint8_t i=0; i<2; i++)
-//	{
-//		diagChannel << DEBUG << "Initializing MPL3115...";
-//		if(mpl.init() == true){
-//			diagChannel << Debug << "OK";
-//		} else{
-//			diagChannel << ERROR << "Cannot initialize MAG3110. Maybe unconnected?";
-//		}
-//	}
-
-	while(1){
-
-	}
-
-	return 0;
+    return 0;
 }

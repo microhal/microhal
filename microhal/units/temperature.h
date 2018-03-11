@@ -34,52 +34,35 @@ namespace microhal {
 
 class Temperature {
  public:
-    explicit Temperature(const float temperatureInKelvin = 0.0) :
-        temperature(temperatureInKelvin) { }
-    explicit Temperature(const int32_t temperatureInKelvin) :
-        temperature(static_cast <float>(temperatureInKelvin)) { }
-    ~Temperature() {}
+    explicit Temperature(float temperatureInKelvin) : temperature(temperatureInKelvin) {}
+    explicit Temperature(int32_t temperatureInKelvin) : temperature(static_cast<float>(temperatureInKelvin)) {}
+    Temperature() : Temperature(float{0.0}){};
+    ~Temperature() = default;
 
-    void setFahrenheit(const int32_t temperatureInFahrenheit) {
-        temperature = (((static_cast <float> (temperatureInFahrenheit)) - 32.00) / 1.8000) + 273.15;
-    }
-    void setFahrenheit(const float temperatureInFahrenheit) {
-        temperature = ((temperatureInFahrenheit - 32.00) / 1.8000) + 273.15;
+    static Temperature fromCelcius(float celcius) noexcept {
+        Temperature tmp;
+        tmp.setCelsius(celcius);
+        return tmp;
     }
 
-    void setCelsius(const int32_t temperatureInCelsius) {
-        temperature = (static_cast <float> (temperatureInCelsius)) + 273.15;
-    }
-    void setCelsius(const float temperatureInCelsius) {
-        temperature = (temperatureInCelsius) + 273.15;
-    }
+    void setFahrenheit(int32_t temperatureInFahrenheit) { temperature = (((static_cast<float>(temperatureInFahrenheit)) - 32.00) / 1.8000) + 273.15; }
+    void setFahrenheit(const float temperatureInFahrenheit) { temperature = ((temperatureInFahrenheit - 32.00) / 1.8000) + 273.15; }
 
-    float getKelvin() const {
-        return temperature;
-    }
+    void setCelsius(int32_t temperatureInCelsius) { temperature = (static_cast<float>(temperatureInCelsius)) + 273.15; }
+    void setCelsius(float temperatureInCelsius) { temperature = temperatureInCelsius + 273.15; }
 
-    float getCelsius() const {
-        return temperature - 273.15;
-    }
+    float getKelvin() const { return temperature; }
 
-    float getFahrenheit() const {
-        return (temperature - 273.15) * 1.8000 + 32.00;
-    }
+    float getCelsius() const { return temperature - 273.15; }
 
-    Temperature operator+(const Temperature& temp) const {
-        return Temperature {temperature + temp.temperature};
-    }
+    float getFahrenheit() const { return (temperature - 273.15) * 1.8000 + 32.00; }
 
-    Temperature operator-(const Temperature& temp) const {
-        return Temperature {temperature - temp.temperature};
-    }
+    Temperature operator+(const Temperature& temp) const { return Temperature{temperature + temp.temperature}; }
 
-    Temperature operator*(const float mul) const {
-        return Temperature {temperature * mul};
-    }
-    Temperature operator/(const float div) const {
-        return Temperature {temperature / div};
-    }
+    Temperature operator-(const Temperature& temp) const { return Temperature{temperature - temp.temperature}; }
+
+    Temperature operator*(const float mul) const { return Temperature{temperature * mul}; }
+    Temperature operator/(const float div) const { return Temperature{temperature / div}; }
 
     Temperature& operator+=(const Temperature& temp) {
         temperature += temp.temperature;
@@ -102,7 +85,7 @@ class Temperature {
     }
 
  private:
-  float temperature;  // in Kelvin degree
+    float temperature;  // in Kelvin degree
 };
 
 } /* namespace microhal */

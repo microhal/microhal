@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,7 +24,7 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ========================================================================================================================== */
 
 #include "tmp006.h"
 
@@ -44,15 +44,15 @@ bool TMP006::update() {
 
     int16_t temp;
     int16_t voltage;
-    if (readRegister(T_AMBIENT, (uint16_t&) temp, microhal::Endianness::Big) == false) return false;
-    if (readRegister(V_OBJECT, (uint16_t&) voltage, microhal::Endianness::Big) == false) return false;
+    if (readRegister(T_AMBIENT, (uint16_t&)temp) != Error::None) return false;
+    if (readRegister(V_OBJECT, (uint16_t&)voltage) != Error::None) return false;
 
-    //convert to kelvin
-    ambientTemperature = Temperature {static_cast<float>(temp / 128 + 273)};
-    //convert to volt
-    float Vobj = (float) voltage * 0.00000015625;
+    // convert to kelvin
+    ambientTemperature = Temperature{static_cast<float>(temp / 128 + 273)};
+    // convert to volt
+    float Vobj = (float)voltage * 0.00000015625;
 
-    //calculating temperature according to TMP006 User's Guide (SBOU107 – May 2011) chapter 5.1
+    // calculating temperature according to TMP006 User's Guide (SBOU107 – May 2011) chapter 5.1
     const Temperature deltaT = ambientTemperature - Tref;
     const float deltaTsquare = deltaT.getKelvin() * deltaT.getKelvin();
 
@@ -62,11 +62,11 @@ bool TMP006::update() {
     float deltaV = Vobj - Vos;
     float fVobj = deltaV + c2 * deltaV * deltaV;
 
-    //we need ambient temperature to power of 4
+    // we need ambient temperature to power of 4
     const float tmp = ambientTemperature.getKelvin() * ambientTemperature.getKelvin();
     const float ambjentTempToFour = tmp * tmp;
 
-    //calculate object temperature in kelvin
-    objectTemperature = Temperature ( sqrtf(sqrtf(ambjentTempToFour + (Vobj / S))) );
+    // calculate object temperature in kelvin
+    objectTemperature = Temperature(sqrtf(sqrtf(ambjentTempToFour + (Vobj / S))));
     return true;
 }

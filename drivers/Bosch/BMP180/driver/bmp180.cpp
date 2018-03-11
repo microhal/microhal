@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,7 +24,7 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ========================================================================================================================== */
 
 #include "bmp180.h"
 
@@ -33,5 +33,5 @@
  * @return
  */
 bool BMP180::readCalibrationData() {
-    return readRegisters(0xAA, (uint16_t *) &calibrationCoefs, sizeof(calibrationCoefs) / 2, microhal::Endianness::Big);
+    // return readMultipleRegisters(0xAA, (uint16_t *)&calibrationCoefs, sizeof(calibrationCoefs) / 2, microhal::Endianness::Big);
 }

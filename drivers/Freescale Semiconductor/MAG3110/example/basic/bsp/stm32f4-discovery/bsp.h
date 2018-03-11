@@ -1,4 +1,4 @@
-/* =========================================================================================== *//**
+/* =========================================================================================== */ /**
  @file        STM32F4Discovery.h
  @authors     Michal Karwatowski
  @version     $Id$
@@ -8,17 +8,18 @@
  @copyright   $Copyright$
  @details
 
- *//* ============================================================================================ */
+ */ /* ============================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 */
 /* Created on: 20 sty 2014 */
 
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
 #include "i2c.h"
+#include "microhal.h"
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial1;
-
-static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c2;
+namespace bsp {
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 
 constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
 constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
@@ -29,5 +30,11 @@ constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
 
 constexpr microhal::GPIO::IOPin GreenLed = Led4;
 constexpr microhal::GPIO::IOPin RedLed = Led3;
+
+namespace mag3110 {
+static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c2;
+}  // namespace mag3110
+
+}  // namespace bsp
 
 #endif /* STM32F4DISCOVERY_H_ */

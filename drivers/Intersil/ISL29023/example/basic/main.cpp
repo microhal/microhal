@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                         */
+                                                                                                                                      */
 
 #include "bsp.h"
 #include "diagnostic/diagnostic.h"
@@ -55,7 +55,7 @@ int main(void) {
     // isl.reset();
 
     diagChannel << lock << MICROHAL_DEBUG << "Setting mode...";
-    if (isl.setMode(ISL29023::Mode_AlsContinuous) == false) {
+    if (isl.setMode(ISL29023::Mode_AlsContinuous) != I2C::Error::None) {
         diagChannel << MICROHAL_ERROR << "unable to set mode." << unlock;
     } else {
         diagChannel << Debug << "OK" << endl << unlock;

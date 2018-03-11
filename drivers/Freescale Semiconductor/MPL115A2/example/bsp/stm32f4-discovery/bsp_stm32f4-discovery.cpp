@@ -36,6 +36,9 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void hardwareConfig(void) {
+    (void)debugPort;
+    (void)mpl115a2::i2c;
+
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 

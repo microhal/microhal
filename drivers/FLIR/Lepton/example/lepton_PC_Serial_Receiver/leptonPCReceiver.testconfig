@@ -1,7 +1,9 @@
 import re
 
+testType = 'deviceTest'
 targets = ['lepton_emulator_stm32f4xx']
 executionTime = 1
+requireHardware = False
 	
 def projectName():
 	return 'leptonPCSerialReceiver'	

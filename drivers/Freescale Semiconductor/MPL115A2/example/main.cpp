@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    Pawel Okas
  * created on: 12-02-2017
@@ -39,42 +39,40 @@ using namespace microhal;
 using namespace diagnostic;
 using namespace std::literals::chrono_literals;
 
-int main(){
-	debugPort.setDataBits(SerialPort::Data8);
-	debugPort.setStopBits(SerialPort::OneStop);
-	debugPort.setParity(SerialPort::NoParity);
-	debugPort.open(SerialPort::ReadWrite);
-	debugPort.setBaudRate(SerialPort::Baud115200);
+int main() {
+    debugPort.setDataBits(SerialPort::Data8);
+    debugPort.setStopBits(SerialPort::OneStop);
+    debugPort.setParity(SerialPort::NoParity);
+    debugPort.open(SerialPort::ReadWrite);
+    debugPort.setBaudRate(SerialPort::Baud115200);
 
-	debugPort.write("\n\r------------------- MPL3115 Demo -------------------------\n\r");
+    debugPort.write("\n\r------------------- MPL115 Demo -------------------------\n\r");
 
-	diagChannel.setOutputDevice(debugPort);
+    diagChannel.setOutputDevice(debugPort);
 
-	MPL115A2 mpl(mpl115a2::i2c);
-	GPIO mplReset(mpl115a2::resetPin, GPIO::Direction::Output);
-	mplReset.set();
+    MPL115A2 mpl(mpl115a2::i2c);
+    GPIO mplReset(mpl115a2::resetPin, GPIO::Direction::Output);
+    mplReset.set();
 
-	diagChannel << lock << MICROHAL_DEBUG << "Initializing MPL115A2..." << unlock;
-	if(mpl.init() == true){
-		diagChannel << Debug << "OK";
-	} else{
-		diagChannel << lock << MICROHAL_ERROR << "Cannot initialize MPL115A2. Maybe unconnected?" << unlock;
-	}
+    diagChannel << lock << MICROHAL_DEBUG << "Initializing MPL115A2..." << unlock;
+    if (mpl.init() == true) {
+        diagChannel << Debug << "OK";
+    } else {
+        diagChannel << lock << MICROHAL_ERROR << "Cannot initialize MPL115A2. Maybe unconnected?" << unlock;
+    }
 
-	while(1) {
-		mpl.startConversion();
-		std::this_thread::sleep_for(mpl.maxConversionTime());
+    while (1) {
+        mpl.startConversion();
+        std::this_thread::sleep_for(mpl.maxConversionTime());
 
-		if (auto pressure = mpl.pressure()) {
-			diagChannel << Debug << "Pressure: " << *pressure << endl;
-		} else {
-			diagChannel << lock << MICROHAL_ERROR << "Unable to read pressure." << unlock;
-		}
+        if (auto pressure = mpl.pressure()) {
+            diagChannel << Debug << "Pressure: " << *pressure << endl;
+        } else {
+            diagChannel << lock << MICROHAL_ERROR << "Unable to read pressure." << unlock;
+        }
 
-		std::this_thread::sleep_for(500ms);
-	}
+        std::this_thread::sleep_for(500ms);
+    }
 
-	return 0;
+    return 0;
 }
-
-

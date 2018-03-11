@@ -1,0 +1,49 @@
+import re
+
+targets = ['jenkins']
+testType = 'buildOnly'
+requireHardware = False
+executionTime = 1
+
+configs = [['TEST_REGISTER_ONE_BYTE_CREATION_SHOULD_FAIL', False], 
+['TEST_REGISTER_TWO_BYTE_CREATION_SHOULD_FAIL', False],
+['TEST_REGISTER_CREATION_SHOULD_PASS', True],
+['TEST_REGISTER_ACCESS_WRITE_FAIL', False],
+['TEST_REGISTER_ACCESS_READ_FAIL', False],
+['TEST_REGISTER_ACCESS_PASS', True],
+['TEST_WRITE_MULTIPLE_REGISTERS_ARRAY_FAIL', False],
+['TEST_WRITE_MULTIPLE_REGISTERS_TUPLE_FAIL', False],
+['TEST_WRITE_MULTIPLE_REGISTERS_PASS', True],
+['TEST_READ_MULTIPLE_REGISTERS_ARRAY_FAIL', False],
+['TEST_READ_MULTIPLE_REGISTERS_TUPLE_FAIL', False],
+['TEST_READ_MULTIPLE_REGISTERS_PASS', True]]
+	
+	
+def projectName():
+	return 'i2c_static_assert_test'	
+	
+def binaryName(configuration):
+	return 'i2c_static_assert_test.elf'
+	
+def run(projectDir, target,  buildTool):
+    result = []
+    for configuration in configs:
+        status = buildTool.build(projectDir, projectName() + '/' + target, [configuration[0]])
+        print status
+        if status == configuration[1]:
+            result.append({'config':configuration, 'status': '\033[91m' + 'test pass' + '\033[0m'})
+        else:
+            result.append({'config':configuration, 'status': '\033[91m' + 'test fail' + '\033[0m'})
+                
+    print result    
+    
+    for x in result:
+        print x['config'] 
+        print x['status']            
+        
+#    return {'testName':projectName(), 'target': target, 'status': '\033[91m' + 'build fail' + '\033[0m'}
+                
+    return {'testName':projectName(), 'target': target, 'status': 'build pass'}		
+	
+def passed(data):	
+	return data.startswith(correctOutput)

@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      I2C device driver
  *
@@ -8,7 +8,7 @@
  * created on: 22-11-2013
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015-2016, microHAL
+ * @copyright Copyright (c) 2015-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,9 @@
  * INCLUDES
  */
 #include <cstdint>
+#include <type_traits>
 #include "../i2c.h"
+#include "../utils/deviceRegister.h"
 #include "byteswap.h"
 #include "ports/manager/hardware.h"
 
@@ -47,28 +49,32 @@ namespace microhal {
  * We recommend that your driver should privately inherent from I2CDevice class. @n
  * If you previously wrote I2C drivers you probably saw that some part of your code where commonly used, for example when you wanted to clear some bit
  * in register (or memory at some address) of I2C device you had to read the register value, cleared the bit and finally wrote modified value
- * to the register. To simplify this operation I2CDevice class contains  @b clearBitsInRegister method. If you want to set bits in register you should
- * use @b setBitsInRegister method. Some devices that can be connected to I2C data bus have more than 8 bit registers so all functions in I2CDevice
+ * to the register. To simplify this operation I2CDevice class contains  @b bitsClear method. If you want to set bits in register you should
+ * use @b bitsSet method. Some devices that can be connected to I2C data bus have more than 8 bit registers so all functions in I2CDevice
  * class have been overloaded for different registers length. I2CDevice methods are overloaded for: <b>uint8_t, uint16_t, uint32_t, int8_t, int16_t,
- * int32_t</b> types. If the register of a device has length greater than 8 bits it may have different endianness so all functions taking parameter
- * greater than 8 bits also take @a endianness parameter. Thanks to @a endianness parameter your driver is platform independent because all necessary
- * conversions are implemented inside I2CDevice class. Briefly, API of I2CDevice class looks like this: @n <b>
- * bool writeRegister(address, value) @n
- * bool readRegister(address, value) @n
- * bool setBitsInRegister(address, value) @n
- * bool clearBitsInRegister(address, value) @n
- * bool writeRegisterWithMask(address, value, mask) @n</b>
- * All functions above take additional parameter @a endianness when value parameter is more than 8 bit.
+ * int32_t</b> types. If the register of a device has length greater than 8 bits it may have different endianness. Thanks to @a endianness parameter
+ * your driver is platform independent because all necessary conversions are implemented inside I2CDevice class. Briefly, API of I2CDevice class looks
+ * like this: @n <b>
+ * I2C::Error writeRegister(register, value) @n
+ * I2C::Error readRegister(register, value) @n
+ * I2C::Error setBitsInRegister(register, value) @n
+ * I2C::Error clearBitsInRegister(register, value) @n
+ * I2C::Error modifyBitsInRegister(register, value, mask) @n</b>
+ * When you want to write or read few registers in one I2C transaction you can use:
+ * I2C::Error writeMultipleRegisters(std::array, registers...)
+ * I2C::Error writeMultipleRegisters(std::tuple, registers...)
+ * I2C::Error readMultipleRegisters(std::array, registers...)
+ * I2C::Error readMultipleRegisters(std::tuple, registers...)
  * Also when you just want to write and read data from a device you can use: @n <b>
- * bool write(uint8_t data) @n
- * bool read(uint8_t &data) @n</b>
+ * I2C::Error write(uint8_t data) @n
+ * I2C::Error read(uint8_t &data) @n</b>
  * All methods mentioned above are thread safe, so you can use them in multithread environment.
- * When some operations fail you can check error by checking a result of @ref getLastError method. @n
  * For more information read description of each methods.
  */
 /* **************************************************************************************************************************************************
  * CLASS
  */
+
 class I2CDevice {
  public:
     using DeviceAddress = I2C::DeviceAddress;
@@ -86,558 +92,353 @@ class I2CDevice {
      * 					  @a x bit changes when you want to write or read from device. When you passing device address @a x have to be
      * 0.
      */
-    explicit constexpr I2CDevice(I2C &i2c, DeviceAddress meAddress) : i2c(i2c), deviceAddress(meAddress), lastError(I2C::Error::None) {}
-    //    virtual ~I2CDevice() = default;
+    explicit constexpr I2CDevice(I2C &i2c, DeviceAddress meAddress) : i2c(i2c), deviceAddress(meAddress) {}
     //------------------------------------------ functions ----------------------------------------
     /**
      * @brief This function return address of the device.
      *
      * @return I2C device address. Last bit of returned address indicate write or read operation and is always set to 0.
      */
-    constexpr DeviceAddress getMyI2CAddress() const noexcept { return deviceAddress; }
+    constexpr DeviceAddress address() const noexcept { return deviceAddress; }
     /**
-     * @brief This function return last error of this device. To see full error list please go to @ref I2C::Error
+     * @brief This function write 8 bit data into the I2C device. If an error occurred this function will return @ref I2C::Error.
      *
-     * @return last error
-     */
-    I2C::Error getLastError() const noexcept { return lastError; }
-    /**
-     * @brief This function write 8 bit data into the I2C device. If an error occurred this function return false and you can use @ref getLastError
-     * function to check the error cause.
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
      * @param data to write.
      *
-     * @retval true - if data was sent.
-     * @retval false - if an error occurred.
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    bool write(uint8_t data) {
-        i2c.lock();
-        I2C::Error status = i2c.write(deviceAddress, &data, 1);
-        i2c.unlock();
+    I2C::Error write(uint8_t data) noexcept {
+        std::lock_guard<I2C> guard(i2c);
+        return i2c.write(deviceAddress, data);
+    }
+    /**
+     * @brief This function read 8 bit data from the I2C device.
+     *
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param[out] data - pointer to memory where read data will be stored.
+     *
+     * @retval This function will return I2C::Error::None if data was read correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
+     */
+    I2C::Error read(uint8_t *data) noexcept {
+        std::lock_guard<I2C> guard(i2c);
+        return i2c.read(deviceAddress, data, 1);
+    }
+    /**
+     * @brief This function write data into register of the I2C device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register to write.
+     * @param value to write
+     *
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
+     */
+    template <typename Register>
+    I2C::Error writeRegister(Register reg, typename Register::Type value) {
+        static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
+        const auto address = reg.getAddress();
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
+
+        std::lock_guard<I2C> guard(i2c);
+        return i2c.write(deviceAddress, reinterpret_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&value),
+                         sizeof(value));
+    }
+
+    /**
+     * @brief This function write data into register of the I2C device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register to write.
+     * @param value to write
+     *
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
+     */
+    template <typename Register>
+    I2C::Error readRegister(Register reg, typename Register::Type &value) {
+        static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
+        const auto address = reg.getAddress();
+        std::lock_guard<I2C> guard(i2c);
+        const auto result =
+            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&value), sizeof(value));
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
+        return result;
+    }
+
+    /**
+     * @brief This function sets bits in register of the I2C device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register where bits will be set write.
+     * @param value if bit in value is set then corresponding bit in register will be set.
+     *
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
+     */
+    template <typename Register>
+    I2C::Error setBitsInRegister(Register reg, typename Register::Type value) {
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+        const auto address = reg.getAddress();
+
+        std::lock_guard<I2C> guard(i2c);
+        typename Register::Type tmp;
+        const auto status = i2c.writeRead(deviceAddress, &address, sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            return true;
-        } else {
-            lastError = status;
-            return false;
+            if constexpr (reg.requireEndiannessConversion()) {
+                tmp |= microhal::convertEndianness(value);
+            } else {
+                tmp |= value;
+            }
+            return i2c.write(deviceAddress, &address, sizeof(address), reinterpret_cast<const uint8_t *>(&tmp), sizeof(tmp));
         }
+        return status;
     }
     /**
-     * @brief This function read 8 bit data from the I2C device. If an error occurred you can use @ref getLastError function
-     * to check the error cause.
+     * @brief This function clear bits in register of the I2C device.
+     * This function automatically handle endianness conversion.
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
-     * @param[out] data - reference to memory where read data will be stored.
+     * @param reg register where bits will be cleared.
+     * @param value if bits is set then corresponding bit in register will be cleared.
      *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    bool read(uint8_t &data) {
-        i2c.lock();
-        I2C::Error status = i2c.read(deviceAddress, &data, 1);
-        i2c.unlock();
+    template <typename Register>
+    I2C::Error clearBitsInRegister(Register reg, typename Register::Type value) {
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+        const auto address = reg.getAddress();
+
+        std::lock_guard<I2C> guard(i2c);
+        typename Register::Type tmp;
+        const auto status =
+            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            return true;
-        } else {
-            lastError = status;
-            return false;
+            if constexpr (reg.requireEndiannessConversion()) {
+                tmp &= ~microhal::convertEndianness(value);
+            } else {
+                tmp &= ~value;
+            }
+            return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
+                             sizeof(tmp));
         }
-    }
-
-    //    /**
-    //     * @brief This function read 8bit data from I2C device.
-    //     *
-    //     * @param data read data.
-    //     *
-    //     * @retval true if data was sent.
-    //     * @retval false if an error occurred.
-    //     */
-    //    bool read(uint8_t *data, size_t size) {
-    //        i2c.lock();
-    //        I2C::Error status = i2c.read(deviceAddress, data, size);
-    //        i2c.unlock();
-    //        if (status == I2C::Error::None) {
-    //            return true;
-    //        } else {
-    //            lastError = status;
-    //            return false;
-    //        }
-    //    }
-    // ---------------------------------------------------------------------------- write unsigned types
-    // ------------------------------------------------
-    /**@brief This function write 8 bit data at specified address. This address can point to memory cell or some device register.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] data to write. Unsigned 8 bit variable.
-     *
-     * @retval true if writing was successful
-     * @retval false if an error occurred
-     */
-    inline bool writeRegister(uint8_t address, uint8_t data) {
-        i2c.lock();
-        bool status = writeRegister_noLock(address, data);
-        i2c.unlock();
-
         return status;
     }
     /**
-     * @brief This function write 16 bit unsigned data to register/memory cell at specified address.
+     * @brief This function modify content of the register of the I2C device.
+     * This function automatically handle endianness conversion.
+     * @example Suppose that register content is equal to 0b1111; value field is set to 0b0101 and mask is set to 0b0011. As a result new register
+     * value will be equal to 0b1101.
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] data to write. Data length is 16 bit.
-     * @param[in] endianness - register byte order in device.
+     * @param reg register to modify.
+     * @param value new value to set. Bits from this field will be written only if corresponding bits in mask parameter are set.
+     * @param mask if bit is set then corresponding bit in register will be set.
      *
-     * @retval true if data was write
-     * @retval false if an error occurred.
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    inline bool writeRegister(uint8_t address, uint16_t data, Endianness endianness) { return writeRegister_impl(address, data, endianness); }
-    /**
-     * @brief This function write 32 bit unsigned data to register/memory cell at specified address.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] data - data to write
-     * @param[in] endianness - register byte order in device.
-     *
-     * @retval true if data was write
-     * @retval false if an error occurred.
-     */
-    inline bool writeRegister(uint8_t address, uint32_t data, Endianness endianness) { return writeRegister_impl(address, data, endianness); }
-    inline bool writeRegister(uint8_t address, uint64_t data, Endianness endianness) { return writeRegister_impl(address, data, endianness); }
-    // ---------------------------------------------------------------------------- write signed types
-    // --------------------------------------------------
-    /**
-     * @brief This function work same as writeRegister(uint8_t address, uint8_t data) but takes signed parameter.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] data to write in to register
-     *
-     * @retval true if writing was successful
-     * @retval false if an error occurred
-     */
-    inline bool writeRegister(uint8_t address, int8_t data) __attribute__((always_inline)) {
-        return writeRegister(address, static_cast<uint8_t>(data));
-    }
-    /**@brief This function work same as writeRegister(uint8_t address, uint16_t data, Endianness endianness) but takes signed parameter.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] data to write in the register
-     * @param[in] endianness - byte order in I2C device
-     *
-     * @retval true if writing was successful
-     * @retval false if an error occurred
-     */
-    inline bool writeRegister(uint8_t address, int16_t data, Endianness endianness) __attribute__((always_inline)) {
-        return writeRegister(address, static_cast<uint16_t>(data), endianness);
-    }
-    /**@brief TThis function work same as writeRegister(uint8_t address, uint32_t data, Endianness endianness) but takes signed parameter.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] data to write in the register
-     * @param[in] endianness - byte order in I2C device
-     *
-     * @retval true if writing was successful
-     * @retval false if an error occurred
-     */
-    inline bool writeRegister(uint8_t address, int32_t data, Endianness endianness) __attribute__((always_inline)) {
-        return writeRegister(address, static_cast<uint32_t>(data), endianness);
-    }
-    // ---------------------------------------------------------------------------- read unsigned types
-    // -------------------------------------------------
-    /**@brief This function read 8 bit unsigned data from register or memory cell at specified address of the I2C device.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[out] data - read data
-     *
-     * @retval true if data was read.
-     * @retval false if an error occurred.
-     */
-    inline bool readRegister(uint8_t address, uint8_t &data) {
-        i2c.lock();
-        bool status = readRegister_noLock(address, data);
-        i2c.unlock();
+    template <typename Register>
+    I2C::Error modifyBitsInRegister(Register reg, typename Register::Type value, typename Register::Type mask) {
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+        const auto address = reg.getAddress();
 
-        return status;
-    }
-    /**
-     * @brief This function read 16 bit unsigned data from register or memory cell at specified address of the I2C device.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[out] data - read data
-     * @param[in] endianness - byte order in I2C device
-     *
-     * @retval true if data was read.
-     * @retval false if an error occurred.
-     */
-    inline bool readRegister(uint8_t address, uint16_t &data, Endianness endianness) { return readRegister_impl(address, data, endianness); }
-    /**
-     * @brief This function read 32 bit unsigned data from register or memory cell at specified address of the I2C device.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[out] data - read data
-     * @param[in] endianness - byte order in I2C device
-     *
-     * @retval true if data was read.
-     * @retval false if an error occurred.
-     */
-    inline bool readRegister(uint8_t address, uint32_t &data, Endianness endianness) { return readRegister_impl(address, data, endianness); }
-    inline bool readRegister(uint8_t address, uint64_t &data, Endianness endianness) { return readRegister_impl(address, data, endianness); }
-    // ---------------------------------------------------------------------------- read signed types
-    // ---------------------------------------------------
-    /**@brief This function work same as readRegister(uint8_t address, uint8_t &data) but takes signed parameter.
-         * @remark This function is thread-safe.
-         *
-         * @param[in] address of register/memory cell from data will be read. This address is 8 bit long.
-         * @param[out] data read from the register
-         *
-         * @retval true if writing was successful
-         * @retval false if an error occurred
-         */
-    inline bool readRegister(uint8_t address, int8_t &data) __attribute__((always_inline)) { return readRegister(address, (uint8_t &)data); }
-    /**@brief This function work same as readRegister(uint8_t address, uint16_t &data, Endianness endianness) but takes signed parameter.
-         * @remark This function is thread-safe.
-         *
-         * @param[in] address of register/memory cell from data will be read. This address is 8 bit long.
-         * @param[out] data read from the register
-         * @param[in] endianness - byte order in I2C device
-         *
-         * @retval true if writing was successful
-         * @retval false if an error occurred
-         */
-    inline bool readRegister(uint8_t address, int16_t &data, Endianness endianness) __attribute__((always_inline)) {
-        return readRegister(address, (uint16_t &)data, endianness);
-    }
-    /**@brief This function work same as readRegister(uint8_t address, uint32_t &data, Endianness endianness) but takes signed parameter.
-         * @remark This function is thread-safe.
-         *
-         * @param[in] address of register/memory cell from data will be read. This address is 8 bit long.
-         * @param[out] data read from the register
-         * @param[in] endianness - byte order in I2C device
-         *
-         * @retval true if writing was successful
-         * @retval false if an error occurred
-         */
-    inline bool readRegister(uint8_t address, int32_t &data, Endianness endianness) __attribute__((always_inline)) {
-        return readRegister(address, (uint32_t &)data, endianness);
-    }
-    // ---------------------------------------------------------------------------- write unsigned types
-    // ------------------------------------------------
-    /**@brief This function write data to 8 bit registers.
-     *
-     * @param address address of first register where data will be written
-     * @param buff pointer to buffer witch data to write
-     * @param size number of bytes to be written
-     *
-     * @retval true if writing data was successful
-     * @retval false if an error occurred
-     */
-    bool writeRegisters(uint8_t address, const uint8_t *buff, size_t size) {
-        i2c.lock();
-
-        I2C::Error status = i2c.write(deviceAddress, &address, sizeof(address), buff, size);
-
-        i2c.unlock();
-
+        std::lock_guard<I2C> guard(i2c);
+        typename Register::Type tmp;
+        const auto status =
+            i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<uint8_t *>(&tmp), sizeof(tmp));
         if (status == I2C::Error::None) {
-            return true;
-        } else {
-            lastError = status;
-            return false;
+            if constexpr (reg.requireEndiannessConversion()) {
+                tmp = microhal::convertEndianness(tmp);
+                tmp &= ~mask;
+                tmp |= value & mask;
+                tmp = microhal::convertEndianness(tmp);
+            } else {
+                tmp &= ~mask;
+                tmp |= value & mask;
+            }
+            return i2c.write(deviceAddress, static_cast<const uint8_t *>(&address), sizeof(address), reinterpret_cast<const uint8_t *>(&tmp),
+                             sizeof(tmp));
         }
-    }
-    /**@brief This function write data to 16 bit registers.
-     *
-     * @param address address of first register where data will be written
-     * @param buff pointer to buffer witch data to write
-     * @param size number of bytes to be written
-     *
-     * @retval true if writing data was successful
-     * @retval false if an error occurred
-     */
-    bool writeRegisters(uint8_t address, const uint16_t *buff, size_t size) {
-        return writeRegisters(address, reinterpret_cast<const uint8_t *>(buff), 2 * size);
-    }
-    /**@brief This function write data to 16 bit registers.
-     *
-     * @param address address of first register where data will be written
-     * @param buff pointer to buffer witch data to write
-     * @param size number of bytes to be written
-     *
-     * @retval true if writing data was successful
-     * @retval false if an error occurred
-     */
-    bool writeRegisters(uint8_t address, const uint32_t *buff, size_t size) {
-        return writeRegisters(address, reinterpret_cast<const uint8_t *>(buff), 4 * size);
-    }
-    // ---------------------------------------------------------------------------- read unsigned types
-    // -------------------------------------------------
-    /**@brief This function read 8 bit registers.
-     *
-     * @param[in] address - address of first register
-     * @param[out] buff - pointer to buffer where data will be stored.
-     * @param[in] size - number of bytes to read.
-     *
-     * @retval true if data was read.
-     * @retval false if an error occurred.
-     */
-    bool readRegisters(uint8_t address, uint8_t *buff, size_t size) {
-        i2c.lock();
-
-        I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, buff, size);
-
-        i2c.unlock();
-
-        if (status == I2C::Error::None) {
-            return true;
-        } else {
-            lastError = status;
-            return false;
-        }
-    }
-
-    bool readRegisters(uint8_t address, uint16_t *buffer, size_t size, Endianness endianness);
-    bool readRegisters(uint8_t address, uint32_t *buffer, size_t size, Endianness endianness);
-    // ---------------------------------------------------------------------------- set bits in register
-    // ------------------------------------------------
-    /**@brief This function set bits in 8 bit register.
-     * @remark This function is thread-safe.
-     *
-     * @param address of register/memory cell where bits will be set. This address is 8 bit long.
-     * @param bits to set. When 1 then corresponding bits in register will be set.
-     *
-     * @retval true if bit was set.
-     * @retval false if an error occurred.
-     */
-    inline bool setBitsInRegister(uint8_t address, uint8_t bits) {
-        i2c.lock();
-
-        uint8_t data;
-        bool status = readRegister_noLock(address, data);
-        if (status == true) {
-            data |= bits;
-            status = writeRegister_noLock(address, data);
-        }
-
-        i2c.unlock();
         return status;
     }
     /**
-     * @brief This function set bits in 16bit unsigned register.
+     * @brief This function allow you to read multiple register in one I2C transaction.
+     * This function automatically handle endianness conversion.
+     *
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] bits - if 1 then corresponding bit will be set.
-     * @param[in] endianness - byte order in I2C device.
+     * @param[in] array where register values will be stored.
+     * @param reg registers to read. This registers have to be sorted in rising order and be continuous.
      *
-     * @retval true if bits was set.
-     * @retval false if an error occurred.
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    bool setBitsInRegister(uint8_t address, uint16_t bits, Endianness endianness);
-    /**
-     * @brief This function set bits in 32bit unsigned register.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] bits - if 1 then corresponding bit will be set.
-     * @param[in] endianness - byte order in I2C device.
-     *
-     * @retval true if bits was set.
-     * @retval false if an error occurred.
-     */
-    bool setBitsInRegister(uint8_t address, uint32_t bits, Endianness endianness);
-    // ---------------------------------------------------------------------------- clear bits in register
-    // ----------------------------------------------
-    /**@brief This function clears bits in 8 bit register.
-     * @remark This function is thread-safe.
-     *
-     * @param address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param bits to clear. When 1 then corresponding bit will be cleared.
-     *
-     * @retval true if bit was set
-     * @retval false if an error occurred
-     */
-    bool clearBitsInRegister(uint8_t address, uint8_t bits) {
-        i2c.lock();
-
-        uint8_t data;
-        bool status = readRegister_noLock(address, data);
-        if (status == true) {
-            data &= ~bits;
-            status = writeRegister_noLock(address, data);
+    template <typename ArrayType, size_t N, typename... Registers>
+    I2C::Error readMultipleRegisters(std::array<ArrayType, N> &array, Registers... reg) {
+        static_assert(sizeof...(reg) > 1, "You are trying to read only one register, please use write function.");
+        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>, "Incompatible array type with register types.");
+        if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
+            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
         }
+        microhal::isContinous(reg...);
+        microhal::accessCheck<Access::WriteOnly>(reg...);
 
-        i2c.unlock();
+        const auto firstReg = microhal::first(reg...);
+
+        const auto registerAddress = firstReg.getAddress();
+        auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress),
+                                    reinterpret_cast<uint8_t *>(array.data()), array.size() * sizeof(ArrayType));
+        convertEndianness(array, reg...);
         return status;
     }
     /**
-     * @brief This function clears bits in 16 bit unsigned register.
+     * @brief This function allow you to read few register in one I2C transaction.
+     * This function automatically handle endianness conversion.
+     *
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] bits to clear. When 1 then corresponding bit will be cleared.
-     * @param[in] endianness - byte order in the I2C device
+     * @param[in] tuple where register values will be stored.
+     * @param reg registers to read. This registers have to be sorted in rising order and continuous.
      *
-     * @retval true if bits was cleared successful.
-     * @retval false if an error occurred.
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    bool clearBitsInRegister(const uint8_t address, uint16_t bits, Endianness endianness);
-    /**
-     * @brief This function clears bits in 32 bit unsigned register.
-     * @remark This function is thread-safe.
-     *
-     * @param[in] address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param[in] bits to clear. When 1 then corresponding bit will be cleared.
-     * @param[in] endianness - byte order in the I2C device
-     *
-     * @retval true if bits was cleared successful.
-     * @retval false if an error occurred.
-     */
-    bool clearBitsInRegister(const uint8_t address, uint32_t bits, Endianness endianness);
-    // ---------------------------------------------------------------------------- write bits in register with mask
-    // ------------------------------------
-    /**@brief This function write bits from data parameter to 8bit register but only bits set to one in mask parameter are changed.
-     * @remark This function is thread-safe.
-     *
-     * @param address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param data to write
-     * @param mask if set then corresponding bit in register will be written.
-     *
-     * @retval true if bits was set
-     * @retval false if an error occurred
-     */
-    inline bool writeRegisterWithMask(uint8_t address, uint8_t data, uint8_t mask) {
-        bool status = false;
-        i2c.lock();
+    template <typename... Registers>
+    I2C::Error readMultipleRegisters(std::tuple<typename Registers::Type...> &data, Registers... reg) {
+        static_assert(sizeof...(reg) > 1, "You are trying to read only one register, please use write function.");
+        microhal::accessCheck<Access::WriteOnly>(reg...);
+        microhal::isContinous(reg...);
+        const auto firstReg = microhal::first(reg...);
+        uint8_t tmp[sizeOfRegistersData(reg...)];
 
-        uint8_t readData;
-        if (readRegister_noLock(address, readData)) {
-            // clear bits
-            readData &= ~mask;
-            // set new value
-            readData |= (data & mask);
-            status = writeRegister_noLock(address, readData);
-        }
-
-        i2c.unlock();
+        const auto registerAddress = firstReg.getAddress();
+        auto status = i2c.writeRead(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress), tmp, sizeof(tmp));
+        setTuple<0>(data, tmp, reg...);
         return status;
     }
-    /**@brief This function write bits from data parameter to 8bit register but only bits set to one in mask parameter are changed.
+    /**
+     * @brief This function allow you to write few register in one I2C transaction.
+     * This function automatically handle endianness conversion.
+     *
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
-     * @param address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param data to write
-     * @param mask if set then corresponding bit in register will be written.
-     * @param[in] endianness - byte order in the I2C device
+     * @param[in] array with data that will be written into registers.
+     * @param reg registers to write. This registers have to be sorted in rising order and continuous.
      *
-     * @retval true if bits was set
-     * @retval false if an error occurred
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    bool writeRegisterWithMask(uint8_t address, uint16_t data, uint16_t mask, Endianness endianness);
-    /**@brief This function write bits from data parameter to 8bit register but only bits set to one in mask parameter are changed.
+    template <typename ArrayType, size_t N, typename... Registers>
+    I2C::Error writeMultipleRegisters(const std::array<ArrayType, N> &array, Registers... reg) {
+        static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
+        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>,
+                      "Incompatible array and register types. Using this function you can write data into registers with the same type and your "
+                      "array have to have the same type as registers. If you want to write multiple registers with different types please use "
+                      "std::tuple instead of std::aray.");
+        if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
+            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+        }
+        isContinous(reg...);
+        accessCheck<Access::ReadOnly>(reg...);
+
+        const auto firstReg = microhal::first(reg...);
+        const auto registerAddress = firstReg.getAddress();
+
+        std::array<ArrayType, N> tmpArray = array;
+        convertEndianness(tmpArray, reg...);
+        return i2c.write(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress),
+                         reinterpret_cast<const uint8_t *>(tmpArray.data()), tmpArray.size() * sizeof(ArrayType));
+    }
+    /**
+     * @brief This function allow you to write few register in one I2C transaction.
+     * This function automatically handle endianness conversion.
+     *
      * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
      *
-     * @param address of register/memory cell where data will be written. This address is 8 bit long.
-     * @param data to write
-     * @param mask if set then corresponding bit in register will be written.
-     * @param[in] endianness - byte order in the I2C device
+     * @param[in] tuple with data that will be written into registers.
+     * @param reg registers to write. This registers have to be sorted in rising order and continuous.
      *
-     * @retval true if bits was set
-     * @retval false if an error occurred
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
      */
-    bool writeRegisterWithMask(uint8_t address, uint32_t data, uint32_t mask, Endianness endianness);
+    template <typename... tupleTypes, typename... Registers>
+    I2C::Error writeMultipleRegisters(const std::tuple<tupleTypes...> &data, Registers... reg) {
+        static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
+        static_assert(sizeof...(tupleTypes) == sizeof...(Registers), "");
+        static_assert(std::conjunction_v<std::is_same<tupleTypes, typename Registers::Type>...>, "Incompatible tuple and register types.");
+        microhal::accessCheck<Access::ReadOnly>(reg...);
+        isContinous(reg...);
+
+        const auto firstReg = microhal::first(reg...);
+        const auto registerAddress = firstReg.getAddress();
+        uint8_t tmp[sizeOfRegistersData(reg...)];
+        setArrayFromTuple<0>(tmp, data, reg...);
+        return i2c.write(deviceAddress, static_cast<const uint8_t *>(&registerAddress), sizeof(registerAddress), tmp, sizeof(tmp));
+    }
 
  private:
     I2C &i2c;
     const DeviceAddress deviceAddress;  ///< address of I2C slave device
-    I2C::Error lastError;
 
-    template <typename T>
-    inline bool writeRegister_impl(uint8_t address, T data, Endianness endianness) {
-        // convert endianness if needed
-        if (endianness != hardware::Device::endianness) {
-            // do conversion
-            data = byteswap(data);
+    template <size_t i, typename Tuple, typename Register, typename... Registers>
+    constexpr void setTuple(Tuple &tuple, const uint8_t *data, Register reg, Registers... regs) {
+        (void)reg;
+        using DataType = typename Register::Type;
+        DataType value = *reinterpret_cast<const DataType *>(data);
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
         }
-        // write registers
-        return writeRegisters(address, reinterpret_cast<uint8_t *>(&data), sizeof(T));
+        std::get<i>(tuple) = value;
+        if constexpr (sizeof...(regs)) setTuple<i + 1>(tuple, data + sizeof(DataType), regs...);
     }
 
-    template <typename T>
-    inline bool readRegister_impl(uint8_t address, T &data, Endianness endianness) {
-        if (readRegisters(address, reinterpret_cast<uint8_t *>(&data), sizeof(T))) {
-            // convert endianness if needed
-            if (endianness != hardware::Device::endianness) {
-                // do conversion
-                data = byteswap(data);
-            }
+    template <size_t i, typename Tuple, typename Register, typename... Registers>
+    void setArrayFromTuple(uint8_t *array, const Tuple &tuple, Register reg, Registers... regs) {
+        using DataType = typename std::tuple_element<i, Tuple>::type;
+        static_assert(std::is_same<DataType, typename Register::Type>::value, "Tuple types and registers types are incompatible.");
 
-            return true;
+        DataType value = std::get<i>(tuple);
+        if constexpr (reg.requireEndiannessConversion()) {
+            *reinterpret_cast<DataType *>(array) = microhal::convertEndianness(value);
         } else {
-            return false;
+            *reinterpret_cast<DataType *>(array) = value;
         }
-    }
-    /**
-     * @brief This function read few registers from I2C device.
-     *
-     * @param[in] registerAddress - address of first register to read.
-     * @param[out] buffer - pointer to buffer where read data will be stored.
-     * @param[in] size - number of registers to read
-     * @param[in] endianness - byte order in I2C device
-     *
-     * @retval true if data was read
-     * @retval false if an error occurred.
-     */
-    template <typename T>
-    bool readRegisters_impl(uint8_t registerAddress, T *buffer, size_t size, Endianness endianness) {
-        if (readRegisters(registerAddress, (uint8_t *)buffer, sizeof(T) * size) == true) {
-            // convert endianness if needed
-            if (endianness != hardware::Device::endianness) {
-                // do conversion
-                for (size_t i = 0; i < size; i++) {
-                    buffer[i] = byteswap(buffer[i]);
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
+        if constexpr (sizeof...(regs)) setArrayFromTuple<i + 1>(array + sizeof(DataType), tuple, regs...);
     }
 
-    template <typename T>
-    bool setBitsInRegister_impl(uint8_t address, T bitMask, Endianness endianness);
-
-    template <typename T>
-    bool clearBitsInRegister_impl(uint8_t address, T bitMask, Endianness endianness);
-
-    template <typename T>
-    bool writeRegisterWithMask_impl(uint8_t address, T data, T mask, Endianness endianness);
-
-    inline bool readRegister_noLock(uint8_t address, uint8_t &data) {
-        I2C::Error status = i2c.writeRead(deviceAddress, &address, 1, &data, 1);
-
-        if (status == I2C::Error::None) {
-            return true;
-        } else {
-            lastError = status;
-            return false;
+    template <typename Type, size_t N, typename Register, typename... Registers>
+    void convertEndianness(std::array<Type, N> &array, Register reg, Registers... regs) {
+        auto index = array.size() - sizeof...(Registers) - 1;
+        if constexpr (reg.requireEndiannessConversion()) {
+            array[index] = microhal::convertEndianness(array[index]);
         }
-    }
-    inline bool writeRegister_noLock(uint8_t address, const uint8_t data) {
-        I2C::Error status = i2c.write(deviceAddress, &address, sizeof(address), &data, 1);
-
-        if (status == I2C::Error::None) {
-            return true;
-        }
-        lastError = status;
-        return false;
+        if constexpr (sizeof...(Registers)) convertEndianness(array, regs...);
     }
 };
 /**

@@ -40,6 +40,7 @@
 class M24C16 {
     using Endianness = microhal::Endianness;
     using Error = microhal::I2C::Error;
+    using Access = microhal::Access;
 
  public:
     /**
