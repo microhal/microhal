@@ -12,7 +12,7 @@ def getSerialPort(target):
 
 def getInterfaceSerialNumber(target):
     if target == 'NUCLEO-F411RE':
-        return '0677FF494851877267034154'
+        return '066EFF554856805087095024'
     if target == 'NUCLEO-F334R8':
         return '0668FF545150656767231018'
     if target == 'stm32f4-discovery':

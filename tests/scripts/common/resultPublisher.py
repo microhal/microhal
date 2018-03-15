@@ -35,3 +35,32 @@ def showResult(data):
     print '\n'
     print tabulate(printableTable, headers=header, tablefmt='orgtbl')
     print '\n'
+    
+def showFoundProjects(projects):
+    from tabulate import tabulate
+    
+    tests = set()
+    targets = set()
+    
+    for project in projects:
+        targets.update(project.targets)
+        tests.add(project.projectName())
+    
+    table = createEmptyTable(tests, targets)
+    for project in projects:
+        for target in project.targets:
+            table[project.projectName()][target] = project.testType
+
+    printableTable = []
+    for test in tests:                
+        tmp = [test]
+        for target in targets:
+            tmp.append(table[test][target])
+        printableTable.append(tmp)
+
+    header = ['test Name']
+    for x in targets:
+        header.append(x)
+    print '\n'
+    print tabulate(printableTable, headers=header, tablefmt='orgtbl')
+    print '\n'
