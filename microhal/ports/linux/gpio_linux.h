@@ -50,7 +50,7 @@ class GPIO {
     /**
      * This enum contain port list.
      */
-    typedef enum { GPIO } Port;
+    typedef enum { GPIOA } Port;
     /**
      *
      */
