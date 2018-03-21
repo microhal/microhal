@@ -3,7 +3,9 @@ import re
 testType = 'deviceTest'
 targets = ['NUCLEO-F411RE', 'NUCLEO-F334R8', 'stm32f4-discovery']
 executionTime = 1
-requireHardware = False
+requireHardware = True
+requireDevice = True
+deviceName = 'bmp180'
 	
 def projectName():
 	return 'bmp180'	
@@ -12,11 +14,14 @@ def binaryName(configuration):
 	return 'bmp180.elf'
 	
 def passed(data):				
-	correctOutput =("\n\r------------------- BMP180 Demo -------------------------\n\r")
-															
-	if (data.startswith(correctOutput) == False):		
+	correctOutput =("\n\r------------------- BMP180 Demo -------------------------\n\r"
+	                "BMP180 ID = 0x55\n\r"
+	                "Temperature: \d+ Celcius, pressure: \d+ Pa\n\r")
+	                
+	reg = re.compile(correctOutput)
+	if reg.match(data) == None:			
 		print 'length of received data =' + str(len(data))
 		print 'length of correct data =' + str(len(correctOutput))
 		print data		
 		
-	return data.startswith(correctOutput)
+	return reg.match(data) != None

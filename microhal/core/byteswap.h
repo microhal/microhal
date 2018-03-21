@@ -46,6 +46,7 @@ constexpr static inline T convertEndiannessIfRequired(T data, Endianness endiann
 template <typename T>
 constexpr static inline T convertEndianness(T data) {
     if constexpr (std::is_same<T, microhal::uint24_t>::value) {
+        data.byteswap();
         return data;
     } else {
         return static_cast<T>(byteswap(static_cast<typename std::make_unsigned<T>::type>(data)));

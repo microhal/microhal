@@ -1,7 +1,7 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      board support package for nucleo-f411re board
  *
@@ -9,7 +9,7 @@
  * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2016-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,23 +33,29 @@
 #include "bsp.h"
 
 using namespace microhal;
-using namespace stm32f4xx;
 
-void hardwareConfig(void) {
-    (void)bsp::bmp180::i2c;
-    (void)bsp::debugPort;
-    // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+void bsp::init() {
+    stm32f4xx::IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
+    stm32f4xx::IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
-
-    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
+    stm32f4xx::IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
+    stm32f4xx::IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
 
     stm32f4xx::I2C::i2c1.init();
     stm32f4xx::I2C::i2c1.speed(100000, microhal::I2C::Mode::Standard);
     stm32f4xx::I2C::i2c1.enable();
+
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
+}
+
+void hardwareConfig(void) {
+    (void)bsp::bmp180::i2c;
+    // Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
 
     SysTick_Config(84000000 / 1000);
 }

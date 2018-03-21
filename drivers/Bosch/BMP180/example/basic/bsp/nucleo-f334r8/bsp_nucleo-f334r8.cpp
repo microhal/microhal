@@ -1,7 +1,7 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      board support package for nucleo-f334r8 board
  *
@@ -9,7 +9,7 @@
  * created on: 14-03-2017
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2017, Paweł Okas
+ * @copyright Copyright (c) 2017 - 2018, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,28 +32,34 @@
 #include "microhal.h"
 
 using namespace microhal;
-using namespace stm32f3xx;
 using namespace diagnostic;
+
+void bsp::init() {
+    stm32f3xx::IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
+    stm32f3xx::IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+
+    stm32f3xx::IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
+    stm32f3xx::IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
+
+    stm32f3xx::I2C::i2c1.init();
+    stm32f3xx::I2C::i2c1.speed(100000, microhal::I2C::Mode::Standard);
+    stm32f3xx::I2C::i2c1.enable();
+
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
+}
 
 void hardwareConfig(void) {
     (void)bsp::bmp180::i2c;
-    (void)bsp::debugPort;
     Core::fpu_enable();
     stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
     stm32f3xx::ClockManager::PLL::frequency(51200000);
     stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
     while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
         ;
-
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
-
-    IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
-
-    stm32f3xx::I2C::i2c1.init();
-    stm32f3xx::I2C::i2c1.speed(100000, microhal::I2C::Mode::Standard);
-    stm32f3xx::I2C::i2c1.enable();
 
     SysTick_Config(512000000 / 1000);
 }

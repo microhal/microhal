@@ -30,6 +30,7 @@
 #ifndef BMP180_H_
 #define BMP180_H_
 
+#include <optional>
 #include "I2CDevice/I2CDevice.h"
 #include "microhal.h"
 
@@ -40,9 +41,13 @@
  * @}
  */
 class BMP180 : public microhal::I2CDevice {
+ public:
+    using Error = microhal::I2C::Error;
+
+ private:
     using Endianness = microhal::Endianness;
     using Access = microhal::Access;
-    using Error = microhal::I2C::Error;
+
     // create alias to microhal::Address, we just want to type less
     template <typename T, T i>
     using Address = microhal::Address<T, i>;
@@ -57,8 +62,19 @@ class BMP180 : public microhal::I2CDevice {
         static constexpr auto OUT_MSB = microhal::makeRegister<microhal::uint24_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xF6>{});
         static constexpr auto OUT = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xF6>{});
         static constexpr auto CTRL_MEAS = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0xF4>{});
-        static constexpr auto SOFT_RESET = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0xE0>{});
+        static constexpr auto SOFT_RESET = microhal::makeRegister<uint8_t, Access::WriteOnly>(Address<uint8_t, 0xE0>{});
         static constexpr auto ID = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0xD0>{});
+        static constexpr auto AC1 = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xAA>{});
+        static constexpr auto AC2 = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xAC>{});
+        static constexpr auto AC3 = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xAE>{});
+        static constexpr auto AC4 = microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xB0>{});
+        static constexpr auto AC5 = microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xB2>{});
+        static constexpr auto AC6 = microhal::makeRegister<uint16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xB4>{});
+        static constexpr auto B1 = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xB6>{});
+        static constexpr auto B2 = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xB8>{});
+        static constexpr auto MB = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xBA>{});
+        static constexpr auto MC = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xBC>{});
+        static constexpr auto MD = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0xBE>{});
     };
     /**
      *
@@ -90,94 +106,135 @@ class BMP180 : public microhal::I2CDevice {
     enum ConstRegisterValues {
         ID_VALUE = 0x55,  //!< ID VALUE
     };
-    /**
-     *
-     * @param i2cNo
-     */
+    enum class Oversampling { None = 0b00, TwoTimes = 0b01, FourTimes = 0b10, EightTimes = 0b11 };
+
     BMP180(microhal::I2C &i2c) : I2CDevice(i2c, DEFAULT_ADDRESS) {}
-    /** @brief This function read calibration coefficient
-     *
-     * @return
-     */
+
     bool init() {
         if (getDeviceID() == ID_VALUE) {
-            if (readCalibrationData() == true) {
+            if (readCalibrationData() == Error::None) {
                 return true;
             }
         }
         return false;
     }
-    inline uint8_t getDeviceID();
-    inline Error reset();
-    inline Error startConversion();
-    inline bool isNewDataRedy();
+
+    uint8_t getDeviceID() {
+        uint8_t id;
+
+        if (readRegister(Register::ID, id) == Error::None) {
+            return id;
+        } else {
+            return 0;
+        }
+    }
+
+    Error reset() { return writeRegister(Register::SOFT_RESET, static_cast<uint8_t>(0xB6)); }
+
+    struct TemperatureAndPressure {
+        int32_t temperature;
+        uint32_t pressure;
+    };
+    std::optional<TemperatureAndPressure> getTemperatureAndPressure(Oversampling oversampling) {
+        if (auto ut = getUncompensatedTemperature()) {
+            if (auto up = getUncompensatedPressure(oversampling)) {
+                auto b5 = calculateB5(*ut);
+                auto temp = calculateTrueTemperature(b5);
+                auto pressure = calculateTruePressure(*up, oversampling, b5);
+                return TemperatureAndPressure{temp, pressure};
+            }
+        }
+        return {};
+    }
 
  private:
     CalibrationCoefficients calibrationCoefs;
 
-    bool readCalibrationData();
-    inline bool update();
-};
-
-uint8_t BMP180::getDeviceID() {
-    uint8_t id;
-
-    if (readRegister(Register::ID, id) == Error::None) {
-        return id;
-    } else {
-        return 0;
+    bool waitForDataReady() {
+        uint16_t i = 0;
+        while (isNewDataRedy() == false) {
+            i++;
+            if (i > 2000) return false;
+        }
+        return true;
     }
-}
-/**
- *
- * @return
- */
-microhal::I2C::Error BMP180::reset() {
-    return writeRegister(Register::SOFT_RESET, static_cast<uint8_t>(0xB6));
-}
-/**
- *
- * @return
- */
-microhal::I2C::Error BMP180::startConversion() {
-    return setBitsInRegister(Register::CTRL_MEAS, CTRL_MEAS_SCO);
-}
-/**
- *
- * @return
- */
-bool BMP180::isNewDataRedy() {
-    uint8_t ctrl;
-    static bool lastConversionInRun = false;
 
-    if (readRegister(Register::CTRL_MEAS, ctrl) == Error::None) {
-        if (ctrl & CTRL_MEAS_SCO) {
-            lastConversionInRun = true;
-        } else {
-            if (lastConversionInRun == true) {
-                lastConversionInRun = false;
-                return true;
+    Error startTemperatureConversion() { return writeRegister(Register::CTRL_MEAS, CTRL_MEAS_SCO | 0x0E); }
+    Error startPressureConversion(Oversampling oversampling) {
+        return writeRegister(Register::CTRL_MEAS, CTRL_MEAS_SCO | (static_cast<uint8_t>(oversampling) << 6) | 0x14);
+    }
+
+    bool isNewDataRedy() {
+        uint8_t ctrl;
+        if (readRegister(Register::CTRL_MEAS, ctrl) == Error::None) {
+            return (ctrl & CTRL_MEAS_SCO) == 0;
+        }
+        return false;
+    }
+
+    std::optional<int16_t> getUncompensatedTemperature() {
+        if (startTemperatureConversion() == Error::None) {
+            std::this_thread::sleep_for(std::chrono::milliseconds{5});
+            if (waitForDataReady()) {
+                int16_t ut;
+                if (readRegister(Register::OUT, ut) == Error::None) {
+                    return ut;
+                }
             }
         }
+        return {};
     }
-    return false;
-}
 
-bool BMP180::update() {
-    int16_t ut;
-    int32_t up;
-    microhal::uint24_t buff;
-    // read uncompressed temperature value
-    if (readRegister(Register::OUT, ut) == Error::None) {
-        // read uncompressed pressure value
-        if (readRegister(Register::OUT_MSB, buff) == Error::None) {
-            up = buff;
-            // calculate true temperature
-            int32_t x1 = (ut - calibrationCoefs.AC6) * calibrationCoefs.AC5 / 2 << 15;
-            int32_t x2 = calibrationCoefs.MC * 2 << 11 / (x1 + calibrationCoefs.MD);
-            int32_t b5 = x1 + x2;
-            int32_t temp = (b5 + 8) / 2 << 4;
+    std::optional<int32_t> getUncompensatedPressure(Oversampling oversampling) {
+        const std::chrono::milliseconds conversionTime[] = {std::chrono::milliseconds{5}, std::chrono::milliseconds{8}, std::chrono::milliseconds{14},
+                                                            std::chrono::milliseconds{26}};
+        if (startPressureConversion(oversampling) == Error::None) {
+            std::this_thread::sleep_for(conversionTime[static_cast<uint8_t>(oversampling)]);
+            if (waitForDataReady()) {
+                microhal::uint24_t buff;
+                if (readRegister(Register::OUT_MSB, buff) == Error::None) {
+                    uint32_t up = buff;
+                    up >>= 8 - static_cast<uint8_t>(oversampling);
+                    return up;
+                }
+            }
         }
+        return {};
     }
-}
+
+    constexpr int32_t calculateB5(int32_t uncompensatedTemperature) {
+        int32_t x1 = (static_cast<int32_t>(uncompensatedTemperature - calibrationCoefs.AC6) * calibrationCoefs.AC5) / (1 << 15);
+        int32_t x2 = calibrationCoefs.MC * (1 << 11) / (x1 + calibrationCoefs.MD);
+        int32_t b5 = x1 + x2;
+        return b5;
+    }
+    constexpr int32_t calculateTrueTemperature(int32_t b5) const {
+        int32_t temp = (b5 + 8) / (1 << 4);
+        return temp;
+    }
+
+    constexpr uint32_t calculateTruePressure(int32_t uncompensatedPressure, Oversampling oversampling, int32_t b5) const {
+        uint8_t oss = static_cast<uint8_t>(oversampling);
+        int32_t b6 = b5 - 4000;
+        int32_t x1 = (calibrationCoefs.B2 * (b6 * b6 / (1 << 12))) / (1 << 11);
+        int32_t x2 = calibrationCoefs.AC2 * b6 / (1 << 11);
+        int32_t x3 = x1 + x2;
+        int32_t ac1 = calibrationCoefs.AC1;
+        int32_t b3 = (((ac1 * 4 + x3) << oss) + 2) / 4;
+        x1 = calibrationCoefs.AC3 * b6 / (1 << 13);
+        x2 = (calibrationCoefs.B1 * (b6 * b6 / (1 << 12))) / (1 << 16);
+        x3 = ((x1 + x2) + 2) / (1 << 2);
+        uint32_t b4 = calibrationCoefs.AC4 * static_cast<uint32_t>(x3 + 32768) / (1 << 15);
+        uint32_t b7 = static_cast<uint32_t>(uncompensatedPressure - b3) * (50000 >> oss);
+        int32_t p = b7 < 0x80000000 ? (b7 * 2) / b4 : (b7 / b4) * 2;
+        x1 = (p / (1 << 8)) * (p / (1 << 8));
+        x1 = (x1 * 3038) / (1 << 16);
+        x2 = (-7357 * p) / (1 << 16);
+        p = p + (x1 + x2 + 3791) / (1 << 4);
+        return p;
+    }
+
+    Error readCalibrationData();
+};
+
 #endif /* BMP180_H_ */
