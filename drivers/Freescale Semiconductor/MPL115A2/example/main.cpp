@@ -46,7 +46,7 @@ int main() {
     debugPort.open(SerialPort::ReadWrite);
     debugPort.setBaudRate(SerialPort::Baud115200);
 
-    debugPort.write("\n\r------------------- MPL115 Demo -------------------------\n\r");
+    debugPort.write("\n\r------------------- MPL115A2 Demo -------------------------\n\r");
 
     diagChannel.setOutputDevice(debugPort);
 

@@ -14,7 +14,7 @@ def binaryName(configuration):
 	return 'mpl115a2.elf'
 	
 def passed(data):				
-	correctOutput =("\n\r------------------- MPL3115 Demo -------------------------\n\r\n\r\d+ microHAL, main.cpp:57, Debug, D6C42C365:	Initializing MPL115A2...OKPressure: \d+.\d+")
+	correctOutput =("\n\r------------------- MPL115A2 Demo -------------------------\n\r\n\r\d+ microHAL, main.cpp:57, Debug, D6C42C365:	Initializing MPL115A2...OKPressure: \d+.\d+")
 					
 	reg = re.compile(correctOutput)
 	if reg.match(data) == None:			
