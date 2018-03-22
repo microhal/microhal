@@ -35,10 +35,7 @@
 using namespace microhal;
 using namespace stm32f3xx;
 
-void hardwareConfig(void) {
-    // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
-
+void bsp::init() {
     IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
 
@@ -54,6 +51,11 @@ void hardwareConfig(void) {
     stm32f3xx::I2C::i2c1.init();
     stm32f3xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);
     stm32f3xx::I2C::i2c1.enable();
+}
+
+void hardwareConfig(void) {
+    // Core::pll_start(8000000, 168000000);
+    Core::fpu_enable();
 
     SysTick_Config(8000000 / 1000);
 }

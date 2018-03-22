@@ -29,6 +29,7 @@
 #define _MICROHAL_TEMPERATURE_H_
 
 #include <cstdint>
+#include "diagnostic/diagnostic.h"
 
 namespace microhal {
 
@@ -87,6 +88,11 @@ class Temperature {
  private:
     float temperature;  // in Kelvin degree
 };
+
+template <microhal::diagnostic::LogLevel level, bool B>
+inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, Temperature temp) {
+    return logChannel << temp.getCelsius() << " \u00B0C";
+}
 
 } /* namespace microhal */
 

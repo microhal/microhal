@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,17 +24,22 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
 
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
-#include "i2c.h"
+#include "microhal.h"
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial1;
+namespace bsp {
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 
-static microhal::I2C &sensorI2C = microhal::stm32f4xx::I2C::i2c2;
+void init();
 
+namespace mpl3115a2 {
+static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c2;
+}
 constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
 constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
 constexpr microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
@@ -44,5 +49,5 @@ constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
 
 constexpr microhal::GPIO::IOPin GreenLed = Led4;
 constexpr microhal::GPIO::IOPin RedLed = Led3;
-
+}  // namespace bsp
 #endif /* STM32F4DISCOVERY_H_ */

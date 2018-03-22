@@ -46,7 +46,7 @@ class Pressure {
 template <microhal::diagnostic::LogLevel level, bool B, typename T>
 inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel,
                                                                   const Pressure<T>& pressure) {
-    return logChannel << pressure.getRAW();
+    return logChannel << pressure.getRAW() << " Pa";
 }
 
 }  // namespace microhal

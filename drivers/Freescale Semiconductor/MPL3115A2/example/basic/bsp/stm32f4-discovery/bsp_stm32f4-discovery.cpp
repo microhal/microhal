@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,35 +24,44 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             */
 
-#include "microhal.h"
+#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
 #include "i2c.h"
-#include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
+
+void bsp::init() {
+    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+
+    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>(stm32f4xx::GPIO::PullUp);
+    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>(stm32f4xx::GPIO::PullUp);
+
+    bsp::debugPort.setDataBits(microhal::SerialPort::Data8);
+    bsp::debugPort.setStopBits(microhal::SerialPort::OneStop);
+    bsp::debugPort.setParity(microhal::SerialPort::NoParity);
+    bsp::debugPort.open(microhal::SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(microhal::SerialPort::Baud115200);
+
+    stm32f4xx::I2C::i2c2.init();
+    stm32f4xx::I2C::i2c2.speed(100000, microhal::I2C::Mode::Standard);
+    stm32f4xx::I2C::i2c2.enable();
+}
 
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortB, 6>();
-    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortB, 7>();
-
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>(stm32f4xx::GPIO::PullUp);
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>(stm32f4xx::GPIO::PullUp);
-
-    stm32f4xx::I2C::i2c2.init();
-    stm32f4xx::I2C::i2c2.enable();
-
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

@@ -103,6 +103,9 @@ constexpr microhal::GPIO::IOPin Led5(microhal::stm32f3xx::GPIO::Port::PortA, 14)
 constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f3xx::GPIO::Port::PortC, 13);
 constexpr microhal::GPIO::IOPin Sw2(microhal::stm32f3xx::GPIO::Port::PortC, 4);
 // end of microhal extension board definition
+
+void init();
+
 namespace mpl3115a2 {
 static microhal::I2C &i2c = microhal::stm32f3xx::I2C::i2c1;
 }  // namespace mpl3115a2

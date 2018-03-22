@@ -25,7 +25,7 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */ /* ==========================================================================================================================
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         */
 
 #ifndef MPL3115_H_
 #define MPL3115_H_
@@ -47,18 +47,18 @@ class MPL3115 : protected microhal::I2CDevice {
     using Address = microhal::Address<T, i>;
 
     static constexpr auto STATUS = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x00>{});
-    static constexpr auto OUT_P_MSB = microhal::makeRegister<microhal::uint24_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x01>{});
+    static constexpr auto OUT_P = microhal::makeRegister<microhal::uint24_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x01>{});
     // OUT_P_CSB
     // OUT_P_LSB
 
-    static constexpr auto OUT_T_MSB = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x04>{});
+    static constexpr auto OUT_T = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x04>{});
     // OUT_T_LSB
     static constexpr auto DR_STATUS = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x06>{});
-    static constexpr auto OUT_P_DELTA_MSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x07>{});
-    static constexpr auto OUT_P_DELTA_CSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x08>{});
-    static constexpr auto OUT_P_DELTA_LSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x09>{});
+    static constexpr auto OUT_P_DELTA = microhal::makeRegister<microhal::uint24_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x07>{});
+    // static constexpr auto OUT_P_DELTA_CSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x08>{});
+    // static constexpr auto OUT_P_DELTA_LSB = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x09>{});
 
-    static constexpr auto OUT_T_DELTA_MSB = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x0A>{});
+    static constexpr auto OUT_T_DELTA = microhal::makeRegister<int16_t, Access::ReadOnly, Endianness::Big>(Address<uint8_t, 0x0A>{});
     // OUT_T_DELTA_LSB
     static constexpr auto WHO_AM_I = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x0C>{});
     static constexpr auto F_STATUS = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x0D>{});
@@ -68,7 +68,7 @@ class MPL3115 : protected microhal::I2CDevice {
     static constexpr auto SYSMOD = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x11>{});
     static constexpr auto INT_SOURCE = microhal::makeRegister<uint8_t, Access::ReadOnly>(Address<uint8_t, 0x12>{});
     static constexpr auto PT_DATA_CFG = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x13>{});
-    static constexpr auto BAR_IN_MSB = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x14>{});
+    static constexpr auto BAR_IN = microhal::makeRegister<int16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x14>{});
     // BAR_IN_LSB
     static constexpr auto P_TGT_MSB = microhal::makeRegister<uint16_t, Access::ReadWrite, Endianness::Big>(Address<uint8_t, 0x16>{});
     // P_TGT_LSB
@@ -95,7 +95,22 @@ class MPL3115 : protected microhal::I2CDevice {
     static constexpr auto OFF_T = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x2C>{});
     static constexpr auto OFF_H = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x2D>{});
 
+    struct Bitfields {
+        struct DR_STATUS {
+            enum {
+                PressureOrTemperatureDataOverwrite = 0b1000000,
+                PressureDataOverwrite = 0b0100000,
+                TemperatureDataOverwrite = 0b00100000,
+                PresureOrTemperatureNewDataAvailable = 0b00001000,
+                PresureNewDataAvailable = 0b00000100,
+                TemperautreNewDataAvailable = 0b00000010
+            };
+        };
+    };
+
  public:
+    using Pressure = microhal::Pressure<float>;
+    using Temperature = microhal::Temperature;
     /**
      *  Value of fixed registers.
      */
@@ -151,6 +166,8 @@ class MPL3115 : protected microhal::I2CDevice {
         return id;
     }
 
+    Error setSeaLevelPressure(Pressure pressure) { return writeRegister(BAR_IN, pressure.getRAW()); }
+
     std::optional<Mode> readMode() {
         std::optional<Mode> mode;
         uint8_t sysmode;
@@ -169,9 +186,9 @@ class MPL3115 : protected microhal::I2CDevice {
         return intSource;
     }
 
-    Error setOSR(OutputSampleRate osr) { return modifyBitsInRegister(CTRL_REG1, osr, 0x0C); }
+    Error setOSR(OutputSampleRate osr) { return modifyBitsInRegister(CTRL_REG1, osr, 0b00111000); }
 
-    Error setSensingMode(SensingMode mode) { return modifyBitsInRegister(CTRL_REG1, static_cast<uint8_t>(mode), static_cast<uint8_t>(0b1000'0000)); }
+    Error setSensingMode(SensingMode mode) { return modifyBitsInRegister(CTRL_REG1, static_cast<uint8_t>(mode), 0b1000'0000); }
 
     Error setMode(Mode mode) { return setBitsInRegister(CTRL_REG1, static_cast<uint8_t>(mode)); }
 
@@ -180,7 +197,7 @@ class MPL3115 : protected microhal::I2CDevice {
     bool isPressureOrAltitudeReady() {
         uint8_t status;
         if (readRegister(STATUS, status) == Error::None) {
-            if (status & 0x08) {
+            if (status & (Bitfields::DR_STATUS::PresureNewDataAvailable | Bitfields::DR_STATUS::TemperautreNewDataAvailable)) {
                 return true;
             }
         }
@@ -188,15 +205,13 @@ class MPL3115 : protected microhal::I2CDevice {
     }
 
     auto read() {
-        using Pressure = microhal::Pressure<float>;
-        using Temperature = microhal::Temperature;
         using DataType = std::pair<Pressure, Temperature>;
-
         std::optional<DataType> data;
-        int16_t temp;
-        microhal::uint24_t pressure;
+
         std::tuple<microhal::uint24_t, int16_t> regsVal;
-        if (readMultipleRegisters(regsVal, OUT_P_MSB, OUT_T_MSB) == Error::None) {
+        if (readMultipleRegisters(regsVal, OUT_P, OUT_T) == Error::None) {
+            int16_t temp = std::get<int16_t>(regsVal);
+            microhal::uint24_t pressure = std::get<microhal::uint24_t>(regsVal);
             data = std::make_pair(microhal::Pressure(static_cast<float>(pressure) / 64.0f),
                                   microhal::Temperature::fromCelcius(static_cast<float>(temp) / 256.0f));
         }
