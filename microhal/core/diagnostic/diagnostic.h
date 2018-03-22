@@ -230,7 +230,7 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(std::string &string) __attribute__((always_inline)) {
+    inline LogLevelChannel &operator<<(const std::string &string) __attribute__((always_inline)) {
         if (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.writeText(string.c_str(), string.length());
@@ -249,11 +249,13 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(const uint8_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
+    inline LogLevelChannel &operator<<(uint8_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
 
-    inline LogLevelChannel &operator<<(const uint16_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
-
-    inline LogLevelChannel &operator<<(const uint32_t i) __attribute__((always_inline)) {
+    inline LogLevelChannel &operator<<(uint16_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
+#ifndef LINUX_PORT
+    inline LogLevelChannel &operator<<(unsigned int i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
+#endif
+    inline LogLevelChannel &operator<<(uint32_t i) __attribute__((always_inline)) {
         if (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);
@@ -262,7 +264,7 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(const uint64_t i) __attribute__((always_inline)) {
+    inline LogLevelChannel &operator<<(uint64_t i) __attribute__((always_inline)) {
         if (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);
@@ -275,7 +277,7 @@ class LogLevelChannel {
 
     inline LogLevelChannel &operator<<(int16_t i) __attribute__((always_inline)) { return operator<<(static_cast<const int32_t>(i)); }
 
-    inline LogLevelChannel &operator<<(const int32_t i) __attribute__((always_inline)) {
+    inline LogLevelChannel &operator<<(int32_t i) __attribute__((always_inline)) {
         if (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);
@@ -284,7 +286,7 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(const int64_t i) __attribute__((always_inline)) {
+    inline LogLevelChannel &operator<<(int64_t i) __attribute__((always_inline)) {
         if (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);

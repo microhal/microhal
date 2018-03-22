@@ -173,7 +173,7 @@ class Diagnostic_base {
      * @param data
      * @param radix
      */
-    void write(const uint32_t data, uint8_t radix) {
+    void write(uint32_t data, uint8_t radix) {
         char buffer[33];
 
         switch (radix) {
@@ -191,7 +191,7 @@ class Diagnostic_base {
         insertSpace();
     }
 
-    void write(const uint64_t data, uint8_t radix) {
+    void write(uint64_t data, uint8_t radix) {
         char buffer[65];
 
         switch (radix) {
@@ -213,7 +213,7 @@ class Diagnostic_base {
      * @param data
      * @param radix
      */
-    void write(const int32_t data, uint8_t radix) {
+    void write(int32_t data, uint8_t radix) {
         char buffer[33];
 
         switch (radix) {
@@ -232,7 +232,7 @@ class Diagnostic_base {
         insertSpace();
     }
 
-    void write(const int64_t data, uint8_t radix) {
+    void write(int64_t data, uint8_t radix) {
         char buffer[65];
 
         switch (radix) {
@@ -267,11 +267,13 @@ class Diagnostic_base {
      * @param d
      */
     void write(double d) {
-        char buffer[10];
+        char buffer[20];
 
-        int len = snprintf(buffer, sizeof(buffer), "%f", d);
-        writeText(buffer, len);
-        insertSpace();
+        auto len = snprintf(buffer, sizeof(buffer), "%f", d);
+        if (len > 0) {
+            writeText(buffer, len < sizeof(buffer) ? len : sizeof(buffer));
+            insertSpace();
+        }
     }
 
     void printHeader(const LogLevelHeader_base &logHeader, const LogLevel level);
