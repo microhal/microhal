@@ -252,7 +252,7 @@ class LogLevelChannel {
     inline LogLevelChannel &operator<<(uint8_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
 
     inline LogLevelChannel &operator<<(uint16_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
-#ifndef LINUX_PORT
+#if !defined LINUX_PORT && !defined WINDOWS_PORT
     inline LogLevelChannel &operator<<(unsigned int i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
 #endif
     inline LogLevelChannel &operator<<(uint32_t i) __attribute__((always_inline)) {
@@ -343,8 +343,8 @@ class LogLevelChannel {
 
     //----------------------------------------- constructors ----------------------------------
     // because this constructor is private object of this class can be created by two friend operator
-    explicit constexpr LogLevelChannel(LogLevel logLevel, Diagnostic<compileTimeLogLevel> &diagnostic) noexcept : logLevel(logLevel),
-                                                                                                                  diagnostic(diagnostic) {}
+    explicit constexpr LogLevelChannel(LogLevel logLevel, Diagnostic<compileTimeLogLevel> &diagnostic) noexcept
+        : logLevel(logLevel), diagnostic(diagnostic) {}
 
     //----------------------------------------- friends ----------------------------------
     friend Diagnostic<compileTimeLogLevel>;
