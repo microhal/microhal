@@ -36,8 +36,8 @@ def passed(data):
 					"\n\r\d+ microHAL, main\.cpp:148, Emergency, E750DAD6C:	end of example, I hope it was useful.")
 	reg = re.compile(correctOutput)
 	if reg.match(data) == None:
-	#if (data != correctOutput):		
 		print 'length of received data =' + str(len(data))
-		print 'length of correct data =' + str(len(correctOutput))		
+		print 'length of correct data =' + str(len(correctOutput))
+		print data
 		
 	return reg.match(data) != None
