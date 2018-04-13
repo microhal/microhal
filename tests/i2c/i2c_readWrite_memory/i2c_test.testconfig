@@ -8,10 +8,10 @@ requireDevice = True
 deviceName = 'm24c16'
 	
 def projectName():
-	return 'm24c16'	
+	return 'i2c_readWrite_memory'	
 	
 def binaryName(configuration):
-	return 'm24c16.elf'
+	return 'i2c_readWrite_memory.elf'
 	
 def passed(data):				
 	correctOutput =("\n\r----------------- M24C16 Demo -----------------\n\r"
