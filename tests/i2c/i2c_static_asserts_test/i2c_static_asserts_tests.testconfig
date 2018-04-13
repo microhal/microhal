@@ -1,7 +1,7 @@
 import re
 
 targets = ['jenkins']
-testType = 'buildOnly'
+testType = 'nonstandard'
 requireHardware = False
 executionTime = 1
 
@@ -27,12 +27,14 @@ def binaryName(configuration):
 	
 def run(projectDir, target,  buildTool):
     result = []
+    testPassed = True
     for configuration in configs:
         status = buildTool.build(projectDir, projectName() + '/' + target, [configuration[0]])
         print status
         if status == configuration[1]:
             result.append({'config':configuration, 'status': '\033[91m' + 'test pass' + '\033[0m'})
         else:
+            testPassed = False
             result.append({'config':configuration, 'status': '\033[91m' + 'test fail' + '\033[0m'})
                 
     print result    
@@ -40,10 +42,8 @@ def run(projectDir, target,  buildTool):
     for x in result:
         print x['config'] 
         print x['status']            
-        
-#    return {'testName':projectName(), 'target': target, 'status': '\033[91m' + 'build fail' + '\033[0m'}
-                
-    return {'testName':projectName(), 'target': target, 'status': 'build pass'}		
-	
-def passed(data):	
-	return data.startswith(correctOutput)
+
+    if testPassed:
+        return {'testName':projectName(), 'target': target, 'status': 'build pass'}
+    else:
+        return {'testName':projectName(), 'target': target, 'status': '\033[91m' + 'build fail' + '\033[0m'}
