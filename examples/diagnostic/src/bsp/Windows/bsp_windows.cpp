@@ -26,9 +26,12 @@
 
  *//* ========================================================================================================================== */
 
-#include "serialPort_windows.h"
+#include "bsp.h"
 #include "consoleIODevice.h"
+#include "serialPort_windows.h"
 
 using namespace microhal;
 
 microhal::IODevice &debugPort = windows::consoleIODev;
+
+void bsp::init() {}

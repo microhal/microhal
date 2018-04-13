@@ -181,18 +181,18 @@
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.PE" id="cdt.managedbuild.target.gnu.platform.mingw.base.1901314586" name="Debug Platform" osList="win32" superClass="cdt.managedbuild.target.gnu.platform.mingw.base"/>
 							<builder buildPath="${workspace_loc:/example_diagnostic}/Windows PC" id="cdt.managedbuild.tool.gnu.builder.mingw.base.515120014" keepEnvironmentInBuildfile="false" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.base.1013838524" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.base">
-								<option id="gnu.both.asm.option.include.paths.434602603" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
+								<option id="gnu.both.asm.option.include.paths.434602603" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1256285060" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.35505646" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.468543811" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base">
 								<option id="gnu.cpp.compiler.option.include.paths.1481195802" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/boards/Windows}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/os}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/ports/windows/General}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/gsl}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/ports/windows/General}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/bsp/Windows}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/os}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1958772908" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__MICROHAL"/>
@@ -200,7 +200,8 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.2097009777" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.961598170" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.dialect.std.92580774" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.92580774" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.flags.827475192" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++1z" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1961576125" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.base.949086627" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.base">
@@ -221,6 +222,9 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.base.495641620" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base.573023584" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.base">
+								<option id="gnu.cpp.link.option.libs.1358323809" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1061455322" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -229,11 +233,12 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src/microhal/ports/tms570x|src/gsl/tests|src/microhal/ports/stm32f4xx|src/microhal/ports/stm32f3xx|src/microhal/ports/linux|src/microhal/ports/rm57x|src/bsp/launchxl2-rm57l|src/bsp/stm32f4-discovery|src/bsp/nucleo-f334r8|src/bsp/Linux|src/bsp/nucleo-f411re|microhal/core/I2CDevice|microHAL/ports/helpers|microhal/core/button|microHAL/CRC|system|microHAL/ports/Raspberry_Pi|microHAL/ports/templatePort|microhal/ports/linux|microhal/ports/stm32f4xx|microhal/ports/cmsis|microHAL/ports/Renesas|microHAL/units|microHAL/cli|boards/Linux|microhal/gsl/tests|microHAL/usb|microhal/os/linux|microhal/core/SPIDevice|microhal/core/buffers/tests|microhal/os/os/freeRTOS|microhal/os/freeRTOS|microHAL/hostComm|microHAL/DSP|boards/nucleo-f334r8|microhal/ports/stm32f3xx|microHAL/ports/Linux|microhal/ports/windows/General/tests|microHAL/ports/Windows/General/tests|boards/stm32f4-discovery|microHAL/SPIDevice|microHAL/math|gsl/tests|microhal/os/os/noRTOS|microHAL/signalSlot|microhal/os/noRTOS|microHAL/ports/Atmel|microHAL/info|microHAL/nano|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics|microHAL/I2CDevice|microHAL/os|microHAL/button|microHAL/boost|microHAL/ports/common|microHAL/ports/ SiliconLabs|microHAL/buffers/tests|boards/nucleo-f411re" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/microhal/core/button|src/microhal/ports/windows/General/tests|src/microhal/os/noRTOS|src/microhal/os/linux|src/microhal/os/freeRTOS|src/microhal/ports/tms570x|src/gsl/tests|src/microhal/ports/stm32f4xx|src/microhal/ports/stm32f3xx|src/microhal/ports/linux|src/microhal/ports/rm57x|src/bsp/launchxl2-rm57l|src/bsp/stm32f4-discovery|src/bsp/nucleo-f334r8|src/bsp/Linux|src/bsp/nucleo-f411re|microhal/core/I2CDevice|microHAL/ports/helpers|microhal/core/button|microHAL/CRC|system|microHAL/ports/Raspberry_Pi|microHAL/ports/templatePort|microhal/ports/linux|microhal/ports/stm32f4xx|microhal/ports/cmsis|microHAL/ports/Renesas|microHAL/units|microHAL/cli|boards/Linux|microhal/gsl/tests|microHAL/usb|microhal/os/linux|microhal/core/SPIDevice|microhal/core/buffers/tests|microhal/os/os/freeRTOS|microhal/os/freeRTOS|microHAL/hostComm|microHAL/DSP|boards/nucleo-f334r8|microhal/ports/stm32f3xx|microHAL/ports/Linux|microhal/ports/windows/General/tests|microHAL/ports/Windows/General/tests|boards/stm32f4-discovery|microHAL/SPIDevice|microHAL/math|gsl/tests|microhal/os/os/noRTOS|microHAL/signalSlot|microhal/os/noRTOS|microHAL/ports/Atmel|microHAL/info|microHAL/nano|microHAL/ports/SiliconLabs|microHAL/ports/STMicroelectronics|microHAL/I2CDevice|microHAL/os|microHAL/button|microHAL/boost|microHAL/ports/common|microHAL/ports/ SiliconLabs|microHAL/buffers/tests|boards/nucleo-f411re" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="ilg.gnumcueclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999" moduleId="org.eclipse.cdt.core.settings" name="linux">

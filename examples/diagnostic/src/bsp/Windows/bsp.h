@@ -29,6 +29,12 @@
 #ifndef WINDOWS_BSP_H_
 #define WINDOWS_BSP_H_
 
-extern  microhal::IODevice &debugPort;
+#include "microhal.h"
+
+extern microhal::IODevice &debugPort;
+
+namespace bsp {
+void init();
+}  // namespace bsp
 
 #endif /* STM32F4DISCOVERY_H_ */
