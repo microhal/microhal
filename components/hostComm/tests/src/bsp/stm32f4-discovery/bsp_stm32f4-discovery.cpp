@@ -9,11 +9,11 @@
  @details
 
  *//* ============================================================================================ */
-#include "microhal.h"
-#include "microhal_bsp.h"
-#include "SPIDevice/SPIDevice.h"
-#include "microhal_bsp.h"
+#include <src/bsp/stm32f4-discovery/microhal_bsp.h>
+#include <src/bsp/stm32f4-discovery/microhal_bsp.h>
 
+#include "microhal.h"
+#include "SPIDevice/SPIDevice.h"
 #include "FreeRTOS.h"
 #include "task.h"
 

@@ -5,9 +5,10 @@
  *      Author: Pawel
  */
 
+#include <src/bsp/Windows/microhal_bsp.h>
+
 #include "serialPort_windows.h"
 #include "consoleIODevice.h"
-#include "microhal_bsp.h"
 #include "microhal.h"
 
 using namespace microhal;

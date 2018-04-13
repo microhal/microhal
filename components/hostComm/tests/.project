@@ -26,9 +26,24 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>microHAL</name>
+			<name>src/doctest</name>
 			<type>2</type>
-			<locationURI>microHAL_DIR</locationURI>
+			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/third-party/doctest/doctest</locationURI>
+		</link>
+		<link>
+			<name>src/gsl</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/third-party/gsl</locationURI>
+		</link>
+		<link>
+			<name>src/hostComm</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/source</locationURI>
+		</link>
+		<link>
+			<name>src/microhal</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -1,11 +1,11 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
- @brief      hostComm performance test, ping pong response time
+ @brief      hostComm unit test, ping pong test
 
  @authors    Pawel Okas
- created on: 19-09-2015
+ created on: 14-09-2015
  last modification: <DD-MM-YYYY>
 
  @copyright Copyright (c) 2014, microHAL
@@ -24,64 +24,60 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ========================================================================================================================== */
 
+#include "doctest.h"
+
+#include <atomic>
+#include <thread>
+#include "bsp.h"
+#include "hostComm.h"
 #include "microhal.h"
-#include "diagnostic/ticToc.h"
-#include "hostComm/hostComm.h"
-
-#include "microhal_bsp.h"
-
 #include "ut_common.h"
 
-#include <thread>
-#include <atomic>
-
-#include "catch.hpp"
-
-
 using namespace microhal;
-using namespace diagnostic;
 using namespace std::chrono_literals;
 
-TEST_CASE ("Ping Pong response time") {
+TEST_CASE("Ping Pong check") {
+    // ports should be open
+    REQUIRE(communicationPortA.isOpen());
+    REQUIRE(communicationPortB.isOpen());
 
-	REQUIRE(communicationPortA.isOpen());
-	REQUIRE(communicationPortB.isOpen());
+    // clear ports
+    REQUIRE(communicationPortA.clear());
+    REQUIRE(communicationPortB.clear());
 
-	//clear communicationPorts
-	REQUIRE(communicationPortA.clear());
-	REQUIRE(communicationPortB.clear());
+    // create hostComm device
+    HostComm hostCommA(communicationPortA, debugPort, "HostComm A: ");
 
-	//create hostComm device
-	HostComm hostCommA(communicationPortA, debugPort, "HostComm A: ");
-	HostComm hostCommB(communicationPortB, debugPort, "HostComm B: ");
+    INFO("Starting timeProc thread.");
 
-	INFO ( "Starting timeProc thread.");
-	hostCommA.startHostCommThread();
-	hostCommB.startHostCommThread();
+    //	volatile bool run = true;
+    //
+    //	//create and run hostComm proc task
+    //	std::thread hostCommThreadA (procThread, &hostCommA, &run);
 
-	INFO ( "Sending ping.");
+    hostCommA.startHostCommThread();
 
-	constexpr int reapeat = 10;
-	std::chrono::microseconds responseTime[reapeat];
+    INFO("Sending ping packets.");
+    CHECK(hostCommA.ping(false));
+    // these should be failure
+    CHECK_FALSE(hostCommA.ping(true));
 
-	diagnostic::TicToc duration;
-	duration.callibrate();
+    REQUIRE(communicationPortB.clear());
+    HostComm hostCommB(communicationPortB, debugPort, "HostComm B: ");
+    // create and run second hostComm proc task
+    hostCommB.startHostCommThread();
 
-	for(uint8_t i=0; i<reapeat; i++) {
-		duration.tic();
-		CHECK (hostCommA.ping(true));
-		duration.toc();
+    CHECK(hostCommA.ping(true));
 
-		responseTime[i] = duration.getDuration();
-	}
+    CHECK(hostCommA.ping(false));
 
-	for (const std::chrono::microseconds &response : responseTime) {
-		diagChannel << lock << diagnostic::Informational << "Ping response time = " << response.count() << "us" << endl << unlock;
-	}
-	// close hostComm proc thread
-	hostCommA.stopHostCommThread();
-	hostCommB.stopHostCommThread();
+    CHECK(hostCommA.ping(false));
+
+    CHECK(hostCommA.ping(true));
+
+    // close hostComm proc thread
+    hostCommA.stopHostCommThread();
+    hostCommB.stopHostCommThread();
 }
-
