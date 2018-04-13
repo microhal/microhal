@@ -56,7 +56,7 @@ int main() {
 
     diagChannel << lock << MICROHAL_DEBUG << "Initializing MPL115A2..." << unlock;
     if (mpl.init() == true) {
-        diagChannel << Debug << "OK";
+        diagChannel << Debug << "OK" << endl;
     } else {
         diagChannel << lock << MICROHAL_ERROR << "Cannot initialize MPL115A2. Maybe unconnected?" << unlock;
     }
