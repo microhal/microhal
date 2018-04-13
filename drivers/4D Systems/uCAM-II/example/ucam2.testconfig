@@ -1,7 +1,7 @@
 import re
 
 testType = 'deviceTest'
-targets = ['stm32f4-discovery']
+targets = ['stm32f4-discovery', 'linux']
 executionTime = 1
 requireHardware = False
 	
