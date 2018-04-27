@@ -102,7 +102,7 @@ class I2C_dma : public stm32f3xx::I2C {
     } transfer;
     //---------------------------------- constructors -------------------------------
     I2C_dma(I2C_TypeDef &i2c, DMA::Channel &rxStream, DMA::Channel &txStream)
-        : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), transfer() {
+        : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), semaphore{}, transfer() {
         ClockManager::enable(i2c);
         init();
         switch (reinterpret_cast<uint32_t>(&i2c)) {

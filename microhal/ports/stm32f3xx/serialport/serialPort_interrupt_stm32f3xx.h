@@ -138,7 +138,7 @@ class SerialPort_interrupt : public stm32f3xx::SerialPort {
      * @param[in] maxSize - size of data to copy.
      * @return number of bytes stored in data buffer.
      */
-    size_t read(char *data, size_t length, std::chrono::milliseconds timeout) noexcept final {
+    size_t read(char *data, size_t length, std::chrono::milliseconds /*timeout*/) noexcept final {
         size_t len = rxBuffer.getLength();
 
         if (len == 0) return 0;

@@ -48,7 +48,7 @@ bool I2C::init() {
  * @retval true - if configuration was set
  * @retval false - if an error occurred, in example: peripheral was enabled
  */
-bool I2C::configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty) {
+bool I2C::configure(uint32_t speed, uint32_t /*riseTime*/, bool /*fastMode*/, bool /*duty*/) {
     if (isEnable() == true) {
         diagChannel << diagnostic::lock << MICROHAL_WARNING << "Unable to configure I2C, please first disable I2C and then retry."
                     << diagnostic::unlock;

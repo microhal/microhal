@@ -43,7 +43,7 @@ I2C &I2C::i2c3 = I2C_dma::i2c3;
 /* ************************************************************************************************
  *                                   Functions prototypes
  * ***********************************************************************************************/
-static DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c);
+DMA::Stream::Channel getChannalNumber(I2C_TypeDef &i2c);
 
 /* ************************************************************************************************
  *                                  	 Constructors
@@ -245,13 +245,14 @@ void __attribute__((optimize("O0"))) I2C_dma::IRQFunction(I2C_dma &obj, I2C_Type
         __attribute__((unused)) volatile uint16_t tmp = i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
     } else if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) && (sr1 & I2C_SR1_RXNE) == 0) {
         switch (obj.transfer.mode) {
-            case Mode::TransmitReceive:
+            case Mode::TransmitReceive: {
                 i2c->CR2 = (i2c->CR2 & ~I2C_CR2_DMAEN) | I2C_CR2_LAST;
                 // i2c->CR2 |= I2C_CR2_LAST;
                 obj.transfer.mode = Mode::Receive;
                 i2c->CR1 |= I2C_CR1_START;
                 break;
-            case Mode::Transmit:
+            }
+            case Mode::Transmit: {
                 i2c->CR1 |= I2C_CR1_STOP;
                 auto shouldYeld = obj.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
@@ -259,6 +260,9 @@ void __attribute__((optimize("O0"))) I2C_dma::IRQFunction(I2C_dma &obj, I2C_Type
 #else
                 (void)shouldYeld;
 #endif
+                break;
+            }
+            default:
                 break;
         }
     }
@@ -491,5 +495,5 @@ void DMA1_Stream7_IRQHandler(void) {
 #ifdef MICROHAL_USE_I2C3_DMA
     void I2C3_ER_IRQHandler(void) { I2C_dma::IRQErrorFunction(I2C_dma::i2c3, I2C3); }
 #endif
-}  // namespace stm32f4xx
 }  // namespace microhal
+}  // namespace stm32f4xx

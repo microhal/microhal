@@ -215,7 +215,7 @@ size_t SerialPort_Dma::prepareDmaTransfer() {
 }
 
 void SerialPort_Dma::prepareRxDmaTransfer(size_t bytesToReceive) {
-    const char *readPtr;
+    const char *readPtr = nullptr;
     size_t readLen = rxBuffer.getEmptyContinousPart(readPtr);
     if (readLen > bytesToReceive) readLen = bytesToReceive;
     if (readLen) {

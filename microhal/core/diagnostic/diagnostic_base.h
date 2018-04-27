@@ -117,16 +117,10 @@ class Diagnostic_base {
     HeaderDisplayMode headerDisplayMode;
 
     //----------------------------------------- constructors --------------------------------------
-    constexpr Diagnostic_base(const char *header, HeaderDisplayMode mode, LogLevel level) noexcept : ioDevice(&nullIODevice),
-                                                                                                     header(header),
-                                                                                                     logLevel(level),
-                                                                                                     spaces(false),
-                                                                                                     headerDisplayMode(mode) {}
-    constexpr Diagnostic_base(const char *header, IODevice &dev, HeaderDisplayMode mode, LogLevel level) noexcept : ioDevice(&dev),
-                                                                                                                    header(header),
-                                                                                                                    logLevel(level),
-                                                                                                                    spaces(false),
-                                                                                                                    headerDisplayMode(mode) {}
+    constexpr Diagnostic_base(const char *header, HeaderDisplayMode mode, LogLevel level) noexcept
+        : ioDevice(&nullIODevice), header(header), logLevel(level), spaces(false), headerDisplayMode(mode) {}
+    constexpr Diagnostic_base(const char *header, IODevice &dev, HeaderDisplayMode mode, LogLevel level) noexcept
+        : ioDevice(&dev), header(header), logLevel(level), spaces(false), headerDisplayMode(mode) {}
 
     //------------------------------------------ functions ----------------------------------------
     inline void putChar(char c) {
@@ -271,7 +265,7 @@ class Diagnostic_base {
 
         auto len = snprintf(buffer, sizeof(buffer), "%f", d);
         if (len > 0) {
-            writeText(buffer, len < sizeof(buffer) ? len : sizeof(buffer));
+            writeText(buffer, len);
             insertSpace();
         }
     }

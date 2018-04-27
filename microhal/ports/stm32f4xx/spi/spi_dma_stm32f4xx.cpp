@@ -70,7 +70,7 @@ SPI &SPI::spi6 = SPI_dma::spi6;
 //***********************************************************************************************//
 //                                         Functions
 //***********************************************************************************************//
-inline SPI::Error SPI_dma::write(const void *data, size_t len, bool last) {
+inline SPI::Error SPI_dma::write(const void *data, size_t len, bool /*last*/) {
     txStream.setMemoryIncrement(DMA::Stream::MemoryIncrementMode::PointerIncremented);
     txStream.setNumberOfItemsToTransfer(len);
     txStream.setMemoryBank0(data);

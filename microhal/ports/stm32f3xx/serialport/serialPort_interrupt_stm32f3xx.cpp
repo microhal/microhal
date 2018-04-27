@@ -93,9 +93,6 @@ bool SerialPort_interrupt::clear(Direction dir) noexcept {
 //***********************************************************************************************//
 inline void __SerialPort_USART_interruptFunction(USART_TypeDef *const usart, SerialPort_interrupt &serialObject) {
     volatile uint32_t sr = usart->ISR;
-    volatile uint32_t cr1 = usart->CR1;
-    volatile uint32_t cr2 = usart->CR2;
-    volatile uint32_t cr3 = usart->CR3;
     if (sr & USART_ISR_ORE) {
         usart->ICR = USART_ICR_ORECF;
     }

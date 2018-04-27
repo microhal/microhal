@@ -132,7 +132,7 @@ class Timer {
     //------------------------------------------- variables -----------------------------------------//
     TIM_TypeDef &timer;
     //------------------------------------------- constructors --------------------------------------//
-    constexpr Timer(TIM_TypeDef &timer) : timer(timer) { ClockManager::enable(timer, ClockManager::PowerMode::Normal); }
+    constexpr Timer(TIM_TypeDef &timer) : onCompare{}, overflow{}, timer(timer) { ClockManager::enable(timer, ClockManager::PowerMode::Normal); }
     // virtual ~timer_stm32f0xx();
     //------------------------------------------- friends -------------------------------------------//
     friend void TIM1_BRK_UP_TRG_COM_IRQHandler(void);

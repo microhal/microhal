@@ -127,7 +127,7 @@ namespace std _GLIBCXX_VISIBILITY(default) {
     //    }
     }
 
-    void __at_thread_exit(__at_thread_exit_elt * elt) {
+    void __at_thread_exit(__at_thread_exit_elt * /*elt*/) {
         // static __gthread_once_t once = __GTHREAD_ONCE_INIT;
         //__gthread_once(&once, key_init);
 
