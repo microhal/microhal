@@ -31,6 +31,4 @@
 #include "consoleIODevice.h"
 #include "microhal.h"
 
-using namespace microhal;
-
-microhal::IODevice &debugPort = windows::consoleIODev;
+microhal::IODevice &debugPort = microhal::windows::consoleIODev;

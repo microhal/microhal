@@ -29,6 +29,7 @@
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
+#include "microhal.h"
 extern microhal::IODevice &debugPort;
 
 #endif /* STM32F4DISCOVERY_H_ */
