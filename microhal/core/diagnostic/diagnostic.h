@@ -138,6 +138,10 @@ class Diagnostic : public Diagnostic_base {
      */
     template <LogLevel level>
     inline void setLogLevel(LogLevels<level>) {
+        setLogLevel(level);
+    }
+
+    void setLogLevel(LogLevel level) {
         if (level <= compileTimeLogLevel) {
             logLevel = level;
         } else {
@@ -217,7 +221,11 @@ class LogLevelChannel {
     }
 
     inline auto operator<<(LineEnd) __attribute__((always_inline)) {
-        if (B) diagnostic.endl();
+        if (B) {
+            if (diagnostic.logLevel >= this->logLevel) {
+                diagnostic.endl();
+            }
+        }
         return *this;
     }
 
