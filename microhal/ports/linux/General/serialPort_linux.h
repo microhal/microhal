@@ -29,29 +29,10 @@ namespace linux {
  */
 class SerialPort : public microhal::SerialPort {
  public:
-    bool open(OpenMode mode) noexcept final {
-        if (isOpen() == false) {
-            int openParam = O_RDWR | O_NONBLOCK;
-            switch (mode) {
-                case ReadOnly:
-                    break;
-            }
-            tty_fd = ::open(portName, openParam);
-            if (tty_fd && isatty(tty_fd)) {
-                tcgetattr(tty_fd, &tio);
-                tio.c_iflag = 0;
-                tio.c_oflag = 0;
-                tio.c_cflag = CS8 | CREAD | CLOCAL;  // 8n1, see termios.h for more information
-                tio.c_lflag = 0;
-                tio.c_cc[VMIN] = 1;
-                tio.c_cc[VTIME] = 5;
-                return true;
-            }
-        }
-        return false;
-    }
+    bool open(OpenMode mode) noexcept final;
     /**
-     * @brief This function check is serial port open. When port is open function return true in other cases return false;
+     * @brief This function check is serial port open. When port is open function
+     * return true in other cases return false;
      *
      * @retval true if port is open
      * @retval false if port is close
@@ -84,7 +65,7 @@ class SerialPort : public microhal::SerialPort {
      *
      * @return number of bytes sent.
      */
-    size_t write(const char *data, size_t length) noexcept final { return ::write(tty_fd, data, length); }
+    size_t write(const char *data, size_t length) noexcept final;
     /**
      * @brief This function read data from serial port.
      *
@@ -93,7 +74,7 @@ class SerialPort : public microhal::SerialPort {
      *
      * @return number of read data.
      */
-    size_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept final { return ::read(tty_fd, buffer, length); }
+    size_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept final;
 
     size_t inputQueueSize() const noexcept final {
         return 0;  // todo
@@ -114,7 +95,7 @@ class SerialPort : public microhal::SerialPort {
         return bytes;
     }
 
-    bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final { ::tcdrain(tty_fd); }
+    bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final { return ::tcdrain(tty_fd) == 0; }
 
     bool clear(SerialPort::Direction dir = AllDirections) noexcept final { return true; }
 
@@ -127,12 +108,14 @@ class SerialPort : public microhal::SerialPort {
 
     //------------------------------------------- constructors --------------------------------------//
     SerialPort(const char *name) : tty_fd(0), portName(name) { memset(&tio, 0, sizeof(tio)); }
-    ~SerialPort() {}
+    virtual ~SerialPort() {
+        if (isOpen()) close();
+    }
 
  private:
     //------------------------------------------- variables -----------------------------------------//
     struct termios tio;
-    int tty_fd;
+    int tty_fd = 0;
     const char *portName;
 };
 

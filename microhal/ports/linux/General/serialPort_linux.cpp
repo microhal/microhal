@@ -2,6 +2,9 @@
  * INCLUDES
  */
 #include "serialPort_linux.h"
+#include "diagnostic/diagnostic.h"
+
+using namespace microhal::diagnostic;
 
 namespace microhal {
 namespace linux {
@@ -9,6 +12,47 @@ namespace linux {
 /* ************************************************************************************************
  * FUNCTIONS
  */
+bool SerialPort::open(OpenMode mode) noexcept {
+    if (isOpen() == false) {
+        int openParam = O_RDWR | O_NONBLOCK;
+        switch (mode) {
+            case ReadOnly:
+                break;
+        }
+        tty_fd = ::open(portName, openParam);
+        if (tty_fd > 0 && isatty(tty_fd)) {
+            tcgetattr(tty_fd, &tio);
+            tio.c_iflag = 0;
+            tio.c_oflag = 0;
+            tio.c_cflag = CS8 | CREAD | CLOCAL;  // 8n1, see termios.h for more information
+            tio.c_lflag = 0;
+            tio.c_cc[VMIN] = 1;
+            tio.c_cc[VTIME] = 5;
+            return true;
+        }
+    }
+    return false;
+}
+
+size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept {
+    ssize_t len = ::read(tty_fd, buffer, length);
+    if (len > 0)
+        return len;
+    else {
+        diagChannel << Error << "Unable to read data from linux serial port, errno value: " << strerror(errno) << endl;
+        return 0;
+    }
+}
+
+size_t SerialPort::write(const char *data, size_t length) noexcept {
+    ssize_t len = ::write(tty_fd, data, length);
+    if (len > 0)
+        return len;
+    else {
+        diagChannel << Error << "Unable to write data into linux serial port, errno value: " << strerror(errno) << endl;
+        return 0;
+    }
+}
 /**
  * @brief This function set new baudrate.
  *
