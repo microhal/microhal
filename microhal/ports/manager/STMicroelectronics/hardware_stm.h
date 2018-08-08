@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    pawel
  * created on: 17-12-2016
@@ -33,19 +33,16 @@
  * INCLUDES
  */
 #ifdef MCU_TYPE_STM32F0XX
-#include "STM32F0xx/hardware_stm32f0xx.h"
-namespace microhal {
-    namespace activePort = stm32f0xx;
-}
+#include "ports/stm32f0xx/hardware_stm32f0xx.h"
 #elif defined(MCU_TYPE_STM32F4XX)
 #include "ports/stm32f4xx/hardware_stm32f4xx.h"
 namespace microhal {
-    //namespace activePort = stm32f4xx;
+// namespace activePort = stm32f4xx;
 }
 #elif defined(MCU_TYPE_STM32F3XX)
 #include "ports/stm32f3xx/hardware_stm32f3xx.h"
 namespace microhal {
-    //namespace activePort = stm32f4xx;
+// namespace activePort = stm32f4xx;
 }
 #else
 #error "MCU type must be specified."

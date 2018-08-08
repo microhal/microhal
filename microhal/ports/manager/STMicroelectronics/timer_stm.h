@@ -9,22 +9,22 @@
 #define TIMER_STM_H_
 
 #ifdef MCU_TYPE_STM32F0XX
-#include "STM32F0xx/timer_stm32f0xx.h"
+#include "ports/stm32f0xx/timer_stm32f0xx.h"
 namespace microhal {
-    namespace activePort = stm32f0xx;
+namespace activePort = stm32f0xx;
 }
 #elif defined(MCU_TYPE_STM32F3XX)
 //#include "ports/stm32f3xx/timer_stm32f3xx.h"
-//namespace microhal {
+// namespace microhal {
 //    namespace activePort = stm32f3xx;
 //}
 #elif MCU_TYPE_STM32F4XX
 #include "STM32F4xx/timer_stm32f4xx.h"
 namespace microhal {
-    namespace activePort = stm32f4xx;
+namespace activePort = stm32f4xx;
 }
 #else
 #error "MCU type must be specified."
 #endif
 
-#endif // TIMER_STM_H_
+#endif  // TIMER_STM_H_
