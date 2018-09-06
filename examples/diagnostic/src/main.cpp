@@ -27,7 +27,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
+#include <cstring>
 
 #include "bsp.h"
 #include "diagnostic/diagnostic.h"
@@ -81,10 +81,12 @@ int main(void) {
     // Debug  -> lowest log priority
     //
     // lets print some logs
-    firstDiagnosticChannel << lock << MICROHAL_NOTICE << "This is notice, after this communicate we try to print some log with 'Informational' "
-                                                         "priority, it shouldn't be visible"
-                           << MICROHAL_INFORMATIONAL << "-----> If you see these line it means 'firstDiagnosticChannel' have compile time log level "
-                                                        "set at least to 'Informational'or an error occurred. <-----"
+    firstDiagnosticChannel << lock << MICROHAL_NOTICE
+                           << "This is notice, after this communicate we try to print some log with 'Informational' "
+                              "priority, it shouldn't be visible"
+                           << MICROHAL_INFORMATIONAL
+                           << "-----> If you see these line it means 'firstDiagnosticChannel' have compile time log level "
+                              "set at least to 'Informational'or an error occurred. <-----"
                            << unlock;
 
     // to increase flexibility of diagnostic channels usage you can change logging level at runtime, but that have some limitations, you can change
