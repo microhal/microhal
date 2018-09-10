@@ -189,7 +189,7 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.archiver.base.1722669396" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
                             							
-                            <tool command="g++-5" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1818062067" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+                            <tool command="${MICROIDE_LINUX_GCC_CPP_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1818062067" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
                                 								
                                 <option id="gnu.cpp.compiler.option.include.paths.453879802" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
@@ -206,6 +206,8 @@
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/driver}&quot;"/>
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/bsp/Linux}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/ports}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -227,7 +229,7 @@
                                 							
                             </tool>
                             							
-                            <tool command="gcc-5" id="cdt.managedbuild.tool.gnu.c.compiler.base.743570090" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+                            <tool command="${MICROIDE_LINUX_GCC_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.c.compiler.base.743570090" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
                                 								
                                 <option id="gnu.c.compiler.option.include.paths.1652656179" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
@@ -265,9 +267,9 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.c.linker.base.511014477" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
                             							
-                            <tool command="g++-5" id="cdt.managedbuild.tool.gnu.cpp.linker.base.1529886090" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+                            <tool command="${MICROIDE_LINUX_GCC_CPP_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.cpp.linker.base.1529886090" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
                                 								
-                                <option id="gnu.cpp.link.option.libs.649490021" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+                                <option id="gnu.cpp.link.option.libs.649490021" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
                                     									
                                     <listOptionValue builtIn="false" value="pthread"/>
                                     								
@@ -283,9 +285,9 @@
                                 							
                             </tool>
                             							
-                            <tool command="as-5" id="cdt.managedbuild.tool.gnu.assembler.base.163272575" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+                            <tool command="${MICROIDE_LINUX_GCC_ASSEMBLER_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.assembler.base.163272575" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
                                 								
-                                <option id="gnu.both.asm.option.include.paths.591715719" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
+                                <option id="gnu.both.asm.option.include.paths.591715719" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1084206667" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
                                 							

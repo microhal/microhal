@@ -29,6 +29,8 @@
 #ifndef _LINUX_BSP_H_
 #define _LINUX_BSP_H_
 
+#include "microhal.h"
+
 namespace bsp {
 extern microhal::IODevice &debugPort;
 extern microhal::SerialPort &cameraPort;
