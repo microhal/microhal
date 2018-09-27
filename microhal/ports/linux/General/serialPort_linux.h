@@ -22,6 +22,10 @@
 
 #include <sys/ioctl.h>
 
+#if defined(linux)
+#undef linux
+#endif
+
 namespace microhal {
 namespace linux {
 /* ************************************************************************************************

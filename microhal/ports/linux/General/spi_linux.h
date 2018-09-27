@@ -96,6 +96,7 @@ class SPI : public microhal::SPI {
     }
 
     bool getMISOstate() final { /*return microhal::stm32f4xx::GPIO::get(misoPort, misoPin); */
+        std::terminate();
     }
 
     bool isEnabled() { return enabled; }

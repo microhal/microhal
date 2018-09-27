@@ -177,9 +177,7 @@ bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
  * @return
  */
 uint32_t SerialPort::getBaudRate() const noexcept {
-    int baud;
-    // get baudrate
-    baud = cfgetispeed(&tio);
+    auto baud = cfgetispeed(&tio);
     if (baud != cfgetospeed(&tio)) {
         return 0;
     }
