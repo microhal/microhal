@@ -44,8 +44,8 @@ void hardwareConfig(void) {
     while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
         ;
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
     bsp::debugPort.setDataBits(stm32f3xx::SerialPort::Data8);
     bsp::debugPort.setStopBits(stm32f3xx::SerialPort::OneStop);
@@ -56,7 +56,7 @@ void hardwareConfig(void) {
 
     //    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::GPIO::PortA, 5>();
     //    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
-    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
+    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::IOPin::PortA, 7>();
 
     stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
     stm32f3xx::SPI::spi1.enable();

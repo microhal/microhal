@@ -39,25 +39,24 @@ using namespace std::literals::chrono_literals;
 
 int main(void) {
     bsp::init();
-    // to print some diagnostic logs we need debug IODevice, to see declaration of this device go to 'boards' folder and find your active
+    // to print some diagnostic logs we need debug IODevice, to see declaration of this device go to 'bsp' folder and find your active
     // configuration (i.e. Windows).
-    // In this example IODevice instance is called 'debugPort', on Windows it may be connected to console, on STM32 to UART
-    // open diagnostic device
+    // In this example IODevice instance is called 'debugPort', on Windows it may be connected to console, on STM32 to UART.
+    // Firstly lets open diagnostic device:
     debugPort.open(IODevice::ReadWrite);
     // show hello text
     debugPort.write("\n\r------------------- Diagnostic Demo -------------------------\n\r");
 
     // lets create diagnosticChannel
-    // 'LogLevel::Notice' that template parameter sets log level, it mean that every information with lover log level will be skipped during
+    // 'LogLevel::Notice' that template parameter sets log level, it mean that every information with lower log level will be skipped during
     // compilation and not included in binary.
-    // we can name our diagnostic channel, in this case the name is set to: "First diagnostic channel : "
+    // We can name our diagnostic channel, in this case the name is set to: "First log channel"
     // last thing to do is to pass to which output IODevice print the logs
     Diagnostic<LogLevel::Notice> firstDiagnosticChannel("First log channel", debugPort,
                                                         EnableTimestamp | EnableFileName | EnableLevelName | EnableErrorCode);
 
     // because diagnostic module is designed to work in multithread environment we should 'lock' channel before writing any information on it. After
-    // writing, we
-    // have to 'unlock' diagnostic channel.
+    // writing, we have to 'unlock' diagnostic channel.
     // the line below prints two messages, the first is warning, next is notice.
     firstDiagnosticChannel << lock << MICROHAL_WARNING << "This is a warning" << MICROHAL_NOTICE << "Notice:"
                            << "you can ignore it" << unlock;

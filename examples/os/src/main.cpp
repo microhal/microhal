@@ -37,7 +37,7 @@ using namespace microhal;
 using namespace std::literals::chrono_literals;
 
 void task1() {
-    GPIO redLed(RedLed, GPIO::Direction::Output);
+    activePort::GPIO redLed(RedLed, GPIO::Direction::Output);
 
     std::chrono::milliseconds dura(1000);
     while (1) {
@@ -48,7 +48,7 @@ void task1() {
 }
 
 void task2() {
-    GPIO greenLed(GreenLed, GPIO::Direction::Output);
+    activePort::GPIO greenLed(GreenLed, GPIO::Direction::Output);
 
     while (1) {
         greenLed.toggle();

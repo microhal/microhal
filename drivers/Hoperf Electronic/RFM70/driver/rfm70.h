@@ -31,128 +31,125 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "microhal.h"
 #include "SPIDevice/SPIDevice.h"
 #include "gsl/span"
+#include "microhal.h"
 /* ************************************************************************************************
  * DEFINES
  */
-//FIFO_STATUS
-#define FIFO_STATUS_TX_REUSE    0x40
-#define FIFO_STATUS_TX_FULL     0x20
-#define FIFO_STATUS_TX_EMPTY    0x10
+// FIFO_STATUS
+#define FIFO_STATUS_TX_REUSE 0x40
+#define FIFO_STATUS_TX_FULL 0x20
+#define FIFO_STATUS_TX_EMPTY 0x10
 
-#define FIFO_STATUS_RX_FULL     0x02
-#define FIFO_STATUS_RX_EMPTY    0x01
+#define FIFO_STATUS_RX_FULL 0x02
+#define FIFO_STATUS_RX_EMPTY 0x01
 /* ************************************************************************************************
  * CLASS
  */
-class RFM70: private microhal::SPIDevice {
-private:
+class RFM70 : private microhal::SPIDevice {
+ private:
     /**
      * Hardware limitations
      */
     enum Hardware {
-        BANK0_SIZE = 21 //!< BANK0_SIZE
+        BANK0_SIZE = 21  //!< BANK0_SIZE
     };
     /**
      * Registers bank definition
      */
     typedef enum {
-        BANK0 = 0x00, //!< BANK0
-        BANK1 = 0x80 //!< BANK1
+        BANK0 = 0x00,  //!< BANK0
+        BANK1 = 0x80   //!< BANK1
     } Cfg;
 
     /**
      * Possible commands
      */
     enum Commands {
-        READ_REG = 0x00,  ///< Define read command to register
-        WRITE_REG = 0x20,  ///< Define write command to register
-        RD_RX_PLOAD = 0x61,  ///< Define RX payload register address
-        WR_TX_PLOAD = 0xA0,  ///< Define TX payload register address
-        FLUSH_TX = 0xE1,  ///< Define flush TX register command
-        FLUSH_RX = 0xE2,  ///< Define flush RX register command
-        REUSE_TX_PL = 0xE3,  ///< Define reuse TX payload register command
+        READ_REG = 0x00,                ///< Define read command to register
+        WRITE_REG = 0x20,               ///< Define write command to register
+        RD_RX_PLOAD = 0x61,             ///< Define RX payload register address
+        WR_TX_PLOAD = 0xA0,             ///< Define TX payload register address
+        FLUSH_TX = 0xE1,                ///< Define flush TX register command
+        FLUSH_RX = 0xE2,                ///< Define flush RX register command
+        REUSE_TX_PL = 0xE3,             ///< Define reuse TX payload register command
         W_TX_PAYLOAD_NOACK_CMD = 0xB0,  //!< W_TX_PAYLOAD_NOACK_CMD
-        W_ACK_PAYLOAD_CMD = 0xa8,     //!< W_ACK_PAYLOAD_CMD
-        ACTIVATE_CMD = 0x50,          //!< ACTIVATE_CMD
-        R_RX_PL_WID_CMD = 0x60,       //!< R_RX_PL_WID_CMD
-        NOP_NOP = 0xFF,  ///< Define No Operation, might be used to read status register
+        W_ACK_PAYLOAD_CMD = 0xa8,       //!< W_ACK_PAYLOAD_CMD
+        ACTIVATE_CMD = 0x50,            //!< ACTIVATE_CMD
+        R_RX_PL_WID_CMD = 0x60,         //!< R_RX_PL_WID_CMD
+        NOP_NOP = 0xFF,                 ///< Define No Operation, might be used to read status register
     };
     /**
      * Registers addresses
      */
     enum Registers {
-        CONFIG = 0x00,  ///< 'Config' register address
-        EN_AA = 0x01,  ///< 'Enable Auto Acknowledgment' register address
-        EN_RXADDR = 0x02,  ///< 'Enabled RX addresses' register address
-        SETUP_AW = 0x03,  ///< 'Setup address width' register address
-        SETUP_RETR = 0x04,  ///< 'Setup Auto. Retrans' register address
-        RF_CH = 0x05,  ///< 'RF channel' register address
-        RF_SETUP = 0x06,  ///< 'RF setup' register address
-        STATUS = 0x07,  ///< 'Status' register address
-        OBSERVE_TX = 0x08,  ///< 'Observe TX' register address
-        CD = 0x09,  ///< 'Carrier Detect' register address
-        RX_ADDR_P0 = 0x0A,  ///< 'RX address pipe0' register address
-        RX_ADDR_P1 = 0x0B,  ///< 'RX address pipe1' register address
-        RX_ADDR_P2 = 0x0C,  ///< 'RX address pipe2' register address
-        RX_ADDR_P3 = 0x0D,  ///< 'RX address pipe3' register address
-        RX_ADDR_P4 = 0x0E,  ///< 'RX address pipe4' register address
-        RX_ADDR_P5 = 0x0F,  ///< 'RX address pipe5' register address
-        TX_ADDR = 0x10,  ///< 'TX address' register address
-        RX_PW_P0 = 0x11,  ///< 'RX payload width, pipe0' register address
-        RX_PW_P1 = 0x12,  ///< 'RX payload width, pipe1' register address
-        RX_PW_P2 = 0x13,  ///< 'RX payload width, pipe2' register address
-        RX_PW_P3 = 0x14,  ///< 'RX payload width, pipe3' register address
-        RX_PW_P4 = 0x15,  ///< 'RX payload width, pipe4' register address
-        RX_PW_P5 = 0x16,  ///< 'RX payload width, pipe5' register address
+        CONFIG = 0x00,       ///< 'Config' register address
+        EN_AA = 0x01,        ///< 'Enable Auto Acknowledgment' register address
+        EN_RXADDR = 0x02,    ///< 'Enabled RX addresses' register address
+        SETUP_AW = 0x03,     ///< 'Setup address width' register address
+        SETUP_RETR = 0x04,   ///< 'Setup Auto. Retrans' register address
+        RF_CH = 0x05,        ///< 'RF channel' register address
+        RF_SETUP = 0x06,     ///< 'RF setup' register address
+        STATUS = 0x07,       ///< 'Status' register address
+        OBSERVE_TX = 0x08,   ///< 'Observe TX' register address
+        CD = 0x09,           ///< 'Carrier Detect' register address
+        RX_ADDR_P0 = 0x0A,   ///< 'RX address pipe0' register address
+        RX_ADDR_P1 = 0x0B,   ///< 'RX address pipe1' register address
+        RX_ADDR_P2 = 0x0C,   ///< 'RX address pipe2' register address
+        RX_ADDR_P3 = 0x0D,   ///< 'RX address pipe3' register address
+        RX_ADDR_P4 = 0x0E,   ///< 'RX address pipe4' register address
+        RX_ADDR_P5 = 0x0F,   ///< 'RX address pipe5' register address
+        TX_ADDR = 0x10,      ///< 'TX address' register address
+        RX_PW_P0 = 0x11,     ///< 'RX payload width, pipe0' register address
+        RX_PW_P1 = 0x12,     ///< 'RX payload width, pipe1' register address
+        RX_PW_P2 = 0x13,     ///< 'RX payload width, pipe2' register address
+        RX_PW_P3 = 0x14,     ///< 'RX payload width, pipe3' register address
+        RX_PW_P4 = 0x15,     ///< 'RX payload width, pipe4' register address
+        RX_PW_P5 = 0x16,     ///< 'RX payload width, pipe5' register address
         FIFO_STATUS = 0x17,  ///< 'FIFO Status Register' register address
         FEATURE = 0x1D,
-    // PAYLOAD_WIDTH = 0x1F  ///< 'payload length of 256 bytes modes register address
+        // PAYLOAD_WIDTH = 0x1F  ///< 'payload length of 256 bytes modes register address
     };
     /**
      * Registers flags
      */
     enum RegisterFlags {
-        STATUS_RX_DR = 0x40, //!< STATUS_RX_DR
-        STATUS_TX_DS = 0x20, //!< STATUS_TX_DS
-        STATUS_MAX_RT = 0x10, //!< STATUS_MAX_RT
-        STATUS_TX_FULL = 0x01 //!< STATUS_TX_FULL
+        STATUS_RX_DR = 0x40,   //!< STATUS_RX_DR
+        STATUS_TX_DS = 0x20,   //!< STATUS_TX_DS
+        STATUS_MAX_RT = 0x10,  //!< STATUS_MAX_RT
+        STATUS_TX_FULL = 0x01  //!< STATUS_TX_FULL
     };
-public:
-    using span  = gsl::span<uint8_t>;
+
+ public:
+    using span = gsl::span<uint8_t>;
     /**
      *  Value of fixed registers.
      */
     enum ConstRegisterValues {
-        ID_VALUE = 0x00000063,                         //!< ID VALUE
+        ID_VALUE = 0x00000063,  //!< ID VALUE
     };
     /**
      * Possible packet types.
      */
     typedef enum {
-        ACK_PIPE_0 = W_ACK_PAYLOAD_CMD | 0x00,                         //!< ACK_PIPE_0
-        ACK_PIPE_1 = W_ACK_PAYLOAD_CMD | 0x01,                         //!< ACK_PIPE_1
-        ACK_PIPE_2 = W_ACK_PAYLOAD_CMD | 0x02,                         //!< ACK_PIPE_2
-        ACK_PIPE_3 = W_ACK_PAYLOAD_CMD | 0x03,                         //!< ACK_PIPE_3
-        ACK_PIPE_4 = W_ACK_PAYLOAD_CMD | 0x04,                         //!< ACK_PIPE_4
-        ACK_PIPE_5 = W_ACK_PAYLOAD_CMD | 0x05,                         //!< ACK_PIPE_5
-        NO_ACK = W_TX_PAYLOAD_NOACK_CMD       //!< NO_ACK
+        ACK_PIPE_0 = W_ACK_PAYLOAD_CMD | 0x00,  //!< ACK_PIPE_0
+        ACK_PIPE_1 = W_ACK_PAYLOAD_CMD | 0x01,  //!< ACK_PIPE_1
+        ACK_PIPE_2 = W_ACK_PAYLOAD_CMD | 0x02,  //!< ACK_PIPE_2
+        ACK_PIPE_3 = W_ACK_PAYLOAD_CMD | 0x03,  //!< ACK_PIPE_3
+        ACK_PIPE_4 = W_ACK_PAYLOAD_CMD | 0x04,  //!< ACK_PIPE_4
+        ACK_PIPE_5 = W_ACK_PAYLOAD_CMD | 0x05,  //!< ACK_PIPE_5
+        NO_ACK = W_TX_PAYLOAD_NOACK_CMD         //!< NO_ACK
     } PacketType;
 
-    typedef enum {
-        MAX_RETRANSMISION = 0x10, TX_DATA_SENT = 0x20, RX_NEW = 0x40
-    } Interrupts;
-//---------------------------------------- constructors ---------------------------------------
-    RFM70(microhal::SPI &spi, microhal::GPIO::IOPin csnPin, microhal::GPIO::IOPin cePin) :
-            microhal::SPIDevice(spi, csnPin), cePin(cePin, microhal::GPIO::Direction::Output) {
-        this->cePin.set();
+    typedef enum { MAX_RETRANSMISION = 0x10, TX_DATA_SENT = 0x20, RX_NEW = 0x40 } Interrupts;
+    //---------------------------------------- constructors ---------------------------------------
+    RFM70(microhal::SPI &spi, microhal::GPIO &csnPin, microhal::GPIO &cePin) : microhal::SPIDevice(spi, csnPin), cePin(cePin) {
+        cePin.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        cePin.set();
     }
-//------------------------------------------ functions ----------------------------------------
-    bool isSPIModeSupported(microhal::SPI::Mode mode) {
-    	return mode == microhal::SPI::Mode::Mode0;
-    }
+    //------------------------------------------ functions ----------------------------------------
+    bool isSPIModeSupported(microhal::SPI::Mode mode) { return mode == microhal::SPI::Mode::Mode0; }
 
     bool init(void);
 
@@ -184,43 +181,38 @@ public:
      * @param type
      * @return
      */
-    bool sendPacket(const gsl::span<const uint8_t> packet, PacketType type) {
-        return writeRegisters(type, packet.data(), packet.length_bytes());
-    }
+    bool sendPacket(const gsl::span<const uint8_t> packet, PacketType type) { return writeRegisters(type, packet.data(), packet.length_bytes()); }
 
     bool getPacket(uint8_t *rx_buf);
 
     bool enableInterrupt(Interrupts interrupt);
     bool disableInterrupt(Interrupts interrupt);
 
-    inline bool connectIRQ(void (*func)(RFM70 &rfm), const microhal::GPIO::IOPin pin) __attribute__ ((always_inline)) {
-        //interrupt.setVectorNumber(hal::GPIO::PortA, pin);
-       // return interrupt.connect((void (*)(void*))func, this, microhal::ExternalInterrupt::Trigger::OnFallingEdge, pin);
+    inline bool connectIRQ(void (*func)(RFM70 &rfm), const microhal::IOPin pin) {
+        // interrupt.setVectorNumber(hal::GPIO::PortA, pin);
+        // return interrupt.connect((void (*)(void*))func, this, microhal::ExternalInterrupt::Trigger::OnFallingEdge, pin);
     }
 
     void enableIRQ() {
-        //interrupt.enable();
+        // interrupt.enable();
     }
 
     void disableIRQ() {
-        //interrupt.disable();
+        // interrupt.disable();
     }
 
-    bool clearInterruptFlag(Interrupts interrupt) {
-        return writeRegister(WRITE_REG | STATUS, interrupt);
-    }
-    bool getInterruptSource(Interrupts &interrupt) {
-        return readRegister(STATUS, (uint8_t&) interrupt);
-    }
+    bool clearInterruptFlag(Interrupts interrupt) { return writeRegister(WRITE_REG | STATUS, interrupt); }
+    bool getInterruptSource(Interrupts &interrupt) { return readRegister(STATUS, (uint8_t &)interrupt); }
 
     void bank0RegisterDump(void);
 
     void bank1RegisterDump(void);
 
     void debug();
-private:
-    microhal::GPIO cePin;
-    //microhal::ExternalInterrupt interrupt;
+
+ private:
+    microhal::GPIO &cePin;
+    // microhal::ExternalInterrupt interrupt;
 
     static const uint8_t Bank0_Reg[][2];
     static const uint8_t Bank1_Registers_0x00_to_0x05[][4];
@@ -230,11 +222,10 @@ private:
 
     static const uint8_t RX0_Address[];
     static const uint8_t RX1_Address[];
-//------------------------------------------ functions ----------------------------------------
+    //------------------------------------------ functions ----------------------------------------
     void switchCFG(Cfg cfg);
     bool initBank0(void);
     bool initBank1(void);
-
 };
 /* ************************************************************************************************
  * INLINE FUNCTIONS

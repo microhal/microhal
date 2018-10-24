@@ -27,8 +27,8 @@
  */ /* ==========================================================================================================================
                                                                                                                                         */
 
-#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "microhal.h"
 
 using namespace microhal;
@@ -38,8 +38,8 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
     debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);

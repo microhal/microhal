@@ -32,7 +32,28 @@
 #include "microhal.h"
 
 using namespace microhal;
-using namespace stm32f3xx;
+
+namespace bsp {
+namespace detail {
+using Port = microhal::stm32f3xx::GPIO::Port;
+
+constexpr microhal::IOPin ld2_pin(Port::PortA, 5);
+constexpr microhal::IOPin led3_pin(Port::PortD, 13);
+constexpr microhal::IOPin led5_pin(Port::PortD, 14);
+constexpr microhal::IOPin led6_pin(Port::PortD, 15);
+
+constexpr microhal::IOPin button1_pin(Port::PortC, 13);
+
+stm32f3xx::GPIO greenLed(ld2_pin, stm32f3xx::GPIO::Direction::Output);
+stm32f3xx::GPIO redLed(led5_pin, stm32f3xx::GPIO::Direction::Output);
+stm32f3xx::GPIO button(button1_pin, stm32f3xx::GPIO::Direction::Input);
+}  // namespace detail
+
+microhal::GPIO& greenLed = detail::greenLed;
+microhal::GPIO& redLed = detail::redLed;
+microhal::GPIO& button = detail::button;
+
+}  // namespace bsp
 
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
@@ -42,7 +63,6 @@ void hardwareConfig(void) {
 }
 
 uint64_t SysTick_time = 0;
-;
 
 extern "C" void SysTick_Handler(void) {
     SysTick_time++;

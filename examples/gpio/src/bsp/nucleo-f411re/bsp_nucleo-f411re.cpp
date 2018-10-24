@@ -9,7 +9,7 @@
  * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2016-2018, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,28 @@
 #include "microhal.h"
 
 using namespace microhal;
-using namespace stm32f4xx;
+
+namespace bsp {
+namespace detail {
+using Port = microhal::stm32f4xx::GPIO::Port;
+
+constexpr IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);    // green LED
+constexpr IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);  // orange LED
+constexpr IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);  // red LED
+constexpr IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);  // blue LED
+
+constexpr IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+
+stm32f4xx::GPIO greenLed(ld2_pin, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO redLed(led5_pin, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO button(button_pin, stm32f4xx::GPIO::Direction::Input);
+}  // namespace detail
+
+microhal::GPIO& greenLed = detail::greenLed;
+microhal::GPIO& redLed = detail::redLed;
+microhal::GPIO& button = detail::button;
+
+}  // namespace bsp
 
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
@@ -42,7 +63,6 @@ void hardwareConfig(void) {
 }
 
 uint64_t SysTick_time = 0;
-;
 
 extern "C" void SysTick_Handler(void) {
     SysTick_time++;

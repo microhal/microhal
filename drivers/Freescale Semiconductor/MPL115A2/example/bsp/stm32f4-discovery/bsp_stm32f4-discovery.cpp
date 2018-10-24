@@ -27,26 +27,33 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "i2c.h"
 #include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
-void hardwareConfig(void) {
-    (void)debugPort;
-    (void)mpl115a2::i2c;
+namespace bsp {
+namespace detail {
+constexpr microhal::IOPin resetPin(microhal::stm32f4xx::GPIO::Port::PortC, 15);
+stm32f4xx::GPIO mplReset(resetPin, stm32f4xx::GPIO::Direction::Output);
+}  // namespace detail
+namespace mpl115a2 {
+microhal::GPIO &mplReset = detail::mplReset;
+}
+}  // namespace bsp
 
+void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
+    IOManager::routeI2C<2, SDA, stm32f4xx::IOPin::PortB, 11>();
+    IOManager::routeI2C<2, SCL, stm32f4xx::IOPin::PortB, 10>();
 
     stm32f4xx::I2C::i2c2.init();
 

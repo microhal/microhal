@@ -163,8 +163,14 @@ class I2C : public microhal::I2C {
 
     bool configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty);
 
+    bool addSlave(I2CSlave &i2cSlave);
+
+    bool removeSlave(I2CSlave &i2cSlave);
+
  protected:
     I2C_TypeDef &i2c;
+    I2CSlave *slave[2] = {nullptr, nullptr};
+    I2CSlave *activeSlave = nullptr;
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif

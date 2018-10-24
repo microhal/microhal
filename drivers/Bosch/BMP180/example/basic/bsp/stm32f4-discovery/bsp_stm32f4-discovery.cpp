@@ -27,19 +27,19 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "i2c.h"
 #include "microhal.h"
 
 using namespace microhal;
 
 void bsp::init() {
-    stm32f4xx::IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    stm32f4xx::IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    stm32f4xx::IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    stm32f4xx::IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
-    stm32f4xx::IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-    stm32f4xx::IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
+    stm32f4xx::IOManager::routeI2C<2, SDA, stm32f4xx::IOPin::PortB, 11>();
+    stm32f4xx::IOManager::routeI2C<2, SCL, stm32f4xx::IOPin::PortB, 10>();
 
     stm32f4xx::I2C::i2c2.init();
     stm32f4xx::I2C::i2c2.speed(400000, microhal::I2C::Mode::Fast);

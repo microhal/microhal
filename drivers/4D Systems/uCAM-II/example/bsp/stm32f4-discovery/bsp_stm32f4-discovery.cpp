@@ -27,9 +27,9 @@
  */ /* ==========================================================================================================================
                                                                                                                                         */
 
-#include "bsp.h"
 #include <ctime>
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "ff.h"
 #include "microhal.h"
 
@@ -56,22 +56,22 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
-    IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
+    IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
-    IOManager::routeSPI<3, SCK, stm32f4xx::GPIO::PortC, 10>();
-    IOManager::routeSPI<3, MISO, stm32f4xx::GPIO::PortB, 4>(stm32f4xx::GPIO::PullType::PullUp);
-    IOManager::routeSPI<3, MOSI, stm32f4xx::GPIO::PortB, 5>();
+    IOManager::routeSPI<3, SCK, stm32f4xx::IOPin::PortC, 10>();
+    IOManager::routeSPI<3, MISO, stm32f4xx::IOPin::PortB, 4>(stm32f4xx::GPIO::PullType::PullUp);
+    IOManager::routeSPI<3, MOSI, stm32f4xx::IOPin::PortB, 5>();
 
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
+    IOManager::routeI2C<2, SDA, stm32f4xx::IOPin::PortB, 11>();
+    IOManager::routeI2C<2, SCL, stm32f4xx::IOPin::PortB, 10>();
 
     bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);

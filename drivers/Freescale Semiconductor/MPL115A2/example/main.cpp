@@ -40,19 +40,18 @@ using namespace diagnostic;
 using namespace std::literals::chrono_literals;
 
 int main() {
-    debugPort.setDataBits(SerialPort::Data8);
-    debugPort.setStopBits(SerialPort::OneStop);
-    debugPort.setParity(SerialPort::NoParity);
-    debugPort.open(SerialPort::ReadWrite);
-    debugPort.setBaudRate(SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(SerialPort::Data8);
+    bsp::debugPort.setStopBits(SerialPort::OneStop);
+    bsp::debugPort.setParity(SerialPort::NoParity);
+    bsp::debugPort.open(SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(SerialPort::Baud115200);
 
-    debugPort.write("\n\r------------------- MPL115A2 Demo -------------------------\n\r");
+    bsp::debugPort.write("\n\r------------------- MPL115A2 Demo -------------------------\n\r");
 
-    diagChannel.setOutputDevice(debugPort);
+    diagChannel.setOutputDevice(bsp::debugPort);
 
-    MPL115A2 mpl(mpl115a2::i2c);
-    GPIO mplReset(mpl115a2::resetPin, GPIO::Direction::Output);
-    mplReset.set();
+    MPL115A2 mpl(bsp::mpl115a2::i2c);
+    bsp::mpl115a2::mplReset.set();
 
     diagChannel << lock << MICROHAL_DEBUG << "Initializing MPL115A2..." << unlock;
     if (mpl.init() == true) {

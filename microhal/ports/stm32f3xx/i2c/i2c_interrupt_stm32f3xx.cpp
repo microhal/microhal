@@ -191,15 +191,112 @@ I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write,
 void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
     using Mode = I2C_interrupt::Mode;
 
+    enum Transfer { Write = 0, Read = 1 };
+
+    struct ISR_st {
+        constexpr ISR_st(uint32_t data) : isr(data) {}
+
+        uint8_t slaveAddress() const { return (isr & I2C_ISR_ADDCODE_Msk) >> (I2C_ISR_ADDCODE_Pos - 1); }  //!< Only in slave mode
+        Transfer direction() const { return isr & I2C_ISR_DIR ? Read : Write; }                            //!< Only in slave mode
+        bool busIsBusy() const { return isr & I2C_ISR_BUSY; }
+        bool timeout() const { return isr & I2C_ISR_TIMEOUT; }
+        bool overrunOrUnderrunOccured() const { return isr & I2C_ISR_OVR; }  //!< Only in slave mode
+        bool arbitrationLost() const { return isr & I2C_ISR_ARLO; }
+        bool busErrorDetected() const { return isr & I2C_ISR_BERR; }
+        bool transferCompleteReload() const { return isr & I2C_ISR_TCR; }
+        bool transferComplete() const { return isr & I2C_ISR_TC; }
+        bool stopDetected() const { return isr & I2C_ISR_STOPF; }
+        bool nackReceived() const { return isr & I2C_ISR_NACKF; }
+        bool slaveAddressMatched() const { return isr & I2C_ISR_ADDR; }
+        bool receiveRegisterNotEmpty() const { return isr & I2C_ISR_RXNE; }
+        bool transmitInterrupsStatus() const { return isr & I2C_ISR_TXIS; }
+        bool transmitRegisterEmpty() const { return isr & I2C_ISR_TXE; }
+
+        uint32_t isr;
+    };
+
+    struct ICR_st {
+        ICR_st(uint32_t icr) : icr(icr) {}
+        void clearAlertFlag() { icr |= I2C_ICR_ALERTCF; }
+        void clearTimeoutFlag() { icr |= I2C_ICR_TIMOUTCF; }
+        void clearArbitrationLostFlag() { icr |= I2C_ICR_ARLOCF; }
+        void clearBusErrorFlag() { icr |= I2C_ICR_BERRCF; }
+        void clearStopFlag() { icr |= I2C_ICR_STOPCF; }
+        void clearNackFlag() { icr |= I2C_ICR_NACKCF; }
+        void clearAddressMatchedFlag() { icr |= I2C_ICR_ADDRCF; }
+        uint32_t icr;
+    };
+
+    struct CR1_st {};
+
     uint32_t isr = i2c->ISR;
 
-    if (isr & I2C_ISR_RXNE) {
-        *obj.transfer.bufferA.ptr++ = i2c->RXDR;
+    ISR_st interrupStatus(isr);
+    ICR_st interruptClear(i2c->ICR);
+
+    if (interrupStatus.slaveAddressMatched()) {
+        if (obj.activeSlave) {
+            // slave is already active, restart detected
+            auto transfered = obj.transfer.bufferB.length - obj.transfer.bufferA.length;
+            if (interrupStatus.direction() == Write)
+                obj.activeSlave->onTransmitFinish(transfered);
+            else
+                obj.activeSlave->onReceiveFinish(transfered);
+        } else {
+            obj.setActiveSlave(interrupStatus.slaveAddress());
+        }
+        gsl::span span = (interrupStatus.direction() == Read) ? obj.activeSlave->prepareReceiveBuffer() : obj.activeSlave->prepareTransmitData();
+        if (span.data() != nullptr) {
+            obj.transfer.bufferA.length = span.length();
+            obj.transfer.bufferA.ptr = span.data();
+            obj.transfer.bufferB.length = span.length();
+            interruptClear.clearAddressMatchedFlag();
+        }
+    }
+
+    if (interrupStatus.stopDetected()) {
+        // Used only in slave mode
+        if (obj.activeSlave) {
+            auto transfered = obj.transfer.bufferB.length - obj.transfer.bufferA.length;
+            if (interrupStatus.direction() == Write)
+                obj.activeSlave->onTransmitFinish(transfered);
+            else
+                obj.activeSlave->onReceiveFinish(transfered);
+            obj.activeSlave = nullptr;
+        }
+        interruptClear.clearStopFlag();
+    }
+
+    if (interrupStatus.nackReceived()) {
+        // Used only in slave mode. Master send NACK so no next data is requested.
+        i2c->CR1 &= ~I2C_CR1_TXIE;
+        interruptClear.clearNackFlag();
+    }
+
+    if (interrupStatus.receiveRegisterNotEmpty()) {
+        if (obj.activeSlave) {
+            if (obj.transfer.bufferA.length > 0) {
+                obj.transfer.bufferA.length--;
+                *obj.transfer.bufferA.ptr++ = i2c->RXDR;
+            }
+        } else {
+            *obj.transfer.bufferA.ptr++ = i2c->RXDR;
+        }
     }
 
     if (isr & I2C_ISR_TXIS) {
-        i2c->TXDR = *obj.transfer.bufferA.ptr;
-        obj.transfer.bufferA.ptr++;
+        if (obj.activeSlave) {
+            if (obj.transfer.bufferA.length > 0) {
+                i2c->TXDR = *obj.transfer.bufferA.ptr;
+                obj.transfer.bufferA.ptr++;
+                obj.transfer.bufferA.length--;
+            } else {
+                i2c->TXDR = 0x00;
+            }
+        } else {
+            i2c->TXDR = *obj.transfer.bufferA.ptr;
+            obj.transfer.bufferA.ptr++;
+        }
     }
 
     if (isr & I2C_ISR_TC) {
@@ -255,7 +352,7 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
         cr2 |= (toWrite << I2C_CR2_NBYTES_Pos);
         i2c->CR2 = cr2;
     }
-}
+}  // namespace stm32f3xx
 //***********************************************************************************************//
 //                                          IRQHandlers //
 //***********************************************************************************************//

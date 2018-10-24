@@ -12,6 +12,7 @@
  */
 #include <cmath>
 #include <limits>
+#include "IOPin.h"
 #include "clockManager.h"
 #include "device/stm32f4xx.h"
 #include "gpio_stm32f4xx.h"
@@ -96,7 +97,7 @@ class SPI : public microhal::SPI {
 
     Prescaler prescaler() const { return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)); }
 
-    bool getMISOstate() final { return microhal::stm32f4xx::GPIO::get(misoPort, misoPin); }
+    bool getMISOstate() final { return microhal::stm32f4xx::GPIO::get(misoPin); }
 
     bool isEnabled() { return spi.CR1 & SPI_CR1_SPE; }
 
@@ -123,14 +124,13 @@ class SPI : public microhal::SPI {
  protected:
     //---------------------------------------- variables ----------------------------------------//
     SPI_TypeDef &spi;
-    microhal::stm32f4xx::GPIO::Pin misoPin;
-    microhal::stm32f4xx::GPIO::Port misoPort;
+    microhal::stm32f4xx::IOPin misoPin;
 //--------------------------------------- constructors --------------------------------------//
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
-        SPI(SPI_TypeDef &spi, stm32f4xx::GPIO::IOPin misoPin)
-        : spi(spi), misoPin(misoPin.pin), misoPort(misoPin.port) {
+        SPI(SPI_TypeDef &spi, stm32f4xx::IOPin misoPin)
+        : spi(spi), misoPin(misoPin) {
     }
     void busyWait() {
         while (!(spi.SR & SPI_SR_TXE)) {

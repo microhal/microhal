@@ -38,6 +38,31 @@ using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
 
+namespace bsp {
+
+namespace moduleA {
+namespace detail {
+stm32f3xx::GPIO csDat({microhal::stm32f3xx::GPIO::Port::PortD, 8}, stm32f3xx::GPIO::Direction::Input);
+stm32f3xx::GPIO csCon({microhal::stm32f3xx::GPIO::Port::PortD, 1}, stm32f3xx::GPIO::Direction::Input);
+stm32f3xx::GPIO RESET({microhal::stm32f3xx::GPIO::Port::PortD, 0}, stm32f3xx::GPIO::Direction::Input);
+}  // namespace detail
+microhal::GPIO &csDat = detail::csDat;
+microhal::GPIO &csCon = detail::csCon;
+microhal::GPIO &RESET = detail::RESET;
+}  // namespace moduleA
+
+namespace moduleB {
+namespace detail {
+stm32f3xx::GPIO csDat({microhal::stm32f3xx::GPIO::Port::PortB, 8}, stm32f3xx::GPIO::Direction::Input);
+stm32f3xx::GPIO csCon({microhal::stm32f3xx::GPIO::Port::PortA, 3}, stm32f3xx::GPIO::Direction::Input);
+stm32f3xx::GPIO RESET({microhal::stm32f3xx::GPIO::Port::PortA, 1}, stm32f3xx::GPIO::Direction::Input);
+}  // namespace detail
+microhal::GPIO &csDat = detail::csDat;
+microhal::GPIO &csCon = detail::csCon;
+microhal::GPIO &RESET = detail::RESET;
+}  // namespace moduleB
+}  // namespace bsp
+
 extern "C" int main(int, void *);
 
 static void run_main(void *) {
@@ -55,8 +80,8 @@ void hardwareConfig(void) {
     //    while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
     //        ;
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
     bsp::debugPort.setDataBits(stm32f3xx::SerialPort::Data8);
     bsp::debugPort.setStopBits(stm32f3xx::SerialPort::OneStop);
@@ -65,9 +90,9 @@ void hardwareConfig(void) {
     bsp::debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
     diagChannel.setOutputDevice(bsp::debugPort);
 
-    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::GPIO::PortA, 5>();
-    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
-    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
+    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::IOPin::PortA, 5>();
+    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::IOPin::PortA, 6>();
+    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::IOPin::PortA, 7>();
 
     stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
     stm32f3xx::SPI::spi1.enable();

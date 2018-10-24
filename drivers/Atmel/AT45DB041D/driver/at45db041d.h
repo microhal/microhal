@@ -17,7 +17,7 @@
 /******************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 #include "SPIDevice/SPIDevice.h"
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
@@ -35,6 +35,9 @@ using namespace std::literals::chrono_literals;
 
 class AT45DB041D : private microhal::SPIDevice {
  public:
+    using GPIO = microhal::GPIO;
+    using SPI = microhal::SPI;
+
     enum class Hardware : uint16_t { Manufacturer_ID = 0x9d88 };
     enum class PageSize : uint16_t { Size_256 = 256, Size_264 = 264 };
 
@@ -53,21 +56,18 @@ class AT45DB041D : private microhal::SPIDevice {
     };
 
  private:
-    microhal::GPIO resetPin;
-    microhal::GPIO wpPin;
+    GPIO &resetPin;
+    GPIO &wpPin;
 
  public:
     const PageSize pageSize;
     const uint8_t Shift;
     static constexpr uint16_t PagesCount = 2048;
 
-    AT45DB041D(microhal::SPI &spi, const microhal::GPIO::IOPin CEpin, const microhal::GPIO::IOPin RESETpin, const microhal::GPIO::IOPin WPpin,
-               PageSize pageSize)
-        : microhal::SPIDevice(spi, CEpin),
-          resetPin(RESETpin, microhal::GPIO::Direction::Output),
-          wpPin(WPpin, microhal::GPIO::Direction::Output),
-          pageSize(pageSize),
-          Shift(getShift(pageSize)) {
+    AT45DB041D(SPI &spi, GPIO &CEpin, GPIO &RESETpin, GPIO &WPpin, PageSize pageSize)
+        : microhal::SPIDevice(spi, CEpin), resetPin(RESETpin), wpPin(WPpin), pageSize(pageSize), Shift(getShift(pageSize)) {
+        resetPin.setDirectionOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
+        wpPin.setDirectionOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
         resetPin.set();
         wpPin.set();
     }

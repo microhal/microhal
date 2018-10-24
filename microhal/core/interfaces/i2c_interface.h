@@ -34,6 +34,7 @@
 #include <mutex>
 
 namespace microhal {
+class I2CSlave;
 
 class I2C {
  public:
@@ -62,7 +63,7 @@ class I2C {
     virtual Error read(DeviceAddress deviceAddress, uint8_t *data, size_t size) noexcept = 0;
     virtual Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept = 0;
     virtual Error writeRead(DeviceAddress deviceAddress, const uint8_t *write, size_t writeLength, uint8_t *read, size_t readLength) noexcept = 0;
-
+    virtual bool addSlave(I2CSlave &) = 0;
     virtual ~I2C() {}
 
  protected:
@@ -74,13 +75,13 @@ class I2C {
     }
 
     /**
-         * @brief This function return maximum rise time for specific I2C bus
+     * @brief This function return maximum rise time for specific I2C bus
      * mode.
-         *
-         * @param mode for with will be maximum rise time returned.
-         *
-         * @return maximum rise time in [ns].
-         */
+     *
+     * @param mode for with will be maximum rise time returned.
+     *
+     * @return maximum rise time in [ns].
+     */
     uint32_t getMaxRiseTime(Mode mode) const noexcept {
         const uint32_t riseTime[] = {1000, 300, 160, 80};
         return riseTime[static_cast<uint_fast8_t>(mode)];

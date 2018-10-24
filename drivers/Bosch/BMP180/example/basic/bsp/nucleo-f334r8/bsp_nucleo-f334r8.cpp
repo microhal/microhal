@@ -35,11 +35,11 @@ using namespace microhal;
 using namespace diagnostic;
 
 void bsp::init() {
-    stm32f3xx::IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    stm32f3xx::IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    stm32f3xx::IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    stm32f3xx::IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
-    stm32f3xx::IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
-    stm32f3xx::IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
+    stm32f3xx::IOManager::routeI2C<1, SDA, stm32f3xx::IOPin::PortB, 9>();
+    stm32f3xx::IOManager::routeI2C<1, SCL, stm32f3xx::IOPin::PortB, 8>();
 
     stm32f3xx::I2C::i2c1.init();
     stm32f3xx::I2C::i2c1.speed(100000, microhal::I2C::Mode::Standard);

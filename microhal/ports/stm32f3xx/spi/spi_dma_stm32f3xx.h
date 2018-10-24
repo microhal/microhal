@@ -17,7 +17,7 @@
 
 namespace microhal {
 namespace stm32f3xx {
-extern "C"{
+extern "C" {
 void DMA1_Channel2_IRQHandler(void);
 void DMA1_Channel3_IRQHandler(void);
 void DMA1_Channel4_IRQHandler(void);
@@ -28,8 +28,8 @@ void DMA1_Channel7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class SPI_dma: public stm32f3xx::SPI {
-public:
+class SPI_dma : public stm32f3xx::SPI {
+ public:
     //---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_SPI1_DMA
     static SPI_dma spi1;
@@ -42,18 +42,17 @@ public:
 #endif
     //---------------------------------------- functions ----------------------------------------//
     SPI::Error write(const void *data, size_t len, bool last) final;
-    SPI::Error read(void *data, size_t len, uint8_t write = 0x00) final {
-    	return writeRead(&write, data, 1, len);
-    }
+    SPI::Error read(void *data, size_t len, uint8_t write = 0x00) final { return writeRead(&write, data, 1, len); }
     SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final {
-    	return writeRead(dataWrite, dataRead, readWriteLength, readWriteLength);
+        return writeRead(dataWrite, dataRead, readWriteLength, readWriteLength);
     }
 
     void setDMAStreamPriority(DMA::Channel::Priority rxPriority, DMA::Channel::Priority txPriority) {
-    	rxStream.priority(rxPriority);
-    	txStream.priority(txPriority);
+        rxStream.priority(rxPriority);
+        txStream.priority(txPriority);
     }
-private:
+
+ private:
     //---------------------------------------- variables ----------------------------------------//
     os::Semaphore semaphore;
     DMA::DMA &dma;
@@ -61,13 +60,13 @@ private:
     DMA::Channel &txStream;
 
     //--------------------------------------- constructors --------------------------------------//
-    SPI_dma(SPI_TypeDef &spi, DMA::DMA &dma, DMA::Channel & rxStream, DMA::Channel & txStream, stm32f3xx::GPIO::IOPin misoPin) :
-            SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
-    	ClockManager::enable(spi);
+    SPI_dma(SPI_TypeDef &spi, DMA::DMA &dma, DMA::Channel &rxStream, DMA::Channel &txStream, stm32f3xx::IOPin misoPin)
+        : SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
+        ClockManager::enable(spi);
 #if defined(HAL_RTOS_FreeRTOS)
-    	priority(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+        priority(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #else
-    	priority(0);
+        priority(0);
 #endif
         init();
     }
@@ -89,7 +88,7 @@ private:
     friend void SPI3_IRQHandler(void);
 };
 
-} // namespace stm32f3xx
-} // namespace microhal
+}  // namespace stm32f3xx
+}  // namespace microhal
 
 #endif /* SPI_DMA_STM32F4XX_H_ */

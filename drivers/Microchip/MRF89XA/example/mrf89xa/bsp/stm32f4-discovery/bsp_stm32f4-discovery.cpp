@@ -37,6 +37,30 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+namespace bsp {
+namespace moduleA {
+namespace detail {
+stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortD, 8}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortD, 1}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortD, 0}, stm32f4xx::GPIO::Direction::Input);
+}  // namespace detail
+microhal::GPIO &csDat = detail::csDat;
+microhal::GPIO &csCon = detail::csCon;
+microhal::GPIO &RESET = detail::RESET;
+}  // namespace moduleA
+
+namespace moduleB {
+namespace detail {
+stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortB, 8}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortA, 3}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortA, 1}, stm32f4xx::GPIO::Direction::Input);
+}  // namespace detail
+microhal::GPIO &csDat = detail::csDat;
+microhal::GPIO &csCon = detail::csCon;
+microhal::GPIO &RESET = detail::RESET;
+}  // namespace moduleB
+}  // namespace bsp
+
 extern "C" int main(int, void *);
 
 static void run_main(void *) {
@@ -50,26 +74,26 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    stm32f4xx::IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    stm32f4xx::IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    stm32f4xx::IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    stm32f4xx::IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
     //    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
     //    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
 
-    IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortB, 4>();
-    IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortB, 5>();
+    IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortB, 4>();
+    IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortB, 5>();
 
-    IOManager::routeSPI<2, SCK, stm32f4xx::GPIO::PortB, 13>();
-    IOManager::routeSPI<2, MISO, stm32f4xx::GPIO::PortB, 14>();
-    IOManager::routeSPI<2, MOSI, stm32f4xx::GPIO::PortB, 15>();
+    IOManager::routeSPI<2, SCK, stm32f4xx::IOPin::PortB, 13>();
+    IOManager::routeSPI<2, MISO, stm32f4xx::IOPin::PortB, 14>();
+    IOManager::routeSPI<2, MOSI, stm32f4xx::IOPin::PortB, 15>();
 
     // pull down RF modules interrupt pins
-    stm32f4xx::GPIO::setPullType(bsp::moduleA::IRQ0.port, bsp::moduleA::IRQ0.pin, stm32f4xx::GPIO::PullDown);
-    stm32f4xx::GPIO::setPullType(bsp::moduleA::IRQ1.port, bsp::moduleA::IRQ1.pin, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleA::IRQ0, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleA::IRQ1, stm32f4xx::GPIO::PullDown);
 
-    stm32f4xx::GPIO::setPullType(bsp::moduleB::IRQ0.port, bsp::moduleB::IRQ0.pin, stm32f4xx::GPIO::PullDown);
-    stm32f4xx::GPIO::setPullType(bsp::moduleB::IRQ1.port, bsp::moduleB::IRQ1.pin, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleB::IRQ0, stm32f4xx::GPIO::PullDown);
+    stm32f4xx::GPIO::setPullType(bsp::moduleB::IRQ1, stm32f4xx::GPIO::PullDown);
 
     // configure Serial Port interfaces
     stm32f4xx::SerialPort::Serial3.clear();

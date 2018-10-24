@@ -141,5 +141,32 @@ I2C::Speed I2C::speed() noexcept {
     return clockFreqHz / ((SCLL + SCLH + 2) * (PRESC + 1));
 }
 
+bool I2C::addSlave(I2CSlave &i2cSlave) {
+    if (slave[0] == nullptr) {
+        slave[0] = &i2cSlave;
+        i2c.CR1 |= I2C_CR1_ADDRIE | I2C_CR1_SBC;
+        i2c.OAR1 = I2C_OAR1_OA1EN | i2cSlave.getAddress();
+        return true;
+    } else if (slave[1] == nullptr) {
+        slave[1] = &i2cSlave;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool I2C::removeSlave(I2CSlave &i2cSlave) {
+    if (slave[0] == &i2cSlave) {
+        i2c.OAR1 = 0;
+        slave[0] = nullptr;
+        return true;
+    } else if (slave[1] == &i2cSlave) {
+        slave[1] = nullptr;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 }  // namespace stm32f3xx
 }  // namespace microhal

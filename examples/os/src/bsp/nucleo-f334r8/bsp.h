@@ -34,17 +34,17 @@
 
 static microhal::SerialPort &serialPort = microhal::stm32f3xx::SerialPort::Serial2;
 
-constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f3xx::GPIO::Port::PortA, 5);
-constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f3xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f3xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f3xx::GPIO::Port::PortD, 15);
+constexpr microhal::IOPin ld2_pin(microhal::stm32f3xx::IOPin::Port::PortA, 5);
+constexpr microhal::IOPin led3_pin(microhal::stm32f3xx::IOPin::Port::PortD, 13);
+constexpr microhal::IOPin led5_pin(microhal::stm32f3xx::IOPin::Port::PortD, 14);
+constexpr microhal::IOPin led6_pin(microhal::stm32f3xx::IOPin::Port::PortD, 15);
 
-constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f3xx::GPIO::Port::PortC, 13);
+constexpr microhal::IOPin button_pin(microhal::stm32f3xx::IOPin::Port::PortC, 13);
 
-constexpr microhal::GPIO::IOPin GreenLed = ld2_pin;
-constexpr microhal::GPIO::IOPin RedLed = led5_pin;
-constexpr microhal::GPIO::IOPin blueLed_pin = led6_pin;
-constexpr microhal::GPIO::IOPin orangeLed_pin = led3_pin;
+constexpr microhal::IOPin GreenLed = ld2_pin;
+constexpr microhal::IOPin RedLed = led5_pin;
+constexpr microhal::IOPin blueLed_pin = led6_pin;
+constexpr microhal::IOPin orangeLed_pin = led3_pin;
 
 namespace bsp {
 void init();

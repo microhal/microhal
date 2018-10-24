@@ -38,8 +38,8 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
     debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);

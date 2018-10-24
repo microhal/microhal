@@ -36,11 +36,11 @@ using namespace microhal;
 using namespace stm32f3xx;
 
 void bsp::init() {
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
-    IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
+    IOManager::routeI2C<1, SDA, stm32f3xx::IOPin::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f3xx::IOPin::PortB, 8>();
 
     bsp::debugPort.open(IODevice::ReadWrite);
     bsp::debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);

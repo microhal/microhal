@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      GPIO example main file
  *
@@ -8,7 +8,7 @@
  * created on: 30-01-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, microHAL
+ * @copyright Copyright (c) 2014-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,21 +37,15 @@ using namespace microhal;
 using namespace std::literals::chrono_literals;
 
 int main(void) {
-    // Create GPIO instances. To see where this GPIO are connected open 'boards' folder and open folder named as your development kit, all pins
-    // definition will be in microhal_bsp.h file.
-    GPIO greenLed(greenLed_pin, GPIO::Direction::Output);
-    GPIO redLed(redLed_pin, GPIO::Direction::Output);
-    GPIO button(button_pin, GPIO::Direction::Input);
-
     while (1) {
         std::this_thread::sleep_for(500ms);
 
-        greenLed.toggle();
+        bsp::greenLed.toggle();
 
-        if (button.isSet()) {
-            redLed.set();
+        if (bsp::button.isSet()) {
+            bsp::redLed.set();
         } else {
-            redLed.reset();
+            bsp::redLed.reset();
         }
     }
 

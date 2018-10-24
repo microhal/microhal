@@ -24,16 +24,14 @@ namespace microhal {
 /* ************************************************************************************************
  * CLASS
  */
-class Button: private microhal::GPIO {
-public:
-    typedef enum {
-        ACTIVE_LOW = 0x00, ACTIVE_HIGH = 0xFF
-    } ActiveState;
+class Button {
+ public:
+    typedef enum { ACTIVE_LOW = 0x00, ACTIVE_HIGH = 0xFF } ActiveState;
 
     Button() = delete;
 
-    Button(const GPIO::IOPin pin, const ActiveState activeState = ACTIVE_LOW) __attribute__((always_inline)) :
-    GPIO(pin, GPIO::Direction::Input, GPIO::PullUp), onPressed(), activeState(activeState), debouncer(0xAA) {
+    Button(GPIO &gpio, ActiveState activeState = ACTIVE_LOW) : onPressed(), gpio(gpio), activeState(activeState), debouncer(0xAA) {
+        gpio.setDirectionInput(activeState == ACTIVE_LOW ? GPIO::PullType::PullUp : GPIO::PullType::PullDown);
         if (first == nullptr) {
             first = this;
         } else {
@@ -45,35 +43,36 @@ public:
         }
     }
 
-    bool isPressed() {
-        return (debouncer == activeState);
-    }
+    bool isPressed() { return (debouncer == activeState); }
 
     Signal<void> onPressed;
-private:
+
+ private:
+    GPIO &gpio;
     static Button *first;
     Button *next = nullptr;
 
     const uint8_t activeState;
     uint8_t debouncer;
     bool signalEmited = false;
-public:
+
+ public:
     static void timeProc() {
         Button *active = first;
 
         while (active != nullptr) {
-            //shift samples
+            // shift samples
             active->debouncer <<= 1;
-            //if button pressed add 1 to last position;
-            if (active->get()) {
+            // if button pressed add 1 to last position;
+            if (active->gpio.get()) {
                 active->debouncer |= 0x01;
             }
             if (active->isPressed()) {
-                if(active->signalEmited == false) {
+                if (active->signalEmited == false) {
                     active->signalEmited = true;
                     active->onPressed.emit();
                 }
-            }else{
+            } else {
                 active->signalEmited = false;
             }
             active = active->next;
@@ -81,7 +80,7 @@ public:
     }
 };
 
-}
- // namespace microhal
+}  // namespace microhal
+   // namespace microhal
 
 #endif /* BUTTON_H_ */

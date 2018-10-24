@@ -8,7 +8,7 @@
  * created on: 16-01-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, Paweł Okas
+ * @copyright Copyright (c) 2014-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -140,31 +140,29 @@ class SerialPort : public microhal::IODevice {
         UnknownStopBits  ///< Unknown number of stop bits/
     };
     //------------------------------------------ destructors ----------------------------------------//
-    //virtual ~SerialPort() {}
+    // virtual ~SerialPort() {}
     //------------------------------------------- functions -----------------------------------------//
 
     bool open(OpenMode mode, uint32_t baudRate, DataBits dataBits = Data8, StopBits stopBits = OneStop, Parity parity = NoParity) noexcept;
     // IODevice functions
     virtual bool open(OpenMode mode) noexcept = 0;
-//    void close() noexcept override = 0;
-//    bool isOpen() const noexcept override = 0;
+    //    void close() noexcept override = 0;
+    //    bool isOpen() const noexcept override = 0;
 
     virtual size_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) = 0;
-    size_t read(char *buffer, size_t length) noexcept override {
-        return read(buffer, length, std::chrono::milliseconds::zero());
-    }
-//    virtual size_t readLine(char *buffer, size_t maxLength) noexcept {
-//        (void)buffer;
-//        (void)maxLength;
-//        // todo implement
-//        return 0;
-//    }
+    size_t read(char *buffer, size_t length) noexcept override { return read(buffer, length, std::chrono::milliseconds::zero()); }
+    //    virtual size_t readLine(char *buffer, size_t maxLength) noexcept {
+    //        (void)buffer;
+    //        (void)maxLength;
+    //        // todo implement
+    //        return 0;
+    //    }
 
-//    virtual bool getChar(char &c) noexcept = 0;
-//    virtual bool putChar(char c) noexcept = 0;
+    //    virtual bool getChar(char &c) noexcept = 0;
+    //    virtual bool putChar(char c) noexcept = 0;
 
-//    virtual size_t write(const char *data, size_t length) noexcept = 0;
-//    using IODevice::write;
+    //    virtual size_t write(const char *data, size_t length) noexcept = 0;
+    //    using IODevice::write;
     // end of IODevice functions
 
     virtual bool setBaudRate(uint32_t baudRate) noexcept = 0;
@@ -183,4 +181,4 @@ class SerialPort : public microhal::IODevice {
 
 }  // namespace microhal
 
-#endif // _MICROHAL_SERIALPORT_INTERFACE_H_
+#endif  // _MICROHAL_SERIALPORT_INTERFACE_H_

@@ -35,13 +35,13 @@
 
 static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+constexpr microhal::IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);
+constexpr microhal::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
 
-constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+constexpr microhal::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
 
-constexpr microhal::GPIO::IOPin GreenLed = ld2_pin;
-constexpr microhal::GPIO::IOPin RedLed = Led3;
+constexpr microhal::IOPin GreenLed = ld2_pin;
+constexpr microhal::IOPin RedLed = Led3;
 
 namespace bsp {
 void init();

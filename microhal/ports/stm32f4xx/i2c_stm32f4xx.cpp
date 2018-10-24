@@ -7,6 +7,7 @@
 
 #include "i2c_stm32f4xx.h"
 #include "clockManager.h"
+#include "interfaces/i2cSlave.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -108,6 +109,32 @@ I2C::Speed I2C::speed() noexcept {
     }
     uint16_t ccr = i2c.CCR & 0x0FFF;
     return clockFreqHz / (multiply * ccr);
+}
+
+bool I2C::addSlave(I2CSlave &i2cSlave) {
+    if (slave[0] == nullptr) {
+        slave[0] = &i2cSlave;
+        i2c.OAR1 = 1 << 14 | i2cSlave.getAddress();
+        return true;
+    } else if (slave[1] == nullptr) {
+        slave[1] = &i2cSlave;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool I2C::removeSlave(I2CSlave &i2cSlave) {
+    if (slave[0] == &i2cSlave) {
+        i2c.OAR1 = 1 << 14;
+        slave[0] = nullptr;
+        return true;
+    } else if (slave[1] == &i2cSlave) {
+        slave[1] = nullptr;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 }  // namespace stm32f4xx

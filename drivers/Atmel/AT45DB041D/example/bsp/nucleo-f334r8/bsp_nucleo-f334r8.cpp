@@ -45,6 +45,20 @@ using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
 
+namespace bsp {
+namespace detail {
+stm32f3xx::GPIO ce(con1::a::ss, stm32f3xx::GPIO::Direction::Output);
+stm32f3xx::GPIO reset(con1::a::io1, stm32f3xx::GPIO::Direction::Output);
+stm32f3xx::GPIO wp(con1::a::io2, stm32f3xx::GPIO::Direction::Output);
+}  // namespace detail
+namespace at45db {
+microhal::SPI &spi = microhal::stm32f3xx::SPI::spi1;
+microhal::GPIO &ce = detail::ce;
+microhal::GPIO &reset = detail::reset;
+microhal::GPIO &wp = detail::wp;
+}  // namespace at45db
+}  // namespace bsp
+
 void hardwareConfig(void) {
     (void)bsp::at45db::spi;
     (void)bsp::debugPort;
@@ -55,8 +69,8 @@ void hardwareConfig(void) {
     while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL) {
     }
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, IOPin::PortA, 3>();
 
     bsp::debugPort.setDataBits(stm32f3xx::SerialPort::Data8);
     bsp::debugPort.setStopBits(stm32f3xx::SerialPort::OneStop);
@@ -65,9 +79,9 @@ void hardwareConfig(void) {
     bsp::debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
     diagChannel.setOutputDevice(bsp::debugPort);
 
-    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::GPIO::PortA, 5>();
-    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
-    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
+    stm32f3xx::IOManager::routeSPI<1, SCK, IOPin::PortA, 5>();
+    stm32f3xx::IOManager::routeSPI<1, MISO, IOPin::PortA, 6>();
+    stm32f3xx::IOManager::routeSPI<1, MOSI, IOPin::PortA, 7>();
 
     stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
     stm32f3xx::SPI::spi1.enable();

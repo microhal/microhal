@@ -35,18 +35,35 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+namespace bsp {
+namespace detail {
+stm32f4xx::GPIO ce(con1::a::ss, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO reset(con1::a::io1, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO wp(con1::a::io2, stm32f4xx::GPIO::Direction::Output);
+}  // namespace detail
+
+namespace at45db {
+
+microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+microhal::GPIO &ce = detail::ce;
+microhal::GPIO &reset = detail::reset;
+microhal::GPIO &wp = detail::wp;
+
+}  // namespace at45db
+}  // namespace bsp
+
 void hardwareConfig(void) {
     (void)bsp::at45db::spi;
     (void)bsp::debugPort;
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
-    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
+    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
     stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler8);
     stm32f4xx::SPI::spi1.enable();

@@ -13,32 +13,32 @@ namespace microhal {
 namespace stm32f4xx {
 
 #ifdef MICROHAL_USE_SPI1_INTERRUPT
-GPIO::IOPin spi1MisoPin(GPIO::PortB, 4);
+IOPin spi1MisoPin(IOPin::PortB, 4);
 SPI_interrupt SPI_interrupt::spi1(*SPI1, spi1MisoPin);
 SPI &SPI::spi1 = SPI_interrupt::spi1;
 #endif
 #ifdef MICROHAL_USE_SPI2_INTERRUPT
-GPIO::IOPin spi2MisoPin(GPIO::PortB, 14);
+IOPin spi2MisoPin(IOPin::PortB, 14);
 SPI_interrupt SPI_interrupt::spi2(*SPI2, spi2MisoPin);
 SPI &SPI::spi2 = SPI_interrupt::spi2;
 #endif
 #ifdef MICROHAL_USE_SPI3_INTERRUPT
-GPIO::IOPin spi3MisoPin(GPIO::PortC, 11);
+IOPin spi3MisoPin(IOPin::PortC, 11);
 SPI_interrupt SPI_interrupt::spi3(*SPI3, spi3MisoPin);
 SPI &SPI::spi3 = SPI_interrupt::spi3;
 #endif
 #ifdef MICROHAL_USE_SPI4_INTERRUPT
-GPIO::IOPin spi4MisoPin(GPIO::PortC, 11);
+IOPin spi4MisoPin(IOPin::PortC, 11);
 SPI_interrupt SPI_interrupt::spi4(*SPI4, spi4MisoPin);
 SPI &SPI::spi4 = SPI_interrupt::spi4;
 #endif
 #ifdef MICROHAL_USE_SPI5_INTERRUPT
-GPIO::IOPin spi5MisoPin(GPIO::PortC, 11);
+IOPin spi5MisoPin(IOPin::PortC, 11);
 SPI_interrupt SPI_interrupt::spi5(*SPI5, spi5MisoPin);
 SPI &SPI::spi5 = SPI_interrupt::spi5;
 #endif
 #ifdef MICROHAL_USE_SPI6_INTERRUPT
-GPIO::IOPin spi6MisoPin(GPIO::PortC, 11);
+IOPin spi6MisoPin(IOPin::PortC, 11);
 SPI_interrupt SPI_interrupt::spi6(*SPI6, spi6MisoPin);
 SPI &SPI::spi6 = SPI_interrupt::spi6;
 #endif

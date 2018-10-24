@@ -4,13 +4,34 @@
  *  Created on: 16 kwi 2014
  *      Author: pawel
  */
-#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "i2c.h"
 #include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
+
+namespace bsp {
+namespace detail {
+constexpr microhal::IOPin cePin(microhal::stm32f4xx::GPIO::Port::PortE, 3);
+constexpr microhal::IOPin resetPin(microhal::stm32f4xx::GPIO::Port::PortE, 3);
+constexpr microhal::IOPin wpPin(microhal::stm32f4xx::GPIO::Port::PortE, 3);
+
+stm32f4xx::GPIO ce(cePin, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO reset(resetPin, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO wp(wpPin, stm32f4xx::GPIO::Direction::Output);
+}  // namespace detail
+
+namespace at45db {
+
+microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+microhal::GPIO &ce = detail::ce;
+microhal::GPIO &reset = detail::reset;
+microhal::GPIO &wp = detail::wp;
+
+}  // namespace at45db
+}  // namespace bsp
 
 void hardwareConfig(void) {
     (void)bsp::at45db::spi;
@@ -18,12 +39,12 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
-    IOManager::routeSPI<Spi1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    IOManager::routeSPI<Spi1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    IOManager::routeSPI<Spi1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    IOManager::routeSPI<Spi1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    IOManager::routeSPI<Spi1, MISO, stm32f4xx::IOPin::PortA, 6>();
+    IOManager::routeSPI<Spi1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
     stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode3, stm32f4xx::SPI::Prescaler16);
     stm32f4xx::SPI::spi1.enable();

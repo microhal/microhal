@@ -8,7 +8,7 @@
  * created on: 16-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2016, Pawel Okas
+ * @copyright Copyright (c) 2014-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,28 @@
 
 using namespace microhal;
 using namespace stm32f4xx;
+
+namespace bsp {
+namespace detail {
+using Port = microhal::stm32f4xx::GPIO::Port;
+
+constexpr IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+constexpr IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortD, 12);
+constexpr IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
+constexpr IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+
+constexpr IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+
+stm32f4xx::GPIO greenLed(led4_pin, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO redLed(led3_pin, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO button(button_pin, stm32f4xx::GPIO::Direction::Input);
+}  // namespace detail
+
+microhal::GPIO& greenLed = detail::greenLed;
+microhal::GPIO& redLed = detail::redLed;
+microhal::GPIO& button = detail::button;
+
+}  // namespace bsp
 
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);

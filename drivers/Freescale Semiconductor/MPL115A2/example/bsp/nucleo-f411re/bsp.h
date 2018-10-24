@@ -36,23 +36,22 @@
 namespace bsp {
 namespace con1 {
 namespace a {
-constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 11);
-constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 10);
-constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortD, 2);
-constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortB, 13);
-//constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
-constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortC, 12);
-}
-}
-}
+constexpr microhal::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortC, 11);
+constexpr microhal::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortC, 10);
+constexpr microhal::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortD, 2);
+constexpr microhal::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortB, 13);
+// constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::IOPin io6(microhal::stm32f4xx::GPIO::Port::PortC, 12);
+}  // namespace a
+}  // namespace con1
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
 namespace mpl115a2 {
 
 static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
-constexpr microhal::GPIO::IOPin resetPin = bsp::con1::a::io2;
+extern microhal::GPIO &mplReset;
 
-}
-
+}  // namespace mpl115a2
+}  // namespace bsp
 #endif  // NUCLEO_F411RE_H_

@@ -41,11 +41,11 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
-    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
+    IOManager::routeI2C<1, SDA, stm32f4xx::IOPin::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f4xx::IOPin::PortB, 8>();
 
     stm32f4xx::I2C::i2c1.init();
     stm32f4xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);

@@ -27,8 +27,8 @@
  */ /* ==========================================================================================================================
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              */
 
-#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "i2c.h"
 #include "microhal.h"
 
@@ -36,11 +36,11 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 void bsp::init() {
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>(stm32f4xx::GPIO::PullUp);
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>(stm32f4xx::GPIO::PullUp);
+    IOManager::routeI2C<2, SDA, stm32f4xx::IOPin::PortB, 11>(stm32f4xx::GPIO::PullUp);
+    IOManager::routeI2C<2, SCL, stm32f4xx::IOPin::PortB, 10>(stm32f4xx::GPIO::PullUp);
 
     bsp::debugPort.setDataBits(microhal::SerialPort::Data8);
     bsp::debugPort.setStopBits(microhal::SerialPort::OneStop);

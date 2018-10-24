@@ -36,6 +36,7 @@
 
 #include "core_stm32f3xx.h"
 #include "device/stm32f3xx.h"
+#include "interfaces/i2cSlave.h"
 #include "interfaces/i2c_interface.h"
 #include "microhalPortConfig_stm32f3xx.h"
 
@@ -158,8 +159,14 @@ class I2C : public microhal::I2C {
 
     bool configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty);
 
+    bool addSlave(I2CSlave &i2cSlave);
+
+    bool removeSlave(I2CSlave &i2cSlave);
+
  protected:
     I2C_TypeDef &i2c;
+    I2CSlave *slave[2] = {nullptr, nullptr};
+    I2CSlave *activeSlave = nullptr;
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
@@ -167,7 +174,20 @@ class I2C : public microhal::I2C {
         : i2c(i2c) {
     }
 
+    I2C(I2C &i2c) = delete;
+    I2C &operator=(const I2C &) = delete;
+
     void start() { i2c.CR2 |= I2C_CR2_START; }
+
+    void setActiveSlave(uint8_t address) {
+        for (int i = 0; i < 2; i++) {
+            if (slave[i]->getAddress() == address) {
+                activeSlave = slave[i];
+                return;
+            }
+        }
+        std::terminate();  // critical error
+    }
 
  public:
     static I2C::Error errorCheckAndClear(I2C_TypeDef *i2c, uint16_t isr) {

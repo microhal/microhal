@@ -45,11 +45,11 @@ void hardwareConfig(void) {
     while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
         ;
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
-    IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
+    IOManager::routeI2C<1, SDA, stm32f3xx::IOPin::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f3xx::IOPin::PortB, 8>();
 
     stm32f3xx::I2C::i2c1.init();
     stm32f3xx::I2C::i2c1.speed(100000, microhal::I2C::Mode::Standard);

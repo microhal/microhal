@@ -41,7 +41,9 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <interfaces/gpio_interface.h>
 #include <cstdint>
+#include "IOPin.h"
 #include "device/stm32f3xx.h"
 /* **************************************************************************************************************************************************
  * CLASS
@@ -49,58 +51,8 @@
 namespace microhal {
 namespace stm32f3xx {
 
-class GPIO {
+class GPIO : public microhal::GPIO {
  public:
-    //---------------------------------------- typedefs
-    //-----------------------------------------//
-    /**
-     * This enum contain port list.
-     */
-    typedef enum {
-        PortA = GPIOA_BASE,  //!< PortA
-        PortB = GPIOB_BASE,  //!< PortB
-        PortC = GPIOC_BASE,  //!< PortC
-        PortD = GPIOD_BASE,  //!< PortD
-#if defined(GPIOE_BASE)
-        PortE = GPIOE_BASE,  //!< PortE
-#endif
-        PortF = GPIOF_BASE   //!< PortF
-    } Port;
-    /**
-     *
-     */
-    typedef uint_fast8_t Pin;
-    /**
-     *
-     */
-    struct IOPin {
-        const Port port;
-        const Pin pin;
-        constexpr IOPin(const Port port, const Pin pin) : port(port), pin(pin) {}
-    };
-    /**
-     * @brief Possible pin directions
-     */
-    typedef enum : uint8_t {
-        Input = 0,  //!< INPUT
-        Output = 1  //!< OUTPUT
-    } Direction;
-    /**
-     * Possible pin output types
-     */
-    typedef enum : uint8_t {
-        PushPull = 0,  //!< PUSH_PULL
-        OpenDrain = 1  //!< OPEN_DRAIN
-    } OutputType;
-    /**
-     * Possible pull type
-     */
-    typedef enum : uint8_t {
-        NoPull = 0,   //!< NO_PULL
-        PullUp = 1,   //!< PULL_UP
-        PullDown = 2  //!< PULL_DOWN
-    } PullType;
-
     /**
      * @brief Possible pin speed
      */
@@ -135,6 +87,8 @@ class GPIO {
     } AlternateFunction;
 
  public:
+    using Port = IOPin::Port;
+    using Pin = IOPin::Pin;
     //--------------------------------------- constructors
     //--------------------------------------//
     /**
@@ -146,15 +100,28 @@ class GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    inline GPIO(const Port port, const Pin pin, const Direction dir, const PullType pull = NoPull, const OutputType type = PushPull,
-                Speed speed = HighSpeed) __attribute__((always_inline))
-    : pin(pin), port(port) {
-        pinInitialize(port, pin, PinConfiguration{dir, type, pull, speed});
+    GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed) : pin(pin) {
+        pinInitialize(pin.port, pin.pin, PinConfiguration{dir, type, pull, speed});
     }
 
     ~GPIO() {}
-    //------------------------------------ static functions
-    //-------------------------------------//
+
+    bool setState(bool value) final {
+        if (value) {
+            set(pin);
+        } else {
+            reset(pin);
+        }
+        return true;
+    }
+    /** This function read pin state*/
+    bool get() const final { return get(pin); }
+
+    bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
+        pinInitialize(pin.port, pin.pin, PinConfiguration{dir, type, pull, NoPull});
+        return true;
+    }
+    //------------------------------------ static functions -------------------------------------//
     /** @brief This function set pins to high state.
      *
      * @param port - port name
@@ -166,7 +133,7 @@ class GPIO {
      * @param port - port name
      * @param mask - if bit in mask is set then corresponding pin will be reset
      */
-    static inline void resetMask(Port port, uint16_t mask) __attribute__((always_inline)) {
+    static inline void resetMask(Port port, uint16_t mask) {
         reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = static_cast<uint32_t>(mask) << 16;
     }
     /** @brief This function return port state.
@@ -175,86 +142,76 @@ class GPIO {
      * @return - read value of pins. If pin zero is set then LSB in returned value
      * will be set.
      */
-    static inline uint16_t getMask(Port port) __attribute__((always_inline)) { return reinterpret_cast<volatile GPIO_TypeDef *>(port)->IDR; }
+    static uint16_t getMask(Port port) __attribute__((always_inline)) { return reinterpret_cast<volatile GPIO_TypeDef *>(port)->IDR; }
     /** This function set pin to high state.
      *
      * @param port - port name
      * @param pin - pin number
      */
-    static inline void set(Port port, Pin pin) { setMask(port, 1 << pin); }
-    /** This function set pin to high state. */
-    inline void set() { set(port, pin); }
+    static void set(IOPin pin) { setMask(pin.port, 1 << pin.pin); }
     /** This function set pin to low state.
      *
      * @param port - port name
      * @param pin - pin number
      */
-    static inline void reset(Port port, Pin pin) { resetMask(port, 1 << pin); }
-    /** This function set pin to low state.*/
-    inline void reset() { reset(port, pin); }
+    static void reset(IOPin pin) { resetMask(pin.port, 1 << pin.pin); }
     /** This function read pin state
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static inline bool get(Port port, Pin pin) { return (getMask(port) & static_cast<uint16_t>(1 << pin)); }
-    /** This function read pin state*/
-    inline bool get() const { return get(port, pin); }
+    static bool get(IOPin pin) { return (getMask(pin.port) & static_cast<uint16_t>(1 << pin.pin)); }
+
     /** This function check for pin set.
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static inline bool isSet(Port port, Pin pin) { return get(port, pin); }
-    /** This function check for pin set.*/
-    inline bool isSet() const { return isSet(port, pin); }
+    static bool isSet(IOPin pin) { return get(pin); }
     /** This function check for pin reset.
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static inline bool isReset(Port port, Pin pin) { return !get(port, pin); }
-    /** This function check for pin reset.*/
-    inline bool isReset() const { return isReset(port, pin); }
+    static bool isReset(IOPin pin) { return !get(pin); }
     /** Sets pin to opposite state
      *
      * @param port - port name
      * @param pin - pin number
      */
-    static inline void toggle(Port port, Pin pin) { (isSet(port, pin)) ? (reset(port, pin)) : (set(port, pin)); }
-    /** Sets pin to opposite state*/
-    inline void toggle() { toggle(port, pin); }
+    static void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
+    using microhal::GPIO::toggle;
     /** This function set pin direction.
      *
      * @param port - port name
      * @param pin - pin number
      * @param direction - pin direction
      */
-    static inline void setDirection(const Port port, const Pin pin, const Direction direction) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->OTYPER |= direction << pin;
+    static inline void setDirection(IOPin pin, const Direction direction) {
+        reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->OTYPER |= direction << pin.pin;
     }
     /** This function set pin direction.
      *
      * @param direction - pin direction
      */
-    inline void setDirection(const Direction direction) { setDirection(port, pin, direction); }
+    inline void setDirection(Direction direction) { setDirection(pin, direction); }
     /** This function set pin pull type
      *
      * @param port
      * @param pin
      * @param pullType
      */
-    static inline void setPullType(const Port port, const Pin pin, const PullType pullType) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->PUPDR |= pullType << (pin * 2);
+    static inline void setPullType(IOPin pin, const PullType pullType) {
+        reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->PUPDR |= pullType << (pin.pin * 2);
     }
     /** This function set pin pull type
      *
      * @param pullType
      */
-    inline void setPullType(const PullType pullType) { setPullType(port, pin, pullType); }
+    void setPullType(PullType pullType) { setPullType(pin, pullType); }
     //----------------------------- not portable functions
     //-----------------------------------
     /** This function is not portable, when called set pin speed
@@ -263,24 +220,15 @@ class GPIO {
      * @param pin - pin number
      * @param speed - pin speed
      */
-    static inline void setSpeed(const Port port, const Pin pin, const Speed speed) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->OSPEEDR |= speed << (pin * 2);
-    }
-    /** This function set pin speed
-     *
-     * @param pin -
-     * @param speed - pin speed
-     */
-    static inline void setSpeed(IOPin pin, const Speed speed) { setSpeed(pin.port, pin.pin, speed); }
+    static void setSpeed(IOPin pin, const Speed speed) { reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->OSPEEDR |= speed << (pin.pin); }
     /** This function set pin speed
      *
      * @param speed - pin speed
      */
-    inline void setSpeed(const Speed speed) { setSpeed(port, pin, speed); }
+    void setSpeed(const Speed speed) { setSpeed(pin, speed); }
 
  protected:
-    const Pin pin;
-    const Port port;
+    const IOPin pin;
 
     static void pinInitialize(const Port port, const uint_fast8_t pin, const PinConfiguration configuration);
     /**

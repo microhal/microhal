@@ -41,6 +41,8 @@
 
 class Sd final {
  public:
+    using GPIO = microhal::GPIO;
+
     struct CSDv1 {
         uint8_t CSD_STRUCTURE : 2;
         // reserved : 6
@@ -161,7 +163,10 @@ class Sd final {
         Unknown = 0b1000'0000
     };
 
-    Sd(microhal::SPI &spi, microhal::GPIO::IOPin chipSelect) noexcept : spi(spi), cs(chipSelect, microhal::GPIO::Direction::Output) { cs.set(); }
+    Sd(microhal::SPI &spi, GPIO &chipSelect) noexcept : spi(spi), cs(chipSelect) {
+        cs.setDirectionOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
+        cs.set();
+    }
     ~Sd();
 
     bool init();
@@ -200,7 +205,7 @@ class Sd final {
 
  private:
     microhal::SPI &spi;
-    microhal::GPIO cs;
+    microhal::GPIO &cs;
     uint16_t blockSize = 512;
     CardType cardType = CardType::Unknown;
     uint64_t cardCapacity = 0;
@@ -225,8 +230,8 @@ class Sd final {
         uint32_t getArgument() { return convertEndiannessIfRequired(argument, microhal::Endianness::Big); }
 
      protected:
-        Command(uint8_t cmdIndex, uint32_t argument) noexcept : startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex),
-                                                                argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)) {
+        Command(uint8_t cmdIndex, uint32_t argument) noexcept
+            : startBitTransmissionBitAndCommandIndex(0x40 | cmdIndex), argument(convertEndiannessIfRequired(argument, microhal::Endianness::Big)) {
             calculateCRC();
         }
 

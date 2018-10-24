@@ -73,7 +73,7 @@ class SPI_dma : public stm32f4xx::SPI {
     DMA::Stream &txStream;
 
     //--------------------------------------- constructors --------------------------------------//
-    SPI_dma(SPI_TypeDef &spi, DMA::DMA &dma, DMA::Stream &rxStream, DMA::Stream &txStream, stm32f4xx::GPIO::IOPin misoPin)
+    SPI_dma(SPI_TypeDef &spi, DMA::DMA &dma, DMA::Stream &rxStream, DMA::Stream &txStream, stm32f4xx::IOPin misoPin)
         : SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
         ClockManager::enable(spi, ClockManager::PowerMode::Normal);
 #if defined(HAL_RTOS_FreeRTOS)

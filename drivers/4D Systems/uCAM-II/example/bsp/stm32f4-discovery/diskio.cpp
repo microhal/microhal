@@ -29,7 +29,7 @@ class FatFSDisc {
 
 class SDSPIDisc : public FatFSDisc {
  public:
-    SDSPIDisc(microhal::SPI &spi, microhal::GPIO::IOPin cs) : sd(spi, cs) {}
+    SDSPIDisc(microhal::SPI &spi, microhal::GPIO &cs) : sd(spi, cs) {}
     DSTATUS initialize() final {
         if (sd.init()) {
             stm32f4xx::SPI::spi3.prescaler(stm32f4xx::SPI::Prescaler16);
@@ -98,11 +98,10 @@ class SDSPIDisc : public FatFSDisc {
                 //				} else {					/* SDC ver 1.XX or MMC */
                 //					if ((send_cmd(CMD9, 0) == 0) && rcvr_datablock(csd, 16)) {	/* Read CSD */
                 //						if (CardType & CT_SD1) {	/* SDC ver 1.XX */
-                //							*(DWORD*)buff = (((csd[10] & 63) << 1) + ((WORD)(csd[11] & 128) >> 7) + 1) << ((csd[13] >>
-                //6) - 1);
-                //						} else {					/* MMC */
-                //							*(DWORD*)buff = ((WORD)((csd[10] & 124) >> 2) + 1) * (((csd[11] & 3) << 3) + ((csd[11] &
-                //224) >> 5) + 1);
+                //							*(DWORD*)buff = (((csd[10] & 63) << 1) + ((WORD)(csd[11] & 128) >> 7) + 1) << ((csd[13]
+                //>> 6) - 1); 						} else {					/* MMC */
+                //							*(DWORD*)buff = ((WORD)((csd[10] & 124) >> 2) + 1) * (((csd[11] & 3) << 3) + ((csd[11]
+                //& 224) >> 5) + 1);
                 //						}
                 //						res = RES_OK;
                 //					}
@@ -118,9 +117,8 @@ class SDSPIDisc : public FatFSDisc {
             //				if (!(CardType & CT_BLOCK)) {
             //					st *= 512; ed *= 512;
             //				}
-            //				if (send_cmd(CMD32, st) == 0 && send_cmd(CMD33, ed) == 0 && send_cmd(CMD38, 0) == 0 && wait_ready(30000)) {	/* Erase sector
-            //block */
-            //					res = RES_OK;	/* FatFs does not check result of this command */
+            //				if (send_cmd(CMD32, st) == 0 && send_cmd(CMD33, ed) == 0 && send_cmd(CMD38, 0) == 0 && wait_ready(30000)) {	/* Erase
+            //sector block */ 					res = RES_OK;	/* FatFs does not check result of this command */
             //				}
             //				break;
             //
@@ -139,14 +137,17 @@ class SDSPIDisc : public FatFSDisc {
 static FatFSDisc nullDisc;
 static SDSPIDisc sdDisc(bsp::sdCard::spi, bsp::sdCard::cs);
 static FatFSDisc *discs[] = {
-    &sdDisc, &nullDisc, &nullDisc, &nullDisc,
+    &sdDisc,
+    &nullDisc,
+    &nullDisc,
+    &nullDisc,
 };
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
 /*-----------------------------------------------------------------------*/
 
 DSTATUS disk_status(BYTE pdrv /* Physical drive nmuber to identify the drive */
-                    ) {
+) {
     if (pdrv < sizeof(discs)) {
         return discs[pdrv]->status();
     }
@@ -158,7 +159,7 @@ DSTATUS disk_status(BYTE pdrv /* Physical drive nmuber to identify the drive */
 /*-----------------------------------------------------------------------*/
 
 DSTATUS disk_initialize(BYTE pdrv /* Physical drive nmuber to identify the drive */
-                        ) {
+) {
     if (pdrv < sizeof(discs)) {
         return discs[pdrv]->initialize();
     }
@@ -173,7 +174,7 @@ DRESULT disk_read(BYTE pdrv,    /* Physical drive nmuber to identify the drive *
                   BYTE *buff,   /* Data buffer to store read data */
                   DWORD sector, /* Start sector in LBA */
                   UINT count    /* Number of sectors to read */
-                  ) {
+) {
     if (pdrv < sizeof(discs)) {
         return discs[pdrv]->read(buff, sector, count);
     }
@@ -188,7 +189,7 @@ DRESULT disk_write(BYTE pdrv,        /* Physical drive nmuber to identify the dr
                    const BYTE *buff, /* Data to be written */
                    DWORD sector,     /* Start sector in LBA */
                    UINT count        /* Number of sectors to write */
-                   ) {
+) {
     if (pdrv < sizeof(discs)) {
         return discs[pdrv]->write(buff, sector, count);
     }
@@ -202,7 +203,7 @@ DRESULT disk_write(BYTE pdrv,        /* Physical drive nmuber to identify the dr
 DRESULT disk_ioctl(BYTE pdrv, /* Physical drive nmuber (0..) */
                    BYTE cmd,  /* Control code */
                    void *buff /* Buffer to send/receive control data */
-                   ) {
+) {
     if (pdrv < sizeof(discs)) {
         return discs[pdrv]->ioctl(cmd, buff);
     }

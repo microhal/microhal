@@ -27,8 +27,8 @@
  */ /* ==========================================================================================================================
                                                                                                                                                                                                                                                                                                                                                                                                           */
 
-#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "microhal.h"
 
 using namespace microhal;
@@ -53,7 +53,7 @@ void hardwareConfig(void) {
 
 namespace bsp {
 void init() {
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 }
 }  // namespace bsp

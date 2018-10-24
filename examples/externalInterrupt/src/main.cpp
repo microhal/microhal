@@ -35,30 +35,20 @@ using namespace std::literals::chrono_literals;
 
 // ---------------------- create 3 functions that will be on and off the LEDs
 void redLedToggleFunction() {
-    static GPIO redLed(redLed_pin, GPIO::Direction::Output);
-
-    redLed.toggle();
+    bsp::redLed.toggle();
 }
 
 void greenLedToggleFunction() {
-    static GPIO greenLed(greenLed_pin, GPIO::Direction::Output);
-
-    greenLed.toggle();
+    bsp::greenLed.toggle();
 }
 
 void blueLedToggleFunction() {
-    static GPIO blueLed(blueLed_pin, GPIO::Direction::Output);
-
-    blueLed.toggle();
+    bsp::blueLed.toggle();
 }
 
 // ---------------------- create class with slot that will be on and off the LEDs
 class LEDcontroller {
-    void orangeLedToggleFunction() {
-        static GPIO orangeLed(orangeLed_pin, GPIO::Direction::Output);
-
-        orangeLed.toggle();
-    }
+    void orangeLedToggleFunction() { bsp::orangeLed.toggle(); }
 
  public:
     Slot_0<LEDcontroller, &LEDcontroller::orangeLedToggleFunction> orangeLedToogleSlot;
@@ -73,12 +63,12 @@ int main(void) {
 
     // ------------------ using external interrupts without object -------------------------------------
     // connect function to interrupt
-    ExternalInterrupt::connect(redLedToggleFunction, ExternalInterrupt::Trigger::OnFallingEdge, button_pin);
+    ExternalInterrupt::connect(redLedToggleFunction, ExternalInterrupt::Trigger::OnFallingEdge, bsp::button_pin);
     // enable interrupt
-    ExternalInterrupt::enable(button_pin);
+    ExternalInterrupt::enable(bsp::button_pin);
 
     // ------------------ using external interrupts with object ----------------------------------------
-    ExternalInterrupt switchInterrupt(button_pin);
+    ExternalInterrupt switchInterrupt(bsp::button_pin);
 
     switchInterrupt.connect(greenLedToggleFunction, ExternalInterrupt::Trigger::OnFallingEdge);
 

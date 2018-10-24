@@ -13,7 +13,7 @@ namespace microhal {
 namespace stm32f4xx {
 
 #ifdef MICROHAL_USE_SPI1_POLLING
-GPIO::IOPin spi1MisoPin(GPIO::PortB, 4);
+IOPin spi1MisoPin(IOPin::PortB, 4);
 SPI_polling SPI_polling::spi1(*SPI1, spi1MisoPin);
 SPI &SPI::spi1 = SPI_polling::spi1;
 #endif

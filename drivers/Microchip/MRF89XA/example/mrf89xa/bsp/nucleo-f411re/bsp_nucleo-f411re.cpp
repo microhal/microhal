@@ -39,6 +39,31 @@ using namespace microhal;
 using namespace stm32f4xx;
 using namespace diagnostic;
 
+namespace bsp {
+
+namespace moduleA {
+namespace detail {
+stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortD, 8}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortD, 1}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortD, 0}, stm32f4xx::GPIO::Direction::Input);
+}  // namespace detail
+microhal::GPIO &csDat = detail::csDat;
+microhal::GPIO &csCon = detail::csCon;
+microhal::GPIO &RESET = detail::RESET;
+}  // namespace moduleA
+
+namespace moduleB {
+namespace detail {
+stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortB, 8}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortA, 3}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortA, 1}, stm32f4xx::GPIO::Direction::Input);
+}  // namespace detail
+microhal::GPIO &csDat = detail::csDat;
+microhal::GPIO &csCon = detail::csCon;
+microhal::GPIO &RESET = detail::RESET;
+}  // namespace moduleB
+}  // namespace bsp
+
 extern "C" int main(int, void *);
 
 static void run_main(void *) {
@@ -52,8 +77,8 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
     bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
@@ -62,9 +87,9 @@ void hardwareConfig(void) {
     bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
     diagChannel.setOutputDevice(bsp::debugPort);
 
-    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
+    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
     stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler8);
     stm32f4xx::SPI::spi1.enable();

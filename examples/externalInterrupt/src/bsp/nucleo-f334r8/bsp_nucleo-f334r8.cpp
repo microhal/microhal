@@ -31,18 +31,39 @@
 #include "bsp.h"
 #include "microhal.h"
 
-using namespace microhal;
-using namespace stm32f3xx;
+namespace bsp {
+namespace detail {
+
+using namespace microhal::stm32f3xx;
+
+constexpr microhal::IOPin ld2_pin(microhal::stm32f3xx::IOPin::Port::PortA, 5);
+constexpr microhal::IOPin led3_pin(microhal::stm32f3xx::IOPin::Port::PortD, 13);
+constexpr microhal::IOPin led5_pin(microhal::stm32f3xx::IOPin::Port::PortD, 14);
+constexpr microhal::IOPin led6_pin(microhal::stm32f3xx::IOPin::Port::PortD, 15);
+
+constexpr microhal::IOPin button_pin(microhal::stm32f3xx::IOPin::Port::PortC, 13);
+
+GPIO redLed(led5_pin, GPIO::Direction::Output);
+GPIO greenLed(ld2_pin, GPIO::Direction::Output);
+GPIO blueLed(led6_pin, GPIO::Direction::Output);
+GPIO orangeLed(led3_pin, GPIO::Direction::Output);
+
+}  // namespace detail
+
+microhal::GPIO &redLed = detail::redLed;
+microhal::GPIO &greenLed = detail::greenLed;
+microhal::GPIO &blueLed = detail::blueLed;
+microhal::GPIO &orangeLed = detail::orangeLed;
+}  // namespace bsp
 
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+    microhal::stm32f3xx::Core::fpu_enable();
 
     SysTick_Config(8000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
-;
 
 extern "C" void SysTick_Handler(void) {
     SysTick_time++;

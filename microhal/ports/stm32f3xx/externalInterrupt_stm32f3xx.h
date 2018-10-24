@@ -35,6 +35,7 @@
 
 #include <cstdint>
 
+#include "IOPin.h"
 #include "device/stm32f3xx.h"
 #include "gpio_stm32f3xx.h"
 
@@ -57,16 +58,14 @@ void EXTI15_10_IRQHandler(void);
  */
 class ExternalInterrupt {
  public:
-    typedef enum {
-        TriggerOnRising, TriggerOnFalling, TriggerOnEdge
-    } Trigger;
+    typedef enum { TriggerOnRising, TriggerOnFalling, TriggerOnEdge } Trigger;
 
     ExternalInterrupt() = delete;
 
     static void init();
 
-    template<typename T>
-    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, const GPIO::Port port, const GPIO::Pin pinNumber) {
+    template <typename T>
+    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
         if (signals[pinNumber].connect(slot, object)) {
             configure(pinNumber, trigger);
             SYSCFG->EXTICR[pinNumber / 4] |= ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pinNumber % 4));
@@ -78,7 +77,6 @@ class ExternalInterrupt {
     static inline bool connect(void (*interruptFunction)(void), Trigger trigger, const GPIO::Port port, const GPIO::Pin pinNumber) {
         if (signals[pinNumber].connect(interruptFunction)) {
             configure(pinNumber, trigger);
-
 
             SYSCFG->EXTICR[pinNumber / 4] |= ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pinNumber % 4));
             return true;
@@ -95,14 +93,14 @@ class ExternalInterrupt {
     }
 
     static inline bool enable(const GPIO::Port port, const GPIO::Pin pinNumber) __attribute__((always_inline)) {
-        if ( (SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) ) {
+        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
             EXTI->IMR |= 1 << pinNumber;
             return true;
         }
         return false;
     }
     static inline bool disable(const GPIO::Port port, const GPIO::Pin pinNumber) __attribute__((always_inline)) {
-        if ( (SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) ) {
+        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
             EXTI->IMR &= ~(1 << pinNumber);
             return true;
         }
@@ -110,7 +108,7 @@ class ExternalInterrupt {
     }
 
     static inline bool isEnabled(const GPIO::Port port, const GPIO::Pin pinNumber) {
-        if ( (SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) ) {
+        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
             return EXTI->IMR & (1 << pinNumber);
         }
         return false;
@@ -131,18 +129,18 @@ class ExternalInterrupt {
         const uint32_t bitMask = 1 << vectorNumber;
 
         switch (trigger) {
-        case TriggerOnRising:
-            EXTI->RTSR |= bitMask;
-            EXTI->FTSR &= ~bitMask;
-            break;
-        case TriggerOnFalling:
-            EXTI->FTSR |= bitMask;
-            EXTI->RTSR &= ~bitMask;
-            break;
-        case TriggerOnEdge:
-            EXTI->RTSR |= bitMask;
-            EXTI->FTSR |= bitMask;
-            break;
+            case TriggerOnRising:
+                EXTI->RTSR |= bitMask;
+                EXTI->FTSR &= ~bitMask;
+                break;
+            case TriggerOnFalling:
+                EXTI->FTSR |= bitMask;
+                EXTI->RTSR &= ~bitMask;
+                break;
+            case TriggerOnEdge:
+                EXTI->RTSR |= bitMask;
+                EXTI->FTSR |= bitMask;
+                break;
         }
     }
 };

@@ -8,7 +8,7 @@
  * created on: 22-04-2014
  * last modification: 14-05-2017
  *
- * @copyright Copyright (c) 2014-2017, Pawel Okas
+ * @copyright Copyright (c) 2014-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

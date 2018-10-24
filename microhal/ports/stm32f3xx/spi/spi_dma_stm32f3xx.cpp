@@ -15,7 +15,7 @@ namespace stm32f3xx {
 #if MICROHAL_SPI1_DMA_TX_STREAM != 3 && MICROHAL_SPI1_DMA_TX_STREAM != 5
 #error SPI TX DMA channel can be confugured as 3 or 5 only
 #endif
-GPIO::IOPin spi1MisoPin(GPIO::PortB, 4);
+IOPin spi1MisoPin(IOPin::PortB, 4);
 SPI_dma SPI_dma::spi1(*SPI1, *DMA::dma1, DMA::dma1->stream[MICROHAL_SPI1_DMA_RX_STREAM - 1], DMA::dma1->stream[MICROHAL_SPI1_DMA_TX_STREAM - 1],
                       spi1MisoPin);
 SPI &SPI::spi1 = SPI_dma::spi1;

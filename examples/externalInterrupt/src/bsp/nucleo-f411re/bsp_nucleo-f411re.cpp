@@ -31,12 +31,32 @@
 #include "bsp.h"
 #include "microhal.h"
 
-using namespace microhal;
-using namespace stm32f4xx;
+namespace bsp {
+namespace detail {
+
+using namespace microhal::stm32f4xx;
+
+constexpr microhal::IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);
+constexpr microhal::IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+constexpr microhal::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
+constexpr microhal::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+
+GPIO redLed(led5_pin, GPIO::Direction::Output);
+GPIO greenLed(ld2_pin, GPIO::Direction::Output);
+GPIO blueLed(led6_pin, GPIO::Direction::Output);
+GPIO orangeLed(led3_pin, GPIO::Direction::Output);
+
+}  // namespace detail
+
+microhal::GPIO &redLed = detail::redLed;
+microhal::GPIO &greenLed = detail::greenLed;
+microhal::GPIO &blueLed = detail::blueLed;
+microhal::GPIO &orangeLed = detail::orangeLed;
+}  // namespace bsp
 
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+    microhal::stm32f4xx::Core::fpu_enable();
 
     SysTick_Config(168000000 / 1000);
 }

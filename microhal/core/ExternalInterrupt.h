@@ -56,7 +56,7 @@ class ExternalInterrupt {
         OnAnyEdge = activePort::ExternalInterrupt::TriggerOnEdge
     };
     //---------------------------------------- constructors -----------------------------------------//
-    explicit constexpr ExternalInterrupt(GPIO::IOPin ioPin) noexcept __attribute__((always_inline)) : ioPin(ioPin) {}
+    explicit constexpr ExternalInterrupt(IOPin ioPin) noexcept : ioPin(ioPin) {}
     //------------------------------------------ functions ------------------------------------------//
     inline static void init() noexcept { activePort::ExternalInterrupt::init(); }
     /**
@@ -68,7 +68,7 @@ class ExternalInterrupt {
      * @retval true if interrupt was successfully connected.
      * @retval false if this interrupt is already connected to another function.
      */
-    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, GPIO::IOPin ioPin) noexcept __attribute__((always_inline)) {
+    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, IOPin ioPin) noexcept __attribute__((always_inline)) {
         return activePort::ExternalInterrupt::connect(interruptFunction, static_cast<activePort::ExternalInterrupt::Trigger>(trigger), ioPin.port,
                                                       ioPin.pin);
     }
@@ -80,7 +80,7 @@ class ExternalInterrupt {
      * @retval true if interrupt was successfully disconnected.
      * @retval false if this interrupt is not connected to function.
      */
-    static inline bool disconnect(void (*interruptFunction)(void), GPIO::IOPin ioPin) noexcept __attribute__((always_inline)) {
+    static inline bool disconnect(void (*interruptFunction)(void), IOPin ioPin) noexcept __attribute__((always_inline)) {
         return activePort::ExternalInterrupt::disconnect(interruptFunction, ioPin.port, ioPin.pin);
     }
     /**
@@ -96,7 +96,7 @@ class ExternalInterrupt {
     }
 
     template <typename T>
-    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, GPIO::IOPin ioPin) noexcept {
+    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin ioPin) noexcept {
         return activePort::ExternalInterrupt::connect(slot, object, static_cast<activePort::ExternalInterrupt::Trigger>(trigger), ioPin.port,
                                                       ioPin.pin);
     }
@@ -111,7 +111,7 @@ class ExternalInterrupt {
      * @retval true if interrupt is connected and was enabled.
      * @retval false if interrupt is unconnected.
      */
-    static inline void enable(microhal::GPIO::IOPin ioPin) noexcept __attribute__((always_inline)) {
+    static inline void enable(microhal::IOPin ioPin) noexcept __attribute__((always_inline)) {
         activePort::ExternalInterrupt::enable(ioPin.port, ioPin.pin);
     }
     /**
@@ -125,12 +125,12 @@ class ExternalInterrupt {
         return true;
     }
     /**
-         * @brief This function enable external interrupt. If interrupt is not connected the function return false;
-         *
-         * @retval true if interrupt is connected and was enabled.
-         * @retval false if interrupt is unconnected.
-         */
-    static inline bool disable(microhal::GPIO::IOPin ioPin) noexcept __attribute__((always_inline)) {
+     * @brief This function enable external interrupt. If interrupt is not connected the function return false;
+     *
+     * @retval true if interrupt is connected and was enabled.
+     * @retval false if interrupt is unconnected.
+     */
+    static inline bool disable(microhal::IOPin ioPin) noexcept __attribute__((always_inline)) {
         activePort::ExternalInterrupt::disable(ioPin.port, ioPin.pin);
         return true;
     }
@@ -142,7 +142,7 @@ class ExternalInterrupt {
      */
     inline bool disable() noexcept __attribute__((always_inline)) { return disable(ioPin); }
 
-    static inline bool isEnabled(microhal::GPIO::IOPin ioPin) noexcept __attribute__((always_inline)) {
+    static inline bool isEnabled(microhal::IOPin ioPin) noexcept __attribute__((always_inline)) {
         return activePort::ExternalInterrupt::isEnabled(ioPin.port, ioPin.pin);
     }
 
@@ -150,7 +150,7 @@ class ExternalInterrupt {
 
  private:
     //------------------------------------------- variables -----------------------------------------//
-    GPIO::IOPin ioPin;
+    IOPin ioPin;
 };
 
 }  // namespace microhal

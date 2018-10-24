@@ -35,15 +35,12 @@
 #include <ExternalInterrupt.h>
 
 class HX711 {
-	const float standard_scale_coefficient =  -64.0*14.65f;
- public:
-    enum class Channel {
-      A_Gain_128 = 0,
-      B_Gain_32,
-      A_Gain_64
-    };
+    const float standard_scale_coefficient = -64.0 * 14.65f;
 
-    explicit HX711(microhal::SPI &spi, microhal::GPIO::IOPin miso) : spi(spi), miso(miso), offset(0), scale_coefficient(standard_scale_coefficient) {
+ public:
+    enum class Channel { A_Gain_128 = 0, B_Gain_32, A_Gain_64 };
+
+    explicit HX711(microhal::SPI &spi, microhal::IOPin miso) : spi(spi), miso(miso), offset(0), scale_coefficient(standard_scale_coefficient) {
         microhal::ExternalInterrupt::init();
         microhal::ExternalInterrupt::connect(falling_edgeSlot, *this, microhal::ExternalInterrupt::Trigger::OnFallingEdge, miso);
         microhal::ExternalInterrupt::enable(miso);
@@ -57,36 +54,26 @@ class HX711 {
         scale_coefficient = standard_scale_coefficient;
     }
 
-    void setChannel(Channel ch) {
-        channel = ch;
-    }
+    void setChannel(Channel ch) { channel = ch; }
 
     void read();
 
-    int32_t getrawData() const noexcept {
-        return data;
-    }
+    int32_t getrawData() const noexcept { return data; }
 
-    void tare() {
-        offset = data;
-    }
+    void tare() { offset = data; }
 
-    float gettaredData() const noexcept {
-        return static_cast<float>(data - offset);
-    }
+    float gettaredData() const noexcept { return static_cast<float>(data - offset); }
 
-    float getscaledData() const noexcept {
-        return static_cast<float>(data - offset) / scale_coefficient;
-    }
+    float getscaledData() const noexcept { return static_cast<float>(data - offset) / scale_coefficient; }
 
     void scale(int32_t mass) {
         float temp = static_cast<float>(data - offset);
-        scale_coefficient = temp /static_cast<float>( mass);
+        scale_coefficient = temp / static_cast<float>(mass);
     }
 
  private:
     microhal::SPI &spi;
-    microhal::GPIO::IOPin miso;
+    microhal::IOPin miso;
     microhal::Slot_0<HX711, &HX711::read> falling_edgeSlot;
     Channel channel = Channel::A_Gain_128;
     int32_t data = 0;

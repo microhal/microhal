@@ -35,15 +35,24 @@
 using namespace microhal;
 using namespace stm32f3xx;
 
+namespace bsp {
+namespace detail {
+stm32f3xx::GPIO mplReset(bsp::con1::a::io2, stm32f3xx::GPIO::Direction::Output);
+}  // namespace detail
+namespace mpl115a2 {
+microhal::GPIO &mplReset = detail::mplReset;
+}
+}  // namespace bsp
+
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
-    IOManager::routeI2C<1, SDA, stm32f3xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f3xx::GPIO::PortB, 8>();
+    IOManager::routeI2C<1, SDA, stm32f3xx::IOPin::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f3xx::IOPin::PortB, 8>();
 
     stm32f3xx::I2C::i2c1.init();
     stm32f3xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);

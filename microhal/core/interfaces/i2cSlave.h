@@ -33,6 +33,7 @@
  * INCLUDES
  */
 #include <cstdint>
+#include "gsl/span"
 #include "i2c_interface.h"
 
 namespace microhal {
@@ -41,21 +42,39 @@ namespace microhal {
  */
 class I2CSlave {
  public:
+    using span = gsl::span<uint8_t>;  // todo replace to std::span when will be available
+
     I2CSlave(uint8_t address, uint8_t *dataPtr) : address(address), dataPtr(dataPtr) {}
+    I2CSlave(const I2CSlave &) = delete;
+    I2CSlave &operator=(const I2CSlave &) = delete;
     virtual ~I2CSlave() {}
 
     uint8_t getAddress() const noexcept { return address; }
-    virtual uint8_t *getPtr() = 0;
-    virtual size_t getSize() = 0;
-    virtual uint8_t *getReceiveBufferPtr() = 0;
-    virtual bool onReceive(size_t received) = 0;
+    /**
+     * @note The prepareTransmitBuffer method can be called form interrupt.
+     * This function is called when I2C master requested read access, in this function we should prepare buffer with data to send.
+     * If preparing buffer is impossible function should return false and when transmit data will be ready slaveBufferReady method should be called.
+     */
+    virtual span prepareTransmitData() = 0;
+    /**
+     * @note The prepareReceiveBuffer method can be called from interrupt.
+     * This function is called when I2C master requested write access, in this function we should prepare buffer for incoming data.
+     * If from some reason preparing buffer is impossible function should return false, I2C lines will be stretched by I2C slave until
+     * slaveBufferReady method will be called.
+     */
+    virtual span prepareReceiveBuffer() = 0;
+    /**
+     * @note The onWriteFinish method can be called from i2c driver interrupt.
+     * This function is called when I2C master reception is finished.
+     */
+    virtual void onTransmitFinish(size_t transmitted) = 0;
+    /**
+     * @note The onReadFinish method can be called from i2c driver interrupt.
+     * This function is called when transmission from I2C master to I2C slave was finished.
+     */
+    virtual void onReceiveFinish(size_t received) = 0;
 
  protected:
-    virtual bool onTransmit(size_t transmitted) = 0;
-
-    virtual void prepareTransmitData() {}
-    std::mutex mutex;
-
     uint8_t address;
     uint8_t *dataPtr;
 

@@ -19,8 +19,8 @@ namespace stm32f3xx {
 /* ************************************************************************************************
  * CLASS
  */
-class SPI_interrupt: public stm32f3xx::SPI {
-public:
+class SPI_interrupt : public stm32f3xx::SPI {
+ public:
     //---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_SPI1_INTERRUPT
     static SPI_interrupt spi1;
@@ -35,7 +35,8 @@ public:
     SPI::Error write(const void *data, size_t len, bool last) final;
     SPI::Error read(void *data, size_t len, uint8_t write = 0x00) final;
     SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final;
-private:
+
+ private:
     //---------------------------------------- variables ----------------------------------------//
     uint8_t *readPtr = nullptr;
     uint8_t *readEnd = nullptr;
@@ -45,34 +46,32 @@ private:
     os::Semaphore semaphore;
 
     //--------------------------------------- constructors --------------------------------------//
-    SPI_interrupt(SPI_TypeDef &spi, stm32f3xx::GPIO::IOPin misoPin) :
-            SPI(spi, misoPin), semaphore() {
-    	ClockManager::enable(spi);
+    SPI_interrupt(SPI_TypeDef &spi, stm32f3xx::IOPin misoPin) : SPI(spi, misoPin), semaphore() {
+        ClockManager::enable(spi);
 #if defined(HAL_RTOS_FreeRTOS)
-    	priority(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+        priority(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #else
-    	priority(0);
+        priority(0);
 #endif
     }
 
-    SPI_interrupt& operator=(const SPI_interrupt&);
-	
-    SPI_interrupt(const SPI_interrupt&);
+    SPI_interrupt &operator=(const SPI_interrupt &);
+
+    SPI_interrupt(const SPI_interrupt &);
     //---------------------------------------- functions ----------------------------------------//
     void enableTransmitterEmptyInterrupt() {
-        spi.CR2 |= SPI_CR2_TXEIE; //fixme maybe bitband
+        spi.CR2 |= SPI_CR2_TXEIE;  // fixme maybe bitband
     }
     void enableReceiverNotEmptyInterrupt() {
-        spi.CR2 |= SPI_CR2_RXNEIE; //fixme maybe bitband
+        spi.CR2 |= SPI_CR2_RXNEIE;  // fixme maybe bitband
     }
     //----------------------------------------- friends -----------------------------------------//
-    friend inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) __attribute__ ((always_inline));
+    friend inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) __attribute__((always_inline));
     friend void SPI1_IRQHandler(void);
     friend void SPI2_IRQHandler(void);
     friend void SPI3_IRQHandler(void);
-}
-;
-} // namespace stm32f4xx
-} // namespace microhal
+};
+}  // namespace stm32f3xx
+}  // namespace microhal
 
 #endif /* SPI_INTERRUPT_STM32F4XX_H_ */

@@ -3,13 +3,13 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for Nucleo-f411re board
  *
  * @authors    Pawel Okas
  * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2016-2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,16 +33,12 @@
 
 #include "microhal.h"
 
-constexpr microhal::GPIO::IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);
-constexpr microhal::GPIO::IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+namespace bsp {
 
-constexpr microhal::GPIO::IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+extern microhal::GPIO &greenLed;
+extern microhal::GPIO &redLed;
+extern microhal::GPIO &button;
 
-constexpr microhal::GPIO::IOPin greenLed_pin = ld2_pin;
-constexpr microhal::GPIO::IOPin redLed_pin = led5_pin;
-constexpr microhal::GPIO::IOPin blueLed_pin = led6_pin;
-constexpr microhal::GPIO::IOPin orangeLed_pin = led3_pin;
+}  // namespace bsp
 
 #endif  // NUCLEO_F411RE_H_
