@@ -295,7 +295,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+                        <entry excluding="src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/microhal/core/button|src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
@@ -741,7 +741,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/stm32f4-discovery|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+                        <entry excluding="src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/microhal/core/button|src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx|src/bsp/nucleo-f334r8|src/bsp/stm32f4-discovery|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
@@ -1203,7 +1203,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx/startup/startup.c|src/microhal/ports/stm32f4xx|src/bsp/stm32f4-discovery|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+                        <entry excluding="src/microhal/core/SPIDevice|src/microhal/core/I2CDevice|src/microhal/core/button|src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/ports/stm32f3xx/startup/startup.c|src/microhal/ports/stm32f4xx|src/bsp/stm32f4-discovery|src/bsp/nucleo-f411re|src/microhal/os/windows|src/microhal/os/linux|src/microhal/os/freeRTOS|src/gsl/tests|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/core/buffers/tests|src/bsp/Linux|src/bsp/windows" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
