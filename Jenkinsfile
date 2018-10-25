@@ -197,7 +197,7 @@ pipeline {
         }    
     }
     environment {
-        PATH = "/var/jenkins/tools/microide-0.3.4/eclipse:/var/jenkins/tools/microide-0.3.4/toolchains/microhal/gcc-arm-none-eabi-7-2018-q2-update/bin:$PATH"
+        PATH = "/var/jenkins/tools/microide-0.3.4/eclipse:/var/jenkins/tools/microide-0.3.4/toolchains/gcc-arm-none-eabi/microhal/gcc-arm-none-eabi-7-2018-q2-update/bin:$PATH"
     }
     stages {
         stage('Checkout') {
@@ -208,69 +208,30 @@ pipeline {
         }
         stage('Build microhal examples') {
             steps {
-                sh 'python tests/scripts/ testExamples.py -d examples/ --buildOnly'
-//                parallel(
-//                    diagnostic :        { eclipseBuild('diagnostic', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
-//                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-//                    gpio :              { eclipseBuild('gpio', targets) },
-//                    os :                { eclipseBuild('os', targets) },
-//                    serialPort :        { eclipseBuild('serialPort', targets) },
-//                    signalSlot :        { eclipseBuild('signal slot', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
-//                    ticToc :            { eclipseBuild('ticToc', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
-//                )
+                sh 'python tests/scripts/testExamples.py -d examples/ --buildOnly'
             }
         }
         stage('Build components examples') {
             steps {
-                sh 'python tests/scripts/ testExamples.py -d components/ --buildOnly'
-//                parallel(
-//                    cli : { eclipseBuild('cli', ['stm32f4-discovery']) },
-//                    hostComm : { eclipseBuild('hostComm', ['stm32f4-discovery']) }
-//                )
+                sh 'python tests/scripts/testExamples.py -d components/ --buildOnly'
             }
         }
         stage('Build devices examples') {
-            steps {
-                parallel(
-                    at45db : { eclipseBuild('at45db', targets) },
-                    bmp180 : { eclipseBuild('bmp180', targets) },
-                    ds2782 : { eclipseBuild('ds2782', targets) },
-                    ds2786 : { eclipseBuild('ds2786', targets) },
-                    hx711 : { eclipseBuild('hx711', targets) },
-                    isl29023 : { eclipseBuild('isl29023', targets) },
-                    lepton : { eclipseBuild('leptonPCSerialReceiver', ['reader linux'])
-                               eclipseBuild('leptonSDCardWrite', ['stm32f4-discovery'])
-                               eclipseBuild('leptonSerialTransmitter', ['stm32f4-discovery']) },
-                    lis302 : { eclipseBuild('lis302', targets) },
-                    lsm330dl : { eclipseBuild('lsm330dl', targets) },
-                    m24c16 : { eclipseBuild('m24c16', targets) },
-                    mcp9800 : { eclipseBuild('mcp9800', ['stm32f4-discovery']) },		    
-                    mpl115a2 : { eclipseBuild('mpl115a2', targets) },
-                    mrf89xa : { eclipseBuild('mrf89xa', targets) },
-                    pcf8563 : { eclipseBuild('pcf8563', targets) },
-                    rfm70 : { eclipseBuild('rfm70', targets) },
-                    sht21 : { eclipseBuild('sht21', targets) },
-                    tmp006 : { eclipseBuild('tmp006', targets) },
-                    uCamII : { eclipseBuild('uCAM-II', ['stm32f4-discovery']) },
-                    ws2812 : { eclipseBuild('ws2812', targets) },                    
-                )
-            }
+            steps {            
+                sh 'python tests/scripts/testExamples.py -d drivers/ --buildOnly'
+            }             
         }
         stage('Test - build all targets') {
             steps {
 		eclipseBuild('stm32f3xx_allMCU', ['all'])	
-                withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
-                    sh 'python ' + projDirMap['stm32f4xx_allMCU'] +'/buildAll.py ' + projDirMap['stm32f4xx_allMCU']
-                }	
+                sh 'python ' + projDirMap['stm32f4xx_allMCU'] +'/buildAll.py ' + projDirMap['stm32f4xx_allMCU']            
             }
         }  
         stage('Test - code size statistics') {
 	    steps {
-                withEnv(['PATH+WHATEVER=/srv/jenkins/tools/microide:/srv/jenkins/tools/microide/toolchains/arm-none-eabi-gcc/microhal/gcc-arm-none-eabi-5_3-2016q1/bin']) {
-                    sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_serialPort']
-                    sh 'python ' + projDirMap['stm32f4xx_stat_i2c'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_i2c']
-                    sh 'python ' + projDirMap['stm32f4xx_stat_spi'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_spi']
-                }
+                sh 'python ' + projDirMap['stm32f4xx_stat_serialPort'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_serialPort']
+                sh 'python ' + projDirMap['stm32f4xx_stat_i2c'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_i2c']
+                sh 'python ' + projDirMap['stm32f4xx_stat_spi'] +'/generateStats.py ' + projDirMap['stm32f4xx_stat_spi']
             }	
             post {
                  success {

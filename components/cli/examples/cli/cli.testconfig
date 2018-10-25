@@ -1,0 +1,16 @@
+import re
+
+testType = 'deviceTest'
+targets = ['stm32f4-discovery']
+executionTime = 1
+requireHardware = True
+requireDevice = False
+
+def projectName():
+	return 'cli'	
+	
+def binaryName(configuration):
+	return 'cli.elf'
+	
+def passed(data):	
+	return False

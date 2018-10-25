@@ -13,7 +13,7 @@ def build(project, target, defines):
 
     logDirectory = "logs"
     createDirectoryIfNeeded(logDirectory)
-    logFileName = workspace.replace('/','-') + "_" + target.replace('/','-')
+    logFileName = workspace.replace('/','-') + "_" + target.replace('/','-').replace(" ","_")
     logFile = logDirectory + '/' + logFileName + '.log'
     errorFile = logDirectory + '/' + logFileName + '.err'
 
