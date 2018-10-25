@@ -196,7 +196,7 @@ pipeline {
             label 'microhal'
         }    
     }
-    envinronment {
+    environment {
         PATH = "/var/jenkins/tools/microide-0.3.4/eclipse:/var/jenkins/tools/microide-0.3.4/toolchains/microhal/gcc-arm-none-eabi-7-2018-q2-update/bin:$PATH"
     }
     stages {
