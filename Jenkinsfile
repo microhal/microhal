@@ -193,10 +193,12 @@ def targets = ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8']
 pipeline {   
     agent {
         node {
-            label 'master'
+            label 'microhal'
         }    
-    }   
-
+    }
+    envinronment {
+        PATH = "/var/jenkins/tools/microide-0.3.4/eclipse:/var/jenkins/tools/microide-0.3.4/toolchains/microhal/gcc-arm-none-eabi-7-2018-q2-update/bin:$PATH"
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -206,23 +208,25 @@ pipeline {
         }
         stage('Build microhal examples') {
             steps {
-                parallel(
-                    diagnostic :        { eclipseBuild('diagnostic', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
-                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-                    gpio :              { eclipseBuild('gpio', targets) },
-                    os :                { eclipseBuild('os', targets) },
-                    serialPort :        { eclipseBuild('serialPort', targets) },
-                    signalSlot :        { eclipseBuild('signal slot', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
-                    ticToc :            { eclipseBuild('ticToc', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
-                )
+                sh 'python tests/scripts/ testExamples.py -d examples/ --buildOnly'
+//                parallel(
+//                    diagnostic :        { eclipseBuild('diagnostic', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
+//                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
+//                    gpio :              { eclipseBuild('gpio', targets) },
+//                    os :                { eclipseBuild('os', targets) },
+//                    serialPort :        { eclipseBuild('serialPort', targets) },
+//                    signalSlot :        { eclipseBuild('signal slot', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
+//                    ticToc :            { eclipseBuild('ticToc', ['stm32f4-discovery', 'NUCLEO-F411RE', 'NUCLEO-F334R8', 'linux']) },
+//                )
             }
         }
         stage('Build components examples') {
             steps {
-                parallel(
-                    cli : { eclipseBuild('cli', ['stm32f4-discovery']) },
-                    hostComm : { eclipseBuild('hostComm', ['stm32f4-discovery']) }
-                )
+                sh 'python tests/scripts/ testExamples.py -d components/ --buildOnly'
+//                parallel(
+//                    cli : { eclipseBuild('cli', ['stm32f4-discovery']) },
+//                    hostComm : { eclipseBuild('hostComm', ['stm32f4-discovery']) }
+//                )
             }
         }
         stage('Build devices examples') {
