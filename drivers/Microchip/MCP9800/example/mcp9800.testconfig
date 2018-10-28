@@ -1,0 +1,17 @@
+import re
+
+testType = 'deviceTest'
+targets = ['NUCLEO-F411RE', 'stm32f4-discovery']
+executionTime = 1
+requireHardware = True
+requireDevice = True
+deviceName = 'mcp9800'
+	
+def projectName():
+	return 'mcp9800'	
+	
+def binaryName(configuration):
+	return 'mcp9800.elf'
+	
+def passed(data):
+	return False
