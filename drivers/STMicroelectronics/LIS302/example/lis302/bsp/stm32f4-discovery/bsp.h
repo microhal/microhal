@@ -37,17 +37,17 @@ static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial
 
 namespace lis302 {
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin cs(microhal::stm32f4xx::GPIO::Port::PortE, 3);
-}
+extern microhal::GPIO &cs;
+}  // namespace lis302
 
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
-constexpr microhal::GPIO::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
-constexpr microhal::GPIO::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
-constexpr microhal::GPIO::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
+constexpr microhal::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
+constexpr microhal::IOPin Led4(microhal::stm32f4xx::GPIO::Port::PortD, 12);
+constexpr microhal::IOPin Led5(microhal::stm32f4xx::GPIO::Port::PortD, 14);
+constexpr microhal::IOPin Led6(microhal::stm32f4xx::GPIO::Port::PortD, 15);
 
-constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
+constexpr microhal::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
 
-constexpr microhal::GPIO::IOPin GreenLed = Led4;
-constexpr microhal::GPIO::IOPin RedLed = Led3;
+constexpr microhal::IOPin GreenLed = Led4;
+constexpr microhal::IOPin RedLed = Led3;
 }  // namespace bsp
 #endif /* STM32F4DISCOVERY_H_ */

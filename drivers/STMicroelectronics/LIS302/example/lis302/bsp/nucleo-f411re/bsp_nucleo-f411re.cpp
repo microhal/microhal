@@ -35,19 +35,28 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+namespace bsp {
+namespace lis302 {
+namespace detail {
+microhal::stm32f4xx::GPIO cs({microhal::stm32f4xx::GPIO::Port::PortA, 15}, microhal::stm32f4xx::GPIO::Direction::Input);
+}
+microhal::GPIO &cs = detail::cs;
+}  // namespace lis302
+}  // namespace bsp
+
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
-    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
+    IOManager::routeI2C<1, SDA, stm32f4xx::IOPin::PortB, 9>();
+    IOManager::routeI2C<1, SCL, stm32f4xx::IOPin::PortB, 8>();
 
-    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
+    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
     // configure Serial Port interfaces
     stm32f4xx::SerialPort::Serial2.clear();

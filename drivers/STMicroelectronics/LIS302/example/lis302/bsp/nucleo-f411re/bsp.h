@@ -37,7 +37,7 @@ namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 namespace lis302 {
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin cs(microhal::stm32f4xx::GPIO::Port::PortA, 15);
-}
+extern microhal::GPIO &cs;
+}  // namespace lis302
 }  // namespace bsp
 #endif  // NUCLEO_F411RE_H_

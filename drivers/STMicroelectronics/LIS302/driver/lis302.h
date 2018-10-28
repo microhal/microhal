@@ -143,7 +143,7 @@ class LIS302DL : private microhal::SPIDevice {
      *
      *  \details Object is constructed with default settings. Device is inactive.
      */
-    LIS302DL(microhal::SPI& spi, microhal::IOPin CEpin) : SPIDevice(spi, CEpin), m_axis(AxisUnknown), m_range(Range_2g) {}
+    LIS302DL(microhal::SPI& spi, microhal::GPIO& CEpin) : SPIDevice(spi, CEpin), m_axis(AxisUnknown), m_range(Range_2g) {}
 
     /**
      *  \brief Function initializes LIS302DL driver.

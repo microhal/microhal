@@ -26,12 +26,21 @@
 
  */ /* ==========================================================================================================================
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            */
-#include "bsp.h"
 #include "SPIDevice/SPIDevice.h"
+#include "bsp.h"
 #include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
+
+namespace bsp {
+namespace lis302 {
+namespace detail {
+microhal::stm32f4xx::GPIO cs({microhal::stm32f4xx::GPIO::Port::PortE, 3}, microhal::stm32f4xx::GPIO::Direction::Input);
+}
+microhal::GPIO &cs = detail::cs;
+}  // namespace lis302
+}  // namespace bsp
 
 int main(void);
 
@@ -39,12 +48,12 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
-    IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
+    IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
     // configure Serial Port interfaces
     stm32f4xx::SerialPort::Serial3.clear();

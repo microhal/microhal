@@ -35,6 +35,15 @@ using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
 
+namespace bsp {
+namespace lis302 {
+namespace detail {
+microhal::stm32f3xx::GPIO cs(con1::a::ss, microhal::stm32f3xx::GPIO::Direction::Input);
+}
+microhal::GPIO &cs = detail::cs;
+}  // namespace lis302
+}  // namespace bsp
+
 void hardwareConfig(void) {
     (void)bsp::lis302::spi;
     (void)bsp::debugPort;
@@ -45,12 +54,12 @@ void hardwareConfig(void) {
     while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
         ;
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
-    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::GPIO::PortA, 5>();
-    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
-    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::GPIO::PortA, 7>();
+    stm32f3xx::IOManager::routeSPI<1, SCK, stm32f3xx::IOPin::PortA, 5>();
+    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::IOPin::PortA, 6>();
+    stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::IOPin::PortA, 7>();
 
     // configure Serial Port interfaces
     stm32f3xx::SerialPort::Serial2.clear();
