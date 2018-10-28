@@ -11,6 +11,18 @@ import fnmatch
 
 import imp
 
+disableColor = False
+
+def colour(text, colourName):
+    colourDict = {"Red": '\033[91m', 'Default' : '\033[0m'}
+    global disableColor
+    
+    if disableColor == False:
+        return colourDict[colourName] + text + colourDict['Default']
+    else:
+        return text
+
+
 def findTestconfigFiles(projectDir):
     projectsToTest = []
     for root, subdirs, files in os.walk(projectDir):
@@ -21,7 +33,7 @@ def findTestconfigFiles(projectDir):
 def statusToText(status):   
 	if status == True:
 		return 'pass'
-	return '\033[91m' + 'fail' + '\033[0m'
+	return colour('fail', 'Red')#'\033[91m' + 'fail' + '\033[0m'
 	
 def createProjectsList(projectsToTest):
     projects = []
@@ -53,7 +65,7 @@ def flashAndRunApp(test, binary, target):
         result = {'testName':test.projectName(), 'target': target, 'status': statusToText(status)}
     else:
         result = {'testName':test.projectName(), 'target': target, 'status': '\033[91m' + 'Flashing failed' + '\033[0m'}
-        print '\033[91m' + 'Flashing failed' + '\033[0m'  
+        print colour('Flashing failed', 'Red')#'\033[91m' + 'Flashing failed' + '\033[0m'  
     return result
         
         
@@ -71,8 +83,8 @@ def runTests(projectsToTest, testSpecificProjects, targets, buildOnly):
                     buildStatus = buildTool.build(projectDir, test.projectName() + '/' + target, [])
                     if buildStatus == False or buildOnly == True:
                         if buildStatus == False:
-                            result.append({'testName':test.projectName(), 'target': target, 'status': '\033[91m' + 'build fail' + '\033[0m'})
-                            print '\033[91m' + 'build fail' + '\033[0m'
+                            result.append({'testName':test.projectName(), 'target': target, 'status': colour('build fail' , 'Red')})#'\033[91m' + 'build fail' + '\033[0m'})
+                            print colour('build fail' , 'Red')#'\033[91m' + 'build fail' + '\033[0m'
                         else:
                             result.append({'testName':test.projectName(), 'target': target, 'status': 'build pass'})
                     else:                            
@@ -81,6 +93,14 @@ def runTests(projectsToTest, testSpecificProjects, targets, buildOnly):
                         else:
                             result.append(flashAndRunApp(test, projectDir + '/' + target + '/' + test.binaryName(target), target))
     return result                    
+
+def envinronmentCheck():
+    try:
+        subprocess.Popen("eclipse")
+    except OSError:
+	print "Eclipse not fount"
+        return False;
+    
        
 def main():    
     import argparse
@@ -95,8 +115,14 @@ def main():
     parser.add_argument("--targetInfo", help="This command will show information about target.", nargs='?')
     parser.add_argument("--targetSelect", help="This command will connect target with device specified by --deviceSelect command.", nargs='?')
     parser.add_argument("--deviceSelect", help="This command will connect device with target specified by --targetSelect command.", nargs='?')
+    parser.add_argument("--disableColor", help="This command will disable coloring text in terminal", nargs='?', type=bool, const=True)
     args = parser.parse_args()
     
+
+    if args.disableColor:
+        global disableColor
+        disableColor = True
+
     if args.targetInfo != None:
         hardwareTesterController.targetInfo(args.targetInfo)
         return

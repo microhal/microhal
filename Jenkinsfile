@@ -208,17 +208,17 @@ pipeline {
         }
         stage('Build microhal examples') {
             steps {
-                sh 'python tests/scripts/testExamples.py -d examples/ --buildOnly'
+                sh 'python tests/scripts/testExamples.py -d examples/ --buildOnly --disableColor'
             }
         }
         stage('Build components examples') {
             steps {
-                sh 'python tests/scripts/testExamples.py -d components/ --buildOnly'
+                sh 'python tests/scripts/testExamples.py -d components/ --buildOnly --disableColor'
             }
         }
         stage('Build devices examples') {
             steps {            
-                sh 'python tests/scripts/testExamples.py -d drivers/ --buildOnly'
+                sh 'python tests/scripts/testExamples.py -d drivers/ --buildOnly --disableColor'
             }             
         }
         stage('Test - build all targets') {
