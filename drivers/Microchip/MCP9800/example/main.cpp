@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    Pawel Okas
  * created on: 18-02-2017
@@ -31,39 +31,39 @@
  * INCLUDES
  */
 
-#include "mcp9800.h"
 #include "bsp.h"
+#include "mcp9800.h"
 
 using namespace microhal;
 using namespace diagnostic;
 using namespace std::literals::chrono_literals;
 
 int main() {
-	serialPort.setDataBits(SerialPort::Data8);
-	serialPort.setStopBits(SerialPort::OneStop);
-	serialPort.setParity(SerialPort::NoParity);
-	serialPort.open(SerialPort::ReadWrite);
-	serialPort.setBaudRate(SerialPort::Baud115200);
+    serialPort.setDataBits(SerialPort::Data8);
+    serialPort.setStopBits(SerialPort::OneStop);
+    serialPort.setParity(SerialPort::NoParity);
+    serialPort.open(SerialPort::ReadWrite);
+    serialPort.setBaudRate(SerialPort::Baud115200);
 
-	serialPort.write("\n\r------------------- MCP9800 Demo -------------------------\n\r");
+    serialPort.write("\n\r------------------- MCP9800 Demo -------------------------\n\r");
 
-	diagChannel.setOutputDevice(serialPort);
+    diagChannel.setOutputDevice(serialPort);
 
-	MCP9800 mcp9800(i2c, MCP9800::Address::Ox90);
+    MCP9800 mcp9800(i2c, MCP9800::Address::Addr_0x90);
 
-	mcp9800.disableOneShot();
-	mcp9800.disableShutdown();
+    mcp9800.disableOneShot();
+    mcp9800.disableShutdown();
 
-	mcp9800.resolution(MCP9800::Resolution::TwelveBits);
+    mcp9800.resolution(MCP9800::Resolution::TwelveBits);
 
-	while(1) {
-		float temperature;
-		if (mcp9800.temperature(&temperature)) {
-        	diagChannel << Notice << "Temperature in Celsius degree = " << temperature << endl;
+    while (1) {
+        float temperature;
+        if (mcp9800.temperature(&temperature) == MCP9800::Error::None) {
+            diagChannel << Notice << "Temperature in Celsius degree = " << temperature << endl;
         } else {
-        	diagChannel << Notice << "Unable to read temperature." << endl;
+            diagChannel << Notice << "Unable to read temperature." << endl;
         }
 
-		std::this_thread::sleep_for(1s);
-	}
+        std::this_thread::sleep_for(1s);
+    }
 }

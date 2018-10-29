@@ -31,6 +31,8 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+#include "microhal.h"
+
 static microhal::SerialPort &serialPort = microhal::stm32f4xx::SerialPort::Serial2;
 
 static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
