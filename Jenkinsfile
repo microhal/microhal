@@ -70,52 +70,6 @@ def eclipseRun(project, target, defines) {
     }
 }
 
-def eclipseBuild(projName, targets) {     
-	def projDirMap = [
-	'diagnostic' : 'examples/diagnostic',
-	'externalInterrupt' : 'examples/externalInterrupt',
-	'gpio' : 'examples/gpio',
-	'os' : 'examples/os',
-	'serialPort' : 'examples/serialPort',
-	'signal slot' : 'examples/signalSlot',
-	'ticToc' : 'examples/ticToc',
-	'cli' : 'components/cli/examples/cli',
-	'hostComm' : 'components/hostComm/examples/simpeCommunication',
-	'at45db' : 'drivers/Atmel/AT45DB041D/example',        
-	'bmp180' : 'drivers/Bosch/BMP180/example/basic',
-	'ds2782' : 'drivers/MaximDallas/DS2782/example/basic',
-	'ds2786' : 'drivers/MaximDallas/DS2786/example/basic',        
-	'hx711' : 'drivers/AVIA Semiconductor/HX711/example',
-	'isl29023' : 'drivers/Intersil/ISL29023/example/basic',        
-	'leptonPCSerialReceiver' : 'drivers/FLIR/Lepton/example/lepton_PC_Serial_Receiver',
-	'leptonSDCardWrite' : 'drivers/FLIR/Lepton/example/lepton_SDCard_write',
-	'leptonSerialTransmitter' : 'drivers/FLIR/Lepton/example/lepton_Serial_Transmitter',
-	'lis302' : 'drivers/STMicroelectronics/LIS302/example/lis302',
-	'lsm330dl' : 'drivers/STMicroelectronics/LSM330DL/example/basic',
-	'm24c16' : 'drivers/STMicroelectronics/M24C16/example',
-	'mcp9800' : 'drivers/Microchip/MCP9800/example',
-	'mpl115a1' : 'drivers/Freescale Semiconductor/MPL115A1/example',
-	'mpl115a2' : 'drivers/Freescale Semiconductor/MPL115A2/example',
-	'mrf89xa' : 'drivers/Microchip/MRF89XA/example/mrf89xa',
-	'pcf8563' : 'drivers/NXP/PCF8563/example',
-	'rfm70' : 'drivers/Hoperf Electronic/RFM70/example/packet_send',
-	'sht21' : 'drivers/Sensirion/SHT21/example/basic',
-	'tmp006' : 'drivers/Texas Instruments/TMP006/example/temperature_show',
-	'uCAM-II' : 'drivers/4D Systems/uCAM-II/example',
-	'ws2812' : 'drivers/Worldsemi/WS2812/example',
-	'serialPort_test' : 'tests/serialPort',
-	'stm32f3xx_allMCU' : 'tests/stm32f3xx_AllMCU',
-	'stm32f4xx_allMCU' : 'tests/stm32f4xx_AllMCU',
-]
-    echo "Building on ${env.NODE_NAME}"
-    for (target in targets) {
-        def buildTarget = projName + '/' + target
-	if (target == 'all') {
-	    buildTarget = 'all'
-        }
-        eclipseRun(projDirMap[projName], buildTarget, [])
-    }	
-}
 
 def sa(projName, targets) {
     def projDirMap = [
@@ -239,31 +193,6 @@ pipeline {
                  }
             }    
         }
-//        stage('Checkout tester') {
-//	    agent { 
-//                label 'FX160_HardwareTester'
-//            }
-//            steps {
-//                sh 'git submodule update --init'
-//                unstash 'makefiles'		                
-//            }
-//	}
-//        stage('Build on tester') {
-//	    agent { 
-//                label 'FX160_HardwareTester'
-//            }
-//            steps {
-//                parallel(
-//                    diagnostic :        { eclipseBuild('diagnostic', targets) },
-//                    externalInterrupt : { eclipseBuild('externalInterrupt', targets) },
-//                    gpio :              { eclipseBuild('gpio', targets) },
-//                    os :                { eclipseBuild('os', targets) },
-//                    serialPort :        { eclipseBuild('serialPort', targets) },
-//                    signalSlot :        { eclipseBuild('signal slot', targets) },
-//                    ticToc :            { eclipseBuild('ticToc', targets) },
-//                )
-//            }
-//        }
 	stage('Analyze microhal examples') {
 	    when {
                 expression { env.BRANCH_NAME == 'devel'}
