@@ -58,7 +58,7 @@ static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Seria
 
 namespace sdCard {
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi3;
-constexpr microhal::IOPin cs = con1::b::io4;
+extern microhal::GPIO &cs;
 }  // namespace sdCard
 
 }  // namespace bsp

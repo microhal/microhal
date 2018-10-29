@@ -40,6 +40,15 @@ using namespace diagnostic;
 #define NVIC_PriorityGroup_4 ((uint32_t)0x300)
 #define AIRCR_VECTKEY_MASK ((uint32_t)0x05FA0000)
 
+namespace bsp {
+namespace sdCard {
+namespace detail {
+stm32f4xx::GPIO cs(con1::b::io4, stm32f4xx::GPIO::Direction::Output);
+}
+microhal::GPIO &cs = detail::cs;
+}  // namespace sdCard
+}  // namespace bsp
+
 extern "C" int main(int, char **);
 static void run_main(void *) {
     static FATFS FS;
