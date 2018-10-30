@@ -31,32 +31,36 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+#include "microhal.h"
+
 namespace bsp {
 
 namespace con1 {
 namespace a {
-constexpr microhal::GPIO::IOPin io1 (microhal::stm32f4xx::GPIO::Port::PortC, 11);
-constexpr microhal::GPIO::IOPin io2 (microhal::stm32f4xx::GPIO::Port::PortC, 10);
-constexpr microhal::GPIO::IOPin io3 (microhal::stm32f4xx::GPIO::Port::PortD, 2);
-constexpr microhal::GPIO::IOPin io4 (microhal::stm32f4xx::GPIO::Port::PortB, 13);
-//constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
-constexpr microhal::GPIO::IOPin io6 (microhal::stm32f4xx::GPIO::Port::PortC, 12);
-}
-}
+constexpr microhal::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortC, 11);
+constexpr microhal::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortC, 10);
+constexpr microhal::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortD, 2);
+constexpr microhal::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortB, 13);
+// constexpr microhal::GPIO::IOPin io5 (microhal::stm32f4xx::GPIO::Port::PortC, 15);
+constexpr microhal::IOPin io6(microhal::stm32f4xx::GPIO::Port::PortC, 12);
+}  // namespace a
+}  // namespace con1
 
 namespace rfm70 {
 
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::GPIO::IOPin csn = con1::a::io2;
-constexpr microhal::GPIO::IOPin ce = con1::a::io1;
-constexpr microhal::GPIO::IOPin irq = con1::a::io4;
-}
+extern microhal::GPIO &csn;
+extern microhal::GPIO &ce;
+constexpr microhal::IOPin irq = con1::a::io4;
+}  // namespace rfm70
 
+extern microhal::GPIO &led;
+extern microhal::GPIO &button;
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-constexpr microhal::GPIO::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortA, 13);
-constexpr microhal::GPIO::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+constexpr microhal::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortA, 13);
+constexpr microhal::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortC, 13);
 
-}
+}  // namespace bsp
 
 #endif  // NUCLEO_F411RE_H_

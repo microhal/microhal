@@ -89,8 +89,8 @@ class GPIO : public microhal::GPIO {
  public:
     using Port = IOPin::Port;
     using Pin = IOPin::Pin;
-    //--------------------------------------- constructors
-    //--------------------------------------//
+    //--------------------------------------- constructors --------------------------------------//
+    GPIO(IOPin pin) : pin(pin) {}
     /**
      * @brief Constructor of GPIO class
      *

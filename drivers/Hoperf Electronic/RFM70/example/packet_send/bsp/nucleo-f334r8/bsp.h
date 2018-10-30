@@ -105,10 +105,13 @@ constexpr microhal::IOPin Sw2(microhal::stm32f3xx::GPIO::Port::PortC, 4);
 
 namespace rfm70 {
 static microhal::SPI &spi = microhal::stm32f3xx::SPI::spi1;
-constexpr microhal::IOPin csn = con1::a::io2;
-constexpr microhal::IOPin ce = con1::a::io1;
+extern microhal::GPIO &csn;
+extern microhal::GPIO &ce;
 constexpr microhal::IOPin irq = con1::a::io4;
 }  // namespace rfm70
+
+extern microhal::GPIO &led;
+extern microhal::GPIO &button;
 
 static microhal::SerialPort &debugPort = microhal::stm32f3xx::SerialPort::Serial2;
 }  // namespace bsp

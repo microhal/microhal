@@ -35,6 +35,25 @@
 using namespace microhal;
 using namespace stm32f3xx;
 
+namespace bsp {
+namespace detail {
+microhal::stm32f3xx::GPIO led(bsp::Led3);
+microhal::stm32f3xx::GPIO button(bsp::Sw1);
+}  // namespace detail
+
+microhal::GPIO &led = detail::led;
+microhal::GPIO &button = detail::button;
+
+namespace rfm70 {
+namespace detail {
+microhal::stm32f3xx::GPIO csn(con1::a::io2);
+microhal::stm32f3xx::GPIO ce(con1::a::io1);
+}  // namespace detail
+microhal::GPIO &csn = detail::csn;
+microhal::GPIO &ce = detail::ce;
+}  // namespace rfm70
+}  // namespace bsp
+
 void hardwareConfig(void) {
     (void)bsp::rfm70::spi;
     (void)bsp::debugPort;
