@@ -137,7 +137,7 @@ class Diagnostic : public Diagnostic_base {
      * @param level - maximum level for this diagnostic channel
      */
     template <LogLevel level>
-    inline void setLogLevel(LogLevels<level>) {
+    void setLogLevel(LogLevels<level>) {
         setLogLevel(level);
     }
 
@@ -187,7 +187,7 @@ class Diagnostic<LogLevel::Disabled> {
     }
     // lets provide generic operator << so we wouldn't have to overload this operator for every type,
     template <typename T>
-    constexpr inline Diagnostic<LogLevel::Disabled> operator<<(const T t __attribute__((unused))) const noexcept {
+    constexpr inline Diagnostic<LogLevel::Disabled> &operator<<(const T t __attribute__((unused))) const noexcept {
         return *this;
     }
 
@@ -205,23 +205,23 @@ template <LogLevel compileTimeLogLevel, bool B>
 class LogLevelChannel {
  public:
     //------------------------------------------ operators ------------------------------------
-    inline auto operator<<(UnlockType unlock) __attribute__((always_inline)) {
+    auto &operator<<(UnlockType unlock) {
         diagnostic << unlock;
         return *this;
     }
 
     template <LogLevel level>
-    constexpr inline auto operator<<(const LogLevels<level> &l) {
+    constexpr auto &operator<<(const LogLevels<level> &l) {
         return diagnostic << l;
     }
 
     template <LogLevel level>
-    inline auto operator<<(const LogLevelHeader<level> &header) {
+    constexpr auto &operator<<(const LogLevelHeader<level> &header) {
         return diagnostic << header;
     }
 
-    inline auto operator<<(LineEnd) __attribute__((always_inline)) {
-        if (B) {
+    auto &operator<<(LineEnd) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.endl();
             }
@@ -229,8 +229,8 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(const char *c) __attribute__((always_inline)) {
-        if (B) {
+    LogLevelChannel &operator<<(const char *c) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(c);
             }
@@ -238,18 +238,18 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(const std::string &string) __attribute__((always_inline)) {
-        if (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.writeText(string.c_str(), string.length());
-            }
-        }
-        return *this;
-    }
+    //    LogLevelChannel &operator<<(const std::string &string) {
+    //        if constexpr (B) {
+    //            if (diagnostic.logLevel >= this->logLevel) {
+    //                diagnostic.writeText(string.c_str(), string.length());
+    //            }
+    //        }
+    //        return *this;
+    //    }
 
     template <size_t len>
-    inline LogLevelChannel &operator<<(const char (&c)[len]) {
-        if (B) {
+    LogLevelChannel &operator<<(const char (&c)[len]) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.writeText(c, len - 1);
             }
@@ -257,14 +257,14 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(uint8_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
+    LogLevelChannel &operator<<(uint8_t i) { return operator<<(static_cast<const uint32_t>(i)); }
 
-    inline LogLevelChannel &operator<<(uint16_t i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
+    LogLevelChannel &operator<<(uint16_t i) { return operator<<(static_cast<const uint32_t>(i)); }
 #if !defined LINUX_PORT && !defined WINDOWS_PORT
-    inline LogLevelChannel &operator<<(unsigned int i) __attribute__((always_inline)) { return operator<<(static_cast<const uint32_t>(i)); }
+    LogLevelChannel &operator<<(unsigned int i) { return operator<<(static_cast<const uint32_t>(i)); }
 #endif
-    inline LogLevelChannel &operator<<(uint32_t i) __attribute__((always_inline)) {
-        if (B) {
+    LogLevelChannel &operator<<(uint32_t i) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);
             }
@@ -272,8 +272,8 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(uint64_t i) __attribute__((always_inline)) {
-        if (B) {
+    LogLevelChannel &operator<<(uint64_t i) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);
             }
@@ -281,12 +281,12 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(int8_t i) __attribute__((always_inline)) { return operator<<(static_cast<const int32_t>(i)); }
+    LogLevelChannel &operator<<(int8_t i) { return operator<<(static_cast<const int32_t>(i)); }
 
-    inline LogLevelChannel &operator<<(int16_t i) __attribute__((always_inline)) { return operator<<(static_cast<const int32_t>(i)); }
+    LogLevelChannel &operator<<(int16_t i) { return operator<<(static_cast<const int32_t>(i)); }
 
-    inline LogLevelChannel &operator<<(int32_t i) __attribute__((always_inline)) {
-        if (B) {
+    LogLevelChannel &operator<<(int32_t i) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);
             }
@@ -294,8 +294,8 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(int64_t i) __attribute__((always_inline)) {
-        if (B) {
+    LogLevelChannel &operator<<(int64_t i) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(i, 10);
             }
@@ -304,8 +304,8 @@ class LogLevelChannel {
     }
 
     template <unsigned int base>
-    inline LogLevelChannel &operator<<(const Converter<base> &converter) {
-        if (B) {
+    LogLevelChannel &operator<<(const Converter<base> &converter) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 if (converter.dataPtr == nullptr) {
                     diagnostic.write(converter.data, base);
@@ -327,8 +327,8 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(double d) __attribute__((always_inline)) {
-        if (B) {
+    LogLevelChannel &operator<<(double d) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(d);
             }
@@ -336,8 +336,8 @@ class LogLevelChannel {
         return *this;
     }
 
-    inline LogLevelChannel &operator<<(bool b) __attribute__((always_inline)) {
-        if (B) {
+    LogLevelChannel &operator<<(bool b) {
+        if constexpr (B) {
             if (diagnostic.logLevel >= this->logLevel) {
                 diagnostic.write(b);
             }
@@ -380,7 +380,7 @@ constexpr LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level> ope
 template <LogLevel compileTimeLogLevel, LogLevel level>
 constexpr LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level> operator<<(Diagnostic<compileTimeLogLevel> &diagnostic,
                                                                                         const LogLevelHeader<level> &header) {
-    if (compileTimeLogLevel >= level) {
+    if constexpr (compileTimeLogLevel >= level) {
         if (diagnostic.logLevel >= level) {
             diagnostic.printHeader(header, level);
         }

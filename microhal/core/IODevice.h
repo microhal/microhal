@@ -35,7 +35,7 @@
 #include <cstdint>
 #include <cstring>
 #include <mutex>
-#include <experimental/string_view>
+#include <string_view>
 
 namespace microhal {
 /**
@@ -51,31 +51,32 @@ namespace microhal {
  */
 class IODevice {
  public:
-	using string_view = std::experimental::string_view;
+    using string_view = std::string_view;
     /**
      *
      */
     typedef enum {
-        NotOpen = 0x00,                     // The device is not open.
-        ReadOnly = 0x01,                    // The device is open for reading.
-        WriteOnly = 0x02,                   // The device is open for writing.
-        ReadWrite = ReadOnly | WriteOnly,   // The device is open for reading and writing.
-//        Append = 0x04,                      // The device is opened in append mode, so that all data is written to the end of the file.
-//        Truncate = 0x08,                    // If possible, the device is truncated before it is opened. All earlier contents of the device are lost.
-//        Text = 0x10,                        // When reading, the end-of-line terminators are translated to '\n'. When writing, the end-of-line
-                                            //  terminators are translated to the local encoding, for example '\r\n' for Win32.
- //       Unbuffered = 0x20                   // Any buffer in the device is bypassed.
+        NotOpen = 0x00,                    // The device is not open.
+        ReadOnly = 0x01,                   // The device is open for reading.
+        WriteOnly = 0x02,                  // The device is open for writing.
+        ReadWrite = ReadOnly | WriteOnly,  // The device is open for reading and writing.
+        //        Append = 0x04,                      // The device is opened in append mode, so that all data is written to the end of the file.
+        //        Truncate = 0x08,                    // If possible, the device is truncated before it is opened. All earlier contents of the device
+        //        are lost. Text = 0x10,                        // When reading, the end-of-line terminators are translated to '\n'. When writing, the
+        //        end-of-line
+        //  terminators are translated to the local encoding, for example '\r\n' for Win32.
+        //       Unbuffered = 0x20                   // Any buffer in the device is bypassed.
     } OpenMode;
 
     std::timed_mutex mutex;
 
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
-    constexpr IODevice(): mutex() { }
+    constexpr IODevice() : mutex() {}
 #else
-    IODevice(): mutex() { }
+    IODevice() : mutex() {}
 #endif
 
-    virtual ~IODevice() { }
+    virtual ~IODevice() {}
     /**
      *
      * @param mode
@@ -85,12 +86,12 @@ class IODevice {
     /**
      *
      */
-    virtual void close() noexcept  = 0;
+    virtual void close() noexcept = 0;
     /**
      *
      * @return
      */
-    virtual bool isOpen() const noexcept  = 0;
+    virtual bool isOpen() const noexcept = 0;
 
     /**
      *
@@ -109,26 +110,26 @@ class IODevice {
      * @param[in] maxLength
      * @return
      */
-//    virtual size_t readLine(char *buffer, size_t maxLength) noexcept = 0;
+    //    virtual size_t readLine(char *buffer, size_t maxLength) noexcept = 0;
     /**
      *
      * @param[out] buffer - pointer to buffer where data will be storage.
      * @return
      */
-//    size_t readAll(char *buffer) noexcept {
-//        return read(buffer, 0xFFFF);
-//    }
+    //    size_t readAll(char *buffer) noexcept {
+    //        return read(buffer, 0xFFFF);
+    //    }
     /**
      *
      * @return
      */
-    virtual bool getChar(char &c) noexcept = 0;
+    virtual bool getChar(char &c) noexcept { return read(&c, 1) == 1; }
     /**
      *
      * @param[in] c
      * @return
      */
-    virtual bool putChar(char c) noexcept = 0;
+    virtual bool putChar(char c) noexcept { return write(&c, 1) == 1; }
     /**
      *
      * @param[in] data - pointer to data buffer
@@ -150,11 +151,9 @@ class IODevice {
         }
     }
 
-    size_t write(string_view string) {
-        return write(string.data(), string.length());
-    }
+    size_t write(string_view string) { return write(string.data(), string.length()); }
 };
 
-} // namespace microhal
+}  // namespace microhal
 
-#endif // _MICROHAL_IODEVICE_H_
+#endif  // _MICROHAL_IODEVICE_H_
