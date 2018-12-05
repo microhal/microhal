@@ -197,6 +197,9 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
     uint32_t isr = i2c->ISR;
 
     if (isr & I2C_ISR_ADDR) {
+        if (obj.activeSlave) {
+            obj.activeSlave->onReceive(1);
+        }
         // slave mode
         uint8_t address = (isr & I2C_ISR_ADDCODE_Msk) >> I2C_ISR_ADDCODE_Pos;
         uint8_t direction = (isr & I2C_ISR_DIR_Msk) >> I2C_ISR_DIR_Pos;

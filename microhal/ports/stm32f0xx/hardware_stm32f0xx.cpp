@@ -32,15 +32,29 @@
  */
 #include <cstdint>
 
+#include "clockManager.h"
+#include "device/stm32f0xx.h"
 #include "hardware_stm32f0xx.h"
-//#include "clockManager.h"
 
 namespace microhal {
 namespace hardware {
 
 uint32_t Device::coreFrequency() {
-    // return stm32f3xx::ClockManager::SYSCLK::frequency();
-    return 0;
+    return stm32f0xx::ClockManager::SYSCLK::frequency();
+}
+
+uint64_t Device::getUniqueID() {
+    const uint32_t *id = reinterpret_cast<uint32_t *>(UID_BASE);
+
+    const uint32_t idA = id[0] + id[2];
+    const uint32_t idB = id[1];
+
+    return ((uint64_t)idA << 32) | idB;
+}
+
+std::array<uint32_t, 3> Device::getNativeUniqueID() {
+    const uint32_t *id = reinterpret_cast<uint32_t *>(UID_BASE);
+    return {id[0], id[1], id[2]};
 }
 
 }  // namespace hardware

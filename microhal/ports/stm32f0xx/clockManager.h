@@ -53,6 +53,8 @@ class ClockManager {
         HSI = 3
     };
 
+    enum UsbClockSource { HSI48 = 0, PLL = 1 };
+
  public:
     static void enable(const USART_TypeDef &usart) {
         uint32_t rccEnableFlag;
@@ -231,42 +233,40 @@ class ClockManager {
         }
     }
 
-    static uint32_t USARTFrequency(const USART_TypeDef &usart) {
-        UsartClockSource usartClockSource = USARTClockSource(usart);
-
-        switch (usartClockSource) {
-            case PCLK:
-                return APB1Frequency();
-            case SYSCLK:
-                return SYSCLK::frequency();
-            case LSE:
-                while (1)
-                    ;
-                return 0;  // LSE::frequency();
-                break;
-            case HSI:
-                return HSI::frequency();
-        }
-        std::terminate();
-    }
-
-    static UsartClockSource USARTClockSource(const USART_TypeDef &usart) {
-        uint32_t pos;
-        if (&usart == USART1)
-            pos = RCC_CFGR3_USART1SW_Pos;
-        else if (&usart == USART2)
-            // pos = RCC_CFGR3_USART2SW_Pos;
-            return UsartClockSource::PCLK;
-#if defined(USART3)
-        else if (&usart == USART3)
-            // pos = RCC_CFGR3_USART3SW_Pos;
-            return UsartClockSource::PCLK;
-#endif
-        else {
+#if defined(USB)
+    static void enable(const USB_TypeDef &usb) {
+        if (&usb == USB) {
+            RCC->APB1ENR |= RCC_APB1ENR_USBEN;
+        } else {
             std::terminate();
         }
-        return static_cast<UsartClockSource>((RCC->CFGR3 >> pos) & 0b11);
     }
+    static void disable(const USB_TypeDef &usb) {
+        if (&usb == USB) {
+            RCC->APB1ENR &= ~RCC_APB1ENR_USBEN;
+        } else {
+            std::terminate();
+        }
+    }
+#endif
+    static void enable(const CRS_TypeDef &crs) {
+        if (&crs == CRS) {
+            RCC->APB1ENR |= RCC_APB1ENR_CRSEN;
+        } else {
+            std::terminate();
+        }
+    }
+    static void disable(const CRS_TypeDef &crs) {
+        if (&crs == CRS) {
+            RCC->APB1ENR &= ~RCC_APB1ENR_CRSEN;
+        } else {
+            std::terminate();
+        }
+    }
+
+    static uint32_t USARTFrequency(const USART_TypeDef &usart);
+
+    static UsartClockSource USARTClockSource(const USART_TypeDef &usart);
 
     static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
         if (&i2c == I2C1) {
@@ -279,6 +279,9 @@ class ClockManager {
         std::terminate();
     }
 
+    static void USBClockSource(UsbClockSource clockSource) { RCC->CFGR3 = (RCC->CFGR3 & ~RCC_CFGR3_USBSW) | clockSource; }
+    static UsbClockSource USBClockSource() { return static_cast<UsbClockSource>((RCC->CFGR3 >> RCC_CFGR3_USBSW_Pos) & 0x01); }
+
     static void flashLatency(Frequency sysclkFrequency_Hz) {
         if (sysclkFrequency_Hz < 24000000) {
             FLASH->ACR &= ~FLASH_ACR_LATENCY;
@@ -287,28 +290,30 @@ class ClockManager {
         }
     }
 
-    static Frequency APB1Frequency() {
-        const uint32_t ppre1 = (RCC->CFGR & RCC_CFGR_PPRE_Msk) >> RCC_CFGR_PPRE_Pos;
-        if (ppre1 & 0b100) {
-            const uint32_t div[] = {2, 4, 8, 16};
-            return AHBFrequency() / div[ppre1 & 0b011];
-        } else {
-            return AHBFrequency();
-        }
-    }
+    static Frequency APB1Frequency();
+    //    {
+    //        const uint32_t ppre1 = (RCC->CFGR & RCC_CFGR_PPRE_Msk) >> RCC_CFGR_PPRE_Pos;
+    //        if (ppre1 & 0b100) {
+    //            const uint32_t div[] = {2, 4, 8, 16};
+    //            return AHBFrequency() / div[ppre1 & 0b011];
+    //        } else {
+    //            return AHBFrequency();
+    //        }
+    //    }
 
-    static uint32_t AHBFrequency() noexcept {
-        const uint32_t hpre = (RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
-        if (hpre & 0b1000) {
-            const uint32_t div[] = {2, 4, 8, 16, 64, 128, 256, 512};
-            return SYSCLK::frequency() / div[hpre & 0b0111];
-        } else {
-            return SYSCLK::frequency();
-        }
-    }
+    static uint32_t AHBFrequency() noexcept;
+    //    {
+    //        const uint32_t hpre = (RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
+    //        if (hpre & 0b1000) {
+    //            const uint32_t div[] = {2, 4, 8, 16, 64, 128, 256, 512};
+    //            return SYSCLK::frequency() / div[hpre & 0b0111];
+    //        } else {
+    //            return SYSCLK::frequency();
+    //        }
+    //    }
 
     struct SYSCLK {
-        enum class Source : decltype(RCC_CFGR_SWS_0) { HSI, HSE = RCC_CFGR_SWS_0, PLL = RCC_CFGR_SWS_1 };
+        enum class Source : decltype(RCC_CFGR_SWS_0) { HSI, HSE = RCC_CFGR_SWS_0, PLL = RCC_CFGR_SWS_1, HSI48 = RCC_CFGR_SWS_1 | RCC_CFGR_SWS_0 };
         static Source source() { return static_cast<Source>(RCC->CFGR & RCC_CFGR_SWS); }
         static void source(Source source) {
             switch (source) {
@@ -321,6 +326,9 @@ class ClockManager {
                 case Source::PLL:
                     // flashLatency(PLL::VCOOutputFrequency());
                     std::terminate();
+                    break;
+                case Source::HSI48:
+                    flashLatency(HSI48::frequency());
                     break;
             }
             RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | (static_cast<typename std::underlying_type<Source>::type>(source) >> 2);
@@ -338,6 +346,9 @@ class ClockManager {
                     // freq = PLLCLKFrequency();
                     std::terminate();
                     break;
+                case RCC_CFGR_SWS_1 | RCC_CFGR_SWS_0:
+                    freq = HSI48::frequency();
+                    break;
             }
             return freq;
         }
@@ -354,6 +365,19 @@ class ClockManager {
         static void enable() noexcept { RCC->CR |= RCC_CR_HSION; }
         static void disable() noexcept { RCC->CR &= ~RCC_CR_HSION; }
         static bool isReady() noexcept { return RCC->CR & RCC_CR_HSIRDY; }
+    };
+
+    struct HSI48 {
+        /**
+         * @brief This function return HSI48 frequency.
+         *
+         * @return HSI frequency in [Hz].
+         */
+        static constexpr Frequency frequency() noexcept { return 48000000; }
+
+        static void enable() noexcept { RCC->CR2 |= RCC_CR2_HSI48ON; }
+        static void disable() noexcept { RCC->CR2 &= ~RCC_CR2_HSI48ON; }
+        static bool isReady() noexcept { return RCC->CR2 & RCC_CR2_HSI48RDY; }
     };
 
     struct HSE {
@@ -375,7 +399,7 @@ class ClockManager {
         static void disable() noexcept { RCC->CR &= ~RCC_CR_HSEON; }
         static bool isReady() noexcept { return RCC->CR & RCC_CR_HSERDY; }
     };
-};  // namespace stm32f0xx
+};
 
 }  // namespace stm32f0xx
 }  // namespace microhal

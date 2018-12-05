@@ -32,6 +32,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <array>
 #include <cstdint>
 
 #include "microhalDefs.h"
@@ -42,9 +43,13 @@ namespace microhal {
 namespace hardware {
 
 struct Device {
-    static constexpr auto endianness = Endianness::Little;
+    static constexpr const auto endianness = Endianness::Little;
+    static constexpr const bool IDpresent = true;
+    static constexpr const bool isIDunique = true;
 
     static uint32_t coreFrequency();
+    static uint64_t getUniqueID();
+    static std::array<uint32_t, 3> getNativeUniqueID();
 };
 
 }  // namespace hardware
