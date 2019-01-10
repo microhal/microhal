@@ -37,6 +37,7 @@
 #include <cstdint>
 #include <cstdio>
 
+#include "IOPin.h"
 #include "diagnostic/diagnostic.h"
 namespace microhal {
 namespace linux {
@@ -47,22 +48,6 @@ namespace linux {
 class GPIO {
  public:
     //---------------------------------------- typedefs -----------------------------------------//
-    /**
-     * This enum contain port list.
-     */
-    typedef enum { GPIOA } Port;
-    /**
-     *
-     */
-    typedef uint_fast8_t Pin;
-    /**
-     *
-     */
-    struct IOPin {
-        const Port port;
-        const Pin pin;
-        constexpr IOPin(const Port port, const Pin pin) : port(port), pin(pin) {}
-    };
     /**
      * @brief Possible pin directions
      */
@@ -88,6 +73,8 @@ class GPIO {
 
  private:
  public:
+    using Port = IOPin::Port;
+    using Pin = IOPin::Pin;
     //--------------------------------------- constructors --------------------------------------//
     /**
      * @brief Constructor of GPIO class
