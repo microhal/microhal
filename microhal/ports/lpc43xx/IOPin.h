@@ -38,7 +38,7 @@ struct IOPin {
     /**
      * This enum contain port list.
      */
-    typedef enum { Port0 = 0, Port1, Port2, Port3, Port4, Port5, Port6, Port7, Port8, Port9, PortA, PortB, PortC, PortD, PortE, PortF } Port;
+    typedef enum { Port0 = 0, Port1, Port2, Port3, Port4, Port5, Port6, Port7, Port8, Port9, PortA, PortB, PortC, PortD, PortE, PortF, CLK } Port;
     /**
      *
      */
@@ -50,6 +50,8 @@ struct IOPin {
     Port port;
     Pin pin;
     constexpr IOPin(const Port port, const Pin pin) : port(port), pin(pin) {}
+    constexpr bool operator==(const IOPin& b) const { return (port == b.port) && (pin == b.pin); }
+    constexpr bool operator!=(const IOPin& b) const { return (port != b.port) || (pin != b.pin); }
 };
 }  // namespace lpc43xx
 }  // namespace microhal
