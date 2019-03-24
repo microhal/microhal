@@ -65,7 +65,6 @@ class GPIO {
 
     // disable copying
     GPIO() = default;
-    // GPIO(IOPin pin, Direction direction) {}
     GPIO(const GPIO &) = delete;
     GPIO &operator=(const GPIO &gpio) = delete;
 
