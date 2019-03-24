@@ -34,6 +34,8 @@
  */
 #if defined(VENDOR_ATMEL)
 #include "Atmel/serialPort_atmel.h"
+#elif defined(VENDOR_NXP)
+
 #elif defined(VENDOR_NORDIC)
 #include "Nordic/serialPort_nordic.h"
 #elif defined(VENDOR_RENESAS)

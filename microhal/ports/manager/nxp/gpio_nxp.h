@@ -1,14 +1,14 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  Pawel Okas
+ * @copyright  Paweł Okas
  * @version    $Id$
  * @brief
  *
- * @authors    Pawel Okas
- * created on: 17-12-2016
- * last modification: 17-12-2016
+ * @authors    Paweł Okas
+ * created on: 22-03-2019
+ * last modification: 22-03-2019
  *
- * @copyright Copyright (c) 2016 - 2017, Pawel Okas
+ * @copyright Copyright (c) 2019, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,29 +27,16 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_HARDWARE_H_
-#define _MICROHAL_HARDWARE_H_
-/* ************************************************************************************************
- * INCLUDES
- */
-#if defined(VENDOR_ATMEL)
-#include "Atmel/hardware_atmel.h"
-#elif defined(VENDOR_NXP)
-#include "nxp/hardware_nxp.h"
-#elif defined(VENDOR_NORDIC)
-#include "Nordic/hardware_nordic.h"
-#elif defined(VENDOR_RENESAS)
-#include "Renesas/hardware_renesas.h"
-#elif defined(VENDOR_SILICON_LABS)
-#include "SiliconLabs/hardware_siliconLabs.h"
-#elif defined(VENDOR_STMICROELECTRONICS)
-#include "STMicroelectronics/hardware_stm.h"
-#elif defined(VENDOR_TEXAS_INSTRUMENTS)
-#include "TexasInstruments/hardware_ti.h"
-#elif defined(LINUX_PORT)
-#include "ports/linux/hardware_linux.h"
+#ifndef GPIO_STM_H_
+#define GPIO_STM_H_
+
+#ifdef MCU_TYPE_LPC43XX
+#include "ports/lpc43xx/gpio_lpc43xx.h"
+namespace microhal {
+namespace activePort = lpc43xx;
+}
 #else
-#error "Microcontroller vendor undefined."
+#error "MCU type must be specified."
 #endif
 
-#endif  // _MICROHAL_HARDWARE_H_
+#endif /* GPIO_STM_H_ */

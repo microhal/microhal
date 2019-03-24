@@ -35,6 +35,8 @@
 /* clang-format off */
 #if defined(VENDOR_ATMEL)
     #include "Atmel/i2c_atmel.h"
+#elif defined(VENDOR_NXP)
+
 #elif defined(VENDOR_NORDIC)
     #include "Nordic/I2C_nordic.h"
 #elif defined(VENDOR_RENESAS)
