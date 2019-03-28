@@ -12,7 +12,6 @@ namespace lpc43xx {
  */
 class SPI_polling : public lpc43xx::SPI {
  public:
-    enum class Number { SSP0 = 0x40083000, SSP1 = 0x400C5000 };
     //---------------------------------------- constructors ---------------------------------------
     SPI_polling() = delete;
     SPI_polling(SPI_polling &) = delete;
