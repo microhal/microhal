@@ -241,14 +241,14 @@ class ClockManager {
             std::terminate();
         }
     }
+
     static void disable(const USB_TypeDef &usb) {
         if (&usb == USB) {
             RCC->APB1ENR &= ~RCC_APB1ENR_USBEN;
         } else {
             std::terminate();
-        }
-    }
 #endif
+
     static void enable(const CRS_TypeDef &crs) {
         if (&crs == CRS) {
             RCC->APB1ENR |= RCC_APB1ENR_CRSEN;
@@ -256,11 +256,30 @@ class ClockManager {
             std::terminate();
         }
     }
+
     static void disable(const CRS_TypeDef &crs) {
         if (&crs == CRS) {
             RCC->APB1ENR &= ~RCC_APB1ENR_CRSEN;
         } else {
             std::terminate();
+        }
+    }
+
+    static uint32_t USARTFrequency(const USART_TypeDef &usart) {
+        UsartClockSource usartClockSource = USARTClockSource(usart);
+
+        switch (usartClockSource) {
+            case PCLK:
+                return APB1Frequency();
+            case SYSCLK:
+                return SYSCLK::frequency();
+            case LSE:
+                while (1)
+                    ;
+                return 0;  // LSE::frequency();
+                break;
+            case HSI:
+                return HSI::frequency();
         }
     }
 
