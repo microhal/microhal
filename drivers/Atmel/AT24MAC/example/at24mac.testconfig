@@ -1,7 +1,7 @@
 import re
 
 testType = 'deviceTest'
-targets = ['stm32f4-discovery']
+targets = ['stm32f4-discovery', 'NUCLEO-F411RE']
 executionTime = 1
 requireHardware = False
 requireDevice = False
