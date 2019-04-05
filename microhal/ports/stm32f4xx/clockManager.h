@@ -34,6 +34,7 @@
 #include <type_traits>
 #include "microhalPortConfig_stm32f4xx.h"
 
+#include "can_registers.h"
 #include "device/stm32f4xx.h"
 
 namespace microhal {
@@ -695,23 +696,23 @@ class ClockManager {
         }
     }
 
-#if defined(CAN1) || defined(CAN2)
-    static void enable(const CAN_TypeDef &can, PowerMode mode) {
-        if (&can == CAN1) {
+#if defined(CAN1_BASE) || defined(CAN2_BASE)
+    static void enable(const registers::CAN &can, PowerMode mode) {
+        if (&can == &registers::can1) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_CAN1LPEN;
-        } else if (&can == CAN2) {
+        } else if (&can == &registers::can2) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_CAN2EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_CAN2LPEN;
         } else {
             std::terminate();
         }
     }
-    static void disable(const CAN_TypeDef &can, PowerMode mode) {
-        if (&can == CAN1) {
+    static void disable(const registers::CAN &can, PowerMode mode) {
+        if (&can == &registers::can1) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR &= ~RCC_APB1ENR_CAN1EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= ~RCC_APB1LPENR_CAN1LPEN;
-        } else if (&can == CAN2) {
+        } else if (&can == &registers::can1) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR &= ~RCC_APB1ENR_CAN2EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= ~RCC_APB1LPENR_CAN2LPEN;
         } else {
@@ -842,6 +843,13 @@ class ClockManager {
         }
     }
     //--------------------------------------------------------------------------------------------------------------
+    /**
+     * @brief This function return CAN clock
+     *
+     * @param CAN device pointer
+     * @return
+     */
+    static uint32_t CANFrequency(const registers::CAN &) { return APB1::frequency(); }
     /**
      * @brief This function return usart clock
      *
