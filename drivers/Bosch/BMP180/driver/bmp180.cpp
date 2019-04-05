@@ -38,7 +38,7 @@ BMP180::Error BMP180::readCalibrationData() {
     // we are reading callibration coefitiens only once at BMP180 initialization. Lets read callibration coeffictients twice to be sure the reading
     // was correct. To check this we will check if both reading are equal, if not we will return error.
     std::tuple<int16_t, int16_t, int16_t, uint16_t, uint16_t, uint16_t, int16_t, int16_t, int16_t, int16_t, int16_t> tmp[2];
-    Error result;
+    Error result = Error::None;
     for (auto &x : tmp) {
         result = readMultipleRegisters(x, Register::AC1, Register::AC2, Register::AC3, Register::AC4, Register::AC5, Register::AC6, Register::B1,
                                        Register::B2, Register::MB, Register::MC, Register::MD);
