@@ -90,7 +90,11 @@ class I2C_dma : public stm32f4xx::I2C {
         : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), semaphore(), transfer() {
         ClockManager::enable(i2c, ClockManager::PowerMode::Normal);
         init();
+#ifndef HAL_RTOS_FreeRTOS
         const uint32_t priority = 0;
+#else
+        const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
+#endif
         enableEventInterrupt(priority);
         enableErrorInterrupt(priority);
     }
