@@ -91,7 +91,12 @@ SerialPort &SerialPort::Serial8 = SerialPort_interrupt::Serial8;
 SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
     ClockManager::enable(usart, ClockManager::PowerMode::Normal);
-    enableInterrupt(0);
+#ifndef HAL_RTOS_FreeRTOS
+    const uint32_t priority = 0;
+#else
+    const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
+#endif
+    enableInterrupt(priority);
 }
 
 bool SerialPort_interrupt::open(OpenMode mode) noexcept {

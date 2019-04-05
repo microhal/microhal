@@ -95,22 +95,22 @@ class SerialPort : public microhal::SerialPort {
     bool setStopBits(SerialPort::StopBits stopBits) noexcept final;
     bool setDataBits(SerialPort::DataBits dataBits) noexcept final;
 
-    void priority(uint32_t priority) {
-    	NVIC_SetPriority(irq(), priority);
-    }
-protected:
-//------------------------------------------- variables -----------------------------------------//
+    void priority(uint32_t priority) { NVIC_SetPriority(irq(), priority); }
+
+ protected:
+    //------------------------------------------- variables -----------------------------------------//
     USART_TypeDef &usart;
 //------------------------------------------- constructors --------------------------------------//
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
-        SerialPort(USART_TypeDef &usart) noexcept : usart(usart) {
+        SerialPort(USART_TypeDef &usart) noexcept
+        : usart(usart) {
     }
 
     void enableInterrupt(uint32_t priority) {
-        NVIC_EnableIRQ(irq());
         NVIC_SetPriority(irq(), priority);
+        NVIC_EnableIRQ(irq());
     }
 
     uint32_t number() {
