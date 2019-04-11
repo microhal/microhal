@@ -31,13 +31,14 @@
 
 #include <gsl/span>
 #include <optional>
+#include <string_view>
 #include "I2CDevice/I2CDevice.h"
 #include "microhal.h"
 
 /**
  * \addtogroup Devices
  * @{
- * @class BMP180
+ * @class AT24MAC
  * @}
  */
 class AT24MAC {
@@ -81,6 +82,8 @@ class AT24MAC {
 
  public:
     AT24MAC(I2C &i2c, uint8_t address) : memory(i2c, address), mac(i2c, getMACi2cAddrFromMemoryI2cAddr(address)) {}
+
+    static std::string_view toString(Error error);
 
     Error readEUI(uint64_t &eui) { return static_cast<Error>(mac.readRegister(Register::EUIAddress, eui)); }
     Error readSerialNumber(SerialNumber &serial) { return static_cast<Error>(mac.readRegister(Register::SerialNumberReg, serial)); }
@@ -127,4 +130,4 @@ class AT24MAC {
     microhal::I2CDevice memory;
     microhal::I2CDevice mac;
 };
-#endif /* SRC_AT34MAC_AT24MAC_H_ */
+#endif /* _AT24MAC_H_ */
