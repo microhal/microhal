@@ -41,6 +41,11 @@ using namespace diagnostic;
 
 AT24MAC mac(bsp::i2c, 0xA0);
 
+doctest::String toString(const AT24MAC::Error& error) {
+    auto string = AT24MAC::toString(error);
+    return {string.data(), string.size()};
+}
+
 TEST_CASE("Read MAC") {
     uint64_t eui = 0;
     // Check if we can read eui
@@ -97,8 +102,6 @@ TEST_CASE("Memory page write read") {
     CHECK(mac.read(0x00, read) == AT24MAC::Error::None);
 
     std::array<uint8_t, 16> write_data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-    ;
-    // write_data = write;
     CHECK(write_data == read);
 
     if (write_data != read) {
