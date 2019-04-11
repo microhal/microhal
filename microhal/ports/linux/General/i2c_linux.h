@@ -39,6 +39,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include "interfaces/i2c_interface.h"
 
 namespace microhal {
 namespace linux {
@@ -60,7 +61,9 @@ class I2C : public microhal::I2C {
     void busReset() noexcept final { std::abort(); }
 
     Error write(DeviceAddress deviceAddress, const uint8_t *data, size_t length) noexcept final {
-        if (::ioctl(file, I2C_SLAVE, deviceAddress >> 1) < 0) return Error::Unknown;
+        if (::ioctl(file, I2C_SLAVE, deviceAddress >> 1) < 0) {
+            return Error::Unknown;
+        }
         auto writeStatus = ::write(file, data, length);
         if (writeStatus >= 0) {
             // we know that writeStatus is positive so it is safe to cast it into unsigned data
@@ -92,36 +95,10 @@ class I2C : public microhal::I2C {
         }
         return Error::Unknown;
     }
-    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final {
-        if (::ioctl(file, I2C_SLAVE, deviceAddress >> 1) < 0) return Error::Unknown;
-        uint8_t *buffer = new uint8_t[dataLength + dataBLength];
-        auto readStatus = ::read(file, buffer, dataLength + dataBLength);
-        if (readStatus >= 0) {
-            // we know that writeStatus is positive so it is safe to cast it into unsigned data
-            if (static_cast<size_t>(readStatus) == dataLength + dataBLength) {
-                std::copy_n(buffer, dataLength, data);
-                std::copy_n(buffer + dataLength, dataBLength, dataB);
-                return Error::None;
-            }
-        } else {
-        }
-        return Error::Unknown;
-    }
-    Error writeRead(DeviceAddress deviceAddress, const uint8_t *write, size_t writeLength, uint8_t *read, size_t readLength) noexcept final {
-        if (::ioctl(file, I2C_SLAVE, deviceAddress >> 1) < 0) return Error::Unknown;
-        auto writeStatus = ::write(file, write, writeLength);
-        if (writeStatus >= 0) {
-            // we know that writeStatus is positive so it is safe to cast it into unsigned data
-            if (static_cast<size_t>(writeStatus) == writeLength) {
-                auto readStatus = ::read(file, read, readLength);
-                if (readStatus >= 0) {
-                    // we know that readStatus is positive so it is safe to cast it into unsigned data
-                    if (static_cast<size_t>(writeStatus) == readLength) return Error::None;
-                }
-            }
-        }
-        return Error::Unknown;
-    }
+    Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
+    Error writeRead(DeviceAddress deviceAddress, const uint8_t *write, size_t writeLength, uint8_t *read, size_t readLength) noexcept final;
+
+    bool addSlave(microhal::I2CSlave &) final { std::terminate(); }
 
  private:
     int file;
