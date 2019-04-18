@@ -34,8 +34,11 @@ namespace graphics {
 
 class Point {
  public:
+    constexpr Point(uint16_t x, uint16_t y) : x(x), y(y) {}
     uint16_t x;
     uint16_t y;
+
+    Point operator-(Point b) { return Point(x - b.x, y - b.y); }
 };
 
 }  // namespace graphics
