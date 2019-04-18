@@ -10,7 +10,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <stdint.h>
+#include <cstdint>
 
 #include "byteswap.h"
 #include "gpio.h"
