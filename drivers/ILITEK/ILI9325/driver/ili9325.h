@@ -57,6 +57,7 @@ class ILI9325 : public microhal::graphics::Display {
     void fill(Color color);
 
     bool setPixel(Point position, Color color) final;
+    bool drawLine(Point begin, Point end, Color) final;
     bool drawFilledRectangle(Point begin, Point end, Color) final;
 
     void enterSleepMode();
@@ -75,10 +76,10 @@ class ILI9325 : public microhal::graphics::Display {
     void setXY(Point point);
 
     void writeGRAM(gsl::span<Color> pixels);
-    void writeGRAM(Color pixel, uint_fast16_t count);
+    void writeGRAM(Color pixel, uint32_t count);
     void readGRAM(gsl::span<Color> pixels);
 
-    void readRegister(uint8_t address, uint16_t *data);
+    void readRegister(uint16_t address, uint16_t *data);
     bool writeRegister(uint16_t address, uint16_t data);
 };
 

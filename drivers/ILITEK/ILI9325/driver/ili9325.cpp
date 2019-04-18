@@ -50,14 +50,25 @@ bool ILI9325::setPixel(Point position, Color color) {
     return writeRegister(0x0022, colorToValue(color));
 }
 
+bool ILI9325::drawLine(Point begin, Point end, Color color) {
+    // if line is horizontal or vertical we can draw it faster by drawing rectangle
+    if ((begin.x == end.x) || (begin.y == end.y)) {
+        drawFilledRectangle(begin, end, color);
+    } else {
+        // use base (more generic) function do draw line
+        Display::drawLine(begin, end, color);
+    }
+    return true;
+}
+
 bool ILI9325::drawFilledRectangle(Point begin, Point end, Color color) {
     if (begin.x > end.x) std::swap(begin.x, end.x);
     if (begin.y > end.y) std::swap(begin.y, end.y);
     setActiveArea(begin, end);
     setXY(begin);
-    uint_fast16_t xdiff = (end.x - begin.x) ? (end.x - begin.x) : 1;
-    uint_fast16_t ydiff = (end.y - begin.y) ? (end.y - begin.y) : 1;
-    uint_fast16_t pixelCount = xdiff * ydiff + 80;
+    uint32_t xdiff = end.x - begin.x + 1;
+    uint32_t ydiff = end.y - begin.y + 1;
+    uint32_t pixelCount = xdiff * ydiff;
     writeGRAM(color, pixelCount);
     return true;
 }
@@ -65,9 +76,7 @@ bool ILI9325::drawFilledRectangle(Point begin, Point end, Color color) {
 void ILI9325::fill(Color color) {
     Point begin = {0, 0};
     Point end = {240, 320};
-    setActiveArea(begin, end);
-    setXY(begin);
-    writeGRAM(color, end.x * end.y);
+    drawFilledRectangle(begin, end, color);
 }
 
 void ILI9325::reset() {
@@ -153,8 +162,8 @@ bool ILI9325::init() {
     std::this_thread::sleep_for(std::chrono::milliseconds{50});   // Delay 50ms
     writeRegister(0x0012, 0x001A); /*001C*/                       //  Internal  reference  voltage=  Vci;
     std::this_thread::sleep_for(std::chrono::milliseconds{50});   // Delay 50ms
-    writeRegister(0x0013, 0x001A); /*1A00*/                       //  Set  VDV[4:0]  for  VCOM  amplitude
-    writeRegister(0x0029, 0x002A); /*0025*/                       //  Set  VCM[5:0]  for  VCOMH
+    writeRegister(0x0013, 0x1A00); /*001A*/                       //  Set  VDV[4:0]  for  VCOM  amplitude
+    writeRegister(0x0029, 0x0025); /*002A*/                       //  Set  VCM[5:0]  for  VCOMH
     writeRegister(0x002B, 0x000C);                                //  Set  Frame  Rate
     std::this_thread::sleep_for(std::chrono::milliseconds{50});   // Delay 50ms
     writeRegister(0x0020, 0x0000);                                //  GRAM  horizontal  Address
@@ -172,13 +181,13 @@ bool ILI9325::init() {
     writeRegister(0x003C, 0x0702);
     writeRegister(0x003D, 0x1604);
     //------------------ Set GRAM area ---------------//
-    writeRegister(0x0050, 0x0000);             //  Horizontal  GRAM  Start  Address
-    writeRegister(0x0051, 0x00EF);             //  Horizontal  GRAM  End  Address
-    writeRegister(0x0052, 0x0000);             //  Vertical  GRAM  Start  Address
-    writeRegister(0x0053, 0x013F);             //  Vertical  GRAM  Start  Address
-    writeRegister(0x0060, 0xA700);             //  Gate  Scan  Line
-    writeRegister(0x0061, 0x0003); /*0x0001*/  //  NDL,VLE,  REV
-    writeRegister(0x006A, 0x0000);             //  set  scrolling  line
+    writeRegister(0x0050, 0x0000);           //  Horizontal  GRAM  Start  Address
+    writeRegister(0x0051, 0x00EF);           //  Horizontal  GRAM  End  Address
+    writeRegister(0x0052, 0x0000);           //  Vertical  GRAM  Start  Address
+    writeRegister(0x0053, 0x013F);           //  Vertical  GRAM  Start  Address
+    writeRegister(0x0060, 0xA700);           //  Gate  Scan  Line
+    writeRegister(0x0061, 0x0001); /*0003*/  //  NDL,VLE,  REV
+    writeRegister(0x006A, 0x0000);           //  set  scrolling  line
     //-------------- Partial Display Control ---------//
     writeRegister(0x0080, 0x0000);
     writeRegister(0x0081, 0x0000);
@@ -219,7 +228,7 @@ void ILI9325::writeGRAM(gsl::span<Color> pixels) {
     cs.set();
 }
 
-void ILI9325::writeGRAM(Color pixelColor, uint_fast16_t count) {
+void ILI9325::writeGRAM(Color pixelColor, uint32_t count) {
     cs.reset();
     rs.reset();
     dataBus.write(0x0022);
@@ -249,7 +258,7 @@ void ILI9325::readGRAM(gsl::span<Color> pixels) {
     cs.set();
 }
 
-void ILI9325::readRegister(uint8_t address, uint16_t *data) {
+void ILI9325::readRegister(uint16_t address, uint16_t *data) {
     cs.reset();  // activate data buss
     rs.reset();  // enter command mode
     dataBus.write(address);
@@ -286,7 +295,7 @@ bool ILI9325::gramWriteReadTest() {
     setXY({0, 0});
     readGRAM(dataRead);
     for (auto data : dataRead) {
-        diagChannel << Debug << "GRAM: " << data.r << " " << data.g << endl;
+        diagChannel << Debug << "GRAM: " << data.r << " " << data.g << " " << data.b << endl;
     }
     return dataWrite == dataRead;
 }

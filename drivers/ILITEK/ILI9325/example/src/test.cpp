@@ -19,7 +19,7 @@ GenericDataBus dataBus(bsp::lcd_wr, bsp::lcd_rd, bsp::lcd_d0, bsp::lcd_d1, bsp::
 
 ILI9325 display(bsp::lcd_rst, bsp::lcd_cs, bsp::lcd_rs, dataBus);
 
-TEST_CASE("Memory page write read") {
+TEST_CASE("ILI9325 ID check") {
     display.reset();
     CHECK(display.readID() == ILI9325::id);
     CHECK(display.init());
@@ -30,9 +30,9 @@ TEST_CASE("Memory page write read") {
     display.setPixel(Point{230, 310}, Color(255, 255, 255));
     display.drawLine(Point{10, 15}, Point{10, 305}, Color(255, 255, 255));
     display.drawLine(Point{15, 10}, Point{225, 10}, Color(255, 0, 0));
-    display.drawLine(Point{230, 305}, Point{230, 15}, Color(0, 255, 0));    // backward line
-    display.drawLine(Point{225, 310}, Point{15, 310}, Color(255, 0, 255));  // backward line
-                                                                            // display.drawLineWidth(Position{0, 20}, Position{200, 300}, 5);
+    display.drawLine(Point{230, 305}, Point{230, 15}, Color(0, 255, 0));  // backward line
+    display.drawLine(Point{225, 310}, Point{15, 310}, Color(0, 0, 255));  // backward line
+    // display.drawLineWidth(Position{0, 20}, Position{200, 300}, 5);
     display.drawRectangle(Point{15, 15}, Point{30, 100}, Color{255, 255, 0});
     display.drawRectangle(Point{225, 305}, Point{210, 220}, Color{255, 0, 255});  // backward rectangle
     display.drawFilledRectangle(Point{20, 20}, Point{25, 95}, Color{255, 255, 0});
@@ -50,7 +50,7 @@ TEST_CASE("Memory page write read") {
     //    font.draw(display, Point{200, 100}, 90, "Hello world");
 }
 
-// TEST_CASE("Create button") {
-//    //    Button button(Point{100, 50}, Point{130, 150}, "OK");
-//    //    button.draw(display);
-//}
+TEST_CASE("Create button") {
+    Button button(Point{100, 50}, Point{130, 150}, "OK");
+    button.draw(display);
+}
