@@ -45,7 +45,7 @@ class Display {
     virtual bool drawLine(Point begin, Point end, Color color);
     bool drawLineWidth(Point begin, Point end, uint_fast16_t width, Color color);
     bool drawRectangle(Point begin, Point end, Color);
-    virtual bool drawFilledRectangle(Point begin, Point end, Color) = 0;
+    virtual bool drawFilledRectangle(Point begin, Point end, Color);
     bool drawCircle(Point center, uint16_t radius, Color);
     bool drawFilledCircle(Point center, uint16_t radius, Color);
     bool drawTriangle(Point v1, Point v2, Point v3, Color);

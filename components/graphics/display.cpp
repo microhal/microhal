@@ -94,7 +94,20 @@ bool Display::drawRectangle(Point begin, Point end, Color color) {
     return true;
 }
 
+bool Display::drawFilledRectangle(Point begin, Point end, Color color) {
+    if (begin.x > end.x) std::swap(begin.x, end.x);
+    if (begin.y > end.y) std::swap(begin.y, end.y);
+    for (uint16_t x = begin.x; x <= end.x; x++) {
+        for (uint16_t y = begin.y; y <= end.y; y++) {
+            setPixel({x, y}, color);
+        }
+    }
+    return true;
+}
+
 bool Display::drawRoundedRectangle(Point begin, Point end, uint16_t radius, Color color) {
+    if (begin.x > end.x) std::swap(begin.x, end.x);
+    if (begin.y > end.y) std::swap(begin.y, end.y);
     uint16_t x1 = begin.x + radius;
     uint16_t x2 = end.x - radius;
     uint16_t y1 = begin.y + radius;
