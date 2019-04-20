@@ -30,16 +30,15 @@
 
 #include <cstdint>
 
-#include "SPIDevice/SPIDevice.h"
 #include "color.h"
 #include "display.h"
 #include "gsl/span"
 #include "interfaces/dataBus_interface.h"
+#include "interfaces/gpio_interface.h"
 #include "point.h"
 
 class ILI9325 : public microhal::graphics::Display {
  public:
-    using Error = microhal::SPI::Error;
     using Point = microhal::graphics::Point;
     using Color = microhal::graphics::Color;
     static constexpr uint16_t id = 0x9325;
