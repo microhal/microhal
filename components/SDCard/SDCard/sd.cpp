@@ -248,8 +248,7 @@ bool Sd::init() {
                             // CMD8 is illegal command, this means that we work with SD Memory Card in version 1.X or Not SD Memory Card
                             auto ocr = readOCR();
 
-                            initialize(false, 10s);
-                            result = true;
+                            result = initialize(false, 10s);
                             cardType = CardType::StandardCapacityVer1;
                         } else {
                             // got response for CMD8, our card is SD Memory card version 2 or later.
@@ -257,27 +256,29 @@ bool Sd::init() {
                             diagChannel << lock << MICROHAL_DEBUG << "CMD8 response data: " << toHex(cmd8_response_data) << endl << unlock;
                             if (cmd8_response_data == 0x000001AA) {
                                 enableCRC();
-                                initialize(true, 10s);
-                                if (auto ocr = readOCR()) {
-                                    diagChannel << lock << MICROHAL_DEBUG << "OCR: " << toHex(ocr->getRawForDebug()) << endl << unlock;
-                                    if (ocr->isCCSbitValid()) {
-                                        if (ocr->getCCS()) {
-                                            result = true;
-                                            cardType = CardType::HighCapacityOrExtendedCapacity;
-                                            diagChannel << lock << MICROHAL_DEBUG
-                                                        << "CCS bit in OCR register set. Detected High Capacity or "
-                                                           "Extended Capacity SD card version 2 or later."
-                                                        << endl
-                                                        << unlock;
-                                        } else {
-                                            cardType = CardType::StandardCapacityVer2;
-                                            // this driver supports only 512 bytes blocks, so we need to change block size in standard Capacity card
-                                            // to 512 bytes
-                                            result = setBlockSize(512);
-                                            diagChannel << lock << MICROHAL_DEBUG
-                                                        << "CCS bit in OCR register equal 0. Detected Standard Capacity SD card version 2 or later."
-                                                        << endl
-                                                        << unlock;
+                                if (initialize(true, 10s)) {
+                                    if (auto ocr = readOCR()) {
+                                        diagChannel << lock << MICROHAL_DEBUG << "OCR: " << toHex(ocr->getRawForDebug()) << endl << unlock;
+                                        if (ocr->isCCSbitValid()) {
+                                            if (ocr->getCCS()) {
+                                                result = true;
+                                                cardType = CardType::HighCapacityOrExtendedCapacity;
+                                                diagChannel << lock << MICROHAL_DEBUG
+                                                            << "CCS bit in OCR register set. Detected High Capacity or "
+                                                               "Extended Capacity SD card version 2 or later."
+                                                            << endl
+                                                            << unlock;
+                                            } else {
+                                                cardType = CardType::StandardCapacityVer2;
+                                                // this driver supports only 512 bytes blocks, so we need to change block size in standard Capacity
+                                                // card to 512 bytes
+                                                result = setBlockSize(512);
+                                                diagChannel
+                                                    << lock << MICROHAL_DEBUG
+                                                    << "CCS bit in OCR register equal 0. Detected Standard Capacity SD card version 2 or later."
+                                                    << endl
+                                                    << unlock;
+                                            }
                                         }
                                     }
                                 }
@@ -317,7 +318,7 @@ std::experimental::optional<Sd::OCR> Sd::readOCR() {
     std::experimental::optional<OCR> ocr;
     if (sendCMD(CMD58{})) {
         if (auto response = readResponseR1(2)) {
-            if ((*response == 0x01) | (*response == 0x00)) {
+            if ((*response == 0x01) || (*response == 0x00)) {
                 uint32_t tmp;
                 spi.read(&tmp, sizeof(tmp), 0xFF);
                 ocr = static_cast<OCR>(convertEndiannessIfRequired(tmp, Endianness::Big));
@@ -447,10 +448,10 @@ bool Sd::writeDataPacket(const gsl::not_null<const void *> data_ptr, uint8_t dat
     return true;
 }
 
-Sd::Error Sd::readBlock(const gsl::not_null<void *> data_ptr, uint32_t address) {
+Sd::Error Sd::readBlock(const gsl::not_null<void *> data_ptr, uint32_t blockNumber) {
     Error error = Error::Unknown;
     cs.reset();
-    if (sendCMD(CMD17{address})) {
+    if (sendCMD(CMD17{addressOrBlockNumber(blockNumber)})) {  // depending on card type, CMD17 parameter can be block number or memory address
         if (auto response = readResponseR1(2)) {
             if (*response == 0) {
                 ReadDataError response = readDataPacket(data_ptr, blockSize);
@@ -475,18 +476,16 @@ Sd::Error Sd::readBlock(const gsl::not_null<void *> data_ptr, uint32_t address) 
 Sd::Error Sd::writeBlock(const gsl::not_null<const void *> data_ptr, uint32_t blockNumber) {
     Error error = Error::Unknown;
     cs.reset();
-
-    if (sendCMD(CMD24{blockNumber})) {
+    if (sendCMD(CMD24{addressOrBlockNumber(blockNumber)})) {  // depending on card type, CMD24 parameter can be block number or memory address
         if (auto response = readResponseR1(2)) {
             if (*response == 0) {
                 if (writeDataPacket(data_ptr, 0xFE, blockSize)) {
                     DataResponse response = readDataResponse(100ms);
-                    // send eight clocks to begin internal write operation
-                    uint8_t tmp[] = {0xFF};
-                    spi.write(tmp, sizeof(tmp), true);
-
                     if (response == DataResponse::Accepted) {
                         error = Error::None;
+                        // send eight clocks to begin internal write operation
+                        uint8_t tmp[] = {0xFF};
+                        spi.write(tmp, sizeof(tmp), true);
                     } else {
                         error = Error::None;
                         if (response == DataResponse::CRCError) error |= Error::DataCRC;
@@ -503,10 +502,10 @@ Sd::Error Sd::writeBlock(const gsl::not_null<const void *> data_ptr, uint32_t bl
     return error;
 }
 
-Sd::Error Sd::readMultipleBlock(const gsl::not_null<void *> data_ptr, uint32_t address, uint32_t blocksCount) {
+Sd::Error Sd::readMultipleBlock(const gsl::not_null<void *> data_ptr, uint32_t blockNumber, uint32_t blocksCount) {
     Error error = Error::Unknown;
     cs.reset();
-    if (sendCMD(CMD18{address})) {
+    if (sendCMD(CMD18{addressOrBlockNumber(blockNumber)})) {  // depending on card type, CMD18 parameter can be block number or memory address
         if (auto response = readResponseR1(2)) {
             if (*response == 0) {
                 uint8_t *ptr = static_cast<uint8_t *>(data_ptr.get());
@@ -567,13 +566,14 @@ Sd::Error Sd::readMultipleBlock(const gsl::not_null<void *> data_ptr, uint32_t a
     return error;
 }
 
-Sd::Error Sd::writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uint32_t address, uint32_t blocksCount) {
+Sd::Error Sd::writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uint32_t blockNumber, uint32_t blocksCount) {
     Error result = Error::Unknown;
 
     cs.reset();
 
     sendACMD(ACMD23{blocksCount}); /* Predefine number of sectors */
-    sendCMD(CMD25{address});
+    readResponseR1(1);
+    sendCMD(CMD25{addressOrBlockNumber(blockNumber)});  // depending on card type, CMD25 parameter can be block number or memory address
     if (auto response = readResponseR1(2)) {
         if (*response == 0) {
             // send one byte, required by standard
