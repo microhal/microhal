@@ -30,9 +30,9 @@
 #include <bsp.h>
 #include <cstring>
 
-#include "SDCard/sd.h"
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
+#include "sd.h"
 
 #define CATCH_CONFIG_NO_POSIX_SIGNALS
 #define CATCH_CONFIG_RUNNER
@@ -91,9 +91,9 @@ std::ostream& cout() {
 std::ostream& cerr() {
     return stream;
 }
-}
+}  // namespace Catch
 
-extern "C" int _DEFUN(_isatty, (fd), int fd) {
+extern "C" int _isatty(int fd) {
     struct stat buf;
 
     if (fstat(fd, &buf) < 0) {
@@ -106,7 +106,7 @@ extern "C" int _DEFUN(_isatty, (fd), int fd) {
 }
 
 int main() {
-    // debugPort.open(IODevice::ReadWrite);
+    bsp::init();
     bsp::debugPort.write("\n\r------------------- SD card test -------------------------\n\r");
     diagChannel.setOutputDevice(bsp::debugPort);
     // diagChannel.setLogLevel(Informational);

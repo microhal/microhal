@@ -35,30 +35,30 @@
 namespace bsp {
 namespace con1 {
 namespace a {
-constexpr microhal::GPIO::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortE, 5);
-constexpr microhal::GPIO::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortC, 15);
-constexpr microhal::GPIO::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortC, 13);
-constexpr microhal::GPIO::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortE, 6);
-constexpr microhal::GPIO::IOPin io5(microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin io6(microhal::stm32f4xx::GPIO::Port::PortE, 2);
-constexpr microhal::GPIO::IOPin ss(microhal::stm32f4xx::GPIO::Port::PortC, 14);
-}
+constexpr microhal::IOPin io1(microhal::IOPin::PortE, 5);
+constexpr microhal::IOPin io2(microhal::IOPin::PortC, 15);
+constexpr microhal::IOPin io3(microhal::IOPin::PortC, 13);
+constexpr microhal::IOPin io4(microhal::IOPin::PortE, 6);
+constexpr microhal::IOPin io5(microhal::IOPin::PortE, 4);
+constexpr microhal::IOPin io6(microhal::IOPin::PortE, 2);
+constexpr microhal::IOPin ss(microhal::IOPin::PortC, 14);
+}  // namespace a
 namespace b {
-constexpr microhal::GPIO::IOPin io1(microhal::stm32f4xx::GPIO::Port::PortC, 5);
-constexpr microhal::GPIO::IOPin io2(microhal::stm32f4xx::GPIO::Port::PortB, 1);
-constexpr microhal::GPIO::IOPin io3(microhal::stm32f4xx::GPIO::Port::PortE, 9);
-constexpr microhal::GPIO::IOPin io4(microhal::stm32f4xx::GPIO::Port::PortE, 11);
-constexpr microhal::GPIO::IOPin io5(microhal::stm32f4xx::GPIO::Port::PortE, 4);
-constexpr microhal::GPIO::IOPin ss(microhal::stm32f4xx::GPIO::Port::PortE, 7);
-}
-}
+constexpr microhal::IOPin io1(microhal::IOPin::PortC, 5);
+constexpr microhal::IOPin io2(microhal::IOPin::PortB, 1);
+constexpr microhal::IOPin io3(microhal::IOPin::PortE, 9);
+constexpr microhal::IOPin io4(microhal::IOPin::PortE, 11);
+constexpr microhal::IOPin io5(microhal::IOPin::PortE, 4);
+constexpr microhal::IOPin ss(microhal::IOPin::PortE, 7);
+}  // namespace b
+}  // namespace con1
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 
 namespace sdCard {
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi3;
-constexpr microhal::GPIO::IOPin cs = con1::b::io4;
-}
+extern microhal::GPIO &cs;
+}  // namespace sdCard
 
 }  // namespace bsp
 

@@ -1,14 +1,13 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      diagnostic example main file
+ * @brief
  *
  * @authors    Pawel Okas
- * created on: 2016
- * last modification: <DD-MM-YYYY>
+ * created on: 30-03-2019
  *
- * @copyright Copyright (c) 2016, Pawel Okas
+ * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,70 +26,74 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <bsp.h>
-#include "SPIDevice/SPIDevice.h"
+#include "i2c.h"
 #include "microhal.h"
+
+#include "bsp.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
-stm32f4xx::GPIO cs_stm(bsp::con1::b::io4, stm32f4xx::GPIO::Direction::Output);
 namespace bsp {
+stm32f4xx::GPIO cs_stm({IOPin::PortA, 15}, stm32f4xx::GPIO::Direction::Output);
+
 namespace sdCard {
 microhal::GPIO &cs = cs_stm;
 }
+
+bool init() {
+    bsp::debugPort.clear();
+
+    bsp::debugPort.setDataBits(microhal::SerialPort::Data8);
+    bsp::debugPort.setStopBits(microhal::SerialPort::OneStop);
+    bsp::debugPort.setParity(microhal::SerialPort::NoParity);
+    bsp::debugPort.open(microhal::SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(microhal::SerialPort::Baud115200);
+
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
+    stm32f4xx::SPI::spi1.enable();
+
+    return true;
+}
+
+void deinit() {}
 }  // namespace bsp
+
+// extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+//    return bsp::debugPort.write((const char *)buf, nbyte);
+//}
+
 extern "C" int main(int, void *);
 
 static void run_main(void *) {
     main(0, nullptr);
+    while (1)
+        ;
 }
 
 void hardwareConfig(void) {
-    Core::pll_start(8000000, 168000000);
+    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, IOPin::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, IOPin::PortD, 9>();
-
-    IOManager::routeSerial<2, Txd, IOPin::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, IOPin::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
     IOManager::routeSPI<1, SCK, IOPin::PortA, 5>();
     IOManager::routeSPI<1, MISO, IOPin::PortA, 6>();
     IOManager::routeSPI<1, MOSI, IOPin::PortA, 7>();
 
-    IOManager::routeSPI<3, SCK, IOPin::PortC, 10>();
-    IOManager::routeSPI<3, MISO, IOPin::PortB, 4>(stm32f4xx::GPIO::PullType::PullUp);
-    IOManager::routeSPI<3, MOSI, IOPin::PortB, 5>();
-
-    IOManager::routeI2C<2, SDA, IOPin::PortB, 11>();
-    IOManager::routeI2C<2, SCL, IOPin::PortB, 10>();
-
-    bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
-    bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
-    bsp::debugPort.setParity(stm32f4xx::SerialPort::NoParity);
-    bsp::debugPort.open(stm32f4xx::SerialPort::ReadWrite);
-    bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
-
-    stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
-    stm32f4xx::SPI::spi3.enable();
-
     TaskHandle_t xHandle = NULL;
-    xTaskCreate(run_main, "Main", 11.5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
+
+    xTaskCreate(run_main, "main", 11.5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }
 
-/*------------------------------------------------------------------------*/ /**
- * \brief Wait for a child process.
- * \details Wait for a child process.
- *
- * \param [in] file is the file descriptor of an open file to write to.
- * \param [in] buf is an array of data to write to the open file.
- * \param [in] nbyte is the number of bytes to write to the file.
- * \return 0 for success.
- */ /*-------------------------------------------------------------------------*/
+extern "C" void _fstat_r() {}
+extern "C" void _kill_r() {}
+extern "C" void _getpid_r() {}
+extern "C" void abort() {}
+extern "C" void _lseek_r() {}
 
 extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
     (void)r;  // suppress warning
@@ -152,17 +155,3 @@ extern "C" ssize_t _read_r(struct _reent *r, int file, void *buf, size_t nbyte) 
     //    }
     return 0;
 }
-
-// extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
-//	size_t toWrite = nbyte;
-//	do {
-//		size_t written = debugPort.write((const char*)buf, toWrite);
-//		buf += written;
-//		toWrite -= written;
-//	} while(toWrite);
-//
-//	(void)r;									// suppress warning
-//    (void)file;							// suppress warning
-//
-//    return 0;
-//}

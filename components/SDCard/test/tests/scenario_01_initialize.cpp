@@ -28,22 +28,40 @@
  */
 
 #include <bsp.h>
-#include "SDCard/sd.h"
 #include "catch.hpp"
 #include "diagnostic/diagnostic.h"
+#include "sd.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;
 using namespace std::literals::chrono_literals;
 
 SCENARIO("Detect SD cart type and read all card parameters.", "[initialize]") {
+    {
+        uint8_t data[5] = {0b0100'0000, 0x00, 0x00, 0x00, 0x00};
+        CHECK(microhal::CRC7::calculate(data, sizeof(data), 0) == 0b1001010);
+    }
+    {
+        uint8_t data[5] = {0b0101'0001, 0x00, 0x00, 0x00, 0x00};
+        CHECK(microhal::CRC7::calculate(data, sizeof(data), 0) == 0b0101010);
+    }
+    {
+        uint8_t data[5] = {0b0001'0001, 0x00, 0x00, 0x09, 0x00};
+        CHECK(microhal::CRC7::calculate(data, sizeof(data), 0) == 0b0110011);
+    }
+
+    {
+        std::array<uint8_t, 512> data;
+        data.fill(0xFF);
+        uint16_t crc_calculated = CRC16::calculate(data.data(), data.size(), 0);
+        CHECK(crc_calculated == 0x7FA1);
+    }
     GIVEN("Unknown SD card") {
         Sd sdCard(bsp::sdCard::spi, bsp::sdCard::cs);
         WHEN("Card was initialized successfully.") {
             REQUIRE(sdCard.init());
             THEN("We can check card type") {
                 REQUIRE(sdCard.getCardType() != Sd::CardType::Unknown);
-
                 AND_THEN("We can read card capacity") {
                     REQUIRE(sdCard.readCSD());
                     REQUIRE(sdCard.getCardCapacity() > (uint64_t)0);
