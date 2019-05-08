@@ -180,6 +180,7 @@ class Sd final {
     uint32_t getLastPageNumber() const noexcept { return getCardCapacity() / 512 - 1; }
 
     uint32_t getBlockSize() const noexcept { return blockSize; }
+    uint32_t getSectorSize() const noexcept { return blockSize; }
     /**
      * @brief This function may be used to set data block size. The function will work only with Standard Capacity
      * SC Memory Cards. In different SD Card types data block size is fixed to 512B and can't be adjusted. When working
