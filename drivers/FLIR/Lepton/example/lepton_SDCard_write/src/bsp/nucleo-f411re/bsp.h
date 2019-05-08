@@ -1,15 +1,14 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      board support package for nucleo-f411re board
  *
  * @authors    Pawel Okas
  * created on: 18-11-2016
- * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2016-2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,24 +27,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef NUCLEO_F411RE_H_
+#define NUCLEO_F411RE_H_
+
 #include "microhal.h"
 
-#include "bsp.h"
+namespace bsp {
 
-using namespace microhal;
-using namespace stm32f4xx;
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
-void hardwareConfig(void) {
-   // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+static microhal::stm32f4xx::SPI &sdCardSpi = microhal::stm32f4xx::SPI::spi1;
+extern microhal::stm32f4xx::GPIO sdCardCs;
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+static microhal::SPI &leptonSPI = microhal::stm32f4xx::SPI::spi3;
+static microhal::I2C &leptonI2C = microhal::stm32f4xx::I2C::i2c1;
 
-    IOManager::routeI2C<1, SDA, stm32f4xx::GPIO::PortB, 9>();
-    IOManager::routeI2C<1, SCL, stm32f4xx::GPIO::PortB, 8>();
+extern microhal::stm32f4xx::GPIO leptonCS;
+extern microhal::stm32f4xx::GPIO leptonPower;
+extern microhal::stm32f4xx::GPIO leptonReset;
 
-    stm32f4xx::I2C::i2c1.init();
-    stm32f4xx::I2C::i2c1.setMode(microhal::I2C::Mode::Standard);
-    stm32f4xx::I2C::i2c1.enable();
-}
+}  // namespace bsp
+
+#endif  // NUCLEO_F411RE_H_
