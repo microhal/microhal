@@ -87,8 +87,12 @@ class IOManager {
         static_assert((serial != 5 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 2))), "Serial5 Rxd can be connected only to: PortA.3.");
 #endif
         // assert for Serial6
-        static_assert((serial != 6 || serialType != Txd || ((port == IOPin::PortC && pinNr == 6))), "Serial6 Txd can be connected only to: PortC.6.");
-        static_assert((serial != 6 || serialType != Rxd || ((port == IOPin::PortC && pinNr == 7))), "Serial6 Rxd can be connected only to: PortC.7.");
+        if constexpr (serial == 6) {
+            static_assert((serialType != Txd || ((port == IOPin::PortC && pinNr == 6) || (port == IOPin::PortA && pinNr == 11))),
+                          "Serial6 Txd can be connected to: PortA.11 or PortC.6.");
+            static_assert((serialType != Rxd || ((port == IOPin::PortC && pinNr == 7) || (port == IOPin::PortA && pinNr == 12))),
+                          "Serial6 Rxd can be connected to: PortA.12 or PortC.7.");
+        }
 // assert for Serial7
 #if defined(GPIOE) && defined(GPIOF)
         static_assert((serial != 7 || serialType != Txd || ((port == IOPin::PortF && pinNr == 7) || (port == IOPin::PortE && pinNr == 8))),
