@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    pawel
  * created on: 17-12-2016
@@ -32,20 +32,21 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "microhalDefs.h"
 #include <cstdint>
+#include "microhalDefs.h"
 
 namespace microhal {
 namespace hardware {
 
 struct Device {
-	static constexpr auto endianness = Endianness::Little;
+    static constexpr auto endianness = Endianness::Little;
 
     static uint32_t coreFrequency();
+
+    static void breakpoint() { __asm__ __volatile__("bkpt #0"); }
 };
 
 }  // namespace hardware
 }  // namespace microhal
-
 
 #endif  // _MICROHAL_HARDWARE_STM32F4XX_H_
