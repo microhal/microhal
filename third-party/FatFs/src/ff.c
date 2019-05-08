@@ -3085,6 +3085,13 @@ static int get_ldnumber(                   /* Returns logical drive number (-1:i
     return vol; /* Return the default drive */
 }
 
+int fatFs_get_ldnumber(                  /* Returns logical drive number (-1:invalid drive number or null pointer) */
+                       const TCHAR* path /* Pointer to pointer to the path name */
+) {
+    const TCHAR* rp = path;
+    return get_ldnumber(&rp);
+}
+
 /*-----------------------------------------------------------------------*/
 /* Load a sector and check if it is an FAT VBR                           */
 /*-----------------------------------------------------------------------*/
