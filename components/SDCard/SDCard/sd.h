@@ -171,6 +171,8 @@ class Sd final {
 
     bool init();
 
+    uint32_t setSpeed(uint32_t speed) { return spi.speed(speed); }
+
     CardType getCardType() const noexcept { return cardType; }
 
     uint64_t getCardCapacity() const noexcept { return cardCapacity; }
