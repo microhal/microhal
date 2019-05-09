@@ -8,7 +8,7 @@ namespace FatFs {
 
 DSTATUS SDCardDisk::initialize() {
     if (sdCard.init()) {
-        // bsp::sdCardSpi.prescaler(stm32f4xx::SPI::Prescaler16);
+        sdCard.setSpeed(20'000'000);
         _status &= ~STA_NOINIT;
         return RES_OK;
     }
