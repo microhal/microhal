@@ -39,15 +39,15 @@ using namespace microhal;
 using namespace diagnostic;
 using namespace stm32f4xx;
 
-Sd sdCard(bsp::sdCardSpi, bsp::sdCardCs);
-FatFs::SDCardDisk sdDisk(sdCard);
-
 namespace bsp {
 stm32f4xx::GPIO gpsReset({IOPin::PortA, 9}, stm32f4xx::GPIO::Direction::Output);
 stm32f4xx::GPIO gpsForceOn({IOPin::PortC, 5}, stm32f4xx::GPIO::Direction::Output);
 stm32f4xx::GPIO sdCardCs({IOPin::PortA, 15}, stm32f4xx::GPIO::Direction::Output);
 stm32f4xx::GPIO button1({IOPin::PortC, 13}, stm32f4xx::GPIO::Direction::Input, stm32f4xx::GPIO::PullType::PullUp);
 stm32f4xx::GPIO button2({IOPin::PortC, 4}, stm32f4xx::GPIO::Direction::Input, stm32f4xx::GPIO::PullType::PullUp);
+
+static Sd sdCard(bsp::sdCardSpi, bsp::sdCardCs);
+static FatFs::SDCardDisk sdDisk(sdCard);
 
 bool init() {
     bsp::debugPort.clear();
