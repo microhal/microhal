@@ -31,14 +31,16 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+#include "microhal.h"
+
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 static microhal::SerialPort &cameraPort = microhal::stm32f4xx::SerialPort::Serial1;
 
-static microhal::SPI &leptonSPI = microhal::stm32f4xx::SPI::spi1;
+static microhal::SPI &leptonSPI = microhal::stm32f4xx::SPI::spi3;
 static microhal::I2C &leptonI2C = microhal::stm32f4xx::I2C::i2c1;
 
-constexpr microhal::GPIO::IOPin leptonCS(microhal::stm32f4xx::GPIO::Port::PortA, 15);
-constexpr microhal::GPIO::IOPin leptonPower(microhal::stm32f4xx::GPIO::Port::PortC, 11);
-constexpr microhal::GPIO::IOPin leptonReset(microhal::stm32f4xx::GPIO::Port::PortC, 10);
+extern microhal::stm32f4xx::GPIO leptonCS;
+extern microhal::stm32f4xx::GPIO leptonPower;
+extern microhal::stm32f4xx::GPIO leptonReset;
 
 #endif  // NUCLEO_F411RE_H_

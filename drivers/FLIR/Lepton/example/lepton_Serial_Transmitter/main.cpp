@@ -29,10 +29,10 @@
 
 #include <cstring>
 
+#include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "hostComm.h"
 #include "microhal.h"
-#include "bsp.h"
 
 #include "lepton.h"
 #include "picturePacket.h"
@@ -50,7 +50,8 @@ int main(void) {
 
     diagChannel.setOutputDevice(debugPort);
     // lets check if diagChannal is working
-    diagChannel << lock << MICROHAL_EMERGENCY << "Information from diagnostic channel." << unlock;
+    diagChannel << lock << MICROHAL_EMERGENCY << "Information from diagnostic channel. Core frequency: " << hardware::Device::coreFrequency()
+                << unlock;
 
     static Lepton lepton(leptonSPI, leptonI2C, leptonCS, leptonPower, leptonReset);
 
@@ -72,23 +73,25 @@ int main(void) {
     uint32_t pictureNumber = 0;
     uint32_t pictureFailureCounter = 0;
     while (1) {
-    	auto beginTime = std::chrono::system_clock::now();
-    	while(1) {
-			if (lepton.isNewPictureAvailable()) {
-				picture.pictureNumber = pictureNumber++;
-				memcpy(picture.data, lepton.getPicture(), lepton.getPictureSize());
-				hostComm.send(picturePacket);
-				break;
-			}
-			if (beginTime + 150ms < std::chrono::system_clock::now()) {
-				pictureFailureCounter++;
-				diagChannel << lock << MICROHAL_INFORMATIONAL << "Timeout while receiving Lepton picture. Failures: " << pictureFailureCounter << unlock;
-				break;
-			}
-			lepton.timeProc();
-			std::this_thread::sleep_for(1ms);
-    	}
-    	std::this_thread::sleep_until(beginTime + 300ms);
+        auto beginTime = std::chrono::system_clock::now();
+        while (1) {
+            if (lepton.isNewPictureAvailable()) {
+                picture.pictureNumber = pictureNumber++;
+                diagChannel << lock << MICROHAL_INFORMATIONAL << "Sending picture " << unlock;
+                memcpy(picture.data, lepton.getPicture(), lepton.getPictureSize());
+                hostComm.send(picturePacket);
+                break;
+            }
+            if (beginTime + 150ms < std::chrono::system_clock::now()) {
+                pictureFailureCounter++;
+                diagChannel << lock << MICROHAL_INFORMATIONAL << "Timeout while receiving Lepton picture. Failures: " << pictureFailureCounter
+                            << unlock;
+                break;
+            }
+            lepton.timeProc();
+            std::this_thread::sleep_for(1ms);
+        }
+        std::this_thread::sleep_until(beginTime + 300ms);
     }
 
     return 0;

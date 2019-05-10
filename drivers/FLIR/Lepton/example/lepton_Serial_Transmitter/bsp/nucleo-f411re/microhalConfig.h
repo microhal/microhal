@@ -55,6 +55,6 @@
 //***********************************************************************************************//
 //                                    HostComm module configuration                              //
 //***********************************************************************************************//
-
+#define MICROHAL_HOSTCOMM_LOG_LEVEL Informational
 // clang-format on
 #endif  // _MICROHAL_MICROHALCONFIG_H_
