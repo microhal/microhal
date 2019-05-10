@@ -26,19 +26,29 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>gsl</name>
+			<name>src/gsl</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
-			<name>microhal/hostComm</name>
+			<name>src/microhal/hostComm</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/components/hostComm</locationURI>
 		</link>
 		<link>
-			<name>microhal/microhal</name>
+			<name>src/microhal/microhal</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/microhal</locationURI>
+		</link>
+		<link>
+			<name>src/graphics</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/components/graphics</locationURI>
+		</link>
+		<link>
+			<name>src/genericDisplay</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/drivers/SimGenericDisplay/driver</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
