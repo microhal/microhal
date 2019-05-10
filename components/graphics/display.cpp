@@ -191,6 +191,15 @@ void Display::drawPartialCircle(Point center, uint16_t radius, Color color, uint
     }
 }
 
+bool Display::drawBitmap(Point begin, size_t width, size_t height, Color bitmap[]) {
+    for (size_t h = 0; h < height; h++) {
+        for (size_t w = 0; w < width; w++) {
+            setPixel(Point{begin.x + w, begin.y + h}, bitmap[w + (h * width)]);
+        }
+    }
+    return true;
+}
+
 void Display::drawCircle_helper(Point center, int x, int y, Color color, uint8_t parts) {
     if (parts & 0b0000'0001) setPixel(Point{center.x + x, center.y + y}, color);
     if (parts & 0b0000'0010) setPixel(Point{center.x - x, center.y + y}, color);

@@ -51,6 +51,7 @@ class Display {
     bool drawTriangle(Point v1, Point v2, Point v3, Color);
     bool drawRoundedRectangle(Point begin, Point end, uint16_t radius, Color);
     bool drawFilledRoundedRectangle(Point begin, Point end, uint16_t radius, Color color);
+    virtual bool drawBitmap(Point begin, size_t width, size_t height, Color bitmap[]);
 
  private:
     void drawCircle_helper(Point center, int x, int y, Color color, uint8_t parts);
