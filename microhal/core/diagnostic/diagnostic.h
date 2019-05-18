@@ -97,6 +97,7 @@ static constexpr LogLevel compileTimeLogLevel = LogLevel::MICROHAL_DIAGNOSTIC_LO
 // previous definition of lof level channel class, to this class all messages will be print.
 template <LogLevel compileTimeLogLevel, bool B>
 class LogLevelChannel;
+
 /**
  *
  */
@@ -198,6 +199,10 @@ class Diagnostic<LogLevel::Disabled> {
     void setLogLevel(LogLevel) const noexcept __attribute__((always_inline)) {}
 };
 
+template <LogLevel compileLogLevel, LogLevel level>
+constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<<(Diagnostic<compileLogLevel> &diagnostic,
+                                                                                const LogLevelHeader<level> &header);
+
 /* **************************************************************************************************************************************************
  * LogLevelChannel class
  */
@@ -238,14 +243,14 @@ class LogLevelChannel {
         return *this;
     }
 
-    //    LogLevelChannel &operator<<(const std::string &string) {
-    //        if constexpr (B) {
-    //            if (diagnostic.logLevel >= this->logLevel) {
-    //                diagnostic.writeText(string.c_str(), string.length());
-    //            }
-    //        }
-    //        return *this;
-    //    }
+    LogLevelChannel &operator<<(std::string_view string) {
+        if constexpr (B) {
+            if (diagnostic.logLevel >= this->logLevel) {
+                diagnostic.writeText(string.data(), string.length());
+            }
+        }
+        return *this;
+    }
 
     template <size_t len>
     LogLevelChannel &operator<<(const char (&c)[len]) {
