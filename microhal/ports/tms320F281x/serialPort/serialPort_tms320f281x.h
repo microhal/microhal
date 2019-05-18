@@ -36,6 +36,7 @@ class SerialPort : public microhal::SerialPort {
     bool setDataBits(SerialPort::DataBits dataBits) noexcept final;
 
     void priority(uint32_t priority) {}
+    using microhal::SerialPort::write;
 
     //bool SerialPort::open(microhal::IODevice::OpenMode);
    // size_t SerialPort::read(char *, size_t, std::chrono::milliseconds);
