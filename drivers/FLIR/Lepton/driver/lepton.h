@@ -82,8 +82,9 @@ class Lepton {
     static_assert(sizeof(VoSPIPacket) == 164, "");
 
  public:
-    Lepton(microhal::SPI &spi, microhal::I2C &i2c, microhal::GPIO::IOPin SPIChipSelect, microhal::GPIO::IOPin power, microhal::GPIO::IOPin reset)
-        : spi(spi), i2c(i2c, 0xFF), cs(SPIChipSelect, microhal::GPIO::Direction::Output), imagePacket() {
+    Lepton(microhal::SPI &spi, microhal::I2C &i2c, microhal::GPIO &SPIChipSelect, microhal::GPIO &power, microhal::GPIO &reset)
+        : spi(spi), i2c(i2c, 0xFF), cs(SPIChipSelect), imagePacket() {
+        cs.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
         cs.set();
     }
 
@@ -119,7 +120,7 @@ class Lepton {
  private:
     microhal::SPI &spi;
     microhal::I2CDevice i2c;
-    microhal::GPIO cs;
+    microhal::GPIO &cs;
     VoSPIPacket imagePacket;
     uint16_t lastImageNumber = 0xFFFF;
     static constexpr size_t picture_size = 80 * 60 * 2;

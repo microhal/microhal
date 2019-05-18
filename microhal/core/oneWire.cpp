@@ -91,7 +91,7 @@ bool OneWire::searchRom(Rom *deviceRom) {
 }
 
 bool OneWire::writeBit(uint8_t bit) {
-    char write[] = {0};
+    unsigned char write[] = {0};
     if (bit) write[0] = 0xFF;
     if (serial.putChar(write[0])) {
         char tmp;
@@ -124,7 +124,7 @@ bool OneWire::sendResetPulse() const {
         if (serial.putChar(0xF0)) {
             char response;
             if (serial.read(&response, 1, std::chrono::milliseconds{3})) {
-                if (response != 0xF0U) {
+                if (static_cast<uint8_t>(response) != 0xF0U) {
                     serial.setBaudRate(SerialPort::Baud115200);
                     return true;
                 } else {

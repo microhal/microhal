@@ -34,6 +34,8 @@
  */
 #if defined(VENDOR_RENESAS)
 #include "Renesas/adc_renesas.h"
+#elif defined(VENDOR_NXP)
+
 #elif defined(VENDOR_NORDIC)
 #include "Nordic/adc_nordic.h"
 #elif defined(VENDOR_SILICON_LABS)

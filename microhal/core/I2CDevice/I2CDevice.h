@@ -37,6 +37,7 @@
 #include "../i2c.h"
 #include "../utils/deviceRegister.h"
 #include "byteswap.h"
+#include "gsl/span"
 #include "ports/manager/hardware.h"
 
 namespace microhal {
@@ -115,6 +116,17 @@ class I2CDevice {
         std::lock_guard<I2C> guard(i2c);
         return i2c.write(deviceAddress, data);
     }
+
+    I2C::Error write(uint8_t address, uint8_t data) noexcept {
+        std::lock_guard<I2C> guard(i2c);
+        uint8_t tmp[] = {address, data};
+        return i2c.write(deviceAddress, tmp, sizeof(tmp));
+    }
+
+    I2C::Error write(uint8_t address, gsl::span<uint8_t> data) noexcept {
+        std::lock_guard<I2C> guard(i2c);
+        return i2c.write(deviceAddress, &address, 1, data.data(), data.size_bytes());
+    }
     /**
      * @brief This function read 8 bit data from the I2C device.
      *
@@ -130,6 +142,17 @@ class I2CDevice {
         std::lock_guard<I2C> guard(i2c);
         return i2c.read(deviceAddress, data, 1);
     }
+
+    I2C::Error read(uint8_t address, uint8_t &data) noexcept {
+        std::lock_guard<I2C> guard(i2c);
+        return i2c.writeRead(deviceAddress, &address, 1, &data, 1);
+    }
+
+    I2C::Error read(uint8_t address, gsl::span<uint8_t> data) noexcept {
+        std::lock_guard<I2C> guard(i2c);
+        return i2c.writeRead(deviceAddress, &address, 1, data.data(), data.size_bytes());
+    }
+
     /**
      * @brief This function write data into register of the I2C device.
      * This function automatically handle endianness conversion.

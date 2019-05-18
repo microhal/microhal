@@ -34,6 +34,12 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+stm32f4xx::GPIO cs_stm(bsp::con1::b::io4, stm32f4xx::GPIO::Direction::Output);
+namespace bsp {
+namespace sdCard {
+microhal::GPIO &cs = cs_stm;
+}
+}  // namespace bsp
 extern "C" int main(int, void *);
 
 static void run_main(void *) {
@@ -44,22 +50,22 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, IOPin::PortD, 9>();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, IOPin::PortA, 3>();
 
-    IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
-    IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    IOManager::routeSPI<1, MOSI, stm32f4xx::GPIO::PortA, 7>();
+    IOManager::routeSPI<1, SCK, IOPin::PortA, 5>();
+    IOManager::routeSPI<1, MISO, IOPin::PortA, 6>();
+    IOManager::routeSPI<1, MOSI, IOPin::PortA, 7>();
 
-    IOManager::routeSPI<3, SCK, stm32f4xx::GPIO::PortC, 10>();
-    IOManager::routeSPI<3, MISO, stm32f4xx::GPIO::PortB, 4>(stm32f4xx::GPIO::PullType::PullUp);
-    IOManager::routeSPI<3, MOSI, stm32f4xx::GPIO::PortB, 5>();
+    IOManager::routeSPI<3, SCK, IOPin::PortC, 10>();
+    IOManager::routeSPI<3, MISO, IOPin::PortB, 4>(stm32f4xx::GPIO::PullType::PullUp);
+    IOManager::routeSPI<3, MOSI, IOPin::PortB, 5>();
 
-    IOManager::routeI2C<2, SDA, stm32f4xx::GPIO::PortB, 11>();
-    IOManager::routeI2C<2, SCL, stm32f4xx::GPIO::PortB, 10>();
+    IOManager::routeI2C<2, SDA, IOPin::PortB, 11>();
+    IOManager::routeI2C<2, SCL, IOPin::PortB, 10>();
 
     bsp::debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     bsp::debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);
@@ -67,11 +73,11 @@ void hardwareConfig(void) {
     bsp::debugPort.open(stm32f4xx::SerialPort::ReadWrite);
     bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
 
-    stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::PRESCALER_128);
+    stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
     stm32f4xx::SPI::spi3.enable();
 
     TaskHandle_t xHandle = NULL;
-    xTaskCreate(run_main, "NAME", 11.5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
+    xTaskCreate(run_main, "Main", 11.5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }

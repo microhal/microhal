@@ -34,6 +34,8 @@
  */
 #if defined(VENDOR_ATMEL)
 #include "Atmel/gpio_atmel.h"
+#elif defined(VENDOR_NXP)
+#include "nxp/gpio_nxp.h"
 #elif defined(VENDOR_NORDIC)
 #include "Nordic/gpio_nordic.h"
 #elif defined(VENDOR_RENESAS)

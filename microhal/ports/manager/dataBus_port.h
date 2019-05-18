@@ -34,6 +34,7 @@
  */
 #if defined(VENDOR_ATMEL)
 #include "Atmel/dataBus_atmel.h"
+#elif defined(VENDOR_NXP)
 #elif defined(VENDOR_NORDIC)
 //	#include "Nordic/dataBus_nordic.h"
 #elif defined(VENDOR_RENESAS)

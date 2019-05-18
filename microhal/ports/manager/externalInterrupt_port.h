@@ -34,6 +34,8 @@
  */
 #if defined(VENDOR_ATMEL)
 #include "Atmel/externalInterrupt_atmel.h"
+#elif defined(VENDOR_NXP)
+#include "nxp/externalInterrupt_nxp.h"
 #elif defined(VENDOR_NORDIC)
 #include "Nordic/externalInterrupts_nordic.h"
 #elif defined(VENDOR_RENESAS)

@@ -35,6 +35,8 @@
  */
 #if defined(VENDOR_ATMEL)
 #include "Atmel/core_atmel.h"
+#elif defined(VENDOR_NXP)
+#include "nxp/core_nxp.h"
 #elif defined(VENDOR_NORDIC)
 #include "Nordic/core_nordic.h"
 #elif defined(VENDOR_RENESAS)

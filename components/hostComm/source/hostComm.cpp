@@ -73,11 +73,44 @@ bool HostComm::send(HostCommPacket &packet) {
 bool HostComm::sentPacktToIODevice(HostCommPacket &packet) {
     // check if packet info data and payload are continous in memory
     if (packet.getSize() == 0 || reinterpret_cast<void *>(&packet.packetInfo + sizeof(HostCommPacket::PacketInfo)) == packet.getDataPtr()) {
-        const size_t sizeToTransfer = packet.getSize() + sizeof(HostCommPacket::PacketInfo);
-        if (ioDevice.write((char *)(&packet.packetInfo), sizeToTransfer) == sizeToTransfer) return true;
+        size_t sizeToTransfer = packet.getSize() + sizeof(HostCommPacket::PacketInfo);
+        char *dataPtr = (char *)(&packet.packetInfo);
+        uint_fast8_t retryCount = 200;
+        do {
+            auto transferred = ioDevice.write(dataPtr, sizeToTransfer);
+            sizeToTransfer -= transferred;
+            if (sizeToTransfer == 0) return true;
+            if (retryCount == 0) return false;
+            dataPtr += transferred;
+            retryCount--;
+            std::this_thread::sleep_for(1ms);
+        } while (1);
     } else {
-        if (ioDevice.write((char *)(&packet.packetInfo), sizeof(HostCommPacket::PacketInfo)) != sizeof(HostCommPacket::PacketInfo)) return false;
-        if (ioDevice.write(packet.getDataPtr<char>(), packet.getSize()) == packet.getSize()) return true;
+        size_t sizeToTransfer = sizeof(HostCommPacket::PacketInfo);
+        char *dataPtr = (char *)(&packet.packetInfo);
+        uint_fast8_t retryCount = 200;
+        do {
+            auto transferred = ioDevice.write(dataPtr, sizeToTransfer);
+            sizeToTransfer -= transferred;
+            if (sizeToTransfer == 0) break;
+            if (retryCount == 0) return false;
+            dataPtr += transferred;
+            retryCount--;
+            std::this_thread::sleep_for(1ms);
+        } while (sizeToTransfer);
+
+        dataPtr = packet.getDataPtr<char>();
+        sizeToTransfer = packet.getSize();
+        retryCount = 200;
+        do {
+            auto transferred = ioDevice.write(dataPtr, sizeToTransfer);
+            sizeToTransfer -= transferred;
+            if (sizeToTransfer == 0) return true;
+            if (retryCount == 0) return false;
+            dataPtr += transferred;
+            retryCount--;
+            std::this_thread::sleep_for(2ms);
+        } while (1);
     }
     return false;
 }
@@ -161,7 +194,7 @@ void HostComm::timeProc() {
                         ackSemaphore.give();
                         break;
                     case HostCommPacket::DEVICE_INFO_REQUEST:
-                        log << lock << MICROHAL_INFORMATIONAL << "HostComm: got DeviceInfoPacket Request, unimplementde." << endl << unlock;
+                        log << lock << MICROHAL_INFORMATIONAL << "HostComm: got DeviceInfoPacket Request, unimplemented." << endl << unlock;
                         break;
 
                     default:

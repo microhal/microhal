@@ -182,20 +182,20 @@ class Diagnostic<LogLevel::Disabled> {
                                   LogLevel level __attribute__((unused)) = LogLevel::Debug) noexcept {}
 
     template <class _Rep, class _Period>
-    constexpr inline bool tryLock(const std::chrono::duration<_Rep, _Period> &__rtime) const noexcept {
+    constexpr bool tryLock(const std::chrono::duration<_Rep, _Period> &__rtime) const noexcept {
         return true;
     }
     // lets provide generic operator << so we wouldn't have to overload this operator for every type,
     template <typename T>
-    constexpr inline Diagnostic<LogLevel::Disabled> &operator<<(const T t __attribute__((unused))) const noexcept {
+    constexpr const Diagnostic<LogLevel::Disabled> &operator<<(const T t __attribute__((unused))) const noexcept {
         return *this;
     }
 
-    inline void setOutputDevice(IODevice &) const noexcept __attribute__((always_inline)) {}
+    void setOutputDevice(IODevice &) const noexcept __attribute__((always_inline)) {}
 
-    inline void autoInsertSpaces(bool) const noexcept __attribute__((always_inline)) {}
+    void autoInsertSpaces(bool) const noexcept __attribute__((always_inline)) {}
 
-    inline void setLogLevel(LogLevel) const noexcept __attribute__((always_inline)) {}
+    void setLogLevel(LogLevel) const noexcept __attribute__((always_inline)) {}
 };
 
 /* **************************************************************************************************************************************************
@@ -257,11 +257,11 @@ class LogLevelChannel {
         return *this;
     }
 
-    LogLevelChannel &operator<<(uint8_t i) { return operator<<(static_cast<const uint32_t>(i)); }
+    LogLevelChannel &operator<<(uint8_t i) { return operator<<(static_cast<uint32_t>(i)); }
 
-    LogLevelChannel &operator<<(uint16_t i) { return operator<<(static_cast<const uint32_t>(i)); }
+    LogLevelChannel &operator<<(uint16_t i) { return operator<<(static_cast<uint32_t>(i)); }
 #if !defined LINUX_PORT && !defined WINDOWS_PORT
-    LogLevelChannel &operator<<(unsigned int i) { return operator<<(static_cast<const uint32_t>(i)); }
+    LogLevelChannel &operator<<(unsigned int i) { return operator<<(static_cast<uint32_t>(i)); }
 #endif
     LogLevelChannel &operator<<(uint32_t i) {
         if constexpr (B) {
@@ -281,9 +281,9 @@ class LogLevelChannel {
         return *this;
     }
 
-    LogLevelChannel &operator<<(int8_t i) { return operator<<(static_cast<const int32_t>(i)); }
+    LogLevelChannel &operator<<(int8_t i) { return operator<<(static_cast<int32_t>(i)); }
 
-    LogLevelChannel &operator<<(int16_t i) { return operator<<(static_cast<const int32_t>(i)); }
+    LogLevelChannel &operator<<(int16_t i) { return operator<<(static_cast<int32_t>(i)); }
 
     LogLevelChannel &operator<<(int32_t i) {
         if constexpr (B) {

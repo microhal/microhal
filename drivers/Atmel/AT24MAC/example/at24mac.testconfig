@@ -1,0 +1,17 @@
+import re
+
+testType = 'deviceTest'
+targets = ['stm32f4-discovery', 'NUCLEO-F411RE']
+executionTime = 1
+requireHardware = False
+requireDevice = False
+deviceName = 'at24mac602'
+	
+def projectName():
+	return 'at24mac'
+	
+def binaryName(configuration):
+	return 'at24mac.elf'
+	
+def passed(data):
+	return False

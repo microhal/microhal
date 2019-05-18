@@ -171,6 +171,8 @@ class Sd final {
 
     bool init();
 
+    uint32_t setSpeed(uint32_t speed) { return spi.speed(speed); }
+
     CardType getCardType() const noexcept { return cardType; }
 
     uint64_t getCardCapacity() const noexcept { return cardCapacity; }
@@ -180,6 +182,7 @@ class Sd final {
     uint32_t getLastPageNumber() const noexcept { return getCardCapacity() / 512 - 1; }
 
     uint32_t getBlockSize() const noexcept { return blockSize; }
+    uint32_t getSectorSize() const noexcept { return blockSize; }
     /**
      * @brief This function may be used to set data block size. The function will work only with Standard Capacity
      * SC Memory Cards. In different SD Card types data block size is fixed to 512B and can't be adjusted. When working
@@ -291,12 +294,12 @@ class Sd final {
 
     class CMD24 : public Command {
      public:
-        explicit CMD24(uint32_t address) : Command(24, address) {}
+        explicit CMD24(uint32_t addressOrBlockNumber) : Command(24, addressOrBlockNumber) {}
     };
 
     class CMD25 : public Command {
      public:
-        explicit CMD25(uint32_t address) : Command(25, address) {}
+        explicit CMD25(uint32_t addressOrBlockNumber) : Command(25, addressOrBlockNumber) {}
     };
     // Application command indication
     class CMD55 : public Command {
@@ -362,12 +365,20 @@ class Sd final {
 
     bool enableCRC() {
         static const CMD59 cmd59(true);
-        return sendCMD(cmd59);
+        sendCMD(cmd59);
+        if (auto response = readResponseR1(1)) {
+            return true;
+        }
+        return false;
     }
 
     bool disableCRC() {
         static const CMD59 cmd59(false);
-        return sendCMD(cmd59);
+        sendCMD(cmd59);
+        if (auto response = readResponseR1(1)) {
+            return true;
+        }
+        return false;
     }
 
     bool readResponse(uint8_t &response) { return spi.read(response, 0xFF) == microhal::SPI::Error::None; }
@@ -383,6 +394,10 @@ class Sd final {
     bool writeDataPacket(const gsl::not_null<const void *> data_ptr, uint8_t dataToken, uint16_t blockSize);
 
     DataResponse readDataResponse(std::chrono::milliseconds timeout);
+
+    uint32_t addressOrBlockNumber(uint32_t blockNumber) {
+        return (cardType == CardType::StandardCapacityVer1 || cardType == CardType::StandardCapacityVer2) ? blockNumber * 512 : blockNumber;
+    }
 
     //    bool readResponseR3(uint8_t &r1, uint32_t &ocr, uint8_t retryCount) {
     //        // do {

@@ -113,7 +113,7 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.875573542" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1719905262" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1719905262" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
                                     									
@@ -133,7 +133,7 @@
                             							
                             <tool commandLinePattern="${COMMAND} ${cross_toolchain_flags} $(MICROHAL_CONFIGURATION_DEFINES) ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.665146421" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.95496001" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.95496001" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
                                     									
@@ -143,7 +143,7 @@
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.743338449" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.743338449" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="__MICROHAL"/>
                                     									
@@ -159,7 +159,7 @@
                             							
                             <tool commandLinePattern="${COMMAND} ${cross_toolchain_flags} $(MICROHAL_CONFIGURATION_DEFINES) ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.921472954" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.353202578" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.353202578" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
                                     									
@@ -181,7 +181,7 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.1628457817" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="false" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1768889693" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1768889693" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="__MICROHAL"/>
                                     									
@@ -205,13 +205,13 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections.2021743134" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections" value="true" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths.1826887229" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths" valueType="libPaths">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths.1826887229" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths" valueType="libPaths">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;../ldscripts&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile.709423197" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile" valueType="stringList">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile.709423197" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile" valueType="stringList">
                                     									
                                     <listOptionValue builtIn="false" value="mem.ld"/>
                                     									
@@ -231,13 +231,13 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections.1954894431" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections" value="true" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.1378826081" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" valueType="libPaths">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.1378826081" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" valueType="libPaths">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/ports/STMicroelectronics/STM32F4xx/startup}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile.629997383" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile" valueType="stringList">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile.629997383" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile" valueType="stringList">
                                     									
                                     <listOptionValue builtIn="false" value="STM32F4xxxG_rom.ld"/>
                                     								
@@ -291,7 +291,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/os/linux|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="src/graphics/nana|src/graphics/lvgl|src/graphics/imgui|src/lepton_emulator.cpp|src/microhal/microhal/os/windows|src/microhal/microhal/os/noRTOS|src/microhal/microhal/os/freeRTOS|src/microhal/hostComm/tests|src/microhal/hostComm/examples|src/microhal/microhal/ports/windows|src/microhal/microhal/ports/tms320F281x|src/microhal/microhal/ports/stm32f4xx|src/microhal/microhal/ports/stm32f3xx|src/microhal/microhal/ports/stm32f0xx|src/microhal/microhal/ports/rm57x|src/microhal/microhal/ports/lpc43xx|src/microhal/microhal/ports/common|src/microhal/microhal/units|src/microhal/microhal/math|src/gsl/tests|src/bsp/stm32f4-discovery_lepton_emulator|src/bsp/linux_lepton_emulator|microhal/microhal/ports/tms320F281x|microhal/microhal/ports/lpc43xx|microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/os/linux|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         						
                         <entry excluding="stm32f4-discovery|linux_lepton_emulator|Windows|linux|stm32f4-discovery_lepton_emulator|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
                         					
@@ -345,29 +345,33 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.archiver.base.1024819604" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
                             							
-                            <tool command="${MICROIDE_LINUX_GPP_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.106759905" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+                            <tool command="g++" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.106759905" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
                                 								
-                                <option id="gnu.cpp.compiler.option.include.paths.1483274949" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1483274949" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/os}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal/ports}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/bsp/linux}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/hostComm/source}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/ports/linux/General}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/gsl}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal/core}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal/ports/linux/General}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/hostComm/source}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/bsp/linux}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/ports}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal/os}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/graphics}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/genericDisplay}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="gnu.cpp.compiler.option.preprocessor.def.1177752418" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1177752418" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="LINUX_PORT"/>
                                     									
@@ -379,33 +383,35 @@
                                 								
                                 <option id="gnu.cpp.compiler.option.debugging.level.299952147" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
                                 								
-                                <option id="gnu.cpp.compiler.option.dialect.std.279642407" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
+                                <option id="gnu.cpp.compiler.option.dialect.std.279642407" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.dialect.flags.1023254365" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++1z" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.992545755" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
                                 							
                             </tool>
                             							
-                            <tool command="${MICROIDE_LINUX_GCC_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.c.compiler.base.2043122017" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+                            <tool command="gcc" id="cdt.managedbuild.tool.gnu.c.compiler.base.2043122017" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
                                 								
-                                <option id="gnu.c.compiler.option.include.paths.1227976293" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1227976293" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/os}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal/os}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/bsp/linux}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/bsp/linux}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/ports/linux/General}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal/ports/linux/General}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal/core}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/microhal}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/gsl}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/hostComm/source}&quot;"/>
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/hostComm/source}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="gnu.c.compiler.option.preprocessor.def.symbols.15357039" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.15357039" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="LINUX_PORT"/>
                                     									
@@ -425,17 +431,19 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.c.linker.base.203272221" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
                             							
-                            <tool command="${MICROIDE_LINUX_GPP_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.cpp.linker.base.1752483446" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+                            <tool command="g++" id="cdt.managedbuild.tool.gnu.cpp.linker.base.1752483446" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
                                 								
-                                <option id="gnu.cpp.link.option.paths.1361784192" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.1361784192" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/ports/STMicroelectronics/STM32F4xx/startup}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="gnu.cpp.link.option.libs.1909558144" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1909558144" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
                                     									
                                     <listOptionValue builtIn="false" value="pthread"/>
+                                    									
+                                    <listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SDL2"/>
                                     								
                                 </option>
                                 								
@@ -451,11 +459,7 @@
                             							
                             <tool command="${MICROIDE_LINUX_GCC_ASSEMBLER_VERSION_5_OR_HIGHER}" id="cdt.managedbuild.tool.gnu.assembler.base.1045141121" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
                                 								
-                                <option id="gnu.both.asm.option.include.paths.1590770252" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-                                    									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
-                                    								
-                                </option>
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.both.asm.option.include.paths.1590770252" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1156792600" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
                                 							
@@ -467,7 +471,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="src/graphics/nana|src/graphics/lvgl|src/graphics/imgui|src/lepton_emulator.cpp|src/microhal/microhal/os/windows|src/microhal/microhal/os/noRTOS|src/microhal/microhal/os/freeRTOS|src/microhal/hostComm/tests|src/microhal/hostComm/examples|src/microhal/microhal/ports/windows|src/microhal/microhal/ports/tms320F281x|src/microhal/microhal/ports/stm32f4xx|src/microhal/microhal/ports/stm32f3xx|src/microhal/microhal/ports/stm32f0xx|src/microhal/microhal/ports/rm57x|src/microhal/microhal/ports/lpc43xx|src/microhal/microhal/ports/common|src/microhal/microhal/units|src/microhal/microhal/math|src/gsl/tests|src/bsp/stm32f4-discovery_lepton_emulator|src/bsp/linux_lepton_emulator|microhal/microhal/ports/tms320F281x|microhal/microhal/ports/lpc43xx|microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux_lepton_emulator|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|lepton_emulator.cpp|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         						
                         <entry excluding="stm32f4-discovery|linux_lepton_emulator|Windows|stm32f4-discovery_lepton_emulator|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
                         					
@@ -523,7 +527,7 @@
                             							
                             <tool command="${MICROIDE_LINUX_GPP_VERSION_5_OR_HIGHER}" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.107526336" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
                                 								
-                                <option id="gnu.cpp.compiler.option.include.paths.1482571357" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1482571357" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/gsl}&quot;"/>
                                     									
@@ -543,7 +547,7 @@
                                     								
                                 </option>
                                 								
-                                <option id="gnu.cpp.compiler.option.preprocessor.def.1739018772" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1739018772" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="LINUX_PORT"/>
                                     									
@@ -563,7 +567,7 @@
                             							
                             <tool command="${MICROIDE_LINUX_GCC_VERSION_5_OR_HIGHER}" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.c.compiler.base.2039973728" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
                                 								
-                                <option id="gnu.c.compiler.option.include.paths.1492262292" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1492262292" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/hostComm/source}&quot;"/>
                                     									
@@ -579,7 +583,7 @@
                                     								
                                 </option>
                                 								
-                                <option id="gnu.c.compiler.option.preprocessor.def.symbols.1011333281" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.1011333281" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="LINUX_PORT"/>
                                     									
@@ -601,13 +605,13 @@
                             							
                             <tool command="${MICROIDE_LINUX_GPP_VERSION_5_OR_HIGHER}" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GLDErrorParser" id="cdt.managedbuild.tool.gnu.cpp.linker.base.1021619362" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
                                 								
-                                <option id="gnu.cpp.link.option.paths.70457721" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.70457721" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/ports/STMicroelectronics/STM32F4xx/startup}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="gnu.cpp.link.option.libs.160429050" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.160429050" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
                                     									
                                     <listOptionValue builtIn="false" value="pthread"/>
                                     								
@@ -625,7 +629,7 @@
                             							
                             <tool command="${MICROIDE_LINUX_GCC_ASSEMBLER_VERSION_5_OR_HIGHER}" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GASErrorParser" id="cdt.managedbuild.tool.gnu.assembler.base.1763497580" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
                                 								
-                                <option id="gnu.both.asm.option.include.paths.1932470355" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.1932470355" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microhal/microhal/core}&quot;"/>
                                     								
@@ -641,7 +645,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|reader.cpp|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="src/graphics/nana|src/graphics/lvgl|src/graphics/imgui|src/lepton_emulator.cpp|src/microhal/microhal/os/windows|src/microhal/microhal/os/noRTOS|src/microhal/microhal/os/freeRTOS|src/microhal/hostComm/tests|src/microhal/hostComm/examples|src/microhal/microhal/ports/windows|src/microhal/microhal/ports/tms320F281x|src/microhal/microhal/ports/stm32f4xx|src/microhal/microhal/ports/stm32f3xx|src/microhal/microhal/ports/stm32f0xx|src/microhal/microhal/ports/rm57x|src/microhal/microhal/ports/lpc43xx|src/microhal/microhal/ports/common|src/microhal/microhal/units|src/microhal/microhal/math|src/gsl/tests|src/bsp/stm32f4-discovery_lepton_emulator|src/bsp/linux_lepton_emulator|microhal/microhal/ports/tms320F281x|microhal/microhal/ports/lpc43xx|microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/stm32f4-discovery_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|system|microHAL/DSP|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|lepton|microHAL/math|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/cli|reader.cpp|microHAL/SPIDevice|microHAL/usb|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/ports/SiliconLabs|microHAL/ports/Windows|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|microHAL/I2CDevice|microHAL/buffers/tests|microHAL/os/FreeRTOS_port|microHAL/ports/Renesas|microHAL/hostComm|microHAL/os/noRTOSport|microHAL/os/Windows|microHAL/ports/Atmel|microHAL/os/FreeRTOS|microHAL/info|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/boost|microHAL/units|microHAL/ports/helpers|microHAL/os/thread.cc|main.cpp|microHAL/ports/STMicroelectronics|FreeRTOS|microHAL/ports/common|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button|microHAL/ports/ SiliconLabs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         						
                         <entry excluding="stm32f4-discovery|Windows|linux|stm32f4-discovery_lepton_emulator|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
                         					
@@ -765,7 +769,7 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1425433873" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.2111270005" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.2111270005" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL}&quot;"/>
                                     									
@@ -787,7 +791,7 @@
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1372543268" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1372543268" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="__MICROHAL"/>
                                     									
@@ -803,7 +807,7 @@
                             							
                             <tool commandLinePattern="${COMMAND} ${cross_toolchain_flags} $(MICROHAL_CONFIGURATION_DEFINES) ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1237618502" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1186555284" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1186555284" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL}&quot;"/>
                                     									
@@ -825,7 +829,7 @@
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.2099112186" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.2099112186" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="STM32F407xx"/>
                                     									
@@ -849,7 +853,7 @@
                             							
                             <tool commandLinePattern="${COMMAND} ${cross_toolchain_flags} $(MICROHAL_CONFIGURATION_DEFINES) ${FLAGS} -c ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1574734893" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1262024330" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1262024330" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL}&quot;"/>
                                     									
@@ -879,7 +883,7 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.200399041" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="false" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1393718043" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1393718043" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
                                     									
                                     <listOptionValue builtIn="false" value="STM32F407xx"/>
                                     									
@@ -913,13 +917,13 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections.244361377" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.gcsections" value="true" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths.2191412" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths" valueType="libPaths">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths.2191412" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.paths" valueType="libPaths">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;../ldscripts&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile.816107335" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile" valueType="stringList">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile.816107335" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.linker.scriptfile" valueType="stringList">
                                     									
                                     <listOptionValue builtIn="false" value="mem.ld"/>
                                     									
@@ -939,13 +943,13 @@
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections.657601451" name="Remove unused sections (-Xlinker --gc-sections)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.gcsections" value="true" valueType="boolean"/>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.408294989" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" valueType="libPaths">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths.408294989" name="Library search path (-L)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.paths" valueType="libPaths">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/microHAL/ports/STMicroelectronics/STM32F4xx/startup}&quot;"/>
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile.643586270" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile" valueType="stringList">
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile.643586270" name="Script files (-T)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.scriptfile" valueType="stringList">
                                     									
                                     <listOptionValue builtIn="false" value="STM32F4xxxG_rom.ld"/>
                                     								
@@ -999,7 +1003,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/linux_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|FreeRTOS/portable/GCC/RX100|microHAL/DSP|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/BCC|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/Tasking|microHAL/math|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/MemMang/heap_2.c|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|FreeRTOS/portable/GCC/IA32_flat|microHAL/cli|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/RL78|microHAL/usb|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/ARM7_LPC23xx|microHAL/ports/Windows|microHAL/ports/SiliconLabs|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|FreeRTOS/portable/WizC|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/ARM7_AT91FR40008|microHAL/os/Windows|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/Softune|microHAL/os/FreeRTOS|FreeRTOS/portable/MemMang/heap_3.c|FreeRTOS/portable/Rowley|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/RVDS|microHAL/units|microHAL/ports/helpers|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/ARM_CM7|FreeRTOS/portable/Renesas|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/oWatcom|microHAL/ports/ SiliconLabs|FreeRTOS/portable/GCC/NiosII|system|microHAL/ports/templatePort|FreeRTOS/portable/GCC/AVR32_UC3|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/Paradigm|FreeRTOS/portable/Keil|FreeRTOS/portable/SDCC|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/GCC/MicroBlaze|reader.cpp|microHAL/SPIDevice|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/I2CDevice|microHAL/buffers/tests|FreeRTOS/portable/GCC/ColdFire_V2|microHAL/ports/Renesas|FreeRTOS/portable/GCC/TriCore_1782|microHAL/hostComm|FreeRTOS/portable/CCS|microHAL/os/noRTOSport|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/RX600|microHAL/ports/Atmel|microHAL/info|FreeRTOS/portable/GCC/ARM_CM3_MPU|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/linux|microHAL/boost|microHAL/os/thread.cc|main.cpp|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/IAR|FreeRTOS/portable/MPLAB|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ARM_CM3|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="src/graphics/nana|src/graphics/lvgl|src/graphics/imgui|src/lepton_emulator.cpp|src/microhal/microhal/os/windows|src/microhal/microhal/os/noRTOS|src/microhal/microhal/os/freeRTOS|src/microhal/hostComm/tests|src/microhal/hostComm/examples|src/microhal/microhal/ports/windows|src/microhal/microhal/ports/tms320F281x|src/microhal/microhal/ports/stm32f4xx|src/microhal/microhal/ports/stm32f3xx|src/microhal/microhal/ports/stm32f0xx|src/microhal/microhal/ports/rm57x|src/microhal/microhal/ports/lpc43xx|src/microhal/microhal/ports/common|src/microhal/microhal/units|src/microhal/microhal/math|src/gsl/tests|src/bsp/stm32f4-discovery_lepton_emulator|src/bsp/linux_lepton_emulator|microhal/microhal/ports/tms320F281x|microhal/microhal/ports/lpc43xx|microhal/microhal/ports/stm32f0xx|microhal/microhal/ports/tms570x|microhal/microhal/ports/rm57x|bsp/linux|bsp/linux_lepton_emulator|microhal/microhal/core/SPIDevice|microhal/microhal/core/I2CDevice|microhal/microhal/core/button|gsl/tests|microhal/microhal/os/windows|microhal/microhal/os/linux|microhal/microhal/os/noRTOS|microhal/microhal/os/freeRTOS|microhal/microhal/ports/linux|microhal/microhal/ports/windows|microhal/microhal/ports/stm32f4xx|microhal/microhal/ports/stm32f3xx|microhal/hostComm/tests|microhal/hostComm/examples|FreeRTOS/portable/GCC/RX100|microHAL/DSP|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/BCC|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/Tasking|microHAL/math|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/MemMang/heap_2.c|boards|microHAL/nano|microHAL/ports/Raspberry_Pi|microHAL/ports/Linux|FreeRTOS/portable/GCC/IA32_flat|microHAL/cli|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/RL78|microHAL/usb|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/ARM7_LPC23xx|microHAL/ports/Windows|microHAL/ports/SiliconLabs|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|microHAL/CRC|microHAL/os/noRTOSport/syscalls.c|FreeRTOS/portable/WizC|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/ARM7_AT91FR40008|microHAL/os/Windows|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/Softune|microHAL/os/FreeRTOS|FreeRTOS/portable/MemMang/heap_3.c|FreeRTOS/portable/Rowley|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/RVDS|microHAL/units|microHAL/ports/helpers|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/ARM_CM7|FreeRTOS/portable/Renesas|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/oWatcom|microHAL/ports/ SiliconLabs|FreeRTOS/portable/GCC/NiosII|system|microHAL/ports/templatePort|FreeRTOS/portable/GCC/AVR32_UC3|microHAL/ports/STMicroelectronics/STM32F4xx/timer_stm32f4xx.cpp|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/Paradigm|FreeRTOS/portable/Keil|FreeRTOS/portable/SDCC|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/GCC/MicroBlaze|reader.cpp|microHAL/SPIDevice|microHAL/ports/STMicroelectronics/STM32F4xx/adc_stm32f4xx.cpp|microHAL/I2CDevice|microHAL/buffers/tests|FreeRTOS/portable/GCC/ColdFire_V2|microHAL/ports/Renesas|FreeRTOS/portable/GCC/TriCore_1782|microHAL/hostComm|FreeRTOS/portable/CCS|microHAL/os/noRTOSport|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/RX600|microHAL/ports/Atmel|microHAL/info|FreeRTOS/portable/GCC/ARM_CM3_MPU|microHAL/ports/STMicroelectronics/STM32F0xx|microHAL/os/linux|microHAL/boost|microHAL/os/thread.cc|main.cpp|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/IAR|FreeRTOS/portable/MPLAB|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ARM_CM3|microHAL/ports/STMicroelectronics/STM32F4xx/usb_stm32f4xx.cpp|microHAL/button" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         						
                         <entry excluding="stm32f4-discovery|linux_lepton_emulator|Windows|linux|Linux" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="boards"/>
                         					

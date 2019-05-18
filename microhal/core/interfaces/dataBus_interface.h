@@ -18,27 +18,28 @@ namespace microhal {
  * CLASS
  */
 class DataBus {
-public:
+ public:
     virtual void write(uint16_t data) = 0;
 
-    virtual void read(uint16_t &data) = 0;
+    virtual uint16_t read() = 0;
 
-    virtual void lock() {
-        mutex.lock();
-    }
+    virtual void lock() { mutex.lock(); }
 
-    virtual void unlock() {
-        mutex.unlock();
-    }
+    virtual void unlock() { mutex.unlock(); }
 
-    virtual ~DataBus() { }
-private:
+    virtual ~DataBus() {}
+
+ private:
     std::mutex mutex;
+
+ protected:
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
-	DataBus():mutex() { }
+        DataBus()
+        : mutex() {
+    }
 };
-} // namespace microhal
+}  // namespace microhal
 
-#endif // DATABUS_INTERFACE_H_
+#endif  // DATABUS_INTERFACE_H_

@@ -177,6 +177,8 @@ class I2C : public microhal::I2C {
         explicit I2C(I2C_TypeDef &i2c)
         : i2c(i2c) {
     }
+    I2C(const microhal::stm32f4xx::I2C &) = delete;
+    void operator=(const microhal::stm32f4xx::I2C &) = delete;
 
     void start() { i2c.CR1 |= I2C_CR1_START; }
 

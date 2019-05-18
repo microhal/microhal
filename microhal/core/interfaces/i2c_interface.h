@@ -50,6 +50,17 @@ class I2C {
         HighSpeed      // 3.4 MHz
     };
 
+    static std::string_view toString(Error error) {
+        if (error == I2C::Error::None) return "I2C::Error::None";
+        if (error == I2C::Error::Timeout) return "I2C::Error::Timeout";
+        if (error == I2C::Error::Bus) return "I2C::Error::Bus";
+        if (error == I2C::Error::AcknowledgeFailure) return "I2C::Error::AcknowledgeFailure";
+        if (error == I2C::Error::ArbitrationLost) return "I2C::Error::ArbitrationLost";
+        if (error == I2C::Error::Overrun) return "I2C::Error::Overrun";
+        if (error == I2C::Error::Unknown) return "I2C::Error::Unknown";
+        std::terminate();  // error occurred, newer should go here
+    }
+
     void lock() noexcept { mutex.lock(); }
     void unlock() noexcept { mutex.unlock(); }
 

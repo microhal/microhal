@@ -27,10 +27,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "SDCard/sd.h"
 #include "bsp.h"
 #include "catch.hpp"
 #include "diagnostic/diagnostic.h"
+#include "sd.h"
 
 using namespace microhal;
 using namespace microhal::diagnostic;

@@ -71,7 +71,11 @@ class I2C_interrupt : public stm32f4xx::I2C {
     //---------------------------------------- constructors ---------------------------------------
     I2C_interrupt(I2C_TypeDef &i2c) : I2C(i2c), transfer(), error(), semaphore() {
         ClockManager::enable(i2c, ClockManager::PowerMode::Normal);
+#ifndef HAL_RTOS_FreeRTOS
         const uint32_t priority = 0;
+#else
+        const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
+#endif
         enableEventInterrupt(priority);
         enableErrorInterrupt(priority);
     }
@@ -94,7 +98,7 @@ class I2C_interrupt : public stm32f4xx::I2C {
     friend void I2C3_EV_IRQHandler(void);
 };
 
-}  // namsepace stm32f4xx
+}  // namespace stm32f4xx
 }  // namespace microhal
 
 #endif  // I2C_INTERRUPT_STM32F4XX_H_
