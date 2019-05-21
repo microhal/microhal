@@ -103,7 +103,7 @@ class Message {
         std::copy_n(std::begin(data), data.size_bytes(), this->data);
         return true;
     }
-    uint32_t getID() { return id.stid_exid; }
+    uint32_t getID() const { return id.stid_exid; }
     gsl::span<const uint8_t> getData() const {
         gsl::span<const uint8_t> d(data, size);
         return d;

@@ -156,8 +156,8 @@ class CAN final : public can::CAN_Interface {
 
     Error getLastError() { return static_cast<Error>(can.esr.bitfield.LEC); }
 
-    uint32_t receiveErrorCount() final { return can.esr.bitfield.REC; }
-    uint32_t transmitErrorCount() final { return can.esr.bitfield.TEC; }
+    uint32_t receiveErrorCount() const final { return can.esr.bitfield.REC; }
+    uint32_t transmitErrorCount() const final { return can.esr.bitfield.TEC; }
 
     bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;
     bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;

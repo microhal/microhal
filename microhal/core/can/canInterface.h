@@ -51,8 +51,8 @@ class CAN_Interface {
 
     virtual bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
     virtual bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
-    virtual uint32_t receiveErrorCount() = 0;
-    virtual uint32_t transmitErrorCount() = 0;
+    virtual uint32_t receiveErrorCount() const = 0;
+    virtual uint32_t transmitErrorCount() const = 0;
 };
 
 }  // namespace can
