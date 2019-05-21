@@ -1,8 +1,7 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  Pawel Okas
  * @version    $Id$
- * @brief
+ * @brief      board support package for generic linux
  *
  * @authors    Pawel Okas
  *
@@ -25,37 +24,17 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bsp.h"
-#include "diagnostic/diagnostic.h"
+#ifndef _LINUX_BSP_H_
+#define _LINUX_BSP_H_
+
 #include "microhal.h"
 
-#define DOCTEST_CONFIG_IMPLEMENT
-#include "doctest.h"
+namespace bsp {
+extern microhal::IODevice &debugPort;
 
-using namespace std::literals::chrono_literals;
+bool init();
+void deinit();
 
-using namespace microhal;
-using namespace diagnostic;
+}  // namespace bsp
 
-int main(int argc, char* const argv[]) {
-    int result = -1;
-
-    if (bsp::init()) {
-        bsp::debugPort.write("\n\r------------------- CAN Demo -------------------------\n\r");
-        diagChannel.setOutputDevice(bsp::debugPort);
-
-        diagChannel << lock << MICROHAL_INFORMATIONAL << "Starting unit tests." << endl << unlock;
-
-        doctest::Context context(argc, argv);
-        result = context.run();
-        if (context.shouldExit()) {  // important - query flags (and --exit) rely on the user doing this
-            bsp::deinit();
-            return result;  // propagate the result of the tests
-        }
-
-    } else {
-        diagChannel << lock << MICROHAL_EMERGENCY << "Unable to open communication ports." << endl << unlock;
-    }
-
-    return result;
-}
+#endif /* _LINUX_BSP_H_ */

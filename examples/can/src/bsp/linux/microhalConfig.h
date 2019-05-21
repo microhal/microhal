@@ -5,8 +5,10 @@
  * @brief
  *
  * @authors    Pawel Okas
+ * created on: 01-01-2018
+ * last modification: 01-01-2018
  *
- * @copyright Copyright (c) 2019, Pawel Okas
+ * @copyright Copyright (c) 2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,37 +27,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bsp.h"
-#include "diagnostic/diagnostic.h"
-#include "microhal.h"
+#ifndef _MICROHAL_MICROHALCONFIG_H_
+#define _MICROHAL_MICROHALCONFIG_H_
+/* **************************************************************************************************************************************************
+ * INCLUDES
+ */
 
-#define DOCTEST_CONFIG_IMPLEMENT
-#include "doctest.h"
-
-using namespace std::literals::chrono_literals;
-
-using namespace microhal;
-using namespace diagnostic;
-
-int main(int argc, char* const argv[]) {
-    int result = -1;
-
-    if (bsp::init()) {
-        bsp::debugPort.write("\n\r------------------- CAN Demo -------------------------\n\r");
-        diagChannel.setOutputDevice(bsp::debugPort);
-
-        diagChannel << lock << MICROHAL_INFORMATIONAL << "Starting unit tests." << endl << unlock;
-
-        doctest::Context context(argc, argv);
-        result = context.run();
-        if (context.shouldExit()) {  // important - query flags (and --exit) rely on the user doing this
-            bsp::deinit();
-            return result;  // propagate the result of the tests
-        }
-
-    } else {
-        diagChannel << lock << MICROHAL_EMERGENCY << "Unable to open communication ports." << endl << unlock;
-    }
-
-    return result;
-}
+// clang-format off
+//***********************************************************************************************//
+//                                    Diagnostic configuration                                   //
+//***********************************************************************************************//
+#define MICROHAL_DIAGNOSTIC_TEXT_VISIBLE		// when defined message text is printed in diagnostic channel messages
+#define MICROHAL_DIAGNOSTIC_LOG_LEVEL Debug		// Set compile time log level for embedded diagnostic channel (diagChannel)
+												// Emergency -> highest log priority
+												// Alert
+												// Critical
+												// Error
+												// Warning
+												// Notice
+												// Informational
+												// Debug  -> lowest log priority
+// clang_format on
+#endif  // _MICROHAL_MICROHALCONFIG_H_
