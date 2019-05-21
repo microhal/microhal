@@ -1,12 +1,14 @@
 /**
  * @license    BSD 3-Clause
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 30-03-2019
+ * created on: 01-01-2018
+ * last modification: 01-01-2018
  *
- * @copyright Copyright (c) 2019, Pawel Okas
+ * @copyright Copyright (c) 2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,37 +27,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_CANINTERFACE_H_
-#define _MICROHAL_CANINTERFACE_H_
+#ifndef _MICROHAL_MICROHALCONFIG_H_
+#define _MICROHAL_MICROHALCONFIG_H_
+/* **************************************************************************************************************************************************
+ * INCLUDES
+ */
 
-#include <chrono>
-#include <cstdint>
-#include "canMessage.h"
-
-namespace microhal {
-namespace can {
-
-class CAN_Interface {
- public:
-    enum class Protocol { v2_0A, V2_0B };
-
-    virtual ~CAN_Interface() {}
-
-    virtual bool isProtocolSupported(Protocol protocol) = 0;
-
-    virtual bool transmit(const Message &message) = 0;
-    virtual bool receive(Message &message) = 0;
-
-    virtual bool waitForTransmitFinish(std::chrono::milliseconds timeout) const noexcept = 0;
-    virtual bool waitForMessage(std::chrono::milliseconds timeout) const noexcept = 0;
-
-    virtual bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
-    virtual bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
-    virtual uint32_t receiveErrorCount() const = 0;
-    virtual uint32_t transmitErrorCount() const = 0;
-};
-
-}  // namespace can
-}  // namespace microhal
-
-#endif /* _MICROHAL_CANINTERFACE_H_ */
+// clang-format off
+//***********************************************************************************************//
+//                                    Diagnostic configuration                                   //
+//***********************************************************************************************//
+#define MICROHAL_DIAGNOSTIC_TEXT_VISIBLE		// when defined message text is printed in diagnostic channel messages
+#define MICROHAL_DIAGNOSTIC_LOG_LEVEL Debug		// Set compile time log level for embedded diagnostic channel (diagChannel)
+												// Emergency -> highest log priority
+												// Alert
+												// Critical
+												// Error
+												// Warning
+												// Notice
+												// Informational
+												// Debug  -> lowest log priority
+// clang_format on
+#endif  // _MICROHAL_MICROHALCONFIG_H_

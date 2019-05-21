@@ -5,7 +5,6 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 30-01-2014
  *
  * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
@@ -29,7 +28,6 @@
 #include "bsp.h"
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
-#include "ports/stm32f4xx/can_stm32f4xx.h"
 
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
@@ -38,94 +36,6 @@ using namespace std::literals::chrono_literals;
 
 using namespace microhal;
 using namespace diagnostic;
-
-using CAN = stm32f4xx::CAN;
-CAN can1(CAN::Device::CAN1);
-
-can::Message message;
-
-TEST_CASE("Message test") {
-    can::Message message;
-    CHECK_FALSE(message.isExtendedID());
-    CHECK_FALSE(message.isStandardID());
-
-    message.setExtendedID(0xFFFF);
-    CHECK_FALSE(message.isStandardID());
-    CHECK(message.isExtendedID());
-    CHECK(message.getID() == 0xFFFF);
-
-    message.setStandardID(0xFF);
-    CHECK_FALSE(message.isExtendedID());
-    CHECK(message.isStandardID());
-    CHECK(message.getID() == 0xFF);
-
-    // try set remote request on message but with to big size
-    CHECK_FALSE(message.setRemoteRequest(9));
-    // try set remote request on message
-    CHECK(message.setRemoteRequest(8));
-    CHECK(message.isRemoteFrame());
-    CHECK_FALSE(message.isDataFrame());
-
-    std::array<uint8_t, 9> toBigData{1, 2, 3, 4, 5, 6, 7, 8, 9};
-    CHECK_FALSE(message.setDataFrame(toBigData));
-
-    std::array<uint8_t, 4> data{1, 2, 3, 4};
-    CHECK(message.setDataFrame(data));
-    CHECK(message.isDataFrame());
-    CHECK_FALSE(message.isRemoteFrame());
-}
-
-TEST_CASE("Transmit test") {
-    CHECK(can1.setBaudrate(30000) == 30000);
-    can1.setMode(CAN::Mode::LoopbackAndSilent);
-    can1.sleepMode(CAN::Sleep::AutoWakeup);
-
-    CHECK(can1.emptyTxMailboxCount() == 3);
-    message.setStandardID(10);
-    uint8_t data[] = {'O', 'K'};
-    CHECK(message.setDataFrame(data));
-    CHECK(can1.transmit(message));
-    CHECK(can1.emptyTxMailboxCount() == 2);
-    CHECK(can1.waitForTransmitFinish(std::chrono::milliseconds{100}));
-    CHECK(can1.emptyTxMailboxCount() == 3);
-}
-
-TEST_CASE("Loopback test") {
-    can1.setBaudrate(20000);
-    can1.setMode(CAN::Mode::LoopbackAndSilent);
-    can1.sleepMode(CAN::Sleep::AutoWakeup);
-    REQUIRE(can1.addFilter(can::Message::StandardID{10}, 0, false));
-    message.setStandardID(10);
-    uint8_t data[] = {'O', 'K'};
-    message.setDataFrame(data);
-    CHECK(can1.transmit(message));
-    CHECK(can1.waitForTransmitFinish(std::chrono::milliseconds{100}));
-    CHECK(can1.getLastError() == CAN::None);
-    CHECK(can1.transmitErrorCount() == 0);
-
-    can::Message recMessage;
-    CHECK(can1.receive(recMessage));
-    CHECK(can1.getLastError() == CAN::None);
-    CHECK(can1.receiveErrorCount() == 0);
-    CHECK(message == recMessage);
-    CHECK(can1.removeFilter(can::Message::StandardID{10}, 0, false));
-}
-
-TEST_CASE("Filter test") {
-    std::array<uint8_t, 4> data{1, 2, 3, 4};
-    message.setDataFrame(data);
-    message.setExtendedID(20);
-    CHECK(can1.transmit(message));
-    CHECK(can1.waitForTransmitFinish(std::chrono::milliseconds{100}));
-
-    can::Message recMessage;
-    CHECK_FALSE(can1.receive(recMessage));
-    // set filter for standard id = 20
-    can1.addFilter(can::Message::StandardID{20}, 20, false);
-    CHECK(can1.transmit(message));
-    CHECK(can1.waitForTransmitFinish(std::chrono::milliseconds{100}));
-    CHECK(can1.receive(recMessage));
-}
 
 int main(int argc, char* const argv[]) {
     int result = -1;

@@ -1,10 +1,9 @@
 /**
  * @license    BSD 3-Clause
  * @version    $Id$
- * @brief
+ * @brief      board support package for generic linux
  *
  * @authors    Pawel Okas
- * created on: 30-03-2019
  *
  * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
@@ -25,37 +24,17 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_CANINTERFACE_H_
-#define _MICROHAL_CANINTERFACE_H_
+#ifndef _LINUX_BSP_H_
+#define _LINUX_BSP_H_
 
-#include <chrono>
-#include <cstdint>
-#include "canMessage.h"
+#include "microhal.h"
 
-namespace microhal {
-namespace can {
+namespace bsp {
+extern microhal::IODevice &debugPort;
 
-class CAN_Interface {
- public:
-    enum class Protocol { v2_0A, V2_0B };
+bool init();
+void deinit();
 
-    virtual ~CAN_Interface() {}
+}  // namespace bsp
 
-    virtual bool isProtocolSupported(Protocol protocol) = 0;
-
-    virtual bool transmit(const Message &message) = 0;
-    virtual bool receive(Message &message) = 0;
-
-    virtual bool waitForTransmitFinish(std::chrono::milliseconds timeout) const noexcept = 0;
-    virtual bool waitForMessage(std::chrono::milliseconds timeout) const noexcept = 0;
-
-    virtual bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
-    virtual bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
-    virtual uint32_t receiveErrorCount() const = 0;
-    virtual uint32_t transmitErrorCount() const = 0;
-};
-
-}  // namespace can
-}  // namespace microhal
-
-#endif /* _MICROHAL_CANINTERFACE_H_ */
+#endif /* _LINUX_BSP_H_ */
