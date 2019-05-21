@@ -25,6 +25,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cmath>
 #include "bsp.h"
 #include "doctest.h"
 #include "gps.h"
