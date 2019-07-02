@@ -29,6 +29,7 @@
 #ifndef _AT24MAC_H_
 #define _AT24MAC_H_
 
+#include <charconv>
 #include <gsl/span>
 #include <optional>
 #include <string_view>
@@ -58,6 +59,21 @@ class AT24MAC {
 
     struct SerialNumber {
         uint8_t serial[128 / 8];
+
+        bool operator!=(SerialNumber b) { return std::equal(std::begin(serial), std::begin(serial) + sizeof(serial), std::begin(b.serial)); }
+        std::string toString() const {
+            std::string str;
+            str.reserve(18);
+            for (uint_fast8_t i = 0; i < sizeof(serial); i++) {
+                std::array<char, 2> buff;
+                auto [p, ec] = std::to_chars(buff.data(), buff.data() + buff.size(), serial[i], 16);
+                str.append(std::string_view(buff.data(), p - str.data()));
+                if (i + 1 != sizeof(serial)) {
+                    str.append(":");
+                }
+            }
+            return str;
+        }
     };
 
     static constexpr const size_t pageSize = 16;
@@ -130,4 +146,5 @@ class AT24MAC {
     microhal::I2CDevice memory;
     microhal::I2CDevice mac;
 };
+
 #endif /* _AT24MAC_H_ */
