@@ -39,19 +39,21 @@ namespace diagnostic {
 template <unsigned int base>
 class Converter {
  public:
-    explicit constexpr Converter (uint32_t data) noexcept : data(data), length(0), dataPtr(nullptr) {
-    }
+    explicit constexpr Converter(uint32_t data) noexcept : data(data), length(0), dataPtr(nullptr) {}
 
-    explicit constexpr Converter (const uint32_t *data, size_t size) noexcept : data(4), length(size/sizeof(uint32_t)), dataPtr(data) {
-    }
+    explicit constexpr Converter(uint64_t data) noexcept : data(sizeof(uint64_t)), length(1), dataPtr(&data) {}
 
-    explicit constexpr Converter (const uint16_t *data, size_t size) noexcept : data(2), length(size/sizeof(uint16_t)), dataPtr(data) {
-    }
+    explicit constexpr Converter(const uint64_t *data, size_t size) noexcept
+        : data(sizeof(uint64_t)), length(size / sizeof(uint64_t)), dataPtr(data) {}
 
-    explicit constexpr Converter (const uint8_t *data, size_t size) noexcept : data(1), length(size/sizeof(uint8_t)), dataPtr(data) {
-    }
+    explicit constexpr Converter(const uint32_t *data, size_t size) noexcept : data(4), length(size / sizeof(uint32_t)), dataPtr(data) {}
+
+    explicit constexpr Converter(const uint16_t *data, size_t size) noexcept : data(2), length(size / sizeof(uint16_t)), dataPtr(data) {}
+
+    explicit constexpr Converter(const uint8_t *data, size_t size) noexcept : data(1), length(size / sizeof(uint8_t)), dataPtr(data) {}
+
  private:
-    template<LogLevel compileTimeLogLevel, bool B>
+    template <LogLevel compileTimeLogLevel, bool B>
     friend class LogLevelChannel;
 
     const uint32_t data;
@@ -63,7 +65,7 @@ using toBin = Converter<2>;
 using toOct = Converter<8>;
 using toHex = Converter<16>;
 
-} // namespace diagnostic
-} // namespace microhal
+}  // namespace diagnostic
+}  // namespace microhal
 
-#endif // _MICROHAL_DIAGNOSTICS_CONVERSION_H_
+#endif  // _MICROHAL_DIAGNOSTICS_CONVERSION_H_

@@ -132,5 +132,20 @@ void Diagnostic_base::write(const uint32_t *data, size_t size, uint8_t radix) {
     writeText(buffer, strlen(buffer));
 }
 
+void Diagnostic_base::write(const uint64_t *data, size_t size, uint8_t radix) {
+    if (data == nullptr) return;
+    if (size <= 0) return;
+
+    char buffer[65];  // worst case radix = 2; 64 char for number + 1 for string end
+    size_t i = 0;
+    for (; i < size - 1; i++) {
+        itoa(data[i], buffer, radix);
+        writeText(buffer, strlen(buffer));
+        putChar(':');
+    }
+    itoa(data[i], buffer, radix);
+    writeText(buffer, strlen(buffer));
+}
+
 }  // namespace diagnostic
 }  // namespace microhal

@@ -316,14 +316,17 @@ class LogLevelChannel {
                     diagnostic.write(converter.data, base);
                 } else {
                     switch (converter.data) {
-                        case 1:
+                        case 1:  // uint8_t
                             diagnostic.write(static_cast<const uint8_t *>(converter.dataPtr), converter.length, base);
                             break;
-                        case 2:
+                        case 2:  // uint16_t
                             diagnostic.write(static_cast<const uint16_t *>(converter.dataPtr), converter.length, base);
                             break;
-                        case 4:
+                        case 4:  // uint32_t
                             diagnostic.write(static_cast<const uint32_t *>(converter.dataPtr), converter.length, base);
+                            break;
+                        case 8:  // uint64_t
+                            diagnostic.write(static_cast<const uint64_t *>(converter.dataPtr), converter.length, base);
                             break;
                     }
                 }
