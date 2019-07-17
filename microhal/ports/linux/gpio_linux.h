@@ -39,42 +39,16 @@
 
 #include "IOPin.h"
 #include "diagnostic/diagnostic.h"
+#include "interfaces/gpio_interface.h"
+
 namespace microhal {
 namespace linux {
 
 /* ************************************************************************************************
  * CLASS
  */
-class GPIO {
+class GPIO : public microhal::GPIO {
  public:
-    //---------------------------------------- typedefs -----------------------------------------//
-    /**
-     * @brief Possible pin directions
-     */
-    typedef enum : uint8_t {
-        Input = 0,  //!< INPUT
-        Output = 1  //!< OUTPUT
-    } Direction;
-    /**
-     * Possible pin output types
-     */
-    typedef enum : uint8_t {
-        PushPull = 0,  //!< PUSH_PULL
-        OpenDrain = 1  //!< OPEN_DRAIN
-    } OutputType;
-    /**
-     * Possible pull type
-     */
-    typedef enum : uint8_t {
-        NoPull = 0,   //!< NO_PULL
-        PullUp = 1,   //!< PULL_UP
-        PullDown = 2  //!< PULL_DOWN
-    } PullType;
-
- private:
- public:
-    using Port = IOPin::Port;
-    using Pin = IOPin::Pin;
     //--------------------------------------- constructors --------------------------------------//
     /**
      * @brief Constructor of GPIO class
@@ -85,13 +59,11 @@ class GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    inline GPIO(const Port port, const Pin pin, const Direction dir, const PullType pull = NoPull, const OutputType type = PushPull)
-        __attribute__((always_inline))
-        : pin(pin), port(port) {
+    GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull) : pin(pin) {
         char buf[100];
         auto fd = open("/sys/class/gpio/export", O_WRONLY);
         if (fd > 0) {
-            sprintf(buf, "%d", pin);
+            sprintf(buf, "%d", pin.pin);
             write(fd, buf, strlen(buf));
             close(fd);
 
@@ -108,7 +80,7 @@ class GPIO {
         auto fd = open("/sys/class/gpio/unexport", O_WRONLY);
         if (fd > 0) {
             char buf[100];
-            sprintf(buf, "%d", pin);
+            sprintf(buf, "%d", pin.pin);
             write(fd, buf, strlen(buf));
 
             close(fd);
@@ -120,9 +92,9 @@ class GPIO {
      * @param port - port name
      * @param pin - pin number
      */
-    static inline void set(Port port, Pin pin) {
+    void set() {
         char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin);
+        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
         auto fd = ::open(buf, O_WRONLY);
         if (fd > 0) {
             // Set GPIO high status
@@ -134,16 +106,18 @@ class GPIO {
             std::terminate();
         }
     }
+    // using microhal::GPIO::reset;
+    // using microhal::GPIO::set;
     /** This function set pin to high state. */
-    inline void set() { set(port, pin); }
+    // void set() { set(pin); }
     /** This function set pin to low state.
      *
      * @param port - port name
      * @param pin - pin number
      */
-    static inline void reset(Port port, Pin pin) {
+    void reset() {
         char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin);
+        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
         auto fd = open(buf, O_WRONLY);
         if (fd > 0) {
             // Set GPIO low status
@@ -156,68 +130,70 @@ class GPIO {
         }
     }
     /** This function set pin to low state.*/
-    inline void reset() { reset(port, pin); }
+    // void reset() { reset(pin); }
     /** This function read pin state
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static inline bool get(Port port, Pin pin) {
+    bool get() const final {
         char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin);
+        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
 
         auto fd = open(buf, O_RDONLY);
         if (fd > 0) {
             char value;
             read(fd, &value, 1);
-            bool pinState = value == '0' ? 0 : 1;
+            bool pinState = (value == '0') ? 0 : 1;
 
             close(fd);
+            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "Pin value " << value
+                                              << microhal::diagnostic::unlock;
             return pinState;
         } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "GPIO error, unable to open gpio file"
-                                              << microhal::diagnostic::unlock;
+            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY
+                                              << "GPIO error, unable to open gpio file, GPIO number: " << pin.pin << microhal::diagnostic::unlock;
             std::terminate();
         }
     }
     /** This function read pin state*/
-    inline bool get() const { return get(port, pin); }
+    // bool get() const final { return get(pin); }
     /** This function check for pin set.
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static inline bool isSet(Port port, Pin pin) { return get(port, pin); }
+    // static inline bool isSet(IOPin pin) { return get(pin); }
     /** This function check for pin set.*/
-    inline bool isSet() const { return isSet(port, pin); }
+    // inline bool isSet() const { return isSet(pin); }
     /** This function check for pin reset.
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static inline bool isReset(Port port, Pin pin) { return !get(port, pin); }
+    //  static inline bool isReset(IOPin pin) { return !get(pin); }
     /** This function check for pin reset.*/
-    inline bool isReset() const { return isReset(port, pin); }
+    //  inline bool isReset() const { return isReset(pin); }
     /** Sets pin to opposite state
      *
      * @param port - port name
      * @param pin - pin number
      */
-    static inline void toggle(Port port, Pin pin) { (isSet(port, pin)) ? (reset(port, pin)) : (set(port, pin)); }
+    // static inline void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
     /** Sets pin to opposite state*/
-    inline void toggle() { toggle(port, pin); }
+    // inline void toggle() { toggle(pin); }
     /** This function set pin direction.
      *
      * @param port - port name
      * @param pin - pin number
      * @param direction - pin direction
      */
-    static inline void setDirection(const Port port, const Pin pin, const Direction direction) {
+    void setDirection(Direction direction) {
         char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/direction", pin);
+        sprintf(buf, "/sys/class/gpio/gpio%d/direction", pin.pin);
         auto fd = open(buf, O_WRONLY);
         if (fd > 0) {
             switch (direction) {
@@ -230,33 +206,47 @@ class GPIO {
             }
             ::close(fd);
         } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "GPIO error, unable to open gpio file"
-                                              << microhal::diagnostic::unlock;
+            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY
+                                              << "GPIO error, unable to open gpio file, GPIO number: " << pin.pin << microhal::diagnostic::unlock;
         }
     }
     /** This function set pin direction.
      *
      * @param direction - pin direction
      */
-    inline void setDirection(const Direction direction) { setDirection(port, pin, direction); }
+    // inline void setDirection(const Direction direction) { setDirection(pin, direction); }
     /** This function set pin pull type
      *
      * @param port
      * @param pin
      * @param pullType
      */
-    static inline void setPullType(const Port port, const Pin pin, const PullType pullType) {
+    void setPullType(PullType pullType) {
         //  reinterpret_cast<volatile GPIO_TypeDef *>(port)->PUPDR |= pullType << (pin * 2);
     }
     /** This function set pin pull type
      *
      * @param pullType
      */
-    inline void setPullType(const PullType pullType) { setPullType(port, pin, pullType); }
+    // void setPullType(PullType pullType) { setPullType(pin, pullType); }
 
  protected:
-    const Pin pin;
-    const Port port;
+    const IOPin pin;
+
+    bool setState(bool state) final {
+        if (state)
+            set();
+        else
+            reset();
+        return true;
+    }
+
+    bool configure(Direction direction, OutputType outputType, PullType pullType) final {
+        setDirection(direction);
+        (void)outputType;
+        setPullType(pullType);
+        return true;
+    }
 };
 
 }  // namespace linux
