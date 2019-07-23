@@ -177,13 +177,6 @@ class GPIO : public microhal::GPIO {
      * @return
      */
     static bool isReset(IOPin pin) { return !get(pin); }
-    /** Sets pin to opposite state
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    static void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
-    using microhal::GPIO::toggle;
     /** This function set pin direction.
      *
      * @param port - port name
@@ -230,7 +223,7 @@ class GPIO : public microhal::GPIO {
  protected:
     const IOPin pin;
 
-    static void pinInitialize(const Port port, const uint_fast8_t pin, const PinConfiguration configuration);
+    static void pinInitialize(Port port, uint_fast8_t pin, PinConfiguration configuration);
     /**
      *
      * @param port
@@ -246,13 +239,11 @@ class GPIO : public microhal::GPIO {
         pinInitialize(port, pin, PinConfiguration{static_cast<uint8_t>(0x02 | (function << 4)), type, pull, speed});
     }
 
-    static void setAnalogFunction(const Port port, const Pin pin, const PullType pull = NoPull, const Speed speed = HighSpeed)
-        __attribute__((always_inline)) {
+    static void setAnalogFunction(Port port, Pin pin, PullType pull = NoPull, Speed speed = HighSpeed) __attribute__((always_inline)) {
         // 0x03 in mode enable analog function
         pinInitialize(port, pin, PinConfiguration{static_cast<uint8_t>(0x03), 0x00, pull, speed});
     }
-    //----------------------------------------- friends
-    //-----------------------------------------//
+    //----------------------------------------- friends -----------------------------------------//
     friend class IOManager;
     friend class DataBus;
 };

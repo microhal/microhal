@@ -46,46 +46,38 @@
 namespace microhal {
 namespace stm32f3xx {
 
-void GPIO::pinInitialize(const Port port, const uint_fast8_t pin,
-                         const PinConfiguration config) {
-	ClockManager::enable(*reinterpret_cast<GPIO_TypeDef *>(port));
-  // enable clock
-//  switch (port) {
-//    case PortA:
-//      RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-//      break;
-//    case PortB:
-//      RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-//      break;
-//    case PortC:
-//      RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-//      break;
-//    case PortD:
-//      RCC->AHBENR |= RCC_AHBENR_GPIODEN;
-//      break;
-//    case PortE:
-//      RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
-//      break;
-//    case PortF:
-//      RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
-//      break;
-//  }
+void GPIO::pinInitialize(Port port, uint_fast8_t pin, PinConfiguration config) {
+    volatile GPIO_TypeDef *portPtr = reinterpret_cast<volatile GPIO_TypeDef *>(port);
 
-  // set mode -> config.mode is split to 2 part 4MSB bit
-  //      contain alternate function and 4LSB bit contain mode
-  reinterpret_cast<volatile GPIO_TypeDef *>(port)->MODER |= (0x03 & config.mode)
-                                                            << (pin * 2);
-  // set type
-  reinterpret_cast<volatile GPIO_TypeDef *>(port)->OTYPER |= config.type << pin;
-  // set pullup
-  reinterpret_cast<volatile GPIO_TypeDef *>(port)->PUPDR |= config.pull
-                                                            << (pin * 2);
-  // set speed
-  reinterpret_cast<volatile GPIO_TypeDef *>(port)->OSPEEDR |= config.speed
-                                                              << (pin * 2);
+    ClockManager::enable(*reinterpret_cast<GPIO_TypeDef *>(port));
 
-  reinterpret_cast<volatile GPIO_TypeDef *>(port)->AFR[pin / 8] |=
-      ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);
+    // set mode -> config.mode is split to 2 part 4MSB bit
+    //      contain alternate function and 4LSB bit contain mode
+    uint32_t moder = portPtr->MODER;
+    moder &= ~(0b11 << (pin * 2));
+    moder |= (0x03 & config.mode) << (pin * 2);
+    portPtr->MODER = moder;
+    // set type
+    uint32_t otyper = portPtr->OTYPER;
+    otyper &= ~(1 << pin);
+    otyper |= config.type << pin;
+    portPtr->OTYPER = otyper;
+    // set speed
+    uint32_t ospeedr = portPtr->OSPEEDR;
+    ospeedr &= ~(0b11 << (pin * 2));
+    ospeedr |= config.speed << (pin * 2);
+    portPtr->OSPEEDR = ospeedr;
+    // set pullup
+    uint32_t pupdr = portPtr->PUPDR;
+    pupdr &= ~(0b11 << (pin * 2));
+    pupdr |= config.pull << (pin * 2);
+    portPtr->PUPDR = pupdr;
+
+    // Alternate function configuration
+    uint32_t afr = portPtr->AFR[pin / 8];
+    afr &= ~(0b1111 << ((pin % 8) * 4));
+    afr |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);
+    portPtr->AFR[pin / 8] = afr;
 }
 
 }  // namespace stm32f3xx
