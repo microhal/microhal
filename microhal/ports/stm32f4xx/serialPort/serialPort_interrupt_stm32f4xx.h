@@ -78,10 +78,10 @@ class SerialPort_interrupt : public SerialPort_BufferedBase<SerialPort_interrupt
 #ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
     static SerialPort_interrupt Serial6;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT
     static SerialPort_interrupt Serial7;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#ifdef MICROHAL_USE_SERIAL_PORT8_INTERRUPT
     static SerialPort_interrupt Serial8;
 #endif
     //--------------------------------------------- functions ---------------------------------------//
