@@ -44,7 +44,6 @@ struct TimerRegisterMap {
             uint32_t TI1S : 1;       // TI1 selection
             uint32_t OIS1 : 1;       // Output Idle state 1 (OC1 output)
             uint32_t OIS1N : 1;      // Output Idle state 1 (OC1N output)
-            uint32_t OIS1N : 1;      // Output Idle state 1 (OC1N output)
             uint32_t OIS2 : 1;       // Output Idle state 2 (OC2 output)
             uint32_t OIS2N : 1;      // Output Idle state 2 (OC2N output)
             uint32_t OIS3 : 1;       // Output Idle state 3 (OC3 output)

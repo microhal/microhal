@@ -21,7 +21,7 @@ struct IOPin {
     /**
      *
      */
-    typedef uint_fast8_t Pin;
+    typedef uint_fast16_t Pin;
     /**
      *
      */

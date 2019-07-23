@@ -150,7 +150,7 @@ class IOManager {
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
     static void routeI2C(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
-        static_assert(i2cNumber <= 3, "STM32F4xx has only 3 I2C.");
+        static_assert(i2cNumber <= 3, "STM32F3xx has only 3 I2C.");
         if constexpr (i2cNumber == 1) {
             if constexpr (i2cType == SDA)
                 static_assert((port == IOPin::PortB && pinNr == 7) || (port == IOPin::PortB && pinNr == 9),
@@ -169,6 +169,20 @@ class IOManager {
         }
 
         stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::I2C, pull, type);
+    }
+
+    template <int adcNumber, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeADC(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
+        static_assert(adcNumber != 0, "ADC numbers starts from 1.");
+        static_assert(adcNumber <= 2, "STM32F3xx has only 2 ADC.");
+
+        if constexpr (adcNumber == 1) {
+            if constexpr (port == IOPin::PortA) {
+                static_assert(pinNr >= 0 && pinNr <= 3, "Incorrect ADC Pin");
+            }
+        }
+
+        stm32f3xx::GPIO::setAnalogFunction(port, pinNr, pull);
     }
 
     template <int DACNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
@@ -197,8 +211,9 @@ class IOManager {
     }
 
     template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeTimer() {
+    static void routeTimer(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
         constexpr IOPin pin(port, pinNr);
+        GPIO::AlternateFunction alternateFunction = 0;
 
         if constexpr (TimerNumber == 1) {
             if constexpr (channel == 1) {

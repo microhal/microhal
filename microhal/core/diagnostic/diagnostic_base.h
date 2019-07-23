@@ -143,6 +143,7 @@ class Diagnostic_base {
     void write(const uint8_t *data, size_t size, uint8_t radix);
     void write(const uint16_t *data, size_t size, uint8_t radix);
     void write(const uint32_t *data, size_t size, uint8_t radix);
+    void write(const uint64_t *data, size_t size, uint8_t radix);
     /** This function write to output device unsigned data.
      *
      * @param data

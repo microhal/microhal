@@ -193,7 +193,7 @@ class GPIO : public microhal::GPIO {
  protected:
     const IOPin pin;
 
-    static void pinInitialize(const Port port, const uint_fast8_t pin, const PinConfiguration configuration);
+    static void pinInitialize(Port port, uint_fast8_t pin, PinConfiguration configuration);
     /**
      *
      * @param port
@@ -203,19 +203,17 @@ class GPIO : public microhal::GPIO {
      * @param type
      * @param speed
      */
-    static void setAlternateFunction(const Port port, const Pin pin, AlternateFunction function, const PullType pull = NoPull,
-                                     const OutputType type = PushPull, Speed speed = HighSpeed) __attribute__((always_inline)) {
+    static void setAlternateFunction(Port port, Pin pin, AlternateFunction function, PullType pull = NoPull, OutputType type = PushPull,
+                                     Speed speed = HighSpeed) __attribute__((always_inline)) {
         // 0x02 in mode enable alternate function
         pinInitialize(port, pin, PinConfiguration{static_cast<uint8_t>(0x02 | (function << 4)), type, pull, speed});
     }
 
-    static void setAnalogFunction(const Port port, const Pin pin, const PullType pull = NoPull, const Speed speed = HighSpeed)
-        __attribute__((always_inline)) {
+    static void setAnalogFunction(Port port, Pin pin, PullType pull = NoPull, Speed speed = HighSpeed) __attribute__((always_inline)) {
         // 0x03 in mode enable analog function
         pinInitialize(port, pin, PinConfiguration{static_cast<uint8_t>(0x03), 0x00, pull, speed});
     }
-    //----------------------------------------- friends
-    //-----------------------------------------//
+    //----------------------------------------- friends -----------------------------------------//
     friend class IOManager;
     friend class DataBus;
 };

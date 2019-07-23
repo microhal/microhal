@@ -62,99 +62,98 @@ static const char digits[] = "0123456789ABCDEF";
  * \param [in] base the base of conversion
  * \return pointer to \em buffer
  *//*-------------------------------------------------------------------------*/
-char* itoa(uint64_t value, char* buffer, int base){
-	char* buffer_end = buffer;
+char* itoa(uint64_t value, char* buffer, int base) {
+    char* buffer_end = buffer;
 
-	if ((base >= 2) && (base <= 16)){				// is the base valid?
-		buffer_end = itoa_base(value, buffer, base);
-		__reverse(buffer, buffer_end - 1);		// reverse the string
-	}
+    if ((base >= 2) && (base <= 16)) {  // is the base valid?
+        buffer_end = itoa_base(value, buffer, base);
+        __reverse(buffer, buffer_end - 1);  // reverse the string
+    }
 
-	*buffer_end = '\0';
-	return buffer;
+    *buffer_end = '\0';
+    return buffer;
 }
 
-char* itoa(uint32_t value, char* buffer, int base){
-	char* buffer_end = buffer;
+char* itoa(uint32_t value, char* buffer, int base) {
+    char* buffer_end = buffer;
 
-	if ((base >= 2) && (base <= 16)) {				// is the base valid?
+    if ((base >= 2) && (base <= 16)) {  // is the base valid?
 
-		buffer_end = itoa_base(static_cast<uint32_t>(value), buffer, base);
+        buffer_end = itoa_base(static_cast<uint32_t>(value), buffer, base);
 
-		__reverse(buffer, buffer_end - 1);		// reverse the string
-	}
+        __reverse(buffer, buffer_end - 1);  // reverse the string
+    }
 
-	*buffer_end = '\0';
-	return buffer;
+    *buffer_end = '\0';
+    return buffer;
 }
 
 char* itoa(int64_t value, char* buffer, int base) {
-	int32_t sign = 0;
-	char* buffer_end = buffer;
+    int32_t sign = 0;
+    char* buffer_end = buffer;
 
-	if ((base >= 2) && (base <= 16)){				// is the base valid?
-		if (base == 10 && value < 0){// negative value and base == 10? store the copy (sign)
-			value = -value;
-			sign = -1; // make it positive
-		}
+    if ((base >= 2) && (base <= 16)) {  // is the base valid?
+        if (base == 10 && value < 0) {  // negative value and base == 10? store the copy (sign)
+            value = -value;
+            sign = -1;  // make it positive
+        }
 
-		buffer_end = itoa_base(static_cast<uint64_t>(value), buffer, base);
+        buffer_end = itoa_base(static_cast<uint64_t>(value), buffer, base);
 
-		if (sign < 0)							// was the value negative?
-			*buffer_end++ = '-';					// append the sign
+        if (sign < 0)             // was the value negative?
+            *buffer_end++ = '-';  // append the sign
 
-		__reverse(buffer, buffer_end - 1);		// reverse the string
-	}
+        __reverse(buffer, buffer_end - 1);  // reverse the string
+    }
 
-	*buffer_end = '\0';
-	return buffer;
+    *buffer_end = '\0';
+    return buffer;
 }
 
 char* itoa(int32_t value, char* buffer, int base) {
-	int32_t sign = 0;
-	char* buffer_end = buffer;
+    int32_t sign = 0;
+    char* buffer_end = buffer;
 
-	if ((base >= 2) && (base <= 16)){				// is the base valid?
-		if (base == 10 && (sign = value) < 0){// negative value and base == 10? store the copy (sign)
-			value = -value; // make it positive
-		}
+    if ((base >= 2) && (base <= 16)) {           // is the base valid?
+        if (base == 10 && (sign = value) < 0) {  // negative value and base == 10? store the copy (sign)
+            value = -value;                      // make it positive
+        }
 
-		buffer_end = itoa_base(static_cast<uint32_t>(value), buffer, base);
+        buffer_end = itoa_base(static_cast<uint32_t>(value), buffer, base);
 
-		if (sign < 0)							// was the value negative?
-			*buffer_end++ = '-';					// append the sign
+        if (sign < 0)             // was the value negative?
+            *buffer_end++ = '-';  // append the sign
 
-		__reverse(buffer, buffer_end - 1);		// reverse the string
-	}
+        __reverse(buffer, buffer_end - 1);  // reverse the string
+    }
 
-	*buffer_end = '\0';
-	return buffer;
+    *buffer_end = '\0';
+    return buffer;
 }
 
-char* itoa_base(uint32_t value, char* buffer, int base){
-	uint32_t quot, rem;
+char* itoa_base(uint32_t value, char* buffer, int base) {
+    uint32_t quot, rem;
 
-	do {
-		quot = value / base;			// calculate quotient and remainder
-		rem = value % base;
-		*buffer++ = digits[rem];	// append the remainder to the string
-	} while ((value = quot));	// loop while there is something to convert
+    do {
+        quot = value / base;  // calculate quotient and remainder
+        rem = value % base;
+        *buffer++ = digits[rem];  // append the remainder to the string
+    } while ((value = quot));     // loop while there is something to convert
 
-	return buffer;
+    return buffer;
 }
 
-char* itoa_base(uint64_t value, char* buffer, int base){
-	uint64_t quot;
-	uint32_t rem;
+char* itoa_base(uint64_t value, char* buffer, int base) {
+    uint64_t quot;
+    uint32_t rem;
 
+    do {
+        quot = value / base;  // calculate quotient and remainder
+        rem = value % base;
+        *buffer++ = digits[rem];  // append the remainder to the string
+    } while ((value = quot));     // loop while there is something to convert
 
-	do {
-		quot = value / base;			// calculate quotient and remainder
-		rem = value % base;
-		*buffer++ = digits[rem];	// append the remainder to the string
-	} while ((value = quot));	// loop while there is something to convert
-
-	return buffer;
+    return buffer;
 }
 
 /*
@@ -172,13 +171,13 @@ char* itoa_base(uint64_t value, char* buffer, int base){
  *//*-------------------------------------------------------------------------*/
 
 static void __reverse(char* begin, char* end) {
-	char temp;
+    char temp;
 
-	while (end > begin) {
-		temp = *end;
-		*end-- = *begin;
-		*begin++ = temp;
-	}
+    while (end > begin) {
+        temp = *end;
+        *end-- = *begin;
+        *begin++ = temp;
+    }
 }
 
 /******************************************************************************
