@@ -83,7 +83,7 @@ class GPIO : public microhal::GPIO {
     using Port = IOPin::Port;
     using Pin = IOPin::Pin;
     //--------------------------------------- constructors --------------------------------------//
-    GPIO(IOPin pin) : pin(pin) {}
+    constexpr GPIO(IOPin pin) : pin(pin) {}
     /**
      * @brief Constructor of GPIO class
      *
@@ -101,14 +101,17 @@ class GPIO : public microhal::GPIO {
 
     bool setState(bool value) final {
         if (value) {
-            set(pin);
+            setMask(pin.port, 1 << pin.pin);
         } else {
-            reset(pin);
+            resetMask(pin.port, 1 << pin.pin);
         }
         return true;
     }
 
-    bool get() const final { return get(pin); }
+    bool get() const final {
+        auto port = pin.port;
+        return (getMask(port) & static_cast<uint16_t>(1 << pin.pin));
+    }
 
     bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
         pinInitialize(pin.port, pin.pin, PinConfiguration{dir, type, pull, NoPull});
@@ -138,41 +141,41 @@ class GPIO : public microhal::GPIO {
      * @param port - port name
      * @param pin - pin number
      */
-    static void set(IOPin pin) { setMask(pin.port, 1 << pin.pin); }
+    // static void set(IOPin pin) { setMask(pin.port, 1 << pin.pin); }
     /** This function set pin to low state.
      *
      * @param port - port name
      * @param pin - pin number
      */
-    static void reset(IOPin pin) { resetMask(pin.port, 1 << pin.pin); }
+    //   static void reset(IOPin pin) { resetMask(pin.port, 1 << pin.pin); }
     /** This function read pin state
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static bool get(IOPin pin) { return (getMask(pin.port) & static_cast<uint16_t>(1 << pin.pin)); }
+    //  static bool get(IOPin pin) { return (getMask(pin.port) & static_cast<uint16_t>(1 << pin.pin)); }
     /** This function check for pin set.
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static bool isSet(IOPin pin) { return get(pin); }
+    //  static bool isSet(IOPin pin) { return get(pin); }
     /** This function check for pin reset.
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    static bool isReset(IOPin pin) { return !get(pin); }
+    // static bool isReset(IOPin pin) { return !get(pin); }
     /** Sets pin to opposite state
      *
      * @param port - port name
      * @param pin - pin number
      */
-    static void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
-    using microhal::GPIO::toggle;
+    // static void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
+    // using microhal::GPIO::toggle;
     /** This function set pin direction.
      *
      * @param port - port name
