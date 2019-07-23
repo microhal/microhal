@@ -97,7 +97,7 @@ class SPI : public microhal::SPI {
 
     Prescaler prescaler() const { return static_cast<Prescaler>(spi.CR1 & (SPI_CR1_BR_2 | SPI_CR1_BR_1 | SPI_CR1_BR_0)); }
 
-    bool getMISOstate() final { return microhal::stm32f4xx::GPIO::get(misoPin); }
+    bool getMISOstate() final { return misoPin.get(); }
 
     bool isEnabled() { return spi.CR1 & SPI_CR1_SPE; }
 
@@ -124,7 +124,8 @@ class SPI : public microhal::SPI {
  protected:
     //---------------------------------------- variables ----------------------------------------//
     SPI_TypeDef &spi;
-    microhal::stm32f4xx::IOPin misoPin;
+    // microhal::stm32f4xx::IOPin misoPin;
+    microhal::stm32f4xx::GPIO misoPin;
 //--------------------------------------- constructors --------------------------------------//
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
