@@ -123,39 +123,20 @@ class Diagnostic_base {
         : ioDevice(&dev), header(header), logLevel(level), spaces(false), headerDisplayMode(mode) {}
 
     //------------------------------------------ functions ----------------------------------------
-    inline void putChar(char c) {
+    void putChar(char c) {
         while (ioDevice->putChar(c) != true) {
         }
     }
 
-    inline void writeText(const char *txt, size_t len) {
-        size_t written = ioDevice->write(txt, len);
-        if (written != len) {
-            size_t toWrite = len - written;
-            do {
-                written += ioDevice->write(txt + written, toWrite);
-                toWrite = len - written;
-            } while (toWrite);
-        }
-    }
+    void writeText(const char *txt, size_t len);
 
-    inline void insertSpace() {
+    void insertSpace() {
         if (spaces == true) {
             putChar(' ');
         }
     }
 
-    void write(const char *c) {
-#ifdef MICROHAL_DIAGNOSTIC_TEXT_VISIBLE
-        if (c != nullptr) {
-            size_t len = strlen(c);
-            writeText(c, len);
-            insertSpace();
-        }
-#else
-        (void)c;
-#endif
-    }
+    void write(const char *c);
 
     void endl() { writeText("\n\r", 2); }
 
@@ -167,108 +148,26 @@ class Diagnostic_base {
      * @param data
      * @param radix
      */
-    void write(uint32_t data, uint8_t radix) {
-        char buffer[33];
+    void write(uint32_t data, uint8_t radix);
 
-        switch (radix) {
-            case 2:
-                ioDevice->write("0b");
-                break;
-            case 16:
-                ioDevice->write("0x");
-                break;
-        }
-        itoa(data, buffer, radix);
-        size_t len = strlen(buffer);
-        writeText(buffer, len);
-
-        insertSpace();
-    }
-
-    void write(uint64_t data, uint8_t radix) {
-        char buffer[65];
-
-        switch (radix) {
-            case 2:
-                ioDevice->write("0b");
-                break;
-            case 16:
-                ioDevice->write("0x");
-                break;
-        }
-        itoa(data, buffer, radix);
-        size_t len = strlen(buffer);
-        writeText(buffer, len);
-
-        insertSpace();
-    }
+    void write(uint64_t data, uint8_t radix);
     /**
      *
      * @param data
      * @param radix
      */
-    void write(int32_t data, uint8_t radix) {
-        char buffer[33];
-
-        switch (radix) {
-            case 2:
-                ioDevice->write("0b");
-                break;
-            case 16:
-                ioDevice->write("0x");
-                break;
-        }
-
-        itoa(data, buffer, radix);
-        size_t len = strlen(buffer);
-        writeText(buffer, len);
-
-        insertSpace();
-    }
-
-    void write(int64_t data, uint8_t radix) {
-        char buffer[65];
-
-        switch (radix) {
-            case 2:
-                ioDevice->write("0b");
-                break;
-            case 16:
-                ioDevice->write("0x");
-                break;
-        }
-
-        itoa(data, buffer, radix);
-        size_t len = strlen(buffer);
-        writeText(buffer, len);
-
-        insertSpace();
-    }
+    void write(int32_t data, uint8_t radix);
+    void write(int64_t data, uint8_t radix);
     /**
      *
      * @param state
      */
-    void write(bool state) {
-        if (state) {
-            writeText("true", 4);
-        } else {
-            writeText("false", 5);
-        }
-        insertSpace();
-    }
+    void write(bool state);
     /**
      *
      * @param d
      */
-    void write(double d) {
-        char buffer[20];
-
-        auto len = snprintf(buffer, sizeof(buffer), "%f", d);
-        if (len > 0) {
-            writeText(buffer, len);
-            insertSpace();
-        }
-    }
+    void write(double d);
 
     void printHeader(const LogLevelHeader_base &logHeader, const LogLevel level);
 };

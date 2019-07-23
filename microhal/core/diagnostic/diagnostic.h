@@ -114,21 +114,24 @@ class Diagnostic : public Diagnostic_base {
     //------------------------------------------ functions ----------------------------------------
     template <class _Rep, class _Period>
     inline bool tryLock(const std::chrono::duration<_Rep, _Period> &__rtime) {
-        // return locked = ioDevice->mutex.try_lock_for(__rtime);
-        return ioDevice->mutex.try_lock_for(__rtime);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            return ioDevice->mutex.try_lock_for(__rtime);
+        } else {
+            return true;
+        }
     }
     //------------------------------------------ operators ----------------------------------------
     inline Diagnostic<compileTimeLogLevel> &operator<<(const UnlockType) __attribute__((always_inline)) {
-        ioDevice->mutex.unlock();
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            ioDevice->mutex.unlock();
+        }
         return *this;
     }
 
     inline Diagnostic<compileTimeLogLevel> &operator<<(const LockType) __attribute__((always_inline)) {
-        // lazy evaluation of mutex locking. We will lock mutex only when this will be needed.
-        // because user can change 'log level' at runtime we can suppose that sometimes message between 'lock' and 'unlock' commands won't be shown
-        // on screen, so mutex locking and unlocking will be waste of MCU resources.
-        // needLock = true;
-        ioDevice->mutex.lock();
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            ioDevice->mutex.lock();
+        }
         return *this;
     }
 
@@ -139,20 +142,24 @@ class Diagnostic : public Diagnostic_base {
      */
     template <LogLevel level>
     void setLogLevel(LogLevels<level>) {
-        setLogLevel(level);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            setLogLevel(level);
+        }
     }
 
     void setLogLevel(LogLevel level) {
-        if (level <= compileTimeLogLevel) {
-            logLevel = level;
-        } else {
-            logLevel = compileTimeLogLevel;
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if (level <= compileTimeLogLevel) {
+                logLevel = level;
+            } else {
+                logLevel = compileTimeLogLevel;
 
-            ioDevice->write("\n\r---> Unable to set log level to: ");
-            ioDevice->write(levelName[static_cast<unsigned int>(level)]);
-            ioDevice->write(", because this value has lower priority than compile time set: ");
-            ioDevice->write(levelName[static_cast<unsigned int>(compileTimeLogLevel)]);
-            ioDevice->write(". <---\n\r");
+                ioDevice->write("\n\r---> Unable to set log level to: ");
+                ioDevice->write(levelName[static_cast<unsigned int>(level)]);
+                ioDevice->write(", because this value has lower priority than compile time set: ");
+                ioDevice->write(levelName[static_cast<unsigned int>(compileTimeLogLevel)]);
+                ioDevice->write(". <---\n\r");
+            }
         }
     }
     // This friend operator will be called when user write: "DiagnosticObject << LogingLevel ..." for example "diagChannel << Debug ...". This
@@ -172,33 +179,6 @@ class Diagnostic : public Diagnostic_base {
     friend class LogLevelChannel;
 };
 
-// for disabled diagchannel lets overload our template. Let redefine all functions and live them empty so linker should be able to delete all unused
-// text from
-// binary file.
-template <>
-class Diagnostic<LogLevel::Disabled> {
- public:
-    explicit constexpr Diagnostic(LogLevel level __attribute__((unused)) = LogLevel::Debug) noexcept {}
-    explicit constexpr Diagnostic(const char *header __attribute__((unused)), IODevice &dev __attribute__((unused)),
-                                  LogLevel level __attribute__((unused)) = LogLevel::Debug) noexcept {}
-
-    template <class _Rep, class _Period>
-    constexpr bool tryLock(const std::chrono::duration<_Rep, _Period> &__rtime) const noexcept {
-        return true;
-    }
-    // lets provide generic operator << so we wouldn't have to overload this operator for every type,
-    template <typename T>
-    constexpr const Diagnostic<LogLevel::Disabled> &operator<<(const T t __attribute__((unused))) const noexcept {
-        return *this;
-    }
-
-    void setOutputDevice(IODevice &) const noexcept __attribute__((always_inline)) {}
-
-    void autoInsertSpaces(bool) const noexcept __attribute__((always_inline)) {}
-
-    void setLogLevel(LogLevel) const noexcept __attribute__((always_inline)) {}
-};
-
 template <LogLevel compileLogLevel, LogLevel level>
 constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<<(Diagnostic<compileLogLevel> &diagnostic,
                                                                                 const LogLevelHeader<level> &header);
@@ -206,12 +186,16 @@ constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<<(
 /* **************************************************************************************************************************************************
  * LogLevelChannel class
  */
+class LogLevelChannelBase {};
+
 template <LogLevel compileTimeLogLevel, bool B>
 class LogLevelChannel {
  public:
     //------------------------------------------ operators ------------------------------------
     auto &operator<<(UnlockType unlock) {
-        diagnostic << unlock;
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            diagnostic << unlock;
+        }
         return *this;
     }
 
@@ -226,27 +210,33 @@ class LogLevelChannel {
     }
 
     auto &operator<<(LineEnd) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.endl();
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.endl();
+                }
             }
         }
         return *this;
     }
 
     LogLevelChannel &operator<<(const char *c) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.write(c);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.write(c);
+                }
             }
         }
         return *this;
     }
 
     LogLevelChannel &operator<<(std::string_view string) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.writeText(string.data(), string.length());
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.writeText(string.data(), string.length());
+                }
             }
         }
         return *this;
@@ -254,9 +244,11 @@ class LogLevelChannel {
 
     template <size_t len>
     LogLevelChannel &operator<<(const char (&c)[len]) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.writeText(c, len - 1);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.writeText(c, len - 1);
+                }
             }
         }
         return *this;
@@ -269,18 +261,22 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(unsigned int i) { return operator<<(static_cast<uint32_t>(i)); }
 #endif
     LogLevelChannel &operator<<(uint32_t i) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.write(i, 10);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.write(i, 10);
+                }
             }
         }
         return *this;
     }
 
     LogLevelChannel &operator<<(uint64_t i) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.write(i, 10);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.write(i, 10);
+                }
             }
         }
         return *this;
@@ -291,18 +287,22 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(int16_t i) { return operator<<(static_cast<int32_t>(i)); }
 
     LogLevelChannel &operator<<(int32_t i) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.write(i, 10);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.write(i, 10);
+                }
             }
         }
         return *this;
     }
 
     LogLevelChannel &operator<<(int64_t i) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.write(i, 10);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.write(i, 10);
+                }
             }
         }
         return *this;
@@ -310,21 +310,23 @@ class LogLevelChannel {
 
     template <unsigned int base>
     LogLevelChannel &operator<<(const Converter<base> &converter) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                if (converter.dataPtr == nullptr) {
-                    diagnostic.write(converter.data, base);
-                } else {
-                    switch (converter.data) {
-                        case 1:
-                            diagnostic.write(static_cast<const uint8_t *>(converter.dataPtr), converter.length, base);
-                            break;
-                        case 2:
-                            diagnostic.write(static_cast<const uint16_t *>(converter.dataPtr), converter.length, base);
-                            break;
-                        case 4:
-                            diagnostic.write(static_cast<const uint32_t *>(converter.dataPtr), converter.length, base);
-                            break;
+        {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    if (converter.dataPtr == nullptr) {
+                        diagnostic.write(converter.data, base);
+                    } else {
+                        switch (converter.data) {
+                            case 1:
+                                diagnostic.write(static_cast<const uint8_t *>(converter.dataPtr), converter.length, base);
+                                break;
+                            case 2:
+                                diagnostic.write(static_cast<const uint16_t *>(converter.dataPtr), converter.length, base);
+                                break;
+                            case 4:
+                                diagnostic.write(static_cast<const uint32_t *>(converter.dataPtr), converter.length, base);
+                                break;
+                        }
                     }
                 }
             }
@@ -333,18 +335,22 @@ class LogLevelChannel {
     }
 
     LogLevelChannel &operator<<(double d) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.write(d);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.write(d);
+                }
             }
         }
         return *this;
     }
 
     LogLevelChannel &operator<<(bool b) {
-        if constexpr (B) {
-            if (diagnostic.logLevel >= this->logLevel) {
-                diagnostic.write(b);
+        if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+            if constexpr (B) {
+                if (diagnostic.logLevel >= this->logLevel) {
+                    diagnostic.write(b);
+                }
             }
         }
         return *this;
@@ -385,9 +391,11 @@ constexpr LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level> ope
 template <LogLevel compileTimeLogLevel, LogLevel level>
 constexpr LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level> operator<<(Diagnostic<compileTimeLogLevel> &diagnostic,
                                                                                         const LogLevelHeader<level> &header) {
-    if constexpr (compileTimeLogLevel >= level) {
-        if (diagnostic.logLevel >= level) {
-            diagnostic.printHeader(header, level);
+    if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
+        if constexpr (compileTimeLogLevel >= level) {
+            if (diagnostic.logLevel >= level) {
+                diagnostic.printHeader(header, level);
+            }
         }
     }
     return LogLevelChannel<compileTimeLogLevel, compileTimeLogLevel >= level>(level, diagnostic);

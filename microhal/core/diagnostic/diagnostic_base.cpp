@@ -68,6 +68,65 @@ void Diagnostic_base::printHeader(const LogLevelHeader_base &logHeader, const Lo
     writeText(headerEndTxt, sizeof(headerEndTxt));
 }
 
+void Diagnostic_base::writeText(const char *txt, size_t len) {
+    size_t written = ioDevice->write(txt, len);
+    if (written != len) {
+        size_t toWrite = len - written;
+        do {
+            written += ioDevice->write(txt + written, toWrite);
+            toWrite = len - written;
+        } while (toWrite);
+    }
+}
+
+void Diagnostic_base::write(const char *c) {
+#ifdef MICROHAL_DIAGNOSTIC_TEXT_VISIBLE
+    if (c != nullptr) {
+        size_t len = strlen(c);
+        writeText(c, len);
+        insertSpace();
+    }
+#else
+    (void)c;
+#endif
+}
+
+void Diagnostic_base::write(uint32_t data, uint8_t radix) {
+    char buffer[33];
+
+    switch (radix) {
+        case 2:
+            ioDevice->write("0b");
+            break;
+        case 16:
+            ioDevice->write("0x");
+            break;
+    }
+    itoa(data, buffer, radix);
+    size_t len = strlen(buffer);
+    writeText(buffer, len);
+
+    insertSpace();
+}
+
+void Diagnostic_base::write(uint64_t data, uint8_t radix) {
+    char buffer[65];
+
+    switch (radix) {
+        case 2:
+            ioDevice->write("0b");
+            break;
+        case 16:
+            ioDevice->write("0x");
+            break;
+    }
+    itoa(data, buffer, radix);
+    size_t len = strlen(buffer);
+    writeText(buffer, len);
+
+    insertSpace();
+}
+
 /**
  *
  * @param data - pointer do data
@@ -130,6 +189,63 @@ void Diagnostic_base::write(const uint32_t *data, size_t size, uint8_t radix) {
     }
     itoa(data[i], buffer, radix);
     writeText(buffer, strlen(buffer));
+}
+
+void Diagnostic_base::write(int32_t data, uint8_t radix) {
+    char buffer[33];
+
+    switch (radix) {
+        case 2:
+            ioDevice->write("0b");
+            break;
+        case 16:
+            ioDevice->write("0x");
+            break;
+    }
+
+    itoa(data, buffer, radix);
+    size_t len = strlen(buffer);
+    writeText(buffer, len);
+
+    insertSpace();
+}
+
+void Diagnostic_base::write(int64_t data, uint8_t radix) {
+    char buffer[65];
+
+    switch (radix) {
+        case 2:
+            ioDevice->write("0b");
+            break;
+        case 16:
+            ioDevice->write("0x");
+            break;
+    }
+
+    itoa(data, buffer, radix);
+    size_t len = strlen(buffer);
+    writeText(buffer, len);
+
+    insertSpace();
+}
+
+void Diagnostic_base::write(bool state) {
+    if (state) {
+        writeText("true", 4);
+    } else {
+        writeText("false", 5);
+    }
+    insertSpace();
+}
+
+void Diagnostic_base::write(double d) {
+    char buffer[20];
+
+    auto len = snprintf(buffer, sizeof(buffer), "%f", d);
+    if (len > 0) {
+        writeText(buffer, len);
+        insertSpace();
+    }
 }
 
 }  // namespace diagnostic
