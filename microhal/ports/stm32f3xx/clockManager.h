@@ -53,43 +53,7 @@ class ClockManager {
 
     ClockManager() = delete;
     // ------------------------- functions used for enable clock ------------------------------------------------------
-    static void enable(const USART_TypeDef &usart) {
-        uint32_t rccEnableFlag;
-
-        if (&usart == USART1)
-            rccEnableFlag = RCC_APB2ENR_USART1EN;
-        else if (&usart == USART2)
-            rccEnableFlag = RCC_APB1ENR_USART2EN;
-#if defined(USART3)
-        else if (&usart == USART3)
-            rccEnableFlag = RCC_APB1ENR_USART3EN;
-#endif
-#if defined(UART4)
-        else if (&usart == UART4)
-            rccEnableFlag = RCC_APB1ENR_UART4EN;
-#endif
-#if defined(UART5)
-        else if (&usart == UART5)
-            rccEnableFlag = RCC_APB1ENR_UART5EN;
-#endif
-#if defined(USART6)
-        else if (&usart == USART6)
-            rccEnableFlag = RCC_APB2ENR_USART6EN;
-#endif
-        else {
-            while (1)
-                ;  // Error should newer go there
-        }
-#if defined(USART6)
-        if (&usart == USART1 || &usart == USART6) {
-#else
-        if (&usart == USART1) {
-#endif
-            RCC->APB2ENR |= rccEnableFlag;
-        } else {
-            RCC->APB1ENR |= rccEnableFlag;
-        }
-    }
+    static void enable(const USART_TypeDef &usart);
     static void enable(const I2C_TypeDef &i2c) {
         if (&i2c == I2C1) RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
 #if defined(I2C2)
@@ -199,88 +163,19 @@ class ClockManager {
                 ;  // Error should newer go there
         }
     }
-    static void enable(const GPIO_TypeDef &gpio) {
-        if (&gpio == GPIOA)
-            RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-        else if (&gpio == GPIOB)
-            RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-        else if (&gpio == GPIOC)
-            RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-        else if (&gpio == GPIOD)
-            RCC->AHBENR |= RCC_AHBENR_GPIODEN;
-#if defined(GPIOE_BASE)
-        else if (&gpio == GPIOE)
-            RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
-#endif
-#if defined(GPIOF_BASE)
-        else if (&gpio == GPIOF)
-            RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
-#endif
-        else {
-            while (1)
-                ;
-        }
-    }
+    static void enable(const GPIO_TypeDef &gpio);
+    static void enable(const DAC_TypeDef &dac);
     //--------------------------------------------------------------------------------------------------------------
-    static UsartClockSource USARTClockSource(const USART_TypeDef &usart) {
-        uint32_t pos;
-        if (&usart == USART1)
-            pos = RCC_CFGR3_USART1SW_Pos;
-        else if (&usart == USART2)
-            // pos = RCC_CFGR3_USART2SW_Pos;
-            return UsartClockSource::PCLK;
-        else if (&usart == USART3)
-            // pos = RCC_CFGR3_USART3SW_Pos;
-            return UsartClockSource::PCLK;
-        else {
-            while (1)
-                ;
-        }
-        return static_cast<UsartClockSource>((RCC->CFGR3 >> pos) & 0b11);
-    }
+    static UsartClockSource USARTClockSource(const USART_TypeDef &usart);
 
-    static void USARTClockSource(const USART_TypeDef &usart, UsartClockSource source) {
-        uint32_t pos;
-        if (&usart == USART1)
-            pos = RCC_CFGR3_USART1SW_Pos;
-        else if (&usart == USART2)
-            // pos = RCC_CFGR3_USART2SW_Pos;
-            while (1)
-                ;
-        else if (&usart == USART3)
-            // pos = RCC_CFGR3_USART3SW_Pos;
-            while (1)
-                ;
-        else {
-            while (1)
-                ;
-        }
-        RCC->CFGR3 = (RCC->CFGR3 & ~(0b11 << pos)) | (source << pos);
-    }
+    static void USARTClockSource(const USART_TypeDef &usart, UsartClockSource source);
     /**
- * @brief This function return usart clock
- *
- * @param usart device pointer
- * @return
- */
-    static uint32_t USARTFrequency(const USART_TypeDef &usart) {
-        UsartClockSource usartClockSource = USARTClockSource(usart);
-
-        switch (usartClockSource) {
-            case PCLK:
-                return APB1Frequency();
-            case SYSCLK:
-                return SYSCLK::frequency();
-            case LSE:
-                while (1)
-                    ;
-                return 0;  // LSE::frequency();
-                break;
-            case HSI:
-                return HSI::frequency();
-        }
-        std::terminate();
-    }
+     * @brief This function return usart clock
+     *
+     * @param usart device pointer
+     * @return
+     */
+    static uint32_t USARTFrequency(const USART_TypeDef &usart);
     /**
      * @brief This function return SPI clock
      *
@@ -402,81 +297,21 @@ class ClockManager {
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void flashLatency(Frequency sysclkFrequency_Hz) {
-        if (sysclkFrequency_Hz < 24000000) {
-            FLASH->ACR &= ~FLASH_ACR_LATENCY;
-        } else if (sysclkFrequency_Hz < 24000000) {
-            FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_0;
-        } else {
-            FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_1;
-        }
-    }
+    static void flashLatency(Frequency sysclkFrequency_Hz);
+
     struct SYSCLK {
         enum class Source : decltype(RCC_CFGR_SWS_0) { HSI, HSE = RCC_CFGR_SWS_0, PLL = RCC_CFGR_SWS_1 };
         static Source source() { return static_cast<Source>(RCC->CFGR & RCC_CFGR_SWS); }
-        static void source(Source source) {
-            switch (source) {
-                case Source::HSI:
-                    flashLatency(HSI::frequency());
-                    break;
-                case Source::HSE:
-                    flashLatency(HSE::frequency());
-                    break;
-                case Source::PLL:
-                    flashLatency(PLL::VCOOutputFrequency());
-                    break;
-            }
-            RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | (static_cast<typename std::underlying_type<Source>::type>(source) >> 2);
-        }
-        static uint32_t frequency() noexcept {
-            uint32_t freq = 0;
-            switch (RCC->CFGR & RCC_CFGR_SWS) {
-                case 0:
-                    freq = HSI::frequency();
-                    break;
-                case RCC_CFGR_SWS_0:
-                    freq = HSE::frequency();
-                    break;
-                case RCC_CFGR_SWS_1:
-                    freq = PLLCLKFrequency();
-                    break;
-            }
-            return freq;
-        }
+        static void source(Source source);
+        static uint32_t frequency() noexcept;
     };
 
-    static Frequency APB1Frequency() {
-        const uint32_t ppre1 = (RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos;
-        if (ppre1 & 0b100) {
-            const uint32_t div[] = {2, 4, 8, 16};
-            return AHBFrequency() / div[ppre1 & 0b011];
-        } else {
-            return AHBFrequency();
-        }
-    }
-
-    static Frequency APB2Frequency() {
-        const uint32_t ppre2 = (RCC->CFGR & RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos;
-        if (ppre2 & 0b100) {
-            const uint32_t div[] = {2, 4, 8, 16};
-            return AHBFrequency() / div[ppre2 & 0b011];
-        } else {
-            return AHBFrequency();
-        }
-    }
-
-    static uint32_t AHBFrequency() noexcept {
-        const uint32_t hpre = (RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
-        if (hpre & 0b1000) {
-            const uint32_t div[] = {2, 4, 8, 16, 64, 128, 256, 512};
-            return SYSCLK::frequency() / div[hpre & 0b0111];
-        } else {
-            return SYSCLK::frequency();
-        }
-    }
+    static Frequency APB1Frequency();
+    static Frequency APB2Frequency();
+    static uint32_t AHBFrequency() noexcept;
 
     static Frequency LSEFrequency() noexcept {
-        if (externalLSEPresent == false) {
+        if constexpr (externalLSEPresent == false) {
             std::terminate();
         }
         return externalLSEFrequency;
@@ -508,7 +343,7 @@ class ClockManager {
         static Frequency frequency() noexcept {
             static_assert(externalClockFrequency >= 4000000 && externalClockFrequency <= 26000000,
                           "External HSE frequency out of allowed range. HSE have to be grater than 4MHz and lower than 26MHz.");
-            if (externalClockPresent == false) {
+            if constexpr (externalClockPresent == false) {
                 std::terminate();
             }
             return externalClockFrequency;
@@ -541,31 +376,9 @@ class ClockManager {
 
         static uint32_t divider() { return (RCC->CFGR2 & 0b1111) + 1; }
 
-        static float inputFrequency() {
-            if (clockSource() == ClockSource::HSIDiv2) {
-                return HSI::frequency() / 2;
-            } else {
-                return HSE::frequency() / divider();
-            }
-        }
+        static float inputFrequency();
 
-        static uint32_t frequency(uint32_t frequency_Hz) {
-            if (clockSource() == ClockSource::HSIDiv2) {
-                // we only can change pll mul
-                uint32_t mul = round(frequency_Hz / inputFrequency());
-                if (mul > 16) mul = 16;
-                if (mul < 2) mul = 2;
-                PLLMUL(mul);
-                while (HSI::isReady() == false)
-                    ;
-            } else {
-            }
-
-            enable();
-            while (isReady() == false)
-                ;
-            return VCOOutputFrequency();
-        }
+        static uint32_t frequency(uint32_t frequency_Hz);
 
         static void enable() noexcept { RCC->CR |= RCC_CR_PLLON; }
 
@@ -573,22 +386,11 @@ class ClockManager {
 
         static bool isReady() noexcept { return RCC->CR & RCC_CR_PLLRDY; }
 
-        static float VCOOutputFrequency() noexcept { return inputFrequency() * PLLMUL(); }
+        static float VCOOutputFrequency() noexcept;
 
      private:
-        static uint32_t PLLMUL() noexcept {
-            uint32_t mul = ((RCC->CFGR & RCC_CFGR_PLLMUL_Msk) >> RCC_CFGR_PLLMUL_Pos);
-            if (mul == 0b1111) return 16;
-            return mul + 2;
-        }
-
-        static bool PLLMUL(uint32_t mul) noexcept {
-            if (mul >= 2 && mul <= 16) {
-                RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PLLMUL_Msk) | ((mul - 2) << RCC_CFGR_PLLMUL_Pos);
-                return true;
-            }
-            return false;
-        }
+        static uint32_t PLLMUL() noexcept;
+        static bool PLLMUL(uint32_t mul) noexcept;
     };
 };
 
