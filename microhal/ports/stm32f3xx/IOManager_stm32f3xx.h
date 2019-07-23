@@ -171,6 +171,44 @@ class IOManager {
         stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::I2C, pull, type);
     }
 
+    template <int DACNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeDAC() {
+        static_assert(DACNumber != 0, "DAC port numbers starts from 1.");
+        static_assert(DACNumber <= 2, "STM32F3xx has only 2 DACs.");
+
+        constexpr IOPin pin(port, pinNr);
+        if constexpr (DACNumber == 1) {
+            static_assert(channel <= 2 && channel > 0, "DAC1 have only channel 1 and channel 2.");
+            if constexpr (channel == 1) {
+                static_assert(pin == IOPin{IOPin::PortA, 4}, "DAC1 channel1 can be connected only to: PortA.4.");
+            }
+            if constexpr (channel == 2) {
+                static_assert(pin == IOPin{IOPin::PortA, 5}, "DAC1 channel1 can be connected only to: PortA.4.");
+            }
+        }
+        if constexpr (DACNumber == 2) {
+            static_assert(channel == 1, "DAC2 have only channel 1.");
+            if constexpr (channel == 1) {
+                static_assert(pin == IOPin{IOPin::PortA, 6}, "I2C2 SDA can be connected only to: PortB.11.");
+            }
+        }
+
+        stm32f3xx::GPIO::setAnalogFunction(pin.port, pin.pin);
+    }
+
+    template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeTimer() {
+        constexpr IOPin pin(port, pinNr);
+
+        if constexpr (TimerNumber == 1) {
+            if constexpr (channel == 1) {
+                static_assert(pin == IOPin{IOPin::PortA, 8} || pin == IOPin{IOPin::PortC, 0}, "TIM1 channel1 can be connected only to: PortA.8.");
+            }
+        }
+
+        stm32f3xx::GPIO::setAlternateFunction(port, pinNr, alternateFunction, pull, type);
+    }
+
  private:
 };
 }  // namespace stm32f3xx
