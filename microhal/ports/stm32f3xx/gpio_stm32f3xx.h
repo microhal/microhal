@@ -90,7 +90,7 @@ class GPIO : public microhal::GPIO {
     using Port = IOPin::Port;
     using Pin = IOPin::Pin;
     //--------------------------------------- constructors --------------------------------------//
-    GPIO(IOPin pin) : pin(pin) {}
+    constexpr GPIO(IOPin pin) : pin(pin) {}
     /**
      * @brief Constructor of GPIO class
      *
@@ -108,14 +108,14 @@ class GPIO : public microhal::GPIO {
 
     bool setState(bool value) final {
         if (value) {
-            set(pin);
+            setMask(pin.port, 1 << pin.pin);
         } else {
-            reset(pin);
+            resetMask(pin.port, 1 << pin.pin);
         }
         return true;
     }
     /** This function read pin state*/
-    bool get() const final { return get(pin); }
+    bool get() const final { return getMask(pin.port) & static_cast<uint16_t>(1 << pin.pin); }
 
     bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
         pinInitialize(pin.port, pin.pin, PinConfiguration{dir, type, pull, NoPull});
@@ -136,55 +136,16 @@ class GPIO : public microhal::GPIO {
     static inline void resetMask(Port port, uint16_t mask) {
         reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = static_cast<uint32_t>(mask) << 16;
     }
-    /** @brief This function return port state.
+    /**
+     * @brief This function return port state.
      *
      * @param port - port name
      * @return - read value of pins. If pin zero is set then LSB in returned value
      * will be set.
      */
     static uint16_t getMask(Port port) __attribute__((always_inline)) { return reinterpret_cast<volatile GPIO_TypeDef *>(port)->IDR; }
-    /** This function set pin to high state.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    static void set(IOPin pin) { setMask(pin.port, 1 << pin.pin); }
-    /** This function set pin to low state.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    static void reset(IOPin pin) { resetMask(pin.port, 1 << pin.pin); }
-    /** This function read pin state
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    static bool get(IOPin pin) { return (getMask(pin.port) & static_cast<uint16_t>(1 << pin.pin)); }
-
-    /** This function check for pin set.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    static bool isSet(IOPin pin) { return get(pin); }
-    /** This function check for pin reset.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    static bool isReset(IOPin pin) { return !get(pin); }
-    /** Sets pin to opposite state
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    static void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
-    using microhal::GPIO::toggle;
-    /** This function set pin direction.
+    /**
+     *  This function set pin direction.
      *
      * @param port - port name
      * @param pin - pin number
@@ -193,12 +154,14 @@ class GPIO : public microhal::GPIO {
     static inline void setDirection(IOPin pin, const Direction direction) {
         reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->OTYPER |= direction << pin.pin;
     }
-    /** This function set pin direction.
+    /**
+     * This function set pin direction.
      *
      * @param direction - pin direction
      */
     inline void setDirection(Direction direction) { setDirection(pin, direction); }
-    /** This function set pin pull type
+    /**
+     * This function set pin pull type
      *
      * @param port
      * @param pin
@@ -207,13 +170,13 @@ class GPIO : public microhal::GPIO {
     static inline void setPullType(IOPin pin, const PullType pullType) {
         reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->PUPDR |= pullType << (pin.pin * 2);
     }
-    /** This function set pin pull type
+    /**
+     * This function set pin pull type
      *
      * @param pullType
      */
     void setPullType(PullType pullType) { setPullType(pin, pullType); }
     //----------------------------- not portable functions
-    //-----------------------------------
     /** This function is not portable, when called set pin speed
      *
      * @param port - port name
