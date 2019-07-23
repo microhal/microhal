@@ -56,20 +56,115 @@ SerialPort_interrupt SerialPort_interrupt::Serial3(*USART3, rxBufferData_3, txBu
 SerialPort &SerialPort::Serial3 = SerialPort_interrupt::Serial3;
 #endif
 
+SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
+    : stm32f3xx::SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize) {
+    uint32_t rccEnableFlag;
+
+    switch (reinterpret_cast<uint32_t>(&usart)) {
+        case reinterpret_cast<uint32_t>(USART1_BASE):
+            rccEnableFlag = RCC_APB2ENR_USART1EN;
+            NVIC_SetPriority(USART1_IRQn, 0);
+            NVIC_ClearPendingIRQ(USART1_IRQn);
+            NVIC_EnableIRQ(USART1_IRQn);
+
+            break;
+        case reinterpret_cast<uint32_t>(USART2_BASE):
+            rccEnableFlag = RCC_APB1ENR_USART2EN;
+            NVIC_SetPriority(USART2_IRQn, 0);
+            NVIC_ClearPendingIRQ(USART2_IRQn);
+            NVIC_EnableIRQ(USART2_IRQn);
+
+            break;
+        case reinterpret_cast<uint32_t>(USART3_BASE):
+            rccEnableFlag = RCC_APB1ENR_USART3EN;
+            NVIC_SetPriority(USART3_IRQn, 0);
+            NVIC_ClearPendingIRQ(USART3_IRQn);
+            NVIC_EnableIRQ(USART3_IRQn);
+
+            break;
+        default:
+            std::terminate();
+    }
+    if (reinterpret_cast<uint32_t>(&usart) == reinterpret_cast<uint32_t>(USART1)) {
+        RCC->APB2ENR |= rccEnableFlag;
+    } else {
+        RCC->APB1ENR |= rccEnableFlag;
+    }
+}
+
 bool SerialPort_interrupt::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
     usart.CR1 |= (mode << 2) | USART_CR1_UE | USART_CR1_RXNEIE;
     return true;
 }
 
-/**@brief This function clear buffer specified in dir parameter. If dir == Input function will
- *        flush rxBuffer, if dir == Output then txBuffer will be flushed.
- *        If dir == AllDirections both buffers will be cleared.
- *
- * @param[in] dir - buffer direction to be cleared
- * @retval true - if buffer was cleared successful
- * @retval false - if an error occurred
- */
+bool SerialPort_interrupt::putChar(char c) noexcept {
+    __disable_irq();
+    if (txBuffer.append(c)) {
+        startSending();
+        __enable_irq();
+        return true;
+    }
+    __enable_irq();
+    return false;
+}
+
+bool SerialPort_interrupt::getChar(char &c) noexcept {
+    if (rxBuffer.isNotEmpty()) {
+        c = rxBuffer.get();
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool SerialPort_interrupt::waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept {
+    // todo timeout
+    while (1) {
+        __disable_irq();
+        if (txBuffer.isEmpty()) {
+            __enable_irq();
+            return true;
+        }
+        __enable_irq();
+        timeout--;
+    }
+    __enable_irq();
+    return false;
+}
+
+size_t SerialPort_interrupt::write(const char *data, size_t length) noexcept {
+    size_t writeByte = 0;
+
+    if (length > 0) {
+        __disable_irq();
+        for (; writeByte < length; writeByte++) {
+            if (txBuffer.append(*data++) == false) break;
+        }
+        if (writeByte != 0) startSending();
+        __enable_irq();
+    }
+    return writeByte;
+}
+
+size_t SerialPort_interrupt::read(char *data, size_t length, std::chrono::milliseconds /*timeout*/) noexcept {
+    size_t len = rxBuffer.getLength();
+
+    if (len == 0) return 0;
+
+    if (len > length) {
+        len = length;
+    } else {
+        length = len;
+    }
+
+    while (length--) {
+        *data++ = rxBuffer.get();
+    }
+
+    return len;
+}
+
 bool SerialPort_interrupt::clear(Direction dir) noexcept {
     switch (dir) {
         case SerialPort::Input:
@@ -91,24 +186,24 @@ bool SerialPort_interrupt::clear(Direction dir) noexcept {
 //***********************************************************************************************//
 //                                     interrupt functions                                       //
 //***********************************************************************************************//
-inline void __SerialPort_USART_interruptFunction(USART_TypeDef *const usart, SerialPort_interrupt &serialObject) {
-    volatile uint32_t sr = usart->ISR;
+void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
+    uint32_t sr = usart.ISR;
     if (sr & USART_ISR_ORE) {
-        usart->ICR = USART_ICR_ORECF;
+        usart.ICR = USART_ICR_ORECF;
     }
     if (sr & USART_ISR_RXNE) {
-        char tmp = usart->RDR;
+        char tmp = usart.RDR;
 
-        serialObject.rxBuffer.append(tmp);
+        rxBuffer.append(tmp);
     }
-    if ((sr & USART_ISR_TXE) && (usart->CR1 & USART_CR1_TXEIE)) {
-        if (serialObject.txBuffer.isEmpty()) {
-            usart->CR1 &= ~USART_CR1_TXEIE;
+    if ((sr & USART_ISR_TXE) && (usart.CR1 & USART_CR1_TXEIE)) {
+        if (txBuffer.isEmpty()) {
+            usart.CR1 &= ~USART_CR1_TXEIE;
         } else {
-            usart->TDR = serialObject.txBuffer.get_unsafe();
+            usart.TDR = txBuffer.get_unsafe();
         }
-        if (serialObject.txBuffer.isEmpty()) {
-            usart->CR1 &= ~USART_CR1_TXEIE;
+        if (txBuffer.isEmpty()) {
+            usart.CR1 &= ~USART_CR1_TXEIE;
         }
     }
 }
@@ -117,17 +212,17 @@ inline void __SerialPort_USART_interruptFunction(USART_TypeDef *const usart, Ser
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
 void USART1_IRQHandler(void) {
-    __SerialPort_USART_interruptFunction(USART1, SerialPort_interrupt::Serial1);
+    SerialPort_interrupt::Serial1.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
 void USART2_IRQHandler(void) {
-    __SerialPort_USART_interruptFunction(USART2, SerialPort_interrupt::Serial2);
+    SerialPort_interrupt::Serial2.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
 void USART3_IRQHandler(void) {
-    __SerialPort_USART_interruptFunction(USART3, SerialPort_interrupt::Serial3);
+    SerialPort_interrupt::Serial3.__SerialPort_USART_interruptFunction();
 }
 #endif
 

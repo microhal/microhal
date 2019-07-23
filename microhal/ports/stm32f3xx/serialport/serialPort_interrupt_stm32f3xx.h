@@ -65,71 +65,35 @@ class SerialPort_interrupt : public stm32f3xx::SerialPort {
 
     //--------------------------------------------- functions ---------------------------------------//
     bool open(OpenMode mode) noexcept;
+
     /**
      *
      * @param c
      * @return
      */
-    bool putChar(char c) noexcept final {
-        __disable_irq();
-        if (txBuffer.append(c)) {
-            startSending();
-            __enable_irq();
-            return true;
-        }
-        __enable_irq();
-        return false;
-    }
+    bool putChar(char c) noexcept final;
+
     /**
      *
      * @return
      */
-    bool getChar(char &c) noexcept final {
-        if (rxBuffer.isNotEmpty()) {
-            c = rxBuffer.get();
-            return true;
-        } else {
-            return false;
-        }
-    }
+    bool getChar(char &c) noexcept final;
+
     /**
      *
      * @param[in] msec
      * @return
      */
-    bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final {
-        // todo timeout
-        while (1) {
-            __disable_irq();
-            if (txBuffer.isEmpty()) {
-                __enable_irq();
-                return true;
-            }
-            __enable_irq();
-            timeout--;
-        }
-        __enable_irq();
-        return false;
-    }
+    bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final;
+
     /**@brief This function write data to serial port buffer.
      *
      * @param[in] data - pointer to buffer where data are stored.
      * @param[in] maxSize - number of bytes to copy.
      * @return number of bytes that was copy to buffer.
      */
-    size_t write(const char *data, size_t length) noexcept final {
-        size_t writeByte = 0;
+    size_t write(const char *data, size_t length) noexcept final;
 
-        if (length > 0) {
-            __disable_irq();
-            for (; writeByte < length; writeByte++) {
-                if (txBuffer.append(*data++) == false) break;
-            }
-            if (writeByte != 0) startSending();
-            __enable_irq();
-        }
-        return writeByte;
-    }
     /**@brief This function copy read data from serial buffer to data pointer.
      *        If in buffer are less bytes than maxSize then function copy all bytes storage in buffer
      *        and return bytes count.
@@ -138,34 +102,30 @@ class SerialPort_interrupt : public stm32f3xx::SerialPort {
      * @param[in] maxSize - size of data to copy.
      * @return number of bytes stored in data buffer.
      */
-    size_t read(char *data, size_t length, std::chrono::milliseconds /*timeout*/) noexcept final {
-        size_t len = rxBuffer.getLength();
+    size_t read(char *data, size_t length, std::chrono::milliseconds /*timeout*/) noexcept final;
 
-        if (len == 0) return 0;
-
-        if (len > length) {
-            len = length;
-        } else {
-            length = len;
-        }
-
-        while (length--) {
-            *data++ = rxBuffer.get();
-        }
-
-        return len;
-    }
+    /**@brief This function clear buffer specified in dir parameter. If dir == Input function will
+     *        flush rxBuffer, if dir == Output then txBuffer will be flushed.
+     *        If dir == AllDirections both buffers will be cleared.
+     *
+     * @param[in] dir - buffer direction to be cleared
+     * @retval true - if buffer was cleared successful
+     * @retval false - if an error occurred
+     */
     bool clear(Direction dir) noexcept final;
+
     /**
      *
      * @return
      */
     size_t inputQueueSize() const noexcept final { return rxBuffer.getSize(); }
+
     /**
      *
      * @return
      */
     size_t outputQueueSize() const noexcept final { return txBuffer.getSize(); }
+
     /**
      *
      * @return
@@ -184,51 +144,13 @@ class SerialPort_interrupt : public stm32f3xx::SerialPort {
     //--------------------------------------------- functions ---------------------------------------//
     void startSending() { usart.CR1 |= USART_CR1_TXEIE; }
     //------------------------------------------- friends -------------------------------------------//
-    friend inline void __SerialPort_USART_interruptFunction(USART_TypeDef *const usart, SerialPort_interrupt &serialObject)
-        __attribute__((always_inline));
+    void __SerialPort_USART_interruptFunction();
 
     friend void USART1_IRQHandler(void);
     friend void USART2_IRQHandler(void);
     friend void USART3_IRQHandler(void);
 };
-//*************************************************************************************************
-// INLINE FUNCTIONS
-//*****************
-SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
-    : stm32f3xx::SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize) {
-    uint32_t rccEnableFlag;
 
-    switch (reinterpret_cast<uint32_t>(&usart)) {
-        case reinterpret_cast<uint32_t>(USART1_BASE):
-            rccEnableFlag = RCC_APB2ENR_USART1EN;
-            NVIC_SetPriority(USART1_IRQn, 0);
-            NVIC_ClearPendingIRQ(USART1_IRQn);
-            NVIC_EnableIRQ(USART1_IRQn);
-
-            break;
-        case reinterpret_cast<uint32_t>(USART2_BASE):
-            rccEnableFlag = RCC_APB1ENR_USART2EN;
-            NVIC_SetPriority(USART2_IRQn, 0);
-            NVIC_ClearPendingIRQ(USART2_IRQn);
-            NVIC_EnableIRQ(USART2_IRQn);
-
-            break;
-        case reinterpret_cast<uint32_t>(USART3_BASE):
-            rccEnableFlag = RCC_APB1ENR_USART3EN;
-            NVIC_SetPriority(USART3_IRQn, 0);
-            NVIC_ClearPendingIRQ(USART3_IRQn);
-            NVIC_EnableIRQ(USART3_IRQn);
-
-            break;
-        default:
-            std::terminate();
-    }
-    if (reinterpret_cast<uint32_t>(&usart) == reinterpret_cast<uint32_t>(USART1)) {
-        RCC->APB2ENR |= rccEnableFlag;
-    } else {
-        RCC->APB1ENR |= rccEnableFlag;
-    }
-}
 }  // namespace stm32f3xx
 }  // namespace microhal
 
