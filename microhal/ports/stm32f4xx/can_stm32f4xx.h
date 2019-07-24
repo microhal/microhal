@@ -25,8 +25,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_STM32F3XX_H_
-#define _MICROHAL_STM32F3XX_H_
+#ifndef _MICROHAL_STM32F4XX_H_
+#define _MICROHAL_STM32F4XX_H_
 /* ************************************************************************************************
  * INCLUDES
  */
@@ -230,8 +230,9 @@ class CAN final : public can::CAN_Interface {
     friend void CAN2_TX_IRQHandler();
     friend void CAN2_RX0_IRQHandler();
     friend void CAN2_RX1_IRQHandler();
-};  // namespace stm32f4xx
+};
+
 }  // namespace stm32f4xx
 }  // namespace microhal
 
-#endif  // _MICROHAL_STM32F3XX_H_
+#endif  // _MICROHAL_STM32F4XX_H_
