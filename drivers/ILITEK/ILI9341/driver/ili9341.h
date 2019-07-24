@@ -97,7 +97,7 @@ class ILI9341 : public microhal::graphics::Display {
     }
     bool sendData(uint16_t cmd) {
         dc.set();
-        uint8_t data[2] = {cmd >> 8, cmd & 0xFF};
+        uint8_t data[2] = {static_cast<uint8_t>(cmd >> 8), static_cast<uint8_t>(cmd & 0xFF)};
         return spi.writeBuffer(data, sizeof(data), true);
     }
 
