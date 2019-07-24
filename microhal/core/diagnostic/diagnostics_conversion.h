@@ -39,6 +39,8 @@ namespace diagnostic {
 template <unsigned int base>
 class Converter {
  public:
+    explicit constexpr Converter(uint8_t data) noexcept : data(data), length(0), dataPtr(nullptr) {}
+
     explicit constexpr Converter(uint32_t data) noexcept : data(data), length(0), dataPtr(nullptr) {}
 
     explicit constexpr Converter(uint64_t data) noexcept : data(sizeof(uint64_t)), length(1), dataPtr(&data) {}

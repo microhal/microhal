@@ -179,33 +179,6 @@ class Diagnostic : public Diagnostic_base {
     friend class LogLevelChannel;
 };
 
-// for disabled diagchannel lets overload our template. Let redefine all functions and live them empty so linker should be able to delete all unused
-// text from
-// binary file.
-template <>
-class Diagnostic<LogLevel::Disabled> {
- public:
-    explicit constexpr Diagnostic(LogLevel level __attribute__((unused)) = LogLevel::Debug) noexcept {}
-    explicit constexpr Diagnostic(const char *header __attribute__((unused)), IODevice &dev __attribute__((unused)),
-                                  LogLevel level __attribute__((unused)) = LogLevel::Debug) noexcept {}
-
-    template <class _Rep, class _Period>
-    constexpr bool tryLock(const std::chrono::duration<_Rep, _Period> &__rtime) const noexcept {
-        return true;
-    }
-    // lets provide generic operator << so we wouldn't have to overload this operator for every type,
-    template <typename T>
-    constexpr const Diagnostic<LogLevel::Disabled> &operator<<(const T t __attribute__((unused))) const noexcept {
-        return *this;
-    }
-
-    void setOutputDevice(IODevice &) const noexcept __attribute__((always_inline)) {}
-
-    void autoInsertSpaces(bool) const noexcept __attribute__((always_inline)) {}
-
-    void setLogLevel(LogLevel) const noexcept __attribute__((always_inline)) {}
-};
-
 template <LogLevel compileLogLevel, LogLevel level>
 constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<<(Diagnostic<compileLogLevel> &diagnostic,
                                                                                 const LogLevelHeader<level> &header);
@@ -213,7 +186,6 @@ constexpr LogLevelChannel<compileLogLevel, compileLogLevel >= level> operator<<(
 /* **************************************************************************************************************************************************
  * LogLevelChannel class
  */
-class LogLevelChannelBase {};
 
 template <LogLevel compileTimeLogLevel, bool B>
 class LogLevelChannel {
