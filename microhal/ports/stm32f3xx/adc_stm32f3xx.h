@@ -46,25 +46,25 @@ class Adc final {
      * @brief Possible ADC channels
      */
     typedef enum : uint32_t {
-        Channel0 = 0x00000001,
-        Channel1 = 0x00000002,
-        Channel2 = 0x00000004,
-        Channel3 = 0x00000008,
-        Channel4 = 0x00000040,
-        Channel5 = 0x00000020,
-        Channel6 = 0x00000040,
-        Channel7 = 0x00000080,
-        Channel8 = 0x00000100,
-        Channel9 = 0x00000200,
-        Channel10 = 0x00000400,
-        Channel11 = 0x00000800,
-        Channel12 = 0x00001000,
-        Channel13 = 0x00002000,
-        Channel14 = 0x00004000,
-        Channel15 = 0x00010800,
-        Channel16 = 0x00020000,
-        Channel17 = 0x00040000,
-        Channel18 = 0x00080000,
+        Channel0 = 0x00000000,
+        Channel1,
+        Channel2,
+        Channel3,
+        Channel4,
+        Channel5,
+        Channel6,
+        Channel7,
+        Channel8,
+        Channel9,
+        Channel10,
+        Channel11,
+        Channel12,
+        Channel13,
+        Channel14,
+        Channel15,
+        Channel16,
+        Channel17,
+        Channel18,
     } Channel;
     /**
      * @brief Possible ADC resolution
@@ -154,37 +154,18 @@ class Adc final {
      * @param channel number form 1 to 18
      * @return
      */
-    bool configureSamplingSequence(uint16_t sequenceLength, uint16_t sequencePosition, Channel channel) {
-        if ((sequenceLength == 0) || (sequenceLength > 16)) return false;
-        if (channel == Channel::Channel0) return false;
+    bool configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
+        if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
         if (adc.CR & ADC_CR_ADSTART) return false;
 
-        uint32_t sqr1 = adc.SQR1;
-        sqr1 &= ~0b1111;
-        sqr1 |= sequenceLength - 1;
-        if (sequencePosition <= 4) {
-            sqr1 &= ~(0b11111 << ((sequencePosition * 6) + 6));
-            sqr1 |= (channel << ((sequencePosition * 6) + 6));
-        } else if (sequencePosition <= 9) {
-            uint32_t sqr = adc.SQR2;
-            sqr &= ~(0b11111 << ((sequencePosition - 5) * 6));
-            sqr |= (channel << ((sequencePosition - 5) * 6));
-            adc.SQR2 = sqr;
-        } else if (sequencePosition <= 14) {
-            uint32_t sqr = adc.SQR3;
-            sqr &= ~(0b11111 << ((sequencePosition - 10) * 6));
-            sqr |= (channel << ((sequencePosition - 10) * 6));
-            adc.SQR3 = sqr;
-        } else if (sequencePosition <= 16) {
-            uint32_t sqr = adc.SQR4;
-            sqr &= ~(0b11111 << ((sequencePosition - 15) * 6));
-            sqr |= (channel << ((sequencePosition - 15) * 6));
-            adc.SQR4 = sqr;
-        } else {
-            return false;
+        for (auto channel : sequence) {
+            if (channel == Channel::Channel0) return false;
         }
 
-        adc.SQR1 = sqr1;
+        for (int i = 0; i < sequence.length(); i++) {
+            setSamplingSequence(sequence.length(), i + 1, sequence.at(i));
+        }
+
         return true;
     }
 
@@ -246,6 +227,34 @@ class Adc final {
 
  private:
     ADC_TypeDef &adc;
+
+    void setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel) {
+        uint32_t sqr1 = adc.SQR1;
+        sqr1 &= ~0b1111;
+        sqr1 |= sequenceLength - 1;
+
+        if (sequencePosition <= 4) {
+            sqr1 &= ~(0b11111 << (sequencePosition * 6));
+            sqr1 |= (channel << (sequencePosition * 6));
+        } else if (sequencePosition <= 9) {
+            uint32_t sqr = adc.SQR2;
+            sqr &= ~(0b11111 << ((sequencePosition - 5) * 6));
+            sqr |= (channel << ((sequencePosition - 5) * 6));
+            adc.SQR2 = sqr;
+        } else if (sequencePosition <= 14) {
+            uint32_t sqr = adc.SQR3;
+            sqr &= ~(0b11111 << ((sequencePosition - 10) * 6));
+            sqr |= (channel << ((sequencePosition - 10) * 6));
+            adc.SQR3 = sqr;
+        } else if (sequencePosition <= 16) {
+            uint32_t sqr = adc.SQR4;
+            sqr &= ~(0b11111 << ((sequencePosition - 15) * 6));
+            sqr |= (channel << ((sequencePosition - 15) * 6));
+            adc.SQR4 = sqr;
+        }
+
+        adc.SQR1 = sqr1;
+    }
 
     void enableVoltageRegulator() {
         adc.CR &= ~(0b11 << ADC_CR_ADVREGEN_Pos);
