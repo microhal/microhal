@@ -35,6 +35,7 @@
 #include <type_traits>
 #include "microhalPortConfig_stm32f3xx.h"
 
+#include "can_registers.h"
 #include "device/stm32f3xx.h"
 
 namespace microhal {
@@ -165,10 +166,42 @@ class ClockManager {
     }
     static void enable(const GPIO_TypeDef &gpio);
     static void enable(const DAC_TypeDef &dac);
+
+#if defined(CAN1_BASE) || defined(CAN2_BASE)
+    static void enable(const registers::CAN &can, PowerMode mode) {
+        if (&can == &registers::can1) {
+            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;
+            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_CAN1LPEN;
+        } else if (&can == &registers::can2) {
+            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_CAN2EN;
+            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_CAN2LPEN;
+        } else {
+            std::terminate();
+        }
+    }
+    static void disable(const registers::CAN &can, PowerMode mode) {
+        if (&can == &registers::can1) {
+            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR &= ~RCC_APB1ENR_CAN1EN;
+            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= ~RCC_APB1LPENR_CAN1LPEN;
+        } else if (&can == &registers::can1) {
+            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR &= ~RCC_APB1ENR_CAN2EN;
+            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= ~RCC_APB1LPENR_CAN2LPEN;
+        } else {
+            std::terminate();
+        }
+    }
+#endif
     //--------------------------------------------------------------------------------------------------------------
     static UsartClockSource USARTClockSource(const USART_TypeDef &usart);
 
     static void USARTClockSource(const USART_TypeDef &usart, UsartClockSource source);
+    /**
+     * @brief This function return CAN clock
+     *
+     * @param CAN device pointer
+     * @return
+     */
+    static uint32_t CANFrequency(const registers::CAN &can) { return APB1Frequency(); }
     /**
      * @brief This function return usart clock
      *
@@ -311,7 +344,7 @@ class ClockManager {
     static uint32_t AHBFrequency() noexcept;
 
     static Frequency LSEFrequency() noexcept {
-        if constexpr (externalLSEPresent == false) {
+        if (externalLSEPresent == false) {
             std::terminate();
         }
         return externalLSEFrequency;
