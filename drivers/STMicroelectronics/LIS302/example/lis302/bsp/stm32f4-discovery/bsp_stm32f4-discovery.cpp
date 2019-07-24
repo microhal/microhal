@@ -44,6 +44,10 @@ microhal::GPIO &cs = detail::cs;
 
 int main(void);
 
+extern "C" ssize_t _write_r(struct _reent *, int, const void *, size_t) {
+    return 0;
+}
+
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
