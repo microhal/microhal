@@ -45,6 +45,9 @@ namespace bsp {
 void init() {
     IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
+
+    IOManager::routeSerial<6, Txd, stm32f4xx::IOPin::PortA, 11>();
+    IOManager::routeSerial<6, Rxd, stm32f4xx::IOPin::PortA, 12>();
 }
 }  // namespace bsp
 
