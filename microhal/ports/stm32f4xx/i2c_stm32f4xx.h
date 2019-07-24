@@ -183,13 +183,15 @@ class I2C : public microhal::I2C {
     void start() { i2c.CR1 |= I2C_CR1_START; }
 
     void enableErrorInterrupt(uint32_t priority) {
-        NVIC_EnableIRQ(errorIrq());
         NVIC_SetPriority(errorIrq(), priority);
+        NVIC_ClearPendingIRQ(eventIrq());
+        NVIC_EnableIRQ(errorIrq());
     }
 
     void enableEventInterrupt(uint32_t priority) {
-        NVIC_EnableIRQ(eventIrq());
         NVIC_SetPriority(eventIrq(), priority);
+        NVIC_ClearPendingIRQ(eventIrq());
+        NVIC_EnableIRQ(eventIrq());
     }
 
     IRQn_Type errorIrq() {
