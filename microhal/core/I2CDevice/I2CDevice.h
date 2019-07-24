@@ -138,9 +138,9 @@ class I2CDevice {
      * @retval This function will return I2C::Error::None if data was read correctly. If an error occurred this function will return
      * corresponding I2C::Error code.
      */
-    I2C::Error read(uint8_t *data) noexcept {
+    I2C::Error read(gsl::span<uint8_t> data) noexcept {
         std::lock_guard<I2C> guard(i2c);
-        return i2c.read(deviceAddress, data, 1);
+        return i2c.read(deviceAddress, data.data(), data.size_bytes());
     }
 
     I2C::Error read(uint8_t address, uint8_t &data) noexcept {
