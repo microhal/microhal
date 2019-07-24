@@ -220,6 +220,8 @@
                                     <listOptionValue builtIn="false" value="DOCTEST_CONFIG_NO_POSIX_SIGNALS"/>
                                     									
                                     <listOptionValue builtIn="false" value="DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="USE_DOCTEST=1"/>
                                     								
                                 </option>
                                 								
@@ -556,6 +558,8 @@
                                     <listOptionValue builtIn="false" value="DOCTEST_CONFIG_NO_POSIX_SIGNALS"/>
                                     									
                                     <listOptionValue builtIn="false" value="DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="USE_DOCTEST=1"/>
                                     								
                                 </option>
                                 								
@@ -767,7 +771,7 @@
                             							
                             <option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.padded.1207478873" name="Warn if padding is included (-Wpadded)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.padded" useByScannerDiscovery="true" value="false" valueType="boolean"/>
                             							
-                            <option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto.695353795" name="Link-time optimizer (-flto)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto" value="true" valueType="boolean"/>
+                            <option id="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto.695353795" name="Link-time optimizer (-flto)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.optimization.lto" value="false" valueType="boolean"/>
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.44525820" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
                             							
@@ -795,9 +799,9 @@
                                     									
                                     <listOptionValue builtIn="false" value="__USES_CXX"/>
                                     									
-                                    <listOptionValue builtIn="false" value="STM32F303x8"/>
-                                    									
                                     <listOptionValue builtIn="false" value="MCU_TYPE_STM32F3XX"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="STM32F334x8"/>
                                     								
                                 </option>
                                 								
@@ -821,9 +825,9 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/FreeRTOS/Source/include}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/FreeRTOS/Source/portable/GCC/ARM_CM3}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/bsp/nucleo-f334r8}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/FreeRTOS/Source/portable/GCC/ARM_CM4F}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -837,9 +841,9 @@
                                     									
                                     <listOptionValue builtIn="false" value="HAL_RTOS_FreeRTOS"/>
                                     									
-                                    <listOptionValue builtIn="false" value="STM32F303x8"/>
-                                    									
                                     <listOptionValue builtIn="false" value="MCU_TYPE_STM32F3XX"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="STM32F334x8"/>
                                     								
                                 </option>
                                 								
@@ -865,9 +869,9 @@
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/FreeRTOS/Source/include}&quot;"/>
                                     									
-                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/FreeRTOS/Source/portable/GCC/ARM_CM3}&quot;"/>
-                                    									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/bsp/nucleo-f334r8}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/FreeRTOS/Source/portable/GCC/ARM_CM4F}&quot;"/>
                                     								
                                 </option>
                                 								
@@ -893,9 +897,9 @@
                                     									
                                     <listOptionValue builtIn="false" value="DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS"/>
                                     									
-                                    <listOptionValue builtIn="false" value="STM32F303x8"/>
-                                    									
                                     <listOptionValue builtIn="false" value="MCU_TYPE_STM32F3XX"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="STM32F334x8"/>
                                     								
                                 </option>
                                 								
@@ -943,7 +947,7 @@
                                     								
                                 </option>
                                 								
-                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart.1520257184" name="Do not use standard start files (-nostartfiles)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart.1520257184" name="Do not use standard start files (-nostartfiles)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.nostart" useByScannerDiscovery="false" value="false" valueType="boolean"/>
                                 								
                                 <option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.other.1671435852" name="Other linker flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.other" useByScannerDiscovery="false" value="" valueType="string"/>
                                 								
@@ -997,7 +1001,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="src/bsp/linux|src/can_test_linux.cpp|src/can_test_stm32f4xx.cpp|src/microhal/ports/common|src/bsp/nucleo-f334r8|src/bsp/nucleo-l476rg|src/microhal/ports/stm32f3xx/startup/startup.c|src/microhal/ports/stm32f3xx/spi|src/microhal/ports/stm32f3xx/i2c|src/microhal/core/oneWire.cpp|src/microhal/core/I2CDevice|src/microhal/ports/stm32f3xx/i2c_stm32f3xx.cpp|src/microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|src/FreeRTOS/Source/portable/GCC/ARM_CM4F|src/microhal/ports/stm32f4xx|src/bsp/nucleo-f411re|src/FreeRTOS/Source/portable/MemMang/heap_5.c|src/FreeRTOS/Source/portable/MemMang/heap_3.c|src/FreeRTOS/Source/portable/MemMang/heap_2.c|src/FreeRTOS/Source/portable/MemMang/heap_1.c|src/FreeRTOS/Source/portable/GCC/TriCore_1782|src/FreeRTOS/Source/portable/GCC/STR75x|src/FreeRTOS/Source/portable/GCC/RX600v2|src/FreeRTOS/Source/portable/GCC/RX600|src/FreeRTOS/Source/portable/GCC/RX100|src/FreeRTOS/Source/portable/GCC/RL78|src/FreeRTOS/Source/portable/GCC/PPC440_Xilinx|src/FreeRTOS/Source/portable/GCC/PPC405_Xilinx|src/FreeRTOS/Source/portable/GCC/NiosII|src/FreeRTOS/Source/portable/GCC/MSP430F449|src/FreeRTOS/Source/portable/GCC/MicroBlazeV8|src/FreeRTOS/Source/portable/GCC/MicroBlaze|src/FreeRTOS/Source/portable/GCC/MCF5235|src/FreeRTOS/Source/portable/GCC/IA32_flat|src/FreeRTOS/Source/portable/GCC/HCS12|src/FreeRTOS/Source/portable/GCC/H8S2329|src/FreeRTOS/Source/portable/GCC/CORTUS_APS3|src/FreeRTOS/Source/portable/GCC/ColdFire_V2|src/FreeRTOS/Source/portable/GCC/AVR32_UC3|src/FreeRTOS/Source/portable/GCC/ATMega323|src/FreeRTOS/Source/portable/GCC/ARM7_LPC23xx|src/FreeRTOS/Source/portable/GCC/ARM7_LPC2000|src/FreeRTOS/Source/portable/GCC/ARM7_AT91SAM7S|src/FreeRTOS/Source/portable/GCC/ARM7_AT91FR40008|src/FreeRTOS/Source/portable/GCC/ARM_CRx_No_GIC|src/FreeRTOS/Source/portable/GCC/ARM_CR5|src/FreeRTOS/Source/portable/GCC/ARM_CM7|src/FreeRTOS/Source/portable/GCC/ARM_CM3_MPU|src/FreeRTOS/Source/portable/GCC/ARM_CM0|src/FreeRTOS/Source/portable/GCC/ARM_CA9|src/FreeRTOS/Source/portable/WizC|src/FreeRTOS/Source/portable/Tasking|src/FreeRTOS/Source/portable/Softune|src/FreeRTOS/Source/portable/SDCC|src/FreeRTOS/Source/portable/RVDS|src/FreeRTOS/Source/portable/Rowley|src/FreeRTOS/Source/portable/Renesas|src/FreeRTOS/Source/portable/Paradigm|src/FreeRTOS/Source/portable/oWatcom|src/FreeRTOS/Source/portable/MSVC-MingW|src/FreeRTOS/Source/portable/MPLAB|src/FreeRTOS/Source/portable/Keil|src/FreeRTOS/Source/portable/IAR|src/FreeRTOS/Source/portable/CodeWarrior|src/FreeRTOS/Source/portable/CCS|src/FreeRTOS/Source/portable/BCC|src/FreeRTOS/License|src/FreeRTOS/Demo|src/microhal/os/noRTOS|src/doctest/parts|src/bsp/stm32f4-discovery|src/microhal/ports/tms320F281x|src/microhal/ports/lpc43xx|src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/core/SPIDevice|src/microhal/core/button|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/os/windows|src/microhal/os/linux|src/gsl/tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+                        <entry excluding="src/FreeRTOS/Source/portable/GCC/ARM_CM3|src/bsp/linux|src/can_test_linux.cpp|src/can_test_stm32f4xx.cpp|src/microhal/ports/common|src/bsp/nucleo-l476rg|src/microhal/ports/stm32f3xx/startup/startup.c|src/microhal/ports/stm32f3xx/spi|src/microhal/ports/stm32f3xx/i2c|src/microhal/core/oneWire.cpp|src/microhal/core/I2CDevice|src/microhal/ports/stm32f3xx/i2c_stm32f3xx.cpp|src/microhal/ports/stm32f3xx/externalInterrupt_stm32f3xx.cpp|src/microhal/ports/stm32f4xx|src/bsp/nucleo-f411re|src/FreeRTOS/Source/portable/MemMang/heap_5.c|src/FreeRTOS/Source/portable/MemMang/heap_3.c|src/FreeRTOS/Source/portable/MemMang/heap_2.c|src/FreeRTOS/Source/portable/MemMang/heap_1.c|src/FreeRTOS/Source/portable/GCC/TriCore_1782|src/FreeRTOS/Source/portable/GCC/STR75x|src/FreeRTOS/Source/portable/GCC/RX600v2|src/FreeRTOS/Source/portable/GCC/RX600|src/FreeRTOS/Source/portable/GCC/RX100|src/FreeRTOS/Source/portable/GCC/RL78|src/FreeRTOS/Source/portable/GCC/PPC440_Xilinx|src/FreeRTOS/Source/portable/GCC/PPC405_Xilinx|src/FreeRTOS/Source/portable/GCC/NiosII|src/FreeRTOS/Source/portable/GCC/MSP430F449|src/FreeRTOS/Source/portable/GCC/MicroBlazeV8|src/FreeRTOS/Source/portable/GCC/MicroBlaze|src/FreeRTOS/Source/portable/GCC/MCF5235|src/FreeRTOS/Source/portable/GCC/IA32_flat|src/FreeRTOS/Source/portable/GCC/HCS12|src/FreeRTOS/Source/portable/GCC/H8S2329|src/FreeRTOS/Source/portable/GCC/CORTUS_APS3|src/FreeRTOS/Source/portable/GCC/ColdFire_V2|src/FreeRTOS/Source/portable/GCC/AVR32_UC3|src/FreeRTOS/Source/portable/GCC/ATMega323|src/FreeRTOS/Source/portable/GCC/ARM7_LPC23xx|src/FreeRTOS/Source/portable/GCC/ARM7_LPC2000|src/FreeRTOS/Source/portable/GCC/ARM7_AT91SAM7S|src/FreeRTOS/Source/portable/GCC/ARM7_AT91FR40008|src/FreeRTOS/Source/portable/GCC/ARM_CRx_No_GIC|src/FreeRTOS/Source/portable/GCC/ARM_CR5|src/FreeRTOS/Source/portable/GCC/ARM_CM7|src/FreeRTOS/Source/portable/GCC/ARM_CM3_MPU|src/FreeRTOS/Source/portable/GCC/ARM_CM0|src/FreeRTOS/Source/portable/GCC/ARM_CA9|src/FreeRTOS/Source/portable/WizC|src/FreeRTOS/Source/portable/Tasking|src/FreeRTOS/Source/portable/Softune|src/FreeRTOS/Source/portable/SDCC|src/FreeRTOS/Source/portable/RVDS|src/FreeRTOS/Source/portable/Rowley|src/FreeRTOS/Source/portable/Renesas|src/FreeRTOS/Source/portable/Paradigm|src/FreeRTOS/Source/portable/oWatcom|src/FreeRTOS/Source/portable/MSVC-MingW|src/FreeRTOS/Source/portable/MPLAB|src/FreeRTOS/Source/portable/Keil|src/FreeRTOS/Source/portable/IAR|src/FreeRTOS/Source/portable/CodeWarrior|src/FreeRTOS/Source/portable/CCS|src/FreeRTOS/Source/portable/BCC|src/FreeRTOS/License|src/FreeRTOS/Demo|src/microhal/os/noRTOS|src/doctest/parts|src/bsp/stm32f4-discovery|src/microhal/ports/tms320F281x|src/microhal/ports/lpc43xx|src/microhal/ports/stm32f0xx|src/microhal/ports/tms570x|src/microhal/ports/rm57x|src/microhal/core/SPIDevice|src/microhal/core/button|src/microhal/ports/windows|src/microhal/ports/linux|src/microhal/ports/stm32f4xx/usb_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/timer_stm32f4xx.cpp|src/microhal/ports/stm32f4xx/adc_stm32f4xx.cpp|src/microhal/os/windows|src/microhal/os/linux|src/gsl/tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
@@ -1410,6 +1414,8 @@
                                     <listOptionValue builtIn="false" value="DOCTEST_CONFIG_NO_POSIX_SIGNALS"/>
                                     									
                                     <listOptionValue builtIn="false" value="LINUX_PORT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="USE_DOCTEST=1"/>
                                     								
                                 </option>
                                 								

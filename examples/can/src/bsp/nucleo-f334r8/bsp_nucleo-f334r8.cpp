@@ -69,7 +69,7 @@ void hardwareConfig(void) {
 
     TaskHandle_t xHandle = NULL;
 
-    xTaskCreate(run_main, "main", 1500, NULL, tskIDLE_PRIORITY, &xHandle);
+    xTaskCreate(run_main, "main", 500, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }

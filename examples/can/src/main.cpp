@@ -29,8 +29,10 @@
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
 
+#if defined(USE_DOCTEST) && USE_DOCTEST == 1
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
+#endif
 
 using namespace std::literals::chrono_literals;
 
@@ -46,12 +48,16 @@ int main(int argc, char* const argv[]) {
 
         diagChannel << lock << MICROHAL_INFORMATIONAL << "Starting unit tests." << endl << unlock;
 
+#if defined(USE_DOCTEST) && USE_DOCTEST == 1
         doctest::Context context(argc, argv);
         result = context.run();
         if (context.shouldExit()) {  // important - query flags (and --exit) rely on the user doing this
+#endif
             bsp::deinit();
             return result;  // propagate the result of the tests
+#if defined(USE_DOCTEST) && USE_DOCTEST == 1
         }
+#endif
 
     } else {
         diagChannel << lock << MICROHAL_EMERGENCY << "Unable to open communication ports." << endl << unlock;
