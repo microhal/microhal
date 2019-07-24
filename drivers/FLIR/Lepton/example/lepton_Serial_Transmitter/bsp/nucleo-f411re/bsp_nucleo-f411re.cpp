@@ -80,6 +80,6 @@ void hardwareConfig(void) {
     cameraPort.setBaudRate(500000);
 
     TaskHandle_t xHandle = NULL;
-    xTaskCreate(run_main, "Main", 256, NULL, tskIDLE_PRIORITY, &xHandle);
+    xTaskCreate(run_main, "Main", 512, NULL, tskIDLE_PRIORITY, &xHandle);
     vTaskStartScheduler();
 }

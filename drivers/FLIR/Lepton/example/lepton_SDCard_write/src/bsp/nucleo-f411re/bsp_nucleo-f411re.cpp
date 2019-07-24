@@ -52,7 +52,7 @@ static void run_main(void *) {
 }
 
 void hardwareConfig(void) {
-    Core::pll_start(8000000, 64000000);
+    Core::pll_start(8000000, 90'000'000);
     Core::fpu_enable();
 
     IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
