@@ -44,6 +44,8 @@ class Message {
  public:
     using span = gsl::span<uint8_t>;
 
+    static constexpr size_t maxDataLength = 8;
+
     class ID {
      public:
         bool isStandard() const { return ide == 0; }
