@@ -54,6 +54,8 @@ typedef enum {
     Spi2 = 2,
 } SpiPorts;
 
+typedef enum { RX, TX } CanPinType;
+
 typedef enum { OTG_FS_SOF, OTG_FS_ID, OTG_FS_VBUS, OTG_FS_DM, OTG_FS_DP } USBPinType;
 
 namespace stm32f3xx {
@@ -222,6 +224,19 @@ class IOManager {
         }
 
         stm32f3xx::GPIO::setAlternateFunction(port, pinNr, alternateFunction, pull, type);
+    }
+
+    template <CanPinType canPinType, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeCAN() {
+        constexpr IOPin pin(port, pinNr);
+        if constexpr (canPinType == RX) {
+            static_assert(pin == IOPin{IOPin::PortA, 11} || pin == IOPin{IOPin::PortB, 8}, "CAN RX can be connected only to: PortA.11 or PortB.8.");
+        }
+        if constexpr (canPinType == TX) {
+            static_assert(pin == IOPin{IOPin::PortA, 12} || pin == IOPin{IOPin::PortB, 9}, "CAN TX can be connected only to: PortA.12 or PortB.9.");
+        }
+
+        stm32f3xx::GPIO::setAlternateFunction(port, pinNr, GPIO::AlternateFunction::CAN_TIM1_TIM15);
     }
 
  private:
