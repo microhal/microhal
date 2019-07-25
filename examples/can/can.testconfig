@@ -7,10 +7,10 @@ requireHardware = True
 requireDevice = False
 
 def projectName():
-	return 'gpio'	
+	return 'can'	
 	
 def binaryName(configuration):
-	return 'gpio.elf'
+	return 'can.elf'
 	
 def passed(data):
 	return False
