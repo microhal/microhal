@@ -52,9 +52,9 @@ class CAN final : public can::CAN_Interface {
 
     static constexpr const Protocol supportedProtocols[] = {Protocol::v2_0A, Protocol::V2_0B};
     static constexpr const uint32_t bitRateMax = 1000000;
-#if defined(CAN1_BASE) || defined(CAN2_BASE)
+#if defined(CAN_BASE) || defined(CAN1_BASE) || defined(CAN2_BASE)
     CAN(registers::CAN::Device canDevice) : can(*reinterpret_cast<registers::CAN *>(canDevice)) {
-        ClockManager::enable(can, ClockManager::PowerMode::Normal);
+        ClockManager::enable(can/*, ClockManager::PowerMode::Normal*/);
         objectPtr[registers::CAN::getNumber(canDevice) - 1] = this;
         can.ier.enableInterrupt(Interrupt::TransmitMailboxEmpty);
 #ifndef HAL_RTOS_FreeRTOS
@@ -71,7 +71,7 @@ class CAN final : public can::CAN_Interface {
         can.ier.disableInterrupt(Interrupt::TransmitMailboxEmpty);
         if (objectPtr[0] == this) objectPtr[0] = nullptr;
         if (objectPtr[1] == this) objectPtr[1] = nullptr;
-        ClockManager::disable(can, ClockManager::PowerMode::Normal);
+        ClockManager::disable(can/*, ClockManager::PowerMode::Normal*/);
     }
 #endif
     //  constexpr CAN_TypeDef *canNumToDevicePtr(uint8_t num) { return reinterpret_cast<CAN_TypeDef *>(CAN1_BASE); }
@@ -184,6 +184,9 @@ class CAN final : public can::CAN_Interface {
     void disableInterrupt() { NVIC_DisableIRQ(irq()); }
 
     IRQn_Type irq() {
+#if defined(CAN_BASE)
+        if (&can == reinterpret_cast<registers::CAN*>(registers::CAN::Device::CAN1)) return CAN_TX_IRQn;
+#endif
 #if defined(CAN1_BASE)
         if (&can == &registers::can1) return CAN1_TX_IRQn;
 #endif

@@ -140,23 +140,16 @@ static_assert(sizeof(CAN_FilterRegister_TypeDef) == 2 * sizeof(uint32_t), "");
 class CAN {
  public:
     enum class Device {
-#if defined(CAN1_BASE)
-        CAN1 = CAN1_BASE,
-#endif
-#if defined(CAN2_BASE)
-        CAN2 = CAN2_BASE
+#if defined(CAN_BASE)
+        CAN1 = CAN_BASE
 #endif
     };
 
     static constexpr uint_fast8_t getNumber(Device device) {
         switch (device) {
-#if defined(CAN1_BASE)
+#if defined(CAN_BASE)
             case Device::CAN1:
                 return 1;
-#endif
-#if defined(CAN2_BASE)
-            case Device::CAN2:
-                return 2;
 #endif
         }
         return 0;
