@@ -167,25 +167,17 @@ class ClockManager {
     static void enable(const GPIO_TypeDef &gpio);
     static void enable(const DAC_TypeDef &dac);
 
-#if defined(CAN1_BASE) || defined(CAN2_BASE)
-    static void enable(const registers::CAN &can, PowerMode mode) {
-        if (&can == &registers::can1) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_CAN1LPEN;
-        } else if (&can == &registers::can2) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_CAN2EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_CAN2LPEN;
+#if defined(CAN_BASE)
+    static void enable(const registers::CAN &can) {
+        if (&can == reinterpret_cast<registers::CAN *>(CAN_BASE)) {
+            RCC->APB1ENR |= RCC_APB1ENR_CANEN;
         } else {
             std::terminate();
         }
     }
-    static void disable(const registers::CAN &can, PowerMode mode) {
-        if (&can == &registers::can1) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR &= ~RCC_APB1ENR_CAN1EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= ~RCC_APB1LPENR_CAN1LPEN;
-        } else if (&can == &registers::can1) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR &= ~RCC_APB1ENR_CAN2EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= ~RCC_APB1LPENR_CAN2LPEN;
+    static void disable(const registers::CAN &can) {
+        if (&can == reinterpret_cast<registers::CAN *>(CAN_BASE)) {
+            RCC->APB1ENR &= ~RCC_APB1ENR_CANEN;
         } else {
             std::terminate();
         }
@@ -425,7 +417,7 @@ class ClockManager {
         static uint32_t PLLMUL() noexcept;
         static bool PLLMUL(uint32_t mul) noexcept;
     };
-};
+};  // namespace stm32f3xx
 
 }  // namespace stm32f3xx
 }  // namespace microhal
