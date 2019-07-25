@@ -76,6 +76,7 @@ class GPIO : public microhal::GPIO {
         SPI = 0x05,    //!< Alternate function for SPI 1 and 2
         SPI_3 = 0x06,  //!< Alternate function for SPI 3
         I2C = 0x04,    //!< I2C
+        CAN1_2_TIM12_13_14 = 0x09,
         USB = 0x0A
     } AlternateFunction;
 
