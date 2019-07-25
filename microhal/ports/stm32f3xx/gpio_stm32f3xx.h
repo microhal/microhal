@@ -191,8 +191,10 @@ class GPIO : public microhal::GPIO {
      */
     void setSpeed(const Speed speed) { setSpeed(pin, speed); }
 
+    void __setIOPin(IOPin pin) { this->pin == pin; }
+
  protected:
-    const IOPin pin;
+    IOPin pin;
 
     static void pinInitialize(Port port, uint_fast8_t pin, PinConfiguration configuration);
     /**

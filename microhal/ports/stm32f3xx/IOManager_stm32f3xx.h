@@ -94,17 +94,31 @@ class IOManager {
         }
         GPIO::setAlternateFunction(port, pinNr, GPIO::Serial, pull, type);
     }
-    // clang-format off
-    template<int spiNumber, SpiPinType spiType, stm32f3xx::IOPin::Port port,stm32f3xx::IOPin::Pin pinNr>
-    static void routeSPI(stm32f3xx::GPIO::PullType pull =stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::PushPull)
-    {
-            static_assert (spiNumber != 0, "SPI port numbers starts from 1.");
-            static_assert (spiNumber <= 3, "STM32F3xx has only 3 SPI.");
 
-            //assert for SPI1
-            static_assert( (spiNumber != 1 || spiType != SCK || ((port == IOPin::PortA && pinNr == 5) || (port == IOPin::PortC && pinNr == 7) || (port == IOPin::PortA && pinNr == 12 ) || (port == IOPin::PortB && pinNr == 3) )), "SPI1 SCK can be connected only to: PortA.5 or PortC.7 or PortA.12 or PortB.3");
-            static_assert( (spiNumber != 1 || spiType != MISO || ((port == IOPin::PortA && pinNr == 6) || (port == IOPin::PortC && pinNr == 8)|| (port == IOPin::PortA && pinNr == 13)|| (port == IOPin::PortB && pinNr == 4))), "SPI1 MISO can be connected only to: PortA.6 or PortC.8 or PortA.13 or PortB.4");
-            static_assert( (spiNumber != 1 || spiType != MOSI || ((port == IOPin::PortA && pinNr == 7) || (port == IOPin::PortB && pinNr == 0)|| (port == IOPin::PortC && pinNr == 9)|| (port == IOPin::PortF && pinNr == 6))), "SPI1 MOSI can be connected only to: PortA.7 or PortB.0 or PortC.9 or PortF.6");
+    template <int spiNumber, SpiPinType spiType, stm32f3xx::IOPin::Port port, stm32f3xx::IOPin::Pin pinNr>
+    static void routeSPI(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::PushPull) {
+        static_assert(spiNumber != 0, "SPI port numbers starts from 1.");
+        static_assert(spiNumber <= 3, "STM32F3xx has only 3 SPI.");
+        constexpr IOPin pin(port, pinNr);
+
+        if constexpr (spiNumber == 1) {
+            if constexpr (spiType == SCK) {
+                static_assert(
+                    pin == IOPin{IOPin::PortA, 5} || pin == IOPin{IOPin::PortC, 7} || pin == IOPin{IOPin::PortA, 12} || pin == IOPin{IOPin::PortB, 3},
+                    "SPI1 SCK can be connected only to: PortA.5 or PortC.7 or PortA.12 or PortB.3");
+            }
+            if constexpr (spiType == MOSI) {
+                static_assert(
+                    pin == IOPin{IOPin::PortA, 6} || pin == IOPin{IOPin::PortC, 8} || pin == IOPin{IOPin::PortA, 13} || pin == IOPin{IOPin::PortB, 5},
+                    "SPI1 MISO can be connected only to: PortA.6 or PortC.8 or PortA.13 or PortB.5");
+            }
+            if constexpr (spiType == MISO) {
+                static_assert(pin == IOPin{IOPin::PortA, 7} || pin == IOPin{IOPin::PortB, 0} || pin == IOPin{IOPin::PortB, 4} ||
+                                  pin == IOPin{IOPin::PortC, 9} || pin == IOPin{IOPin::PortF, 6},
+                              "SPI1 MOSI can be connected only to: PortA.7 or PortB.0 or PortB.4 or PortC.9 or PortF.6");
+            }
+        }
+        // clang-format off
             //assert for SPI2
             static_assert( (spiNumber != 2 || spiType != SCK || ((port == IOPin::PortB && pinNr == 10) || (port == IOPin::PortD && pinNr == 8)|| (port == IOPin::PortA && pinNr == 8)|| (port == IOPin::PortD && pinNr == 7)|| (port == IOPin::PortB && pinNr == 8))), "SPI2 SCK can be connected only to: PortB.10 or PortD.8 or Port PortA.8 or PortD.7");
             static_assert( (spiNumber != 2 || spiType != MISO ||((port == IOPin::PortC && pinNr == 2) || (port == IOPin::PortB && pinNr == 14) || (port == IOPin::PortA && pinNr == 9) || (port == IOPin::PortD && pinNr == 3))), "SPI2 MISO can be connected only to: PortB.14 or PortC.2 or PortA.9 or PortD.3");
@@ -113,42 +127,40 @@ class IOManager {
             static_assert( (spiNumber != 3 || spiType != SCK || ((port == IOPin::PortA && pinNr == 1) || (port == IOPin::PortC && pinNr == 10) || (port == IOPin::PortB && pinNr == 3))), "SPI3 SCK can be connected only to: PortA.1 or PortC.10 or PortB.3");
             static_assert( (spiNumber != 3 || spiType != MISO || ((port == IOPin::PortA && pinNr == 2) || (port == IOPin::PortC && pinNr == 11)|| (port == IOPin::PortB && pinNr == 4))), "SPI3 MISO can be connected only to: PortA.2 or PortC.11 or PortB.4");
             static_assert( (spiNumber != 3 || spiType != MOSI || ((port == IOPin::PortA && pinNr == 3) || (port == IOPin::PortC && pinNr == 12)|| (port == IOPin::PortB && pinNr == 5))), "SPI3 MOSI can be connected only to: PortA.3 or PortC.12 or PortB.5");
-            if(spiNumber == 3){
-                stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_3, pull, type);
-            } else if(spiNumber == 2) {
-               stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_2, pull, type);
-            }else if(spiNumber == 1) {
-                if((pinNr == 11)||(pinNr == 12)|| (pinNr == 13)) {
-                    stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF6, pull, type);
-                } else {
-                    stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF5, pull, type);
-                }
-            }
-
-            if(spiType == MISO){
-                switch(spiNumber){
-                case 1:
-    #if defined(MICROHAL_USE_SPI1_POLLING) || defined (MICROHAL_USE_SPI1_INTERRUPT) || defined (MICROHAL_USE_SPI1_DMA)
-                    stm32f3xx::SPI::spi1.misoPort = port;
-                    stm32f3xx::SPI::spi1.misoPin = pinNr;
-    #endif
-                    break;
-                case 2:
-    #if defined(MICROHAL_USE_SPI2_POLLING) || defined (MICROHAL_USE_SPI2_INTERRUPT) || defined (MICROHAL_USE_SPI2_DMA)
-                    stm32f3xx::SPI::spi2.misoPort = port;
-                    stm32f3xx::SPI::spi2.misoPin = pinNr;
-    #endif
-                    break;
-                case 3:
-    #if defined(MICROHAL_USE_SPI3_POLLING) || defined (MICROHAL_USE_SPI3_INTERRUPT) || defined (MICROHAL_USE_SPI3_DMA)
-                    stm32f3xx::SPI::spi3.misoPort = port;
-                    stm32f3xx::SPI::spi3.misoPin = pinNr;
-    #endif
-                    break;
-                }
+        // clang-format on
+        if (spiNumber == 3) {
+            stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_3, pull, type);
+        } else if (spiNumber == 2) {
+            stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_2, pull, type);
+        } else if (spiNumber == 1) {
+            if ((pinNr == 11) || (pinNr == 12) || (pinNr == 13)) {
+                stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF6, pull, type);
+            } else {
+                stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF5, pull, type);
             }
         }
-    // clang-format on
+
+        if (spiType == MISO) {
+            switch (spiNumber) {
+                case 1:
+#if defined(MICROHAL_USE_SPI1_POLLING) || defined(MICROHAL_USE_SPI1_INTERRUPT) || defined(MICROHAL_USE_SPI1_DMA)
+                    stm32f3xx::SPI::spi1.misoPin.__setIOPin(pin);
+#endif
+                    break;
+                case 2:
+#if defined(MICROHAL_USE_SPI2_POLLING) || defined(MICROHAL_USE_SPI2_INTERRUPT) || defined(MICROHAL_USE_SPI2_DMA)
+                    stm32f3xx::SPI::spi2.misoPin.__setIOPin(pin);
+#endif
+                    break;
+                case 3:
+#if defined(MICROHAL_USE_SPI3_POLLING) || defined(MICROHAL_USE_SPI3_INTERRUPT) || defined(MICROHAL_USE_SPI3_DMA)
+                    stm32f3xx::SPI::spi1.misoPin.__setIOPin(pin);
+#endif
+                    break;
+            }
+        }
+    }
+
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
     static void routeI2C(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");

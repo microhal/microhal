@@ -13,17 +13,17 @@ namespace microhal {
 namespace stm32f3xx {
 
 #ifdef MICROHAL_USE_SPI1_INTERRUPT
-GPIO::IOPin spi1MisoPin(GPIO::PortB, 4);
+stm32f3xx::IOPin spi1MisoPin(stm32f3xx::IOPin::PortB, 4);
 SPI_interrupt SPI_interrupt::spi1(*SPI1, spi1MisoPin);
 SPI &SPI::spi1 = SPI_interrupt::spi1;
 #endif
 #ifdef MICROHAL_USE_SPI2_INTERRUPT
-GPIO::IOPin spi2MisoPin(GPIO::PortB, 14);
+stm32f3xx::IOPin spi2MisoPin(stm32f3xx::IOPin::PortB, 14);
 SPI_interrupt SPI_interrupt::spi2(*SPI2, spi2MisoPin);
 SPI &SPI::spi2 = SPI_interrupt::spi2;
 #endif
 #ifdef MICROHAL_USE_SPI3_INTERRUPT
-GPIO::IOPin spi3MisoPin(GPIO::PortC, 11);
+stm32f3xx::IOPin spi3MisoPin(stm32f3xx::IOPin::PortC, 11);
 SPI_interrupt SPI_interrupt::spi3(*SPI3, spi3MisoPin);
 SPI &SPI::spi3 = SPI_interrupt::spi3;
 #endif

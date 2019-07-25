@@ -18,12 +18,12 @@ SPI_polling SPI_polling::spi1(*SPI1, spi1MisoPin);
 SPI &SPI::spi1 = SPI_polling::spi1;
 #endif
 #ifdef MICROHAL_USE_SPI2_POLLING
-GPIO::IOPin spi2MisoPin(GPIO::PortB, 14);
+IOPin spi2MisoPin(IOPin::PortB, 14);
 SPI_polling SPI_polling::spi2(*SPI2, spi2MisoPin);
 SPI &SPI::spi2 = SPI_polling::spi2;
 #endif
 #ifdef MICROHAL_USE_SPI3_POLLING
-GPIO::IOPin spi3MisoPin(GPIO::PortC, 11);
+IOPin spi3MisoPin(IOPin::PortC, 11);
 SPI_polling SPI_polling::spi3(*SPI3, spi3MisoPin);
 SPI &SPI::spi3 = SPI_polling::spi3;
 #endif
