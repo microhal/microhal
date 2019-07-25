@@ -23,6 +23,8 @@ typedef enum { MISO, MOSI, SCK } SpiPinType;
 
 typedef enum { SCL, SDA } i2cPinType;
 
+typedef enum { RX, TX } CanPinType;
+
 typedef enum {
     Spi1 = 1,
     Spi2 = 2,
@@ -214,6 +216,37 @@ class IOManager {
     template <int adcNumber, microhal::stm32f4xx::GPIO::Port port, microhal::stm32f4xx::GPIO::Pin pinNr>
     static void routeADC(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OpenDrain) {
         stm32f4xx::GPIO::setAnalogFunction(port, pinNr);
+    }
+
+    template <int canNumber, CanPinType canPinType, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeCAN() {
+        constexpr IOPin pin(port, pinNr);
+
+        if constexpr (canNumber == 1) {
+            if constexpr (canPinType == RX) {
+                static_assert(
+                    pin == IOPin{IOPin::PortA, 11} || pin == IOPin{IOPin::PortB, 8} || pin == IOPin{IOPin::PortD, 0} || pin == IOPin{IOPin::PortI, 9},
+                    "CAN1 RX can be connected only to: PortA.11 or PortB.8.");
+            }
+            if constexpr (canPinType == TX) {
+                static_assert(pin == IOPin{IOPin::PortA, 12} || pin == IOPin{IOPin::PortB, 9} || pin == IOPin{IOPin::PortD, 1} ||
+                                  pin == IOPin{IOPin::PortH, 13},
+                              "CAN1 TX can be connected only to: PortA.12 or PortB.9.");
+            }
+        }
+
+        if constexpr (canNumber == 2) {
+            if constexpr (canPinType == RX) {
+                static_assert(pin == IOPin{IOPin::PortB, 5} || pin == IOPin{IOPin::PortB, 12},
+                              "CAN2 RX can be connected only to: PortA.11 or PortB.8.");
+            }
+            if constexpr (canPinType == TX) {
+                static_assert(pin == IOPin{IOPin::PortB, 6} || pin == IOPin{IOPin::PortB, 13},
+                              "CAN2 TX can be connected only to: PortA.12 or PortB.9.");
+            }
+        }
+
+        stm32f4xx::GPIO::setAlternateFunction(port, pinNr, GPIO::AlternateFunction::CAN1_2_TIM12_13_14);
     }
 };
 
