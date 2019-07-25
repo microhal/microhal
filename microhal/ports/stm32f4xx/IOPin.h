@@ -27,7 +27,16 @@ struct IOPin {
         PortE = GPIOE_BASE,  //!< PortE
 #endif
 #if defined(GPIOF_BASE)
-        PortF = GPIOF_BASE  //!< PortF
+        PortF = GPIOF_BASE,  //!< PortF
+#endif
+#if defined(GPIOG_BASE)
+        PortG = GPIOG_BASE,  //!< PortG
+#endif
+#if defined(GPIOH_BASE)
+        PortH = GPIOH_BASE,  //!< PortG
+#endif
+#if defined(GPIOI_BASE)
+        PortI = GPIOI_BASE,  //!< PortI
 #endif
     } Port;
     /**
@@ -41,6 +50,11 @@ struct IOPin {
     Port port;
     Pin pin;
     constexpr IOPin(const Port port, const Pin pin) : port(port), pin(pin) {}
+    constexpr bool operator==(const IOPin &b) const {
+        if (port != b.port) return false;
+        if (pin != b.pin) return false;
+        return true;
+    }
 };
 }  // namespace stm32f4xx
 }  // namespace microhal
