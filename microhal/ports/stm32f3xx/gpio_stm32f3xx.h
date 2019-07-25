@@ -83,6 +83,7 @@ class GPIO : public microhal::GPIO {
         SPI_2 = 0x05,
         SPI_3 = 0x06,
         I2C = 0x04,  //!< I2C
+        CAN_TIM1_TIM15 = 0x09,
         Usb = 0x0A
     } AlternateFunction;
 
