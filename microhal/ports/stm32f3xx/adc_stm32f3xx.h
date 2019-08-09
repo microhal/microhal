@@ -34,14 +34,56 @@
  */
 
 #include "device/stm32f3xx.h"
+#include "gsl/gsl"
+#include "microhal_semaphore.h"
+#include "signalSlot/signalSlot.h"
 
 namespace microhal {
 namespace stm32f3xx {
+
+/* ************************************************************************************************
+ * EXTERN DECLARATION
+ */
+extern "C" {
+void ADC1_2_IRQHandler(void);
+}
 /* **************************************************************************************************************************************************
  * CLASS
  */
+namespace adc_detail {
+enum class Interrupt {
+    ADCReady = 0b0000'0000'0001,                     //
+    EndOfSampling = 0b0000'0000'0010,                //
+    EndOfRegularConversion = 0b0000'0000'0100,       //
+    EndOfRegularSequence = 0b0000'0000'1000,         //
+    Overrun = 0b0000'0001'0000,                      //
+    EndOfInjectedConversion = 0b0000'0010'0000,      //
+    EndOfInjectedSequence = 0b0000'0100'0000,        //
+    AnalogWatchdog1 = 0b0000'1000'0000,              //
+    AnalogWatchdog2 = 0b0001'0000'0000,              //
+    AnalogWatchdog3 = 0b0010'0000'0000,              //
+    InjectedContextQueueOverflow = 0b0100'0000'0000  //
+};
+
+constexpr Interrupt operator|(Interrupt a, Interrupt b) {
+    return static_cast<Interrupt>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+}
+
+constexpr Interrupt operator&(Interrupt a, Interrupt b) {
+    return static_cast<Interrupt>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
+}
+constexpr uint32_t operator&(uint32_t a, adc_detail::Interrupt b) {
+    return a & static_cast<uint32_t>(b);
+}
+
+}  // namespace adc_detail
+
+using adc_detail::operator|;
+using adc_detail::operator&;
+
 class Adc final {
  public:
+    using Interrupt = adc_detail::Interrupt;
     /**
      * @brief Possible ADC channels
      */
@@ -82,11 +124,18 @@ class Adc final {
         PCLK_Half = ADC12_CCR_CKMODE_1,
         PCLK_Quater = ADC12_CCR_CKMODE_0 | ADC12_CCR_CKMODE_1
     } ClkMode;
+
+    bool connect(void (*interruptFunction)(void)) {
+        if (signal.connect(interruptFunction)) {
+            return true;
+        }
+        return false;
+    }
     /**
      *
      * @retval true if conversion was started
-     * @retval false when conversion start is impossible. This may be caused by disabled ADC or ADC conversion is ongoing or stop conversion request
-     * is ongoing.
+     * @retval false when conversion start is impossible. This may be caused by disabled ADC or ADC conversion is ongoing or stop conversion
+     * request is ongoing.
      */
     bool startConversion() {
         // Software is allowed to set ADSTART only when ADEN=1 and ADDIS=0 (ADC is enabled and there is no pending request to disable the ADC)
@@ -102,8 +151,8 @@ class Adc final {
      * Stop ongoing conversion.
      */
     bool stopConversion() {
-        // Setting ADSTP to �1� is only effective when ADSTART=1 and ADDIS=0 (ADC is enabled and may be converting and there is no pending request to
-        // disable the ADC)
+        // Setting ADSTP to �1� is only effective when ADSTART=1 and ADDIS=0 (ADC is enabled and may be converting and there is no pending request
+        // to disable the ADC)
         uint32_t cr = adc.CR;
         if ((cr & (ADC_CR_ADSTART | ADC_CR_ADDIS)) == ADC_CR_ADSTART) {
             adc.CR |= ADC_CR_ADSTP;
@@ -166,10 +215,13 @@ class Adc final {
             setSamplingSequence(sequence.length(), i + 1, sequence.at(i));
         }
 
+        enableInterrupts(Interrupt::EndOfRegularSequence | Interrupt::EndOfRegularConversion | Interrupt::Overrun);
         return true;
     }
 
     uint16_t readSamples() { return adc.DR; }
+
+    bool waitForRegularSequenceEnd(std::chrono::milliseconds timeout) { return regularSequenceFinishSemaphore.wait(timeout); }
 
     bool waitForConversionEnd(uint32_t ms = 10000) {
         while (ms--) {
@@ -210,6 +262,19 @@ class Adc final {
         return false;
     }
 
+    void enableInterrupt(uint32_t priority) {
+        NVIC_ClearPendingIRQ(ADC1_2_IRQn);
+        NVIC_SetPriority(ADC1_2_IRQn, priority);
+        NVIC_EnableIRQ(ADC1_2_IRQn);
+    }
+
+    void disableInterrupt() { NVIC_DisableIRQ(ADC1_2_IRQn); }
+
+    void setSamplesBuffer(uint16_t *begin, uint16_t *end) {
+        dataBegin = begin;
+        dataEnd = end;
+    }
+
  public:
     Adc(ADC_TypeDef &adc) : adc(adc) {
         RCC->AHBENR |= RCC_AHBENR_ADC12EN;
@@ -217,8 +282,11 @@ class Adc final {
         enableVoltageRegulator();
 
         ADC12_COMMON->CCR |= ADC_CCR_VREFEN;
+
+        adc1 = this;
     }
     ~Adc() {
+        disableInterrupt();
         stopConversion();
         disable();
         RCC->AHBENR &= ~RCC_AHBENR_ADC12EN;
@@ -226,7 +294,14 @@ class Adc final {
     }
 
  private:
+    static Adc *adc1;
     ADC_TypeDef &adc;
+    uint16_t *dataBegin = nullptr;
+    uint16_t *dataEnd = nullptr;
+    microhal::os::Semaphore regularSequenceFinishSemaphore;
+    static Signal<void> signal;
+
+    void enableInterrupts(Interrupt interrupts) { adc.IER |= static_cast<uint32_t>(interrupts); }
 
     void setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel) {
         uint32_t sqr1 = adc.SQR1;
@@ -269,6 +344,8 @@ class Adc final {
         adc.CR &= ~(0b11 << ADC_CR_ADVREGEN_Pos);
         adc.CR |= 0b10 << ADC_CR_ADVREGEN_Pos;
     }
+
+    friend void ADC1_2_IRQHandler(void);
 };
 }  // namespace stm32f3xx
 }  // namespace microhal

@@ -30,14 +30,23 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <stdint.h>
 
 static void __Default_Handler(void) __attribute__((interrupt));
 static void __Default_Handler(void) {
+    __asm volatile("BKPT #01");
     while (1)
         ;
 }
 
 static void __Default_HardFault_Handler(void) {
+    __asm volatile("BKPT #01");
+    while (1)
+        ;
+}
+
+static void Reserved_Handler(void) {
+    __asm volatile("BKPT #01");
     while (1)
         ;
 }
@@ -69,7 +78,7 @@ void DMA1_Channel4_IRQHandler(void) __attribute__((interrupt, weak, alias("__Def
 void DMA1_Channel5_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void DMA1_Channel6_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void DMA1_Channel7_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void ADC1_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void ADC1_2_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void CAN_TX_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void CAN_RX0_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void CAN_RX1_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
@@ -134,15 +143,15 @@ void (*const vectors[])(void) __attribute__((section(".vectors"))) = {
     MemManage_Handler,                    // Memory management
     BusFault_Handler,                     // Pre-fetch fault, memory access fault
     UsageFault_Handler,                   // Undefined instruction or illegal state
-    0,                                    // Reserved
-    0,                                    // Reserved
-    0,                                    // Reserved
-    0,                                    // Reserved
-    SVC_Handler,                          // System service call via SWI instruction
-    DebugMon_Handler,                     // Debug monitor
-    0,                                    // Reserved
-    PendSV_Handler,                       // Pendable request for system service
-    SysTick_Handler,                      // System tick timer
+    Reserved_Handler,                     // Reserved
+    Reserved_Handler,                     // Reserved
+    Reserved_Handler,                     // Reserved
+    Reserved_Handler,                     // Reserved
+    SVC_Handler,                          // 0x2C System service call via SWI instruction
+    DebugMon_Handler,                     // 0x30 Debug monitor
+    Reserved_Handler,                     // 0x34 Reserved
+    PendSV_Handler,                       // 0x38 Pendable request for system service
+    SysTick_Handler,                      // 0x3C System tick timer
     WWDG_IRQHandler,                      // Window WatchDog
     PVD_IRQHandler,                       // PVD through EXTI Line detection
     TAMP_STAMP_IRQHandler,                // Tamper and TimeStamps through the EXTI line
@@ -161,7 +170,7 @@ void (*const vectors[])(void) __attribute__((section(".vectors"))) = {
     DMA1_Channel5_IRQHandler,             // DMA1 Channel 5
     DMA1_Channel6_IRQHandler,             // DMA1 Channel 6
     DMA1_Channel7_IRQHandler,             // DMA1 Channel 7
-    ADC1_IRQHandler,                      // ADC1, ADC2 and ADC3s
+    ADC1_2_IRQHandler,                    // ADC1, ADC2 and ADC3s
     CAN_TX_IRQHandler,                    // CAN1 TX
     CAN_RX0_IRQHandler,                   // CAN1 RX0
     CAN_RX1_IRQHandler,                   // CAN1 RX1

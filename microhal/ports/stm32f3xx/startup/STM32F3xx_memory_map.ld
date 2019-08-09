@@ -33,7 +33,7 @@ OUTPUT_ARCH(arm);
 /* Thread mode can use main stack (default) or process stack - selected in CONTROL special register */
 
 __main_stack_size = 1024;
-__process_stack_size = 2048;
+__process_stack_size = 0;
 
 PROVIDE(__main_stack_size = __main_stack_size);
 PROVIDE(__process_stack_size = __process_stack_size);
