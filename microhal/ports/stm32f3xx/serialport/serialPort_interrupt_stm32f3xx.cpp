@@ -60,24 +60,29 @@ SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxD
     : stm32f3xx::SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize) {
     uint32_t rccEnableFlag;
 
+#ifndef HAL_RTOS_FreeRTOS
+    const uint32_t interruptPriority = 0;
+#else
+    const uint32_t interruptPriority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
+#endif
     switch (reinterpret_cast<uint32_t>(&usart)) {
         case reinterpret_cast<uint32_t>(USART1_BASE):
             rccEnableFlag = RCC_APB2ENR_USART1EN;
-            NVIC_SetPriority(USART1_IRQn, 0);
+            NVIC_SetPriority(USART1_IRQn, interruptPriority);
             NVIC_ClearPendingIRQ(USART1_IRQn);
             NVIC_EnableIRQ(USART1_IRQn);
 
             break;
         case reinterpret_cast<uint32_t>(USART2_BASE):
             rccEnableFlag = RCC_APB1ENR_USART2EN;
-            NVIC_SetPriority(USART2_IRQn, 0);
+            NVIC_SetPriority(USART2_IRQn, interruptPriority);
             NVIC_ClearPendingIRQ(USART2_IRQn);
             NVIC_EnableIRQ(USART2_IRQn);
 
             break;
         case reinterpret_cast<uint32_t>(USART3_BASE):
             rccEnableFlag = RCC_APB1ENR_USART3EN;
-            NVIC_SetPriority(USART3_IRQn, 0);
+            NVIC_SetPriority(USART3_IRQn, interruptPriority);
             NVIC_ClearPendingIRQ(USART3_IRQn);
             NVIC_EnableIRQ(USART3_IRQn);
 
