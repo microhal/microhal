@@ -36,6 +36,11 @@ extern "C" __attribute__((weak)) void vApplicationIdleHook(void) {
     }
 }
 
+extern "C" void vApplicationTickHook(void) {
+    static volatile uint32_t counter = 0;
+    counter++;
+}
+
 extern "C" void FreeRTOS_ConfigAssert(const char* fileName, uint32_t lineNo) {
     using namespace microhal;
     diagChannel << Emergency << "FreeRTOS configAssert failed at: " << fileName << ":" << lineNo << endl;
