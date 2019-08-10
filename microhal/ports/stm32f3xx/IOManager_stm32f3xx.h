@@ -182,11 +182,11 @@ class IOManager {
             if constexpr (i2cType == SCL) static_assert(port == IOPin::PortA && pinNr == 8, "I2C3 SCL can be connected only to: PortA.8.");
         }
 
-        stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::I2C, pull, type);
+        stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF4, pull, type);
     }
 
     template <int adcNumber, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeADC(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
+    static void routeADC(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull) {
         static_assert(adcNumber != 0, "ADC numbers starts from 1.");
         static_assert(adcNumber <= 2, "STM32F3xx has only 2 ADC.");
 
@@ -225,14 +225,27 @@ class IOManager {
     }
 
     template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeTimer(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
+    static void routeTimer(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull,
+                           stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OutputType::PushPull) {
         constexpr IOPin pin(port, pinNr);
-        GPIO::AlternateFunction alternateFunction = 0;
 
         if constexpr (TimerNumber == 1) {
             if constexpr (channel == 1) {
-                static_assert(pin == IOPin{IOPin::PortA, 8} || pin == IOPin{IOPin::PortC, 0}, "TIM1 channel1 can be connected only to: PortA.8.");
+                static_assert(pin == IOPin{IOPin::PortA, 8} || pin == IOPin{IOPin::PortB, 13} || pin == IOPin{IOPin::PortC, 0},
+                              "TIM1 channel1 can be connected only to: PortA.8, PortB.13 or PortC.0.");
             }
+            if constexpr (channel == 3) {
+                static_assert(pin == IOPin{IOPin::PortB, 15} || pin == IOPin{IOPin::PortC, 2},
+                              "TIM1 channel3 can be connected only to: PortB.15 or PortC.2.");
+            }
+        }
+
+        GPIO::AlternateFunction alternateFunction = GPIO::AlternateFunction::AF2;
+        if constexpr (pin == IOPin{IOPin::PortB, 14} || pin == IOPin{IOPin::PortB, 13}) {
+            alternateFunction = GPIO::AlternateFunction::AF6;
+        }
+        if constexpr (pin == IOPin{IOPin::PortB, 15}) {
+            alternateFunction = GPIO::AlternateFunction::AF4;
         }
 
         stm32f3xx::GPIO::setAlternateFunction(port, pinNr, alternateFunction, pull, type);

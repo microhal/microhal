@@ -77,12 +77,14 @@ class GPIO : public microhal::GPIO {
      *
      */
     typedef enum : uint8_t {
+        AF2 = 0x02,     //! TIM1, TIM3, TIM15, TIM16
+        AF4 = 0x04,     //!< I2C, TIM1
         Serial = 0x07,  //!< Serial
         AF5 = 0x05,
         AF6 = 0x06,
         SPI_2 = 0x05,
         SPI_3 = 0x06,
-        I2C = 0x04,  //!< I2C
+        // I2C = 0x04,  //!< I2C
         CAN_TIM1_TIM15 = 0x09,
         Usb = 0x0A
     } AlternateFunction;

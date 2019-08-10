@@ -87,7 +87,7 @@ void EXTI9_5_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_H
 void TIM15_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM16_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM17_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void TIM18_DAC2_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void TIM1_CC_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM2_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM3_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM4_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
@@ -179,7 +179,7 @@ void (*const vectors[])(void) __attribute__((section(".vectors"))) = {
     TIM15_IRQHandler,                     // TIM1 Break and TIM9
     TIM16_IRQHandler,                     // TIM1 Update and TIM10
     TIM17_IRQHandler,                     // TIM1 Trigger and Commutation and TIM11
-    TIM18_DAC2_IRQHandler,                // TIM1 Capture Compare
+    TIM1_CC_IRQHandler,                   // TIM1 Capture Compare
     TIM2_IRQHandler,                      // TIM2
     TIM3_IRQHandler,                      // TIM3
     TIM4_IRQHandler,                      // TIM4

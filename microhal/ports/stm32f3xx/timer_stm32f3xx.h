@@ -33,6 +33,7 @@ struct TimerRegisterMap {
         Bitfield bitfield;
         uint32_t raw;
     };
+    static_assert(sizeof(CR1_t) == sizeof(uint32_t), "Microhal internal error, probably incorrect toolchain configuration.");
 
     union CR2_t {
         struct Bitfield {
@@ -90,7 +91,7 @@ struct TimerRegisterMap {
         }
     };
 
-    union CCMR_t {
+    union CCMR1_t {
         struct Bitfield {
             uint32_t CC1S : 2;    // Capture/Compare 1 Selection
             uint32_t IC1PSC : 2;  // Input capture 1 prescaler
@@ -165,9 +166,53 @@ struct TimerRegisterMap {
         }
         void setOC2M(uint32_t value) {
             uint32_t tmp = raw;
-            tmp &= ~0x1000'7000;
+            tmp &= ~0x0100'7000;
+            tmp |= (value & 0b0111) << 12;
+            tmp |= (value & 0b1000) << 21;
+            raw = tmp;
+        }
+        Bitfield bitfield;
+        BitfieldOutput bitfieldOutput;
+        uint32_t raw;
+    };
+
+    union CCMR2_t {
+        struct Bitfield {
+            uint32_t CC3S : 2;    // Capture/Compare 3 Selection
+            uint32_t IC3PSC : 2;  // Input capture 1 prescaler
+            uint32_t IC3F : 4;    // Input capture 1 filte
+            uint32_t CC4S : 2;    // Capture/Compare 2 selection
+            uint32_t IC4PSC : 2;  // Input capture 2 prescaler
+            uint32_t IC4F : 4;    // Input capture 2 filter
+        };
+        struct BitfieldOutput {
+            uint32_t CC3S : 2;       // Capture/Compare 1 Selection
+            uint32_t OC3FE : 1;      // Output Compare 1 fast enable
+            uint32_t OC3PE : 1;      // Output Compare 1 preload enable
+            uint32_t OC3Ma : 3;      // Output Compare 1 mode
+            uint32_t OC3CE : 1;      // Output Compare 1 clear enable
+            uint32_t CC4S : 2;       // Capture/Compare 2 selection
+            uint32_t OC4FE : 1;      // Output Compare 2 fast enable
+            uint32_t OC4PE : 1;      // Output Compare 2 preload enable
+            uint32_t OC4Ma : 3;      // Output Compare 2 mode
+            uint32_t OC4CE : 1;      // Output Compare 2 clear enable
+            uint32_t OC3Mb : 1;      // Output Compare 1 mode - bit 3
+            uint32_t Reserved : 7;   // Reserved, must be kept at reset value.
+            uint32_t OC4Mb : 1;      // Output Compare 2 mode - bit 3
+            uint32_t Reserved2 : 7;  // Reserved, must be kept at reset value.
+        };
+        void setOC3M(uint32_t value) {
+            uint32_t tmp = raw;
+            tmp &= ~0x0001'0070;
             tmp |= (value & 0b0111) << 4;
             tmp |= (value & 0b1000) << 13;
+            raw = tmp;
+        }
+        void setOC4M(uint32_t value) {
+            uint32_t tmp = raw;
+            tmp &= ~0x0100'7000;
+            tmp |= (value & 0b0111) << 12;
+            tmp |= (value & 0b1000) << 21;
             raw = tmp;
         }
         Bitfield bitfield;
@@ -228,8 +273,8 @@ struct TimerRegisterMap {
     uint32_t DIER;
     uint32_t SR;
     uint32_t EGR;    // event generation register
-    CCMR_t CCMR1;    // capture/compare mode register 1
-    uint32_t CCMR2;  // capture/compare mode register 2
+    CCMR1_t CCMR1;   // capture/compare mode register 1
+    CCMR2_t CCMR2;   // capture/compare mode register 2
     CCER_t CCER;     // capture/compare enable register
     uint32_t CNT;    // counter
     uint32_t PSC;    // prescaler
@@ -248,11 +293,43 @@ struct TimerRegisterMap {
     uint32_t CCR6;   // capture/compare register 6
 };
 
+namespace timer_detail {
+enum class Interrupt {
+    Update = 0b0001,
+    CaptureCompare1 = 0b0010,
+    CaptureCompare2 = 0b0100,
+    CaptureCompare3 = 0b1000,
+    CaptureCompare4 = 0b0001'0000,
+    COM = 0b0010'0000,
+    Trigger = 0b0100'0000,
+    Break = 0b1000'0000
+};
+
+constexpr Interrupt operator&(Interrupt a, Interrupt b) {
+    return static_cast<Interrupt>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
+}
+
+constexpr uint32_t operator&(uint32_t a, Interrupt b) {
+    return a & static_cast<uint32_t>(b);
+}
+}  // namespace timer_detail
+
+using timer_detail::operator&;
+
 class Timer {
  public:
     enum class Direction { UpCounter = 0x0, DownCounter = 0x1 };
     enum class ClockSource { Internal, ETRPin };
-    Timer(void *addr) : timer(*static_cast<TimerRegisterMap *>(addr)) { ClockManager::enable(*static_cast<TIM_TypeDef *>(addr)); }
+    using Interrupt = timer_detail::Interrupt;
+
+    Timer(void *addr)
+        : timer(*static_cast<TimerRegisterMap *>(addr)),
+          compare1(*static_cast<TimerRegisterMap *>(addr), 1),
+          compare2(*static_cast<TimerRegisterMap *>(addr), 2),
+          compare3(*static_cast<TimerRegisterMap *>(addr), 3),
+          compare4(*static_cast<TimerRegisterMap *>(addr), 4) {
+        ClockManager::enable(*static_cast<TIM_TypeDef *>(addr));
+    }
 
     /**
      * @brief This function enable timer.
@@ -262,6 +339,14 @@ class Timer {
      * @brief This function disable timer.
      */
     void disable() { timer.CR1.bitfield.CEN = 0; }
+
+    void enableInterupt() {
+        NVIC_SetPriority(TIM1_CC_IRQn, 6);
+        NVIC_ClearPendingIRQ(TIM1_CC_IRQn);
+        NVIC_EnableIRQ(TIM1_CC_IRQn);
+    }
+
+    void enableInterrupts(Interrupt interrupt) { timer.DIER |= static_cast<uint32_t>(interrupt); }
 
     /**
      * @brief This function set timer direction.
@@ -280,6 +365,9 @@ class Timer {
 
     void setAutoReloadRegister(uint32_t value) { timer.ARR = value; }
 
+    void setPrescaler(uint16_t prescaler) { timer.PSC = prescaler; }
+    uint32_t getPrescaler() { return timer.PSC; }
+
     void setClockSource(ClockSource clockSource) {
         switch (clockSource) {
             case ClockSource::Internal:
@@ -293,19 +381,199 @@ class Timer {
         }
     }
 
-    enum PinMode { Inactive, SetOnCompare, ClearOnCompare, ToggleOnCompare };
-    void configureOutputCompare(uint8_t channel, uint16_t value) {
-        if (channel == 1) {
-            timer.CCR1 = value;
-            timer.CCMR1.bitfieldOutput.OC1CE = 0;
-            timer.CCMR1.setOC1M(0);
-            timer.CCER.bitfield.CC1P = 0;
-            timer.CCER.bitfield.CC1E = 1;
+    class OutputCompare {
+     public:
+        enum class Mode {
+            Frozen = 0,  //! The comparison between the output compare register TIMx_CCRx and the counter TIMx_CNT has no effect on the outputs.(this
+                         //! mode is used to generate a timing base).
+            SetChannelToActiveOnMatch,    //! Set channel x to active level on match. OCxREF signal is forced high when the counter TIMx_CNT matches
+                                          //! the capture/compare register
+            SetChannelToInactiveOnMatch,  //! Set channel x to inactive level on match. OC1REF signal is forced low when the counter TIMx_CNT matches
+                                          //! the capture/compare register x (TIMx_CCRx).
+            Toggle,                       //! OCxREF toggles when TIMx_CNT=TIMx_CCRx
+            ForceInactiveLevel,           //! OCxREF is forced low.
+            ForceActiveLevel,             //! OCxREF is forced high.
+            PWMMode1,  //! In upcounting, channel x is active as long as TIMx_CNT<TIMx_CCRx else inactive. In downcounting, channel x is inactive
+                       //! (OCxREF=‘0’) as long as TIMx_CNT>TIMx_CCR1 else active (OCxREF=’1’).
+            PWMMode2,  //! In upcounting, channel 1 is inactive as long as TIMx_CNT<TIMx_CCR1 else active. In downcounting, channel 1 is active as
+                       //! long as TIMx_CNT>TIMx_CCR1 else inactive
+            OnePulseMode1,
+            OnePulseMode2,
+            CombinedPWMMode1 = 0b1100,  //! OC1REF has the same behavior as in PWM mode 1. OC1REFC is the logical OR between OC1REF and OC2REF.
+            CombinedPWMMode2,           //! OC1REF has the same behavior as in PWM mode 2. OC1REFC is the logical AND between OC1REF and OC2REF.
+            AssymmetricPWMMode1,  //! OC1REF has the same behavior as in PWM mode 1. OC1REFC outputs OC1REF when the counter is counting up, OC2REF
+                                  //! when it is counting down.
+            AssymmetricPWMMode2   //! OC1REF has the same behavior as in PWM mode 2. OC1REFC outputs OC1REF when the counter is counting up, OC2REF
+                                  //! when it is counting down.
+        };
+
+        enum class Polarity { ActiveHigh = 0, ActiveLow };
+
+        void setValue(uint32_t value) {
+            switch (compareChannelNumber) {
+                case 1:
+                    timer.CCR1 = value;
+                    break;
+                case 2:
+                    timer.CCR2 = value;
+                    break;
+                case 3:
+                    timer.CCR3 = value;
+                    break;
+                case 4:
+                    timer.CCR4 = value;
+                    break;
+            }
         }
-    }
+        uint32_t getValue() {
+            switch (compareChannelNumber) {
+                case 1:
+                    return timer.CCR1;
+                case 2:
+                    return timer.CCR2;
+                case 3:
+                    return timer.CCR3;
+                case 4:
+                    return timer.CCR4;
+            }
+        }
+        void enablePreload() {
+            switch (compareChannelNumber) {
+                case 1:
+                    timer.CCMR1.raw |= 1 << 3;
+                    break;
+                case 2:
+                    timer.CCMR1.raw |= 1 << 11;  // bitfieldOutput.OC2PE = 1;
+                    break;
+                case 3:
+                    timer.CCMR2.raw |= 1 << 3;  // bitfieldOutput.OC3PE = 1;
+                    break;
+                case 4:
+                    timer.CCMR2.raw |= 1 << 11;  // bitfieldOutput.OC4PE = 1;
+                    break;
+            }
+        }
+        void disablePreload() {
+            switch (compareChannelNumber) {
+                case 1:
+                    timer.CCMR1.bitfieldOutput.OC1PE = 0;
+                    break;
+                case 2:
+                    timer.CCMR1.bitfieldOutput.OC2PE = 0;
+                    break;
+                case 3:
+                    timer.CCMR2.bitfieldOutput.OC3PE = 0;
+                    break;
+                case 4:
+                    timer.CCMR2.bitfieldOutput.OC4PE = 0;
+                    break;
+            }
+        }
+        void setMode(Mode mode) {
+            switch (compareChannelNumber) {
+                case 1:
+                    // timer.CCMR1.bitfieldOutput.CC1S = 0;  // configure compare as output
+                    timer.CCMR1.setOC1M(static_cast<uint32_t>(mode));
+                    break;
+                case 2:
+                    // timer.CCMR1.bitfieldOutput.CC2S = 0;  // configure compare as output
+                    timer.CCMR1.setOC2M(static_cast<uint32_t>(mode));
+                    break;
+                case 3:
+                    // timer.CCMR2.bitfieldOutput.CC3S = 0;  // configure compare as output
+                    timer.CCMR2.setOC3M(static_cast<uint32_t>(mode));
+                    break;
+                case 4:
+                    // timer.CCMR2.bitfieldOutput.CC4S = 0;  // configure compare as output
+                    timer.CCMR2.setOC4M(static_cast<uint32_t>(mode));
+                    break;
+            }
+        }
+        void outputEnable(Polarity polarity) {
+            switch (compareChannelNumber) {
+                case 1:
+                    timer.CCER.bitfield.CC1P = static_cast<uint32_t>(polarity);
+                    timer.CCER.bitfield.CC1E = 1;  // enable
+                    break;
+                case 2:
+                    timer.CCER.bitfield.CC2P = static_cast<uint32_t>(polarity);
+                    timer.CCER.bitfield.CC2E = 1;  // enable
+                    break;
+                case 3:
+                    timer.CCER.bitfield.CC3P = static_cast<uint32_t>(polarity);
+                    timer.CCER.bitfield.CC3E = 1;  // enable
+                    break;
+                case 4:
+                    timer.CCER.bitfield.CC4P = static_cast<uint32_t>(polarity);
+                    timer.CCER.bitfield.CC4E = 1;  // enable
+                    break;
+            }
+        }
+        void complementaryOutputEnable(Polarity polarity) {
+            switch (compareChannelNumber) {
+                case 1:
+                    timer.CCER.bitfield.CC1NP = static_cast<uint32_t>(polarity);
+                    timer.CCER.bitfield.CC1NE = 1;  // enable
+                    break;
+                case 2:
+                    timer.CCER.bitfield.CC2NP = static_cast<uint32_t>(polarity);
+                    timer.CCER.bitfield.CC2NE = 1;  // enable
+                    break;
+                case 3:
+                    timer.CCER.bitfield.CC3NP = static_cast<uint32_t>(polarity);
+                    timer.CCER.bitfield.CC3NE = 1;  // enable
+                    break;
+            }
+        }
+        void outputDisable() {
+            switch (compareChannelNumber) {
+                case 1:
+                    timer.CCER.bitfield.CC1E = 0;
+                    break;
+                case 2:
+                    timer.CCER.bitfield.CC2E = 0;
+                    break;
+                case 3:
+                    timer.CCER.bitfield.CC3E = 0;
+                    break;
+                case 4:
+                    timer.CCER.bitfield.CC4E = 0;
+                    break;
+            }
+        }
+        void complementaryOutputDisable() {
+            switch (compareChannelNumber) {
+                case 1:
+                    timer.CCER.bitfield.CC1NE = 0;
+                    break;
+                case 2:
+                    timer.CCER.bitfield.CC2NE = 0;
+                    break;
+                case 3:
+                    timer.CCER.bitfield.CC3NE = 0;
+                    break;
+            }
+        }
+
+     private:
+        TimerRegisterMap &timer;
+        uint_fast8_t compareChannelNumber;
+
+        OutputCompare(TimerRegisterMap &timer, uint_fast8_t channel) : timer(timer), compareChannelNumber(channel) {}
+        friend Timer;
+    };
+
+    void enableCompareOutputs() { timer.BDTR |= TIM_BDTR_MOE; }
+    uint32_t getValue() { return timer.CNT; }
+    void setValue(uint32_t value) { timer.CNT = value; }
+
+    OutputCompare compare1;
+    OutputCompare compare2;
+    OutputCompare compare3;
+    OutputCompare compare4;
 
  private:
-    TimerRegisterMap &timer;
+    volatile TimerRegisterMap &timer;
 };
 
 }  // namespace stm32f3xx
