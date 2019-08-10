@@ -16,117 +16,105 @@
 namespace microhal {
 namespace stm32f3xx {
 
-constexpr uint32_t maskGen(int begin, int end) {
-    uint32_t mask = 0;
-    for (int i = begin; i <= end; i++) {
-        mask |= 1 << i;
-    }
-    return mask;
-}
-
-static_assert(maskGen(0, 0) == 0b01, "");
-static_assert(maskGen(0, 1) == 0b11, "");
-
 template <typename type, int begin, int end>
 class myBitfield {
  public:
-    void operator=(type value) {
+    myBitfield &operator=(type value) {
         uint32_t tmp = data;
         tmp &= ~bitfieldMask;
         tmp |= (value & valueMask) << begin;
         data = tmp;
+        return *this;
     }
 
-    void operator|=(type value) {
+    myBitfield &operator|=(type value) {
         uint32_t tmp = data;
         tmp |= (value & valueMask) << begin;
         data = tmp;
+        return *this;
     }
 
-    void operator&=(type value) {
+    myBitfield &operator&=(type value) {
         uint32_t tmp = data;
         tmp &= (value | ~valueMask) << begin;
         data = tmp;
+        return *this;
     }
+
+    operator type() { return get(); }
 
     void set() { data |= bitfieldMask; }
     void clear() { data &= bitfieldMask; }
+    type get() { return (data >> begin) & valueMask; }
 
  private:
     type data;
+
+    static constexpr uint32_t maskGen(int maskBegin, int maskEnd) {
+        uint32_t mask = 0;
+        for (int i = maskBegin; i <= maskEnd; i++) {
+            mask |= 1 << i;
+        }
+        return mask;
+    }
+    static_assert(maskGen(0, 0) == 0b01, "");
+    static_assert(maskGen(0, 1) == 0b11, "");
 
     enum { bitfieldMask = maskGen(begin, end), valueMask = maskGen(0, end - begin) };
 };
 
 struct TimerRegisterMap {
     union CR1_t {
-        struct Bitfield {
-            uint32_t CEN : 1;       // Counter enable
-            uint32_t UDIS : 1;      // Update disable
-            uint32_t URS : 1;       // Update request source
-            uint32_t OPM : 1;       // One pulse mode
-            uint32_t DIR : 1;       // Direction; 0 -> upcounter1, 1 -> downcounter
-            uint32_t CMS : 2;       // Center-aligned mode selection
-            uint32_t ARPE : 1;      // Auto-reload preload enable
-            uint32_t CKD : 2;       // Clock division
-            uint32_t Reserved : 1;  // Reserved, must be kept at reset value
-            uint32_t UIFREMAP : 1;  // UIF status bit remapping
-        };
-        myBitfield<uint32_t, 0, 0> CEN;
-        myBitfield<uint32_t, 1, 1> UDIS;
-        myBitfield<uint32_t, 2, 2> URS;
-        myBitfield<uint32_t, 3, 3> OPM;
-        myBitfield<uint32_t, 4, 4> DIR;
-        myBitfield<uint32_t, 5, 6> CMS;
-        myBitfield<uint32_t, 7, 7> ARPE;
-        myBitfield<uint32_t, 8, 9> CKD;
+        myBitfield<uint32_t, 0, 0> CEN;   // Counter enable
+        myBitfield<uint32_t, 1, 1> UDIS;  // Update disable
+        myBitfield<uint32_t, 2, 2> URS;   // Update request source
+        myBitfield<uint32_t, 3, 3> OPM;   // One pulse mode
+        myBitfield<uint32_t, 4, 4> DIR;   // Direction; 0 -> upcounter1, 1 -> downcounter
+        myBitfield<uint32_t, 5, 6> CMS;   // Center-aligned mode selection
+        myBitfield<uint32_t, 7, 7> ARPE;  // Auto-reload preload enable
+        myBitfield<uint32_t, 8, 9> CKD;   // Clock division
         // bit 10 is reserved
-        myBitfield<uint32_t, 11, 11> UIFREMAP;
+        myBitfield<uint32_t, 11, 11> UIFREMAP;  // UIF status bit remapping
 
-        Bitfield bitfield;
         uint32_t raw;
     };
     static_assert(sizeof(CR1_t) == sizeof(uint32_t), "Microhal internal error, probably incorrect toolchain configuration.");
 
     union CR2_t {
-        struct Bitfield {
-            uint32_t CCPC : 1;       // Capture/compare preload control
-            uint32_t Reserved1 : 1;  // Reserved, must be kept at reset value
-            uint32_t CCUS : 1;       // Capture/compare control update selection
-            uint32_t CCDS : 1;       // Capture/compare DMA selection
-            uint32_t MMS : 2;        // Master mode selection
-            uint32_t TI1S : 1;       // TI1 selection
-            uint32_t OIS1 : 1;       // Output Idle state 1 (OC1 output)
-            uint32_t OIS1N : 1;      // Output Idle state 1 (OC1N output)
-            uint32_t OIS2 : 1;       // Output Idle state 2 (OC2 output)
-            uint32_t OIS2N : 1;      // Output Idle state 2 (OC2N output)
-            uint32_t OIS3 : 1;       // Output Idle state 3 (OC3 output)
-            uint32_t OIS3N : 1;      // Output Idle state 3 (OC3N output)
-            uint32_t OIS4 : 1;       // Output Idle state 4 (OC4 output)
-            uint32_t Reserved2 : 1;  // Reserved, must be kept at reset value.
-            uint32_t OIS5 : 1;       // Output Idle state 5 (OC5 output)
-            uint32_t Reserved3 : 1;  // Reserved, must be kept at reset value.
-            uint32_t OIS6 : 1;       // Output Idle state 6 (OC6 output)
-            uint32_t Reserved4 : 1;  // Reserved, must be kept at reset value.
-            uint32_t MMS2 : 4;       // Master mode selection 2
-        };
-        Bitfield bitfield;
+        myBitfield<uint32_t, 0, 0> CCPC;  // Capture/compare preload control
+        // bit 1 is reserved, must be kept at reset value
+        myBitfield<uint32_t, 2, 2> CCUS;     // Capture/compare control update selection
+        myBitfield<uint32_t, 3, 3> CCDS;     // Capture/compare DMA selection
+        myBitfield<uint32_t, 4, 6> MMS;      // Master mode selection
+        myBitfield<uint32_t, 7, 7> TI1S;     // TI1 selection
+        myBitfield<uint32_t, 8, 8> OIS1;     // Output Idle state 1 (OC1 output)
+        myBitfield<uint32_t, 9, 9> OIS1N;    // Output Idle state 1 (OC1N output)
+        myBitfield<uint32_t, 10, 10> OIS2;   // Output Idle state 2 (OC2 output)
+        myBitfield<uint32_t, 11, 11> OIS2N;  // Output Idle state 2 (OC2N output)
+        myBitfield<uint32_t, 12, 12> OIS3;   // Output Idle state 3 (OC3 output)
+        myBitfield<uint32_t, 13, 13> OIS3N;  // Output Idle state 3 (OC3N output)
+        myBitfield<uint32_t, 14, 14> OIS4;   // Output Idle state 4 (OC4 output)
+        // bit 15 is reserved, must be kept at reset value.
+        myBitfield<uint32_t, 16, 16> OIS5;  // Output Idle state 5 (OC5 output)
+        // bit 17 Reserved, must be kept at reset value.
+        myBitfield<uint32_t, 18, 18> OIS6;  // Output Idle state 6 (OC6 output)
+        // bit 19 is reserved, must be kept at reset value.
+        myBitfield<uint32_t, 20, 23> MMS2;  // Master mode selection 2
+
         uint32_t raw;
     };
 
     union SMCR_t {
-        struct Bitfield {
-            uint32_t SMSa : 3;  // Slave mode selection
-            uint32_t OCCS : 1;  // OCREF clear selection
-            uint32_t TS : 3;    //  Trigger selection
-            uint32_t MSM : 1;   // Master/slave mode
-            uint32_t ETF : 4;   // External trigger filter
-            uint32_t ETPS : 2;  // External trigger prescaler
-            uint32_t ECE : 1;   // External clock enable
-            uint32_t ETP : 1;   // External trigger polarity
-            uint32_t SMSb : 1;  // Slave mode selection
-        };
-        Bitfield bitfield;
+        // myBitfield<uint32_t, 0, 2> SMSa;    // Slave mode selection
+        myBitfield<uint32_t, 3, 3> OCCS;    // OCREF clear selection
+        myBitfield<uint32_t, 4, 6> TS;      //  Trigger selection
+        myBitfield<uint32_t, 7, 7> MSM;     // Master/slave mode
+        myBitfield<uint32_t, 8, 11> ETF;    // External trigger filter
+        myBitfield<uint32_t, 12, 13> ETPS;  // External trigger prescaler
+        myBitfield<uint32_t, 14, 14> ECE;   // External clock enable
+        myBitfield<uint32_t, 15, 15> ETP;   // External trigger polarity
+        // myBitfield<uint32_t, 16, 16> SMSb ;  // Slave mode selection
+
         uint32_t raw;
 
         void setSMS(uint32_t sms) {
@@ -145,75 +133,71 @@ struct TimerRegisterMap {
     };
 
     union CCMR1_t {
-        struct Bitfield {
-            uint32_t CC1S : 2;    // Capture/Compare 1 Selection
-            uint32_t IC1PSC : 2;  // Input capture 1 prescaler
-            uint32_t IC1F : 4;    // Input capture 1 filte
-            uint32_t CC2S : 2;    // Capture/Compare 2 selection
-            uint32_t IC2PSC : 2;  // Input capture 2 prescaler
-            uint32_t IC2F : 4;    // Input capture 2 filter
+        union BitfieldInput {
+            myBitfield<uint32_t, 0, 1> CC1S;      // Capture/Compare 1 Selection
+            myBitfield<uint32_t, 2, 3> IC1PSC;    // Input capture 1 prescaler
+            myBitfield<uint32_t, 4, 7> IC1F;      // Input capture 1 filte
+            myBitfield<uint32_t, 8, 9> CC2S;      // Capture/Compare 2 selection
+            myBitfield<uint32_t, 10, 11> IC2PSC;  // Input capture 2 prescaler
+            myBitfield<uint32_t, 12, 15> IC2F;    // Input capture 2 filter
         };
-        struct BitfieldOutput {
-            uint32_t CC1S : 2;      /* Capture/Compare 1 Selection
-                                     * 00: CC1 channel is configured as output
-                                     * 01: CC1 channel is configured as input, IC1 is mapped on TI1
-                                     * 10: CC1 channel is configured as input, IC1 is mapped on TI2
-                                     * 11: CC1 channel is configured as input, IC1 is mapped on TRC.
-                                     *     This mode is working only if an internal trigger input
-                                     *     is selected through TS bit (TIMx_SMCR register)
-                                     */
-            uint32_t OC1FE : 1;     /* Output Compare 1 fast enable
-                                     * 0: CC1 behaves normally depending on counter and CCR1 values even
-                                     *    when the trigger is ON. The minimum delay to activate CC1 output
-                                     *    when an edge occurs on the trigger input is 5 clock cycles.
-                                     * 1: An active edge on the trigger input acts like a compare match
-                                     *    on CC1 output. Then, OC is set to the compare level independently
-                                     *    from the result of the comparison. Delay to sample the trigger
-                                     *    input and to activate CC1 output is reduced to 3 clock cycles.
-                                     *    OCFE acts only if the channel is configured in PWM1 or PWM2 mode.
-                                     */
-            uint32_t OC1PE : 1;     /* Output Compare 1 preload enable
-                                     * 0: Preload register on TIMx_CCR1 disabled. TIMx_CCR1 can be written
-                                     *    at anytime, the new value is taken in account immediately.
-                                     * 1: Preload register on TIMx_CCR1 enabled. Read/Write operations
-                                     *    access the preload register. TIMx_CCR1 preload value is loaded
-                                     *    in the active register at each update event.
-                                     */
-            uint32_t OC1Ma : 3;     /* Output Compare 1 mode
-                                     * 0000: Frozen - The comparison between the output compare register
-                                     *       TIMx_CCR1 and the counter TIMx_CNT has no effect on the outputs.
-                                     * 0001: Set channel 1 to active level on match. OC1REF signal is forced
-                                     *       high when the counter TIMx_CNT matches the capture/compare register
-                                     * 0010: Set channel 1 to inactive level on match. OC1REF signal is forced
-                                     *       low when the counter TIMx_CNT matches the capture/compare register
-                                     * 0011: Toggle - OC1REF toggles when TIMx_CNT=TIMx_CCR1.
-                                     * 0100: Force inactive level - OC1REF is forced low.
-                                     * 0101: Force active level - OC1REF is forced high.
-                                     * 0110: PWM mode 1
-                                     * 0111: PWM mode 2
-                                     * 1000: Retrigerrable OPM mode 1
-                                     * 1001: Retrigerrable OPM mode 2
-                                     * 1010: Reserved
-                                     * 1011: Reserved
-                                     * 1100: Combined PWM mode 1
-                                     * 1101: Combined PWM mode 2
-                                     * 1110: Asymmetric PWM mode 1
-                                     * 1111: Asymmetric PWM mode 2
-                                     */
-            uint32_t OC1CE : 1;     // Output Compare 1 clear enable
-            uint32_t CC2S : 2;      // Capture/Compare 2 selection
-            uint32_t OC2FE : 1;     // Output Compare 2 fast enable
-            uint32_t OC2PE : 1;     // Output Compare 2 preload enable
-            uint32_t OC2Ma : 3;     // Output Compare 2 mode
-            uint32_t OC2CE : 1;     // Output Compare 2 clear enable
-            uint32_t OC1Mb : 1;     // Output Compare 1 mode - bit 3
-            uint32_t Reserved : 7;  // Reserved, must be kept at reset value.
-            uint32_t OC2Mb : 1;     // Output Compare 2 mode - bit 3
+        union BitfieldOutput {
+            myBitfield<uint32_t, 0, 1> CC1S;     /* Capture/Compare 1 Selection
+                                                  * 00: CC1 channel is configured as output
+                                                  * 01: CC1 channel is configured as input, IC1 is mapped on TI1
+                                                  * 10: CC1 channel is configured as input, IC1 is mapped on TI2
+                                                  * 11: CC1 channel is configured as input, IC1 is mapped on TRC.
+                                                  *     This mode is working only if an internal trigger input
+                                                  *     is selected through TS bit (TIMx_SMCR register)
+                                                  */
+            myBitfield<uint32_t, 2, 2> OC1FE;    /* Output Compare 1 fast enable
+                                                  * 0: CC1 behaves normally depending on counter and CCR1 values even
+                                                  *    when the trigger is ON. The minimum delay to activate CC1 output
+                                                  *    when an edge occurs on the trigger input is 5 clock cycles.
+                                                  * 1: An active edge on the trigger input acts like a compare match
+                                                  *    on CC1 output. Then, OC is set to the compare level independently
+                                                  *    from the result of the comparison. Delay to sample the trigger
+                                                  *    input and to activate CC1 output is reduced to 3 clock cycles.
+                                                  *    OCFE acts only if the channel is configured in PWM1 or PWM2 mode.
+                                                  */
+            myBitfield<uint32_t, 3, 3> OC1PE;    /* Output Compare 1 preload enable
+                                                  * 0: Preload register on TIMx_CCR1 disabled. TIMx_CCR1 can be written
+                                                  *    at anytime, the new value is taken in account immediately.
+                                                  * 1: Preload register on TIMx_CCR1 enabled. Read/Write operations
+                                                  *    access the preload register. TIMx_CCR1 preload value is loaded
+                                                  *    in the active register at each update event.
+                                                  */
+            myBitfield<uint32_t, 4, 6> OC1Ma;    /* Output Compare 1 mode
+                                                  * 0000: Frozen - The comparison between the output compare register
+                                                  *       TIMx_CCR1 and the counter TIMx_CNT has no effect on the outputs.
+                                                  * 0001: Set channel 1 to active level on match. OC1REF signal is forced
+                                                  *       high when the counter TIMx_CNT matches the capture/compare register
+                                                  * 0010: Set channel 1 to inactive level on match. OC1REF signal is forced
+                                                  *       low when the counter TIMx_CNT matches the capture/compare register
+                                                  * 0011: Toggle - OC1REF toggles when TIMx_CNT=TIMx_CCR1.
+                                                  * 0100: Force inactive level - OC1REF is forced low.
+                                                  * 0101: Force active level - OC1REF is forced high.
+                                                  * 0110: PWM mode 1
+                                                  * 0111: PWM mode 2
+                                                  * 1000: Retrigerrable OPM mode 1
+                                                  * 1001: Retrigerrable OPM mode 2
+                                                  * 1010: Reserved
+                                                  * 1011: Reserved
+                                                  * 1100: Combined PWM mode 1
+                                                  * 1101: Combined PWM mode 2
+                                                  * 1110: Asymmetric PWM mode 1
+                                                  * 1111: Asymmetric PWM mode 2
+                                                  */
+            myBitfield<uint32_t, 7, 7> OC1CE;    // Output Compare 1 clear enable
+            myBitfield<uint32_t, 8, 9> CC2S;     // Capture/Compare 2 selection
+            myBitfield<uint32_t, 10, 10> OC2FE;  // Output Compare 2 fast enable
+            myBitfield<uint32_t, 11, 11> OC2PE;  // Output Compare 2 preload enable
+            myBitfield<uint32_t, 12, 14> OC2Ma;  // Output Compare 2 mode
+            myBitfield<uint32_t, 15, 15> OC2CE;  // Output Compare 2 clear enable
+            myBitfield<uint32_t, 16, 16> OC1Mb;  // Output Compare 1 mode - bit 3
+                                                 // bits 17 - 23 are reserved, must be kept at reset value.
+            myBitfield<uint32_t, 24, 24> OC2Mb;  // Output Compare 2 mode - bit 3
         };
-        myBitfield<uint32_t, 0, 1> CC1S;
-        myBitfield<uint32_t, 3, 3> OC1PE;
-        myBitfield<uint32_t, 8, 9> CC2S;
-        myBitfield<uint32_t, 11, 11> OC2PE;
 
         void setOC1M(uint32_t value) {
             uint32_t tmp = raw;
@@ -229,35 +213,34 @@ struct TimerRegisterMap {
             tmp |= (value & 0b1000) << 21;
             raw = tmp;
         }
-        Bitfield bitfield;
+        BitfieldInput bitfieldInput;
         BitfieldOutput bitfieldOutput;
         uint32_t raw;
     };
 
     union CCMR2_t {
-        struct Bitfield {
-            uint32_t CC3S : 2;    // Capture/Compare 3 Selection
-            uint32_t IC3PSC : 2;  // Input capture 1 prescaler
-            uint32_t IC3F : 4;    // Input capture 1 filte
-            uint32_t CC4S : 2;    // Capture/Compare 2 selection
-            uint32_t IC4PSC : 2;  // Input capture 2 prescaler
-            uint32_t IC4F : 4;    // Input capture 2 filter
+        union BitfieldInput {
+            myBitfield<uint32_t, 0, 1> CC3S;      // Capture/Compare 3 Selection
+            myBitfield<uint32_t, 2, 3> IC3PSC;    // Input capture 3 prescaler
+            myBitfield<uint32_t, 4, 7> IC3F;      // Input capture 3 filte
+            myBitfield<uint32_t, 8, 9> CC4S;      // Capture/Compare 4 selection
+            myBitfield<uint32_t, 10, 11> IC4PSC;  // Input capture 4 prescaler
+            myBitfield<uint32_t, 12, 15> IC4F;    // Input capture 4 filter
         };
-        struct BitfieldOutput {
-            uint32_t CC3S : 2;       // Capture/Compare 1 Selection
-            uint32_t OC3FE : 1;      // Output Compare 1 fast enable
-            uint32_t OC3PE : 1;      // Output Compare 1 preload enable
-            uint32_t OC3Ma : 3;      // Output Compare 1 mode
-            uint32_t OC3CE : 1;      // Output Compare 1 clear enable
-            uint32_t CC4S : 2;       // Capture/Compare 2 selection
-            uint32_t OC4FE : 1;      // Output Compare 2 fast enable
-            uint32_t OC4PE : 1;      // Output Compare 2 preload enable
-            uint32_t OC4Ma : 3;      // Output Compare 2 mode
-            uint32_t OC4CE : 1;      // Output Compare 2 clear enable
-            uint32_t OC3Mb : 1;      // Output Compare 1 mode - bit 3
-            uint32_t Reserved : 7;   // Reserved, must be kept at reset value.
-            uint32_t OC4Mb : 1;      // Output Compare 2 mode - bit 3
-            uint32_t Reserved2 : 7;  // Reserved, must be kept at reset value.
+        union BitfieldOutput {
+            myBitfield<uint32_t, 0, 1> CC3S;     // Capture/Compare 1 Selection, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 2, 2> OC3FE;    // Output Compare 1 fast enable, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 3, 3> OC3PE;    // Output Compare 1 preload enable, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 4, 6> OC3Ma;    // Output Compare 1 mode, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 7, 7> OC3CE;    // Output Compare 1 clear enable, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 8, 9> CC4S;     // Capture/Compare 2 selection, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 10, 10> OC4FE;  // Output Compare 2 fast enable, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 11, 11> OC4PE;  // Output Compare 2 preload enable, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 12, 14> OC4Ma;  // Output Compare 2 mode, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 15, 15> OC4CE;  // Output Compare 2 clear enable, for more information loock at CCMR1_t
+            myBitfield<uint32_t, 16, 16> OC3Mb;  // Output Compare 1 mode - bit 3, for more information loock at CCMR1_t
+                                                 // bits 17 - 23 are reserved, must be kept at reset value.
+            myBitfield<uint32_t, 24, 24> OC4Mb;  // Output Compare 2 mode - bit 3, for more information loock at CCMR1_t
         };
         void setOC3M(uint32_t value) {
             uint32_t tmp = raw;
@@ -274,84 +257,70 @@ struct TimerRegisterMap {
             raw = tmp;
         }
 
-        myBitfield<uint32_t, 0, 1> CC3S;
-        myBitfield<uint32_t, 3, 3> OC3PE;
-        myBitfield<uint32_t, 8, 9> CC4S;
-        myBitfield<uint32_t, 11, 11> OC4PE;
-
-        Bitfield bitfield;
+        BitfieldInput bitfieldInput;
         BitfieldOutput bitfieldOutput;
         uint32_t raw;
     };
-
     union CCER_t {
-        struct Bitfield {
-            uint32_t CC1E : 1;       /* Capture/Compare 1 output enable
-                                      * CC1 channel configured as output:
-                                      * 0: Off - OC1 is not active. OC1 level is then function
-                                      *    of MOE, OSSI, OSSR, OIS1, OIS1N and CC1NE bits.
-                                      * 1: On - OC1 signal is output on the corresponding output pin
-                                      *    depending on MOE, OSSI, OSSR, OIS1, OIS1N and CC1NE bits.
-                                      */
-            uint32_t CC1P : 1;       /* Capture/Compare 1 output polarity;
-                                      * CC1 channel configured as output:
-                                      * 0: OC1 active high
-                                      * 1: OC1 active low
-                                      */
-            uint32_t CC1NE : 1;      /* Capture/Compare 1 complementary output enable
-                                      * 0: Off - OC1N is not active. OC1N level is then function
-                                      *    of MOE, OSSI, OSSR, OIS1, OIS1N and CC1E bits.
-                                      * 1: On - OC1N signal is output on the corresponding output pin
-                                      *    depending on MOE, OSSI, OSSR, OIS1, OIS1N and CC1E bits.
-                                      */
-            uint32_t CC1NP : 1;      /* Capture/Compare 1 complementary output polarity
-                                      * CC1 channel configured as output:
-                                      * 0: OC1N active high.
-                                      * 1: OC1N active low.
-                                      */
-            uint32_t CC2E : 1;       // Capture/Compare 2 output enableRefer to CC1E description
-            uint32_t CC2P : 1;       // Capture/Compare 2 output polarityRefer to CC1P description
-            uint32_t CC2NE : 1;      // Capture/Compare 2 complementary output enableRefer to CC1NE description
-            uint32_t CC2NP : 1;      // Capture/Compare 2 complementary output polarityRefer to CC1NP description
-            uint32_t CC3E : 1;       // Capture/Compare 3 output enableRefer to CC1E description
-            uint32_t CC3P : 1;       // Capture/Compare 3 output polarityRefer to CC1P description
-            uint32_t CC3NE : 1;      // Capture/Compare 3 complementary output enableRefer to CC1NE description
-            uint32_t CC3NP : 1;      // Capture/Compare 3 complementary output polarityRefer to CC1NP description
-            uint32_t CC4E : 1;       // Capture/Compare 4 output enableRefer to CC1E description
-            uint32_t CC4P : 1;       // Capture/Compare 4 output polarityRefer to CC1P description
-            uint32_t Reserved1 : 1;  // Reserved, must be kept at reset value.
-            uint32_t CC4NP : 1;      // Capture/Compare 4 complementary output polarityRefer to CC1NP description
-            uint32_t CC5E : 1;       // Capture/Compare 5 output enableRefer to CC1E description
-            uint32_t CC5P : 1;       // Capture/Compare 5 output polarityRefer to CC1P description
-            uint32_t Reserved2 : 2;  // Reserved, must be kept at reset value.
-            uint32_t CC6E : 1;       // Capture/Compare 6 output enableRefer to CC1E description
-            uint32_t CC6P : 1;       // Capture/Compare 6 output polarityRefer to CC1P description
-        };
-        myBitfield<uint32_t, 0, 0> CC1E;
-        myBitfield<uint32_t, 1, 1> CC1P;
-        myBitfield<uint32_t, 2, 2> CC1NE;
-        myBitfield<uint32_t, 3, 3> CC1NP;
-        myBitfield<uint32_t, 4, 4> CC2E;
-        myBitfield<uint32_t, 5, 5> CC2P;
-        myBitfield<uint32_t, 6, 6> CC2NE;
-        myBitfield<uint32_t, 7, 7> CC2NP;
-        myBitfield<uint32_t, 8, 8> CC3E;
-        myBitfield<uint32_t, 9, 9> CC3P;
-        myBitfield<uint32_t, 10, 10> CC3NE;
-        myBitfield<uint32_t, 11, 11> CC3NP;
-        myBitfield<uint32_t, 12, 12> CC4E;
-        myBitfield<uint32_t, 13, 13> CC4P;
+        myBitfield<uint32_t, 0, 0> CC1E;     /* Capture/Compare 1 output enable
+                                              * CC1 channel configured as output:
+                                              * 0: Off - OC1 is not active. OC1 level is then function
+                                              *    of MOE, OSSI, OSSR, OIS1, OIS1N and CC1NE bits.
+                                              * 1: On - OC1 signal is output on the corresponding output pin
+                                              *    depending on MOE, OSSI, OSSR, OIS1, OIS1N and CC1NE bits.
+                                              */
+        myBitfield<uint32_t, 1, 1> CC1P;     /* Capture/Compare 1 output polarity;
+                                              * CC1 channel configured as output:
+                                              * 0: OC1 active high
+                                              * 1: OC1 active low
+                                              */
+        myBitfield<uint32_t, 2, 2> CC1NE;    /* Capture/Compare 1 complementary output enable
+                                              * 0: Off - OC1N is not active. OC1N level is then function
+                                              *    of MOE, OSSI, OSSR, OIS1, OIS1N and CC1E bits.
+                                              * 1: On - OC1N signal is output on the corresponding output pin
+                                              *    depending on MOE, OSSI, OSSR, OIS1, OIS1N and CC1E bits.
+                                              */
+        myBitfield<uint32_t, 3, 3> CC1NP;    /* Capture/Compare 1 complementary output polarity
+                                              * CC1 channel configured as output:
+                                              * 0: OC1N active high.
+                                              * 1: OC1N active low.
+                                              */
+        myBitfield<uint32_t, 4, 4> CC2E;     // Capture/Compare 2 output enableRefer to CC1E description
+        myBitfield<uint32_t, 5, 5> CC2P;     // Capture/Compare 2 output polarityRefer to CC1P description
+        myBitfield<uint32_t, 6, 6> CC2NE;    // Capture/Compare 2 complementary output enableRefer to CC1NE description
+        myBitfield<uint32_t, 7, 7> CC2NP;    // Capture/Compare 2 complementary output polarityRefer to CC1NP description
+        myBitfield<uint32_t, 8, 8> CC3E;     // Capture/Compare 3 output enableRefer to CC1E description
+        myBitfield<uint32_t, 9, 9> CC3P;     // Capture/Compare 3 output polarityRefer to CC1P description
+        myBitfield<uint32_t, 10, 10> CC3NE;  // Capture/Compare 3 complementary output enableRefer to CC1NE description
+        myBitfield<uint32_t, 11, 11> CC3NP;  // Capture/Compare 3 complementary output polarityRefer to CC1NP description
+        myBitfield<uint32_t, 12, 12> CC4E;   // Capture/Compare 4 output enableRefer to CC1E description
+        myBitfield<uint32_t, 13, 13> CC4P;   // Capture/Compare 4 output polarityRefer to CC1P description
         // bit 14 reserved
-        myBitfield<uint32_t, 15, 15> CC4NP;
-        myBitfield<uint32_t, 16, 16> CC5E;
-        myBitfield<uint32_t, 17, 17> CC5P;
-        // bit 18 reserved
-        // bit 19 reserved
-        myBitfield<uint32_t, 20, 20> CC6E;
-        myBitfield<uint32_t, 3, 3> CC6P;
+        myBitfield<uint32_t, 15, 15> CC4NP;  // Capture/Compare 4 complementary output polarityRefer to CC1NP description
+        myBitfield<uint32_t, 16, 16> CC5E;   // Capture/Compare 5 output enableRefer to CC1E description
+        myBitfield<uint32_t, 17, 17> CC5P;   // Capture/Compare 5 output polarityRefer to CC1P description
+        // bits 18-19 are reserved, must be kept at reset value.
+        myBitfield<uint32_t, 20, 20> CC6E;  // Capture/Compare 6 output enableRefer to CC1E description
+        myBitfield<uint32_t, 3, 3> CC6P;    // Capture/Compare 6 output polarityRefer to CC1P description
         // bits 22 - 31 reserved
 
-        Bitfield bitfield;
+        uint32_t raw;
+    };
+
+    union BDTR_t {
+        myBitfield<uint32_t, 0, 7> DTG;
+        myBitfield<uint32_t, 8, 9> LOCK;
+        myBitfield<uint32_t, 10, 10> OSSI;
+        myBitfield<uint32_t, 11, 11> OSSR;
+        myBitfield<uint32_t, 12, 12> BKE;
+        myBitfield<uint32_t, 13, 13> BKP;
+        myBitfield<uint32_t, 14, 14> AOE;
+        myBitfield<uint32_t, 15, 15> MOE;
+        myBitfield<uint32_t, 16, 19> BKF;
+        myBitfield<uint32_t, 20, 23> BK2F;
+        myBitfield<uint32_t, 24, 24> BK2E;
+        myBitfield<uint32_t, 25, 25> BK2P;
+
         uint32_t raw;
     };
 
@@ -372,14 +341,14 @@ struct TimerRegisterMap {
     uint32_t CCR2;   // capture/compare register 2
     uint32_t CCR3;   // capture/compare register 3
     uint32_t CCR4;   // capture/compare register 4
-    uint32_t BDTR;   // break and dead-time register
+    BDTR_t BDTR;     // break and dead-time register
     uint32_t DCR;    // DMA control register
     uint32_t DMAR;   // DMA address for full transfer
     uint32_t OR;     // option registers
     uint32_t CCMR3;  // capture/compare mode register 3
     uint32_t CCR5;   // capture/compare register 5
     uint32_t CCR6;   // capture/compare register 6
-};
+};                   // namespace stm32f3xx
 
 namespace timer_detail {
 enum class Interrupt {
@@ -446,7 +415,7 @@ class Timer {
      * This function return current direction setting
      * @return Direction
      */
-    Direction getDirection() { return static_cast<Direction>(timer.CR1.DIR); }
+    Direction getDirection() { return static_cast<Direction>(timer.CR1.DIR.get()); }
 
     void enableAutoReload() { timer.CR1.ARPE = 1; }
     void disableAutoReload() { timer.CR1.ARPE = 0; }
@@ -461,10 +430,10 @@ class Timer {
             case ClockSource::Internal:
                 break;
             case ClockSource::ETRPin:
-                timer.SMCR.bitfield.ETF = 0;
-                timer.SMCR.bitfield.ETPS = 0;
-                timer.SMCR.bitfield.ETP = 0;
-                timer.SMCR.bitfield.ECE = 1;
+                timer.SMCR.ETF = 0;
+                timer.SMCR.ETPS = 0;
+                timer.SMCR.ETP = 0;
+                timer.SMCR.ECE = 1;
                 break;
         }
     }
@@ -496,6 +465,7 @@ class Timer {
         };
 
         enum class Polarity { ActiveHigh = 0, ActiveLow };
+        enum class IdleState { Low, High };
 
         void setValue(uint32_t value) {
             switch (compareChannelNumber) {
@@ -528,87 +498,99 @@ class Timer {
         void enablePreload() {
             switch (compareChannelNumber) {
                 case 1:
-                    timer.CCMR1.OC1PE = 1;
+                    timer.CCMR1.bitfieldOutput.OC1PE = 1;
                     break;
                 case 2:
-                    timer.CCMR1.OC2PE = 1;
+                    timer.CCMR1.bitfieldOutput.OC2PE = 1;
                     break;
                 case 3:
-                    timer.CCMR2.OC3PE = 1;
+                    timer.CCMR2.bitfieldOutput.OC3PE = 1;
                     break;
                 case 4:
-                    timer.CCMR2.OC4PE = 1;
+                    timer.CCMR2.bitfieldOutput.OC4PE = 1;
                     break;
             }
         }
         void disablePreload() {
             switch (compareChannelNumber) {
                 case 1:
-                    timer.CCMR1.OC1PE = 0;
+                    timer.CCMR1.bitfieldOutput.OC1PE = 0;
                     break;
                 case 2:
-                    timer.CCMR1.OC2PE = 0;
+                    timer.CCMR1.bitfieldOutput.OC2PE = 0;
                     break;
                 case 3:
-                    timer.CCMR2.OC3PE = 0;
+                    timer.CCMR2.bitfieldOutput.OC3PE = 0;
                     break;
                 case 4:
-                    timer.CCMR2.OC4PE = 0;
+                    timer.CCMR2.bitfieldOutput.OC4PE = 0;
                     break;
             }
         }
         void setMode(Mode mode) {
             switch (compareChannelNumber) {
                 case 1:
-                    timer.CCMR1.CC1S = 0;  // configure compare as output
+                    timer.CCMR1.bitfieldOutput.CC1S = 0;  // configure compare as output
                     timer.CCMR1.setOC1M(static_cast<uint32_t>(mode));
                     break;
                 case 2:
-                    timer.CCMR1.CC2S = 0;  // configure compare as output
+                    timer.CCMR1.bitfieldOutput.CC2S = 0;  // configure compare as output
                     timer.CCMR1.setOC2M(static_cast<uint32_t>(mode));
                     break;
                 case 3:
-                    timer.CCMR2.CC3S = 0;  // configure compare as output
+                    timer.CCMR2.bitfieldOutput.CC3S = 0;  // configure compare as output
                     timer.CCMR2.setOC3M(static_cast<uint32_t>(mode));
                     break;
                 case 4:
-                    timer.CCMR2.CC4S = 0;  // configure compare as output
+                    timer.CCMR2.bitfieldOutput.CC4S = 0;  // configure compare as output
                     timer.CCMR2.setOC4M(static_cast<uint32_t>(mode));
                     break;
             }
         }
-        void outputEnable(Polarity polarity) {
+        void outputEnable(Polarity polarity, IdleState idleState) {
             switch (compareChannelNumber) {
                 case 1:
                     timer.CCER.CC1P = static_cast<uint32_t>(polarity);
+                    timer.CR2.OIS1 = static_cast<uint32_t>(idleState);
                     timer.CCER.CC1E = 1;  // enable
                     break;
                 case 2:
                     timer.CCER.CC2P = static_cast<uint32_t>(polarity);
+                    timer.CR2.OIS2 = static_cast<uint32_t>(idleState);
                     timer.CCER.CC2E = 1;  // enable
                     break;
                 case 3:
                     timer.CCER.CC3P = static_cast<uint32_t>(polarity);
+                    timer.CR2.OIS3 = static_cast<uint32_t>(idleState);
                     timer.CCER.CC3E = 1;  // enable
                     break;
                 case 4:
                     timer.CCER.CC4P = static_cast<uint32_t>(polarity);
+                    timer.CR2.OIS4 = static_cast<uint32_t>(idleState);
                     timer.CCER.CC4E = 1;  // enable
                     break;
             }
         }
-        void complementaryOutputEnable(Polarity polarity) {
+        /**
+         * Note: idleState is by default disabled. To enable idleState functionality call TODO function.
+         * @param polarity
+         * @param idleState
+         */
+        void complementaryOutputEnable(Polarity polarity, IdleState idleState) {
             switch (compareChannelNumber) {
                 case 1:
                     timer.CCER.CC1NP = static_cast<uint32_t>(polarity);
+                    timer.CR2.OIS1N = static_cast<uint32_t>(idleState);
                     timer.CCER.CC1NE = 1;  // enable
                     break;
                 case 2:
                     timer.CCER.CC2NP = static_cast<uint32_t>(polarity);
+                    timer.CR2.OIS2N = static_cast<uint32_t>(idleState);
                     timer.CCER.CC2NE = 1;  // enable
                     break;
                 case 3:
                     timer.CCER.CC3P = static_cast<uint32_t>(polarity);
+                    timer.CR2.OIS2N = static_cast<uint32_t>(idleState);
                     timer.CCER.CC3E = 1;  // enable
                     break;
             }
@@ -651,9 +633,16 @@ class Timer {
         friend Timer;
     };
 
-    void enableCompareOutputs() { timer.BDTR |= TIM_BDTR_MOE; }
+    void enableCompareOutputs() { timer.BDTR.MOE = 1; }
     uint32_t getValue() { return timer.CNT; }
     void setValue(uint32_t value) { timer.CNT = value; }
+
+    enum class OffStateForRunMode { HiZ_GPIO, InactiveState };
+    enum class OffStateForIdleMode { HiZ_GPIO, IdleState };
+    void configureOffState(OffStateForRunMode ossr, OffStateForIdleMode ossi) {
+        timer.BDTR.OSSR = static_cast<uint32_t>(ossr);
+        timer.BDTR.OSSI = static_cast<uint32_t>(ossi);
+    }
 
     OutputCompare compare1;
     OutputCompare compare2;
