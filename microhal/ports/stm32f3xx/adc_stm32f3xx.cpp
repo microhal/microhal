@@ -11,23 +11,25 @@ namespace microhal {
 namespace stm32f3xx {
 
 Adc *Adc::adc1 = nullptr;
+Adc *Adc::adc2 = nullptr;
 Signal<void> Adc::signal;
 
-void ADC1_2_IRQHandler(void) {
-    uint32_t isr = ADC1->ISR;
-    uint32_t ier = ADC1->IER;
+void Adc::interruptFunction() {
+    uint32_t isr = adc.ISR;
+    uint32_t ier = adc.IER;
     uint32_t activeAndEnabledInterruptFlags = isr & ier;
     uint32_t interruptFlagToClear = 0;
-    if (activeAndEnabledInterruptFlags & Adc::Interrupt::EndOfRegularConversion) {
-        if (Adc::adc1->dataBegin != Adc::adc1->dataEnd) {
-            *(Adc::adc1->dataBegin) = ADC1->DR;
-            Adc::adc1->dataBegin++;
+
+    if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularConversion) {
+        if (dataBegin != dataEnd) {
+            *(dataBegin) = adc.DR;
+            dataBegin++;
         }
-        interruptFlagToClear |= static_cast<uint32_t>(Adc::Interrupt::EndOfRegularConversion);  // always clear interrupt flag
+        interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularConversion);  // always clear interrupt flag
     }
-    if (activeAndEnabledInterruptFlags & Adc::Interrupt::EndOfRegularSequence) {
-        interruptFlagToClear |= static_cast<uint32_t>(Adc::Interrupt::EndOfRegularSequence);
-        bool shouldYeld = Adc::adc1->regularSequenceFinishSemaphore.giveFromISR();
+    if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularSequence) {
+        interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
+        bool shouldYeld = regularSequenceFinishSemaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
         portYIELD_FROM_ISR(shouldYeld);
 #else
@@ -38,9 +40,13 @@ void ADC1_2_IRQHandler(void) {
     if (activeAndEnabledInterruptFlags & Adc::Interrupt::Overrun) {
         interruptFlagToClear |= static_cast<uint32_t>(Adc::Interrupt::Overrun);
     }
-
     // clear flags of interrupt that have been served
-    ADC1->ISR = interruptFlagToClear;
+    adc.ISR = interruptFlagToClear;
+}
+
+void ADC1_2_IRQHandler(void) {
+    if (Adc::adc1) Adc::adc1->interruptFunction();
+    if (Adc::adc2) Adc::adc2->interruptFunction();
 }
 }  // namespace stm32f3xx
 }  // namespace microhal

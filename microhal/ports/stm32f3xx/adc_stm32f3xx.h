@@ -131,6 +131,9 @@ class Adc final {
         }
         return false;
     }
+
+    void enableAutoDelayedConversionMode() { adc.CFGR |= ADC_CFGR_AUTDLY; }
+    void disableAutoDelayedConversionMode() { adc.CFGR &= ~ADC_CFGR_AUTDLY; }
     /**
      *
      * @retval true if conversion was started
@@ -219,7 +222,10 @@ class Adc final {
         return true;
     }
 
-    uint16_t readSamples() { return adc.DR; }
+    bool startRegularSequence(uint16_t *begin, uint16_t *end) {
+        setSamplesBuffer(begin, end);
+        return startConversion();
+    }
 
     bool waitForRegularSequenceEnd(std::chrono::milliseconds timeout) { return regularSequenceFinishSemaphore.wait(timeout); }
 
@@ -262,18 +268,26 @@ class Adc final {
         return false;
     }
 
+    /**
+     * Note: This function is enabling interrupt for both ADC1 and ADC2 devices
+     * @param priority
+     */
     void enableInterrupt(uint32_t priority) {
         NVIC_ClearPendingIRQ(ADC1_2_IRQn);
         NVIC_SetPriority(ADC1_2_IRQn, priority);
         NVIC_EnableIRQ(ADC1_2_IRQn);
     }
-
+    /**
+     * Note: This function is disabling interrupt for both ADC1 and ADC2 devices
+     */
     void disableInterrupt() { NVIC_DisableIRQ(ADC1_2_IRQn); }
 
     void setSamplesBuffer(uint16_t *begin, uint16_t *end) {
         dataBegin = begin;
         dataEnd = end;
     }
+
+    uint16_t readSamples() { return adc.DR; }
 
  public:
     Adc(ADC_TypeDef &adc) : adc(adc) {
@@ -283,7 +297,8 @@ class Adc final {
 
         ADC12_COMMON->CCR |= ADC_CCR_VREFEN;
 
-        adc1 = this;
+        if (&adc == ADC1) adc1 = this;
+        if (&adc == ADC2) adc2 = this;
     }
     ~Adc() {
         disableInterrupt();
@@ -295,10 +310,11 @@ class Adc final {
 
  private:
     static Adc *adc1;
+    static Adc *adc2;
     ADC_TypeDef &adc;
     uint16_t *dataBegin = nullptr;
     uint16_t *dataEnd = nullptr;
-    microhal::os::Semaphore regularSequenceFinishSemaphore;
+    microhal::os::Semaphore regularSequenceFinishSemaphore = {};
     static Signal<void> signal;
 
     void enableInterrupts(Interrupt interrupts) { adc.IER |= static_cast<uint32_t>(interrupts); }
@@ -344,6 +360,8 @@ class Adc final {
         adc.CR &= ~(0b11 << ADC_CR_ADVREGEN_Pos);
         adc.CR |= 0b10 << ADC_CR_ADVREGEN_Pos;
     }
+
+    void interruptFunction();
 
     friend void ADC1_2_IRQHandler(void);
 };

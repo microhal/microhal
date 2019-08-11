@@ -32,7 +32,7 @@ OUTPUT_ARCH(arm);
 /* Handler mode (core exceptions / interrupts) can use only main stack */
 /* Thread mode can use main stack (default) or process stack - selected in CONTROL special register */
 
-__main_stack_size = 1024;
+__main_stack_size = 2024;
 __process_stack_size = 0;
 
 PROVIDE(__main_stack_size = __main_stack_size);
@@ -202,7 +202,7 @@ SECTIONS
 		. = ALIGN(8);
 		__stack_end = .;
 		PROVIDE(__stack_end = __stack_end);
-	} > ram AT > ram
+	} > ccm_ram AT > ccm_ram
 
 	. = ALIGN(4);
 	__heap_start = .;
