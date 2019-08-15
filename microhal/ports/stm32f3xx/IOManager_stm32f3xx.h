@@ -240,6 +240,16 @@ class IOManager {
                 static_assert(pin == IOPin{IOPin::PortB, 15} || pin == IOPin{IOPin::PortC, 2},
                               "TIM1 channel3 can be connected only to: PortB.15 or PortC.2.");
             }
+            if constexpr (channel == 4) {
+                static_assert(pin == IOPin{IOPin::PortA, 11} || pin == IOPin{IOPin::PortC, 3},
+                              "TIM1 channel3 can be connected only to: PortA.11 or PortC.3.");
+                if constexpr (pin == IOPin{IOPin::PortA, 11}) {
+                    alternateFunction = GPIO::AlternateFunction::AF11;
+                }
+                if constexpr (pin == IOPin{IOPin::PortC, 3}) {
+                    alternateFunction = GPIO::AlternateFunction::AF2;
+                }
+            }
         }
         // Timer 3
         if constexpr (TimerNumber == 3) {
