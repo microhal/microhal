@@ -33,6 +33,7 @@
  * INCLUDES
  */
 
+#include "device/adcRegisterMap.h"
 #include "device/stm32f3xx.h"
 #include "gsl/gsl"
 #include "microhal_semaphore.h"
@@ -125,6 +126,24 @@ class Adc final {
         PCLK_Quater = ADC12_CCR_CKMODE_0 | ADC12_CCR_CKMODE_1
     } ClkMode;
 
+    enum class TriggerSource { Software, HardwareOnRisingEdge, HardwareOnFallingEdge, HardwareOnBothEdges };
+    enum class ExternalTriggerSource {
+        TIM1_CC1,
+        TIM1_CC2,
+        TIM1_CC3,
+        TIM2_CC2,
+        TIM3_TRGO,
+        EXTI11 = 0b0110,
+        HRTIM_ADCTRG1,
+        HRTIM_ADCTRG3,
+        TIM1_TRGO,
+        TIM1_TRGO2,
+        TIM2_TRGO,
+        TIM6_TRGO = 0b1101,
+        TIM15_TRGO = 0b1110,
+        TIM3_CC4
+    };
+
     bool connect(void (*interruptFunction)(void)) {
         if (signal.connect(interruptFunction)) {
             return true;
@@ -134,6 +153,15 @@ class Adc final {
 
     void enableAutoDelayedConversionMode() { adc.CFGR |= ADC_CFGR_AUTDLY; }
     void disableAutoDelayedConversionMode() { adc.CFGR &= ~ADC_CFGR_AUTDLY; }
+    /**
+     *
+     * @param triggerSource - @ref TriggerSource
+     * @param eventNumber - Select hardware trigger source, ignored in Software trigger mode
+     */
+    void configureTriggerSource(TriggerSource triggerSource, ExternalTriggerSource externalTrigger) {
+        adc_.CFGR.EXTEN = static_cast<uint32_t>(triggerSource);
+        adc_.CFGR.EXTSEL = static_cast<uint32_t>(externalTrigger);
+    }
     /**
      *
      * @retval true if conversion was started
@@ -206,21 +234,7 @@ class Adc final {
      * @param channel number form 1 to 18
      * @return
      */
-    bool configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
-        if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
-        if (adc.CR & ADC_CR_ADSTART) return false;
-
-        for (auto channel : sequence) {
-            if (channel == Channel::Channel0) return false;
-        }
-
-        for (int i = 0; i < sequence.length(); i++) {
-            setSamplingSequence(sequence.length(), i + 1, sequence.at(i));
-        }
-
-        enableInterrupts(Interrupt::EndOfRegularSequence | Interrupt::EndOfRegularConversion | Interrupt::Overrun);
-        return true;
-    }
+    bool configureSamplingSequence(gsl::span<Adc::Channel> sequence);
 
     bool startRegularSequence(uint16_t *begin, uint16_t *end) {
         setSamplesBuffer(begin, end);
@@ -290,7 +304,7 @@ class Adc final {
     uint16_t readSamples() { return adc.DR; }
 
  public:
-    Adc(ADC_TypeDef &adc) : adc(adc) {
+    Adc(ADC_TypeDef &adc) : adc(adc), adc_(*reinterpret_cast<registers::ADC *>(&adc)) {
         RCC->AHBENR |= RCC_AHBENR_ADC12EN;
         RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3;
         enableVoltageRegulator();
@@ -312,40 +326,16 @@ class Adc final {
     static Adc *adc1;
     static Adc *adc2;
     ADC_TypeDef &adc;
+    registers::ADC &adc_;
     uint16_t *dataBegin = nullptr;
+    uint16_t *workDataBegin = nullptr;
     uint16_t *dataEnd = nullptr;
     microhal::os::Semaphore regularSequenceFinishSemaphore = {};
     static Signal<void> signal;
 
     void enableInterrupts(Interrupt interrupts) { adc.IER |= static_cast<uint32_t>(interrupts); }
 
-    void setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel) {
-        uint32_t sqr1 = adc.SQR1;
-        sqr1 &= ~0b1111;
-        sqr1 |= sequenceLength - 1;
-
-        if (sequencePosition <= 4) {
-            sqr1 &= ~(0b11111 << (sequencePosition * 6));
-            sqr1 |= (channel << (sequencePosition * 6));
-        } else if (sequencePosition <= 9) {
-            uint32_t sqr = adc.SQR2;
-            sqr &= ~(0b11111 << ((sequencePosition - 5) * 6));
-            sqr |= (channel << ((sequencePosition - 5) * 6));
-            adc.SQR2 = sqr;
-        } else if (sequencePosition <= 14) {
-            uint32_t sqr = adc.SQR3;
-            sqr &= ~(0b11111 << ((sequencePosition - 10) * 6));
-            sqr |= (channel << ((sequencePosition - 10) * 6));
-            adc.SQR3 = sqr;
-        } else if (sequencePosition <= 16) {
-            uint32_t sqr = adc.SQR4;
-            sqr &= ~(0b11111 << ((sequencePosition - 15) * 6));
-            sqr |= (channel << ((sequencePosition - 15) * 6));
-            adc.SQR4 = sqr;
-        }
-
-        adc.SQR1 = sqr1;
-    }
+    void setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel);
 
     void enableVoltageRegulator() {
         adc.CR &= ~(0b11 << ADC_CR_ADVREGEN_Pos);

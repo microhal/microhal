@@ -14,6 +14,50 @@ Adc *Adc::adc1 = nullptr;
 Adc *Adc::adc2 = nullptr;
 Signal<void> Adc::signal;
 
+bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
+    if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
+    if (adc.CR & ADC_CR_ADSTART) return false;
+
+    for (int i = 0; i < sequence.length(); i++) {
+        if (sequence.at(i) == Channel::Channel0) return false;
+    }
+
+    for (int i = 0; i < sequence.length(); i++) {
+        setSamplingSequence(sequence.length(), i + 1, sequence.at(i));
+    }
+
+    enableInterrupts(Interrupt::EndOfRegularSequence | Interrupt::EndOfRegularConversion | Interrupt::Overrun);
+    return true;
+}
+
+void Adc::setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel) {
+    uint32_t sqr1 = adc.SQR1;
+    sqr1 &= ~0b1111;
+    sqr1 |= sequenceLength - 1;
+
+    if (sequencePosition <= 4) {
+        sqr1 &= ~(0b11111 << (sequencePosition * 6));
+        sqr1 |= (channel << (sequencePosition * 6));
+    } else if (sequencePosition <= 9) {
+        uint32_t sqr = adc.SQR2;
+        sqr &= ~(0b11111 << ((sequencePosition - 5) * 6));
+        sqr |= (channel << ((sequencePosition - 5) * 6));
+        adc.SQR2 = sqr;
+    } else if (sequencePosition <= 14) {
+        uint32_t sqr = adc.SQR3;
+        sqr &= ~(0b11111 << ((sequencePosition - 10) * 6));
+        sqr |= (channel << ((sequencePosition - 10) * 6));
+        adc.SQR3 = sqr;
+    } else if (sequencePosition <= 16) {
+        uint32_t sqr = adc.SQR4;
+        sqr &= ~(0b11111 << ((sequencePosition - 15) * 6));
+        sqr |= (channel << ((sequencePosition - 15) * 6));
+        adc.SQR4 = sqr;
+    }
+
+    adc.SQR1 = sqr1;
+}
+
 void Adc::interruptFunction() {
     uint32_t isr = adc.ISR;
     uint32_t ier = adc.IER;
@@ -21,14 +65,15 @@ void Adc::interruptFunction() {
     uint32_t interruptFlagToClear = 0;
 
     if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularConversion) {
-        if (dataBegin != dataEnd) {
-            *(dataBegin) = adc.DR;
-            dataBegin++;
+        if (workDataBegin != dataEnd) {
+            *(workDataBegin) = adc.DR;
+            workDataBegin++;
         }
         interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularConversion);  // always clear interrupt flag
     }
     if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularSequence) {
         interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
+        workDataBegin = dataBegin;
         bool shouldYeld = regularSequenceFinishSemaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
         portYIELD_FROM_ISR(shouldYeld);
