@@ -229,6 +229,8 @@ class IOManager {
                            stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OutputType::PushPull) {
         constexpr IOPin pin(port, pinNr);
 
+        GPIO::AlternateFunction alternateFunction = GPIO::AlternateFunction::AF2;
+        // Timer 1
         if constexpr (TimerNumber == 1) {
             if constexpr (channel == 1) {
                 static_assert(pin == IOPin{IOPin::PortA, 8} || pin == IOPin{IOPin::PortB, 13} || pin == IOPin{IOPin::PortC, 0},
@@ -239,8 +241,35 @@ class IOManager {
                               "TIM1 channel3 can be connected only to: PortB.15 or PortC.2.");
             }
         }
+        // Timer 3
+        if constexpr (TimerNumber == 3) {
+            if constexpr (channel == 1) {
+                static_assert(pin == IOPin{IOPin::PortA, 6} || pin == IOPin{IOPin::PortB, 4} || pin == IOPin{IOPin::PortC, 6},
+                              "TIM3 channel1 can be connected only to: PortA.6, PortB.4 or PortC.6.");
+                alternateFunction = GPIO::AlternateFunction::AF2;
+            }
+            if constexpr (channel == 2) {
+                static_assert(
+                    pin == IOPin{IOPin::PortA, 4} || pin == IOPin{IOPin::PortA, 7} || pin == IOPin{IOPin::PortB, 5} || pin == IOPin{IOPin::PortC, 7},
+                    "TIM3 channel2 can be connected only to: PortA.4, PortA.7, PortB.5 or PortC.7.");
+                alternateFunction = GPIO::AlternateFunction::AF2;
+            }
+            if constexpr (channel == 3) {
+                static_assert(pin == IOPin{IOPin::PortB, 0} || pin == IOPin{IOPin::PortC, 8},
+                              "TIM3 channel3 can be connected only to: PortB.0 or PortC.8.");
+                alternateFunction = GPIO::AlternateFunction::AF2;
+            }
+            if constexpr (channel == 4) {
+                static_assert(pin == IOPin{IOPin::PortB, 1} || pin == IOPin{IOPin::PortB, 7} || pin == IOPin{IOPin::PortC, 9},
+                              "TIM3 channel4 can be connected only to: PortB.1, PortB.7 or PortC.9.");
+                if constexpr (pin == IOPin{IOPin::PortB, 7}) {
+                    alternateFunction = GPIO::AlternateFunction::AF2;
+                } else {
+                    alternateFunction = GPIO::AlternateFunction::AF10;
+                }
+            }
+        }
 
-        GPIO::AlternateFunction alternateFunction = GPIO::AlternateFunction::AF2;
         if constexpr (pin == IOPin{IOPin::PortB, 14} || pin == IOPin{IOPin::PortB, 13}) {
             alternateFunction = GPIO::AlternateFunction::AF6;
         }
