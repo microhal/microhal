@@ -47,6 +47,9 @@ class Channel {
         channel.CCR = (channel.CCR & ~static_cast<uint32_t>(MemoryIncrementMode::PointerIncremented)) | static_cast<uint32_t>(memoryInc);
     }
 
+    void enableCircularMode() { channel.CCR |= DMA_CCR_CIRC; }
+    void disableCircularMode() { channel.CCR &= ~DMA_CCR_CIRC; }
+
     void priority(Priority priority) { channel.CCR = (channel.CCR & ~DMA_CCR_PL) | static_cast<uint32_t>(priority); }
 
     void peripheralAddress(volatile void *addr) { channel.CPAR = reinterpret_cast<uint32_t>(addr); }

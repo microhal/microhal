@@ -12,7 +12,6 @@ namespace stm32f3xx {
 
 Adc *Adc::adc1 = nullptr;
 Adc *Adc::adc2 = nullptr;
-Signal<void> Adc::signal;
 
 bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
     if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
@@ -26,7 +25,7 @@ bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
         setSamplingSequence(sequence.length(), i + 1, sequence.at(i));
     }
 
-    enableInterrupts(Interrupt::EndOfRegularSequence | Interrupt::EndOfRegularConversion | Interrupt::Overrun);
+    enableInterrupts(Interrupt::EndOfRegularSequence | /* Interrupt::EndOfRegularConversion |*/ Interrupt::Overrun);
     return true;
 }
 
@@ -64,16 +63,8 @@ void Adc::interruptFunction() {
     uint32_t activeAndEnabledInterruptFlags = isr & ier;
     uint32_t interruptFlagToClear = 0;
 
-    if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularConversion) {
-        if (workDataBegin != dataEnd) {
-            *(workDataBegin) = adc.DR;
-            workDataBegin++;
-        }
-        interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularConversion);  // always clear interrupt flag
-    }
     if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularSequence) {
         interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
-        workDataBegin = dataBegin;
         bool shouldYeld = regularSequenceFinishSemaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
         portYIELD_FROM_ISR(shouldYeld);

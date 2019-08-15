@@ -35,6 +35,7 @@
 
 #include "device/adcRegisterMap.h"
 #include "device/stm32f3xx.h"
+#include "dma_stm32f3xx.h"
 #include "gsl/gsl"
 #include "microhal_semaphore.h"
 #include "signalSlot/signalSlot.h"
@@ -144,13 +145,6 @@ class Adc final {
         TIM3_CC4
     };
 
-    bool connect(void (*interruptFunction)(void)) {
-        if (signal.connect(interruptFunction)) {
-            return true;
-        }
-        return false;
-    }
-
     void enableAutoDelayedConversionMode() { adc.CFGR |= ADC_CFGR_AUTDLY; }
     void disableAutoDelayedConversionMode() { adc.CFGR &= ~ADC_CFGR_AUTDLY; }
     /**
@@ -162,6 +156,25 @@ class Adc final {
         adc_.CFGR.EXTEN = static_cast<uint32_t>(triggerSource);
         adc_.CFGR.EXTSEL = static_cast<uint32_t>(externalTrigger);
     }
+
+    void initDMA(uint16_t *data, size_t len) {
+        DMA::dma1->clockEnable();
+        auto &stream = DMA::dma1->stream[0];
+        stream.peripheralAddress(&adc.DR);
+        stream.memoryAddress(data);
+        stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+        stream.numberOfItemsToTransfer(len);
+        stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
+                    DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
+                    DMA::Channel::TransmisionDirection::PerToMem);
+        stream.enableCircularMode();
+        stream.enable();
+        adc_.CFGR.DMACFG = 1;
+        adc_.CFGR.DMAEN = 1;
+    }
+
+    Interrupt getInterrupFlags() const { return static_cast<Interrupt>(adc.ISR); }
+    void clearInterruptFlags(Interrupt interrupt) { adc.ISR = static_cast<uint32_t>(interrupt); }
     /**
      *
      * @retval true if conversion was started
@@ -236,11 +249,6 @@ class Adc final {
      */
     bool configureSamplingSequence(gsl::span<Adc::Channel> sequence);
 
-    bool startRegularSequence(uint16_t *begin, uint16_t *end) {
-        setSamplesBuffer(begin, end);
-        return startConversion();
-    }
-
     bool waitForRegularSequenceEnd(std::chrono::milliseconds timeout) { return regularSequenceFinishSemaphore.wait(timeout); }
 
     bool waitForConversionEnd(uint32_t ms = 10000) {
@@ -296,11 +304,6 @@ class Adc final {
      */
     void disableInterrupt() { NVIC_DisableIRQ(ADC1_2_IRQn); }
 
-    void setSamplesBuffer(uint16_t *begin, uint16_t *end) {
-        dataBegin = begin;
-        dataEnd = end;
-    }
-
     uint16_t readSamples() { return adc.DR; }
 
  public:
@@ -327,11 +330,7 @@ class Adc final {
     static Adc *adc2;
     ADC_TypeDef &adc;
     registers::ADC &adc_;
-    uint16_t *dataBegin = nullptr;
-    uint16_t *workDataBegin = nullptr;
-    uint16_t *dataEnd = nullptr;
     microhal::os::Semaphore regularSequenceFinishSemaphore = {};
-    static Signal<void> signal;
 
     void enableInterrupts(Interrupt interrupts) { adc.IER |= static_cast<uint32_t>(interrupts); }
 
