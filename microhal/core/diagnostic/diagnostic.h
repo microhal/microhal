@@ -253,6 +253,8 @@ class LogLevelChannel {
         return *this;
     }
 
+    LogLevelChannel &operator<<(int i) { return operator<<(static_cast<int32_t>(i)); }
+
     LogLevelChannel &operator<<(uint8_t i) { return operator<<(static_cast<uint32_t>(i)); }
 
     LogLevelChannel &operator<<(uint16_t i) { return operator<<(static_cast<uint32_t>(i)); }
