@@ -37,8 +37,8 @@ void set_system_clock_time(const std::chrono::time_point<std::chrono::system_clo
                        std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
                 << unlock;
 }
-}
-}
+}  // namespace os
+}  // namespace microhal
 
 extern "C" int _gettimeofday(struct timeval *tv, void *tzvp __attribute__((unused))) {
     TickType_t tickCount = xTaskGetTickCount();
