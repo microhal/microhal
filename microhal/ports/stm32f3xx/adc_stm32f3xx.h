@@ -86,6 +86,9 @@ using adc_detail::operator&;
 class Adc final {
  public:
     using Interrupt = adc_detail::Interrupt;
+
+    enum class CalibrationType { SingleEnded = 0, Differential };
+    enum class TriggerSource { Software, HardwareOnRisingEdge, HardwareOnFallingEdge, HardwareOnBothEdges };
     /**
      * @brief Possible ADC channels
      */
@@ -127,7 +130,6 @@ class Adc final {
         PCLK_Quater = ADC12_CCR_CKMODE_0 | ADC12_CCR_CKMODE_1
     } ClkMode;
 
-    enum class TriggerSource { Software, HardwareOnRisingEdge, HardwareOnFallingEdge, HardwareOnBothEdges };
     enum class ExternalTriggerSource {
         TIM1_CC1,
         TIM1_CC2,
@@ -143,6 +145,17 @@ class Adc final {
         TIM6_TRGO = 0b1101,
         TIM15_TRGO = 0b1110,
         TIM3_CC4
+    };
+
+    enum class DualADCMode {
+        Independent = 0,
+        CombinedRegularSimultaneousAndIngectedSimultaneous,
+        CombinedRegularSimultaneousAndAlternateTrigger,
+        CombinedInterleavedAndInjectedSimultaneous,
+        InjectedSimultaneousOnly = 0b00101,
+        RegularSimultaneousOnly,
+        InterleavedOnly,
+        AlternateTriggerOnly = 0b01001
     };
 
     void enableAutoDelayedConversionMode() { adc.CFGR |= ADC_CFGR_AUTDLY; }
@@ -169,6 +182,7 @@ class Adc final {
                     DMA::Channel::TransmisionDirection::PerToMem);
         stream.enableCircularMode();
         stream.enable();
+
         adc_.CFGR.DMACFG = 1;
         adc_.CFGR.DMAEN = 1;
     }
@@ -280,11 +294,15 @@ class Adc final {
     /**
      * @note Calibrate function can be called only when ADC is disabled.
      */
-    bool calibrate() {
+    bool calibrate(CalibrationType calibrationType) {
         // Software is allowed to set ADCAL only when the ADC is disabled (ADCAL=0, ADSTART=0, ADSTP=0, ADDIS=0 and ADEN=0).
         uint32_t cr = adc.CR;
         if ((cr & (ADC_CR_ADCAL | ADC_CR_ADSTART | ADC_CR_ADSTP | ADC_CR_ADDIS | ADC_CR_ADEN)) == 0) {
-            adc.CR |= ADC_CR_ADCAL;
+            adc_.CR.ADCALDIF = static_cast<uint32_t>(calibrationType);
+            adc_.CR.ADCAL = 1;
+            do {
+                // wait until calibration is ready
+            } while (adc_.CR.ADCAL == 1);
             return true;
         }
         return false;
@@ -305,6 +323,10 @@ class Adc final {
     void disableInterrupt() { NVIC_DisableIRQ(ADC1_2_IRQn); }
 
     uint16_t readSamples() { return adc.DR; }
+
+    static void setDualADCMode(DualADCMode dualMode) { ADC12_COMMON->CCR = (ADC12_COMMON->CCR & ~0b11111) | static_cast<uint32_t>(dualMode); }
+
+    static void configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize);
 
  public:
     Adc(ADC_TypeDef &adc) : adc(adc), adc_(*reinterpret_cast<registers::ADC *>(&adc)) {
@@ -337,11 +359,15 @@ class Adc final {
     void setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel);
 
     void enableVoltageRegulator() {
-        adc.CR &= ~(0b11 << ADC_CR_ADVREGEN_Pos);
-        adc.CR |= 0b01 << ADC_CR_ADVREGEN_Pos;
+        // check if already enabled, if not the enable Voltage Regulator
+        if (adc_.CR.ADVREGEN != 0b01) {
+            // this have to be done in two steps, Do not optimize!
+            adc_.CR.ADVREGEN = 0;
+            adc_.CR.ADVREGEN = 0b01;
 
-        // wait for adc voltage regulator enable
-        while ((adc.CR & (0b11 << ADC_CR_ADVREGEN_Pos)) == 0) {
+            // wait for ADC voltage regulator enable
+            while (adc_.CR.ADVREGEN == 0) {
+            }
         }
     }
 

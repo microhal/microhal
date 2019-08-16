@@ -23,6 +23,14 @@ class myBitfield<type, begin, end> {
         return *this;
     }
 
+    volatile myBitfield &operator=(type value) volatile {
+        uint32_t tmp = data;
+        tmp &= ~bitfieldMask;
+        tmp |= (value & valueMask) << begin;
+        data = tmp;
+        return *this;
+    }
+
     myBitfield &operator|=(type value) {
         uint32_t tmp = data;
         tmp |= (value & valueMask) << begin;
@@ -38,10 +46,12 @@ class myBitfield<type, begin, end> {
     }
 
     operator type() { return get(); }
+    operator type() volatile { return get(); }
 
     void set() { data |= bitfieldMask; }
     void clear() { data &= ~bitfieldMask; }
     type get() { return (data >> begin) & valueMask; }
+    volatile type get() volatile { return (data >> begin) & valueMask; }
 
  private:
     type data;
@@ -62,7 +72,7 @@ class myBitfield<type, begin, end> {
 template <typename type, int begin, int end, int begin2, int end2>
 class myBitfield<type, begin, end, begin2, end2> {
  public:
-    myBitfield &operator=(type value) {
+    myBitfield &operator=(type value) volatile {
         uint32_t tmp = data;
         tmp &= ~(bitfieldMask1 | bitfieldMask2);
         tmp |= (value & valueMask1) << begin;
@@ -71,7 +81,7 @@ class myBitfield<type, begin, end, begin2, end2> {
         return *this;
     }
 
-    myBitfield &operator|=(type value) {
+    myBitfield &operator|=(type value) volatile {
         uint32_t tmp = data;
         tmp |= (value & valueMask1) << begin;
         tmp |= (value & valueMask2) << (begin2 - end);
@@ -79,7 +89,7 @@ class myBitfield<type, begin, end, begin2, end2> {
         return *this;
     }
 
-    myBitfield &operator&=(type value) {
+    myBitfield &operator&=(type value) volatile {
         uint32_t tmp = data;
         tmp &= (value | ~valueMask1) << begin;
         tmp &= (value | ~valueMask2) << (begin2 - end);
@@ -87,11 +97,11 @@ class myBitfield<type, begin, end, begin2, end2> {
         return *this;
     }
 
-    operator type() { return get(); }
+    operator type() volatile const { return get(); }
 
-    void set() { data |= bitfieldMask1 | bitfieldMask2; }
-    void clear() { data &= ~(bitfieldMask1 | bitfieldMask2); }
-    type get() {
+    void set() volatile { data |= bitfieldMask1 | bitfieldMask2; }
+    void clear() volatile { data &= ~(bitfieldMask1 | bitfieldMask2); }
+    type get() volatile const {
         type tmp = data;
         type value1 = (tmp & bitfieldMask1) >> begin;
         type value2 = (tmp & bitfieldMask2) >> (begin2 - end);

@@ -39,9 +39,22 @@ struct ADC {
         myBitfield<uint32_t, 26, 30> AWD1CH;
     };
 
+    union CR_t {
+        myBitfield<uint32_t, 0, 0> ADEN;
+        myBitfield<uint32_t, 1, 1> ADDIS;
+        myBitfield<uint32_t, 2, 2> ADSTART;
+        myBitfield<uint32_t, 3, 3> JADSTART;
+        myBitfield<uint32_t, 4, 4> ADSTP;
+        myBitfield<uint32_t, 5, 5> JADSTP;
+        // bits from 6 to 27 are reserved
+        myBitfield<uint32_t, 28, 29> ADVREGEN;
+        myBitfield<uint32_t, 30, 30> ADCALDIF;
+        myBitfield<uint32_t, 31, 31> ADCAL;
+    };
+
     uint32_t ISR;          /*!< ADC Interrupt and Status Register,                 Address offset: 0x00 */
     uint32_t IER;          /*!< ADC Interrupt Enable Register,                     Address offset: 0x04 */
-    uint32_t CR;           /*!< ADC control register,                              Address offset: 0x08 */
+    volatile CR_t CR;      /*!< ADC control register,                              Address offset: 0x08 */
     CFGR_t CFGR;           /*!< ADC Configuration register,                        Address offset: 0x0C */
     uint32_t RESERVED0;    /*!< Reserved, 0x010                                                         */
     uint32_t SMPR1;        /*!< ADC sample time register 1,                        Address offset: 0x14 */

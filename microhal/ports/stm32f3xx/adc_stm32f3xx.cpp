@@ -57,6 +57,22 @@ void Adc::setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequence
     adc.SQR1 = sqr1;
 }
 
+void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize) {
+    DMA::dma1->clockEnable();
+    auto &stream = DMA::dma1->stream[0];
+    stream.peripheralAddress(&ADC12_COMMON->CDR);
+    stream.memoryAddress(data);
+    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+    stream.numberOfItemsToTransfer(dataSize);
+    stream.init(DMA::Channel::MemoryDataSize::Word, DMA::Channel::PeripheralDataSize::Word, DMA::Channel::MemoryIncrementMode::PointerIncremented,
+                DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
+    stream.enableCircularMode();
+    stream.enable();
+
+    ADC12_COMMON->CCR |= (resolution == Resolution_8Bit || resolution == Resolution_12Bit) ? ADC_CCR_MDMA_1 : ADC_CCR_MDMA;
+    ADC12_COMMON->CCR |= ADC_CCR_DMACFG;  // select circular mode
+}
+
 void Adc::interruptFunction() {
     uint32_t isr = adc.ISR;
     uint32_t ier = adc.IER;
