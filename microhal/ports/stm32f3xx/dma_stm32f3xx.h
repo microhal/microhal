@@ -57,8 +57,8 @@ class Channel {
 
     void *memoryAddress() { return reinterpret_cast<void *>(channel.CMAR); }
 
-    void numberOfItemsToTransfer(size_t len) { channel.CNDTR = len; }
-    size_t numberOfItemsInTransfer() const { return channel.CNDTR; }
+    void setNumberOfItemsToTransfer(size_t len) { channel.CNDTR = len; }
+    size_t getNumberOfItemsInTransfer() const { return channel.CNDTR; }
     void enableInterrupt(Interrupt interrupts) { channel.CCR |= static_cast<uint32_t>(interrupts); }
     void disableInterrupt(Interrupt interrupts) { channel.CCR &= ~(static_cast<uint32_t>(interrupts)); }
     void enable() { channel.CCR |= DMA_CCR_EN; }
