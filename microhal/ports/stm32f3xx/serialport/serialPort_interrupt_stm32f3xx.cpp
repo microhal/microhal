@@ -57,134 +57,20 @@ SerialPort &SerialPort::Serial3 = SerialPort_interrupt::Serial3;
 #endif
 
 SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
-    : stm32f3xx::SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize) {
-    uint32_t rccEnableFlag;
+    : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
+    ClockManager::enable(usart);
 
 #ifndef HAL_RTOS_FreeRTOS
     const uint32_t interruptPriority = 0;
 #else
     const uint32_t interruptPriority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
 #endif
-    switch (reinterpret_cast<uint32_t>(&usart)) {
-        case reinterpret_cast<uint32_t>(USART1_BASE):
-            rccEnableFlag = RCC_APB2ENR_USART1EN;
-            NVIC_SetPriority(USART1_IRQn, interruptPriority);
-            NVIC_ClearPendingIRQ(USART1_IRQn);
-            NVIC_EnableIRQ(USART1_IRQn);
-
-            break;
-        case reinterpret_cast<uint32_t>(USART2_BASE):
-            rccEnableFlag = RCC_APB1ENR_USART2EN;
-            NVIC_SetPriority(USART2_IRQn, interruptPriority);
-            NVIC_ClearPendingIRQ(USART2_IRQn);
-            NVIC_EnableIRQ(USART2_IRQn);
-
-            break;
-        case reinterpret_cast<uint32_t>(USART3_BASE):
-            rccEnableFlag = RCC_APB1ENR_USART3EN;
-            NVIC_SetPriority(USART3_IRQn, interruptPriority);
-            NVIC_ClearPendingIRQ(USART3_IRQn);
-            NVIC_EnableIRQ(USART3_IRQn);
-
-            break;
-        default:
-            std::terminate();
-    }
-    if (reinterpret_cast<uint32_t>(&usart) == reinterpret_cast<uint32_t>(USART1)) {
-        RCC->APB2ENR |= rccEnableFlag;
-    } else {
-        RCC->APB1ENR |= rccEnableFlag;
-    }
+    enableInterrupt(interruptPriority);
 }
 
 bool SerialPort_interrupt::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
     usart.CR1 |= (mode << 2) | USART_CR1_UE | USART_CR1_RXNEIE;
-    return true;
-}
-
-bool SerialPort_interrupt::putChar(char c) noexcept {
-    __disable_irq();
-    if (txBuffer.append(c)) {
-        startSending();
-        __enable_irq();
-        return true;
-    }
-    __enable_irq();
-    return false;
-}
-
-bool SerialPort_interrupt::getChar(char &c) noexcept {
-    if (rxBuffer.isNotEmpty()) {
-        c = rxBuffer.get();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool SerialPort_interrupt::waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept {
-    // todo timeout
-    while (1) {
-        __disable_irq();
-        if (txBuffer.isEmpty()) {
-            __enable_irq();
-            return true;
-        }
-        __enable_irq();
-        timeout--;
-    }
-    __enable_irq();
-    return false;
-}
-
-size_t SerialPort_interrupt::write(const char *data, size_t length) noexcept {
-    size_t writeByte = 0;
-
-    if (length > 0) {
-        __disable_irq();
-        for (; writeByte < length; writeByte++) {
-            if (txBuffer.append(*data++) == false) break;
-        }
-        if (writeByte != 0) startSending();
-        __enable_irq();
-    }
-    return writeByte;
-}
-
-size_t SerialPort_interrupt::read(char *data, size_t length, std::chrono::milliseconds /*timeout*/) noexcept {
-    size_t len = rxBuffer.getLength();
-
-    if (len == 0) return 0;
-
-    if (len > length) {
-        len = length;
-    } else {
-        length = len;
-    }
-
-    while (length--) {
-        *data++ = rxBuffer.get();
-    }
-
-    return len;
-}
-
-bool SerialPort_interrupt::clear(Direction dir) noexcept {
-    switch (dir) {
-        case SerialPort::Input:
-            rxBuffer.flush();
-            break;
-        case SerialPort::Output:
-            txBuffer.flush();
-            break;
-        case SerialPort::AllDirections:
-            rxBuffer.flush();
-            txBuffer.flush();
-            break;
-        default:
-            return false;
-    }
     return true;
 }
 
@@ -198,17 +84,37 @@ void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
     }
     if (sr & USART_ISR_RXNE) {
         char tmp = usart.RDR;
-
         rxBuffer.append(tmp);
+        if (waitForBytes != 0 && rxBuffer.getLength() == waitForBytes) {
+            waitForBytes = 0;
+            bool shouldYeld = rxSemaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
+#else
+            (void)shouldYeld;
+#endif
+        }
     }
+
     if ((sr & USART_ISR_TXE) && (usart.CR1 & USART_CR1_TXEIE)) {
         if (txBuffer.isEmpty()) {
             usart.CR1 &= ~USART_CR1_TXEIE;
+            if (txWait) {
+                usart.CR1 |= USART_CR1_TCIE;
+            }
         } else {
             usart.TDR = txBuffer.get_unsafe();
         }
-        if (txBuffer.isEmpty()) {
-            usart.CR1 &= ~USART_CR1_TXEIE;
+    } else if ((sr & USART_ISR_TC) && (usart.CR1 & USART_CR1_TCIE)) {
+        usart.CR1 &= ~USART_CR1_TCIE;
+        if (txWait) {
+            txWait = false;
+            auto shouldYeld = txFinish.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
+#else
+            (void)shouldYeld;
+#endif
         }
     }
 }

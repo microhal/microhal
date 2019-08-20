@@ -1,14 +1,13 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
  * @brief
  *
- * @authors    buleks
+ * @authors    Pawel Okas
  * created on: 26-08-2016
  * last modification: 26-08-2016
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,6 +33,7 @@
  */
 #include "../serialPort_stm32f3xx.h"
 #include "buffers/cyclicBuffer.h"
+#include "ports/common/serialPort_bufferedBase.h"
 
 /* **************************************************************************************************************************************************
  * CLASS
@@ -51,7 +51,7 @@ void USART3_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class SerialPort_interrupt : public stm32f3xx::SerialPort {
+class SerialPort_interrupt : public common::SerialPort_BufferedBase<SerialPort_interrupt> {
  public:
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
     static SerialPort_interrupt Serial1;
@@ -66,84 +66,18 @@ class SerialPort_interrupt : public stm32f3xx::SerialPort {
     //--------------------------------------------- functions ---------------------------------------//
     bool open(OpenMode mode) noexcept;
 
-    /**
-     *
-     * @param c
-     * @return
-     */
-    bool putChar(char c) noexcept final;
-
-    /**
-     *
-     * @return
-     */
-    bool getChar(char &c) noexcept final;
-
-    /**
-     *
-     * @param[in] msec
-     * @return
-     */
-    bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final;
-
-    /**@brief This function write data to serial port buffer.
-     *
-     * @param[in] data - pointer to buffer where data are stored.
-     * @param[in] maxSize - number of bytes to copy.
-     * @return number of bytes that was copy to buffer.
-     */
-    size_t write(const char *data, size_t length) noexcept final;
-
-    /**@brief This function copy read data from serial buffer to data pointer.
-     *        If in buffer are less bytes than maxSize then function copy all bytes storage in buffer
-     *        and return bytes count.
-     *
-     * @param[out] data - pointer to buffer where read data will be copy
-     * @param[in] maxSize - size of data to copy.
-     * @return number of bytes stored in data buffer.
-     */
-    size_t read(char *data, size_t length, std::chrono::milliseconds /*timeout*/) noexcept final;
-
-    /**@brief This function clear buffer specified in dir parameter. If dir == Input function will
-     *        flush rxBuffer, if dir == Output then txBuffer will be flushed.
-     *        If dir == AllDirections both buffers will be cleared.
-     *
-     * @param[in] dir - buffer direction to be cleared
-     * @retval true - if buffer was cleared successful
-     * @retval false - if an error occurred
-     */
-    bool clear(Direction dir) noexcept final;
-
-    /**
-     *
-     * @return
-     */
-    size_t inputQueueSize() const noexcept final { return rxBuffer.getSize(); }
-
-    /**
-     *
-     * @return
-     */
-    size_t outputQueueSize() const noexcept final { return txBuffer.getSize(); }
-
-    /**
-     *
-     * @return
-     */
-    size_t availableBytes() const noexcept final { return rxBuffer.getLength(); }
-
  private:
-    //------------------------------------------- variables -----------------------------------------//
-    CyclicBuffer<char> rxBuffer;
-    CyclicBuffer<char> txBuffer;
     //------------------------------------------- constructors --------------------------------------//
     inline SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize);
 
-    // virtual ~SerialPort_interrupt(){
-    //}
-    //--------------------------------------------- functions ---------------------------------------//
-    void startSending() { usart.CR1 |= USART_CR1_TXEIE; }
+    void startTransmission_impl() { usart.CR1 |= USART_CR1_TXEIE; }
+
+    void updateRxBuffer_impl() {}
+
+    void configureRxWait_impl(size_t bytesToReceive) { waitForBytes = bytesToReceive; }
+
     //------------------------------------------- friends -------------------------------------------//
+    friend SerialPort_BufferedBase<SerialPort_interrupt>;
     void __SerialPort_USART_interruptFunction();
 
     friend void USART1_IRQHandler(void);

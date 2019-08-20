@@ -33,7 +33,7 @@
  * INCLUDES
  */
 #include <microhal.h>
-#include <stdint.h>
+#include <cstdint>
 #include "interfaces/serialPort_interface.h"
 #include "microhalPortConfig_stm32f3xx.h"
 
@@ -45,13 +45,13 @@ namespace stm32f3xx {
 
 class SerialPort : public microhal::SerialPort {
  public:
-#if defined(MICROHAL_USE_SERIAL_PORT1_POLLING) || (defined MICROHAL_USE_SERIAL_PORT1_INTERRUPT)
+#if defined(MICROHAL_USE_SERIAL_PORT1_POLLING) || (defined MICROHAL_USE_SERIAL_PORT1_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT1_DMA)
     static SerialPort &Serial1;
 #endif
-#if (defined MICROHAL_USE_SERIAL_PORT2_POLLING) || (defined MICROHAL_USE_SERIAL_PORT2_INTERRUPT)
+#if (defined MICROHAL_USE_SERIAL_PORT2_POLLING) || (defined MICROHAL_USE_SERIAL_PORT2_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT2_DMA)
     static SerialPort &Serial2;
 #endif
-#if (defined MICROHAL_USE_SERIAL_PORT3_POLLING) || (defined MICROHAL_USE_SERIAL_PORT3_INTERRUPT)
+#if (defined MICROHAL_USE_SERIAL_PORT3_POLLING) || (defined MICROHAL_USE_SERIAL_PORT3_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT3_DMA)
     static SerialPort &Serial3;
 #endif
 
@@ -75,6 +75,8 @@ class SerialPort : public microhal::SerialPort {
         SerialPort(USART_TypeDef &usart)
         : usart(usart) {
     }
+
+    void enableInterrupt(uint32_t interruptPriority);
 };
 
 }  // namespace stm32f3xx
