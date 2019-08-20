@@ -37,6 +37,7 @@
 #include "device/stm32f3xx.h"
 #include "dma_stm32f3xx.h"
 #include "gsl/gsl"
+#include "microhalPortConfig_stm32f3xx.h"
 #include "microhal_semaphore.h"
 #include "signalSlot/signalSlot.h"
 
@@ -48,6 +49,7 @@ namespace stm32f3xx {
  */
 extern "C" {
 void ADC1_2_IRQHandler(void);
+void DMA1_Channel1_IRQHandler(void);
 }
 /* **************************************************************************************************************************************************
  * CLASS
@@ -176,7 +178,7 @@ class Adc final {
         stream.peripheralAddress(&adc.DR);
         stream.memoryAddress(data);
         stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
-        stream.numberOfItemsToTransfer(len);
+        stream.setNumberOfItemsToTransfer(len);
         stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
                     DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
                     DMA::Channel::TransmisionDirection::PerToMem);
@@ -308,6 +310,18 @@ class Adc final {
         return false;
     }
 
+    bool registerIsrFunction(void (*interruptFunction)(void), uint32_t interruptPriority) {
+        if (interruptFunction == nullptr) {
+            //   DMA::dma1->stream[0].disableInterrupt(DMA::Channel::Interrupt::TransferComplete);
+            //  DMA::dma1->disableInterrupt(DMA::dma1->stream[0]);
+        }
+        if (signal.connect(interruptFunction)) {
+            //  DMA::dma1->stream[0].enableInterrupt(DMA::Channel::Interrupt::TransferComplete);
+            //   DMA::dma1->enableInterrupt(DMA::dma1->stream[0], interruptPriority);
+            return true;
+        }
+        return false;
+    }
     /**
      * Note: This function is enabling interrupt for both ADC1 and ADC2 devices
      * @param priority
@@ -353,6 +367,7 @@ class Adc final {
     ADC_TypeDef &adc;
     registers::ADC &adc_;
     microhal::os::Semaphore regularSequenceFinishSemaphore = {};
+    Signal<void> signal;
 
     void enableInterrupts(Interrupt interrupts) { adc.IER |= static_cast<uint32_t>(interrupts); }
 
@@ -379,6 +394,7 @@ class Adc final {
     void interruptFunction();
 
     friend void ADC1_2_IRQHandler(void);
+    friend void DMA1_Channel1_IRQHandler(void);
 };
 }  // namespace stm32f3xx
 }  // namespace microhal

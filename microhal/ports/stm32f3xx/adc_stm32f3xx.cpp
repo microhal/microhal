@@ -25,7 +25,7 @@ bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
         setSamplingSequence(sequence.length(), i + 1, sequence.at(i));
     }
 
-    enableInterrupts(Interrupt::EndOfRegularSequence | /* Interrupt::EndOfRegularConversion |*/ Interrupt::Overrun);
+    enableInterrupts(Interrupt::EndOfRegularSequence /*| /* Interrupt::EndOfRegularConversion | Interrupt::Overrun*/);
     return true;
 }
 
@@ -63,7 +63,7 @@ void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSiz
     stream.peripheralAddress(&ADC12_COMMON->CDR);
     stream.memoryAddress(data);
     stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
-    stream.numberOfItemsToTransfer(dataSize);
+    stream.setNumberOfItemsToTransfer(dataSize);
     stream.init(DMA::Channel::MemoryDataSize::Word, DMA::Channel::PeripheralDataSize::Word, DMA::Channel::MemoryIncrementMode::PointerIncremented,
                 DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
     stream.enableCircularMode();
@@ -81,12 +81,13 @@ void Adc::interruptFunction() {
 
     if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularSequence) {
         interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
-        bool shouldYeld = regularSequenceFinishSemaphore.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-        portYIELD_FROM_ISR(shouldYeld);
-#else
-        (void)shouldYeld;
-#endif
+        Adc::adc1->signal.emit();
+        //        bool shouldYeld = regularSequenceFinishSemaphore.giveFromISR();
+        //#if defined(HAL_RTOS_FreeRTOS)
+        //        portYIELD_FROM_ISR(shouldYeld);
+        //#else
+        //        (void)shouldYeld;
+        //#endif
     }
 
     if (activeAndEnabledInterruptFlags & Adc::Interrupt::Overrun) {
@@ -100,5 +101,14 @@ void ADC1_2_IRQHandler(void) {
     if (Adc::adc1) Adc::adc1->interruptFunction();
     if (Adc::adc2) Adc::adc2->interruptFunction();
 }
+
+#ifdef MICROHAL_USE_ADC_ISR_DMA
+void DMA1_Channel1_IRQHandler(void) {
+    DMA::dma1->clearInterruptFlag(DMA::dma1->stream[0], DMA::Channel::Interrupt::TransferComplete);
+    DMA::dma1->stream[0].disable();
+
+    Adc::adc1->signal.emit();
+}
+#endif
 }  // namespace stm32f3xx
 }  // namespace microhal
