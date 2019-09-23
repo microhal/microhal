@@ -38,7 +38,8 @@ class SPI_polling : public stm32f3xx::SPI {
         spi.SR &= ~SPI_SR_OVR;
         return Error::None;
     }
-    SPI::Error read(void *data, const size_t len, const uint8_t write = 0x00) final {
+    SPI::Error read(void *data, size_t len, uint8_t write = 0x00) final {
+        if (len == 0) return SPI::Error::None;
         uint32_t sr;
         while (spi.SR & SPI_SR_FTLVL_Msk) {
         }
