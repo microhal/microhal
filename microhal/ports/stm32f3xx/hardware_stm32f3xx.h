@@ -32,6 +32,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <array>
 #include <cstdint>
 #include "microhalDefs.h"
 
@@ -42,6 +43,8 @@ struct Device {
     static constexpr auto endianness = Endianness::Little;
 
     static uint32_t coreFrequency();
+    static uint64_t getUniqueID();
+    static std::array<uint32_t, 3> getNativeUniqueID();
 
     static void breakpoint() { __asm__ __volatile__("bkpt #0"); }
 };
