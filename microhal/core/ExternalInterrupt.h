@@ -111,19 +111,14 @@ class ExternalInterrupt {
      * @retval true if interrupt is connected and was enabled.
      * @retval false if interrupt is unconnected.
      */
-    static inline void enable(microhal::IOPin ioPin) noexcept __attribute__((always_inline)) {
-        activePort::ExternalInterrupt::enable(ioPin.port, ioPin.pin);
-    }
+    static bool enable(microhal::IOPin ioPin) noexcept { return activePort::ExternalInterrupt::enable(ioPin); }
     /**
      * @brief This function enable external interrupt. If interrupt is not connected the function return false;
      *
      * @retval true if interrupt is connected and was enabled.
      * @retval false if interrupt is unconnected.
      */
-    inline bool enable() noexcept __attribute__((always_inline)) {
-        enable(ioPin);
-        return true;
-    }
+    bool enable() noexcept { return enable(ioPin); }
     /**
      * @brief This function enable external interrupt. If interrupt is not connected the function return false;
      *
@@ -143,14 +138,14 @@ class ExternalInterrupt {
     inline bool disable() noexcept __attribute__((always_inline)) { return disable(ioPin); }
 
     static inline bool isEnabled(microhal::IOPin ioPin) noexcept __attribute__((always_inline)) {
-        return activePort::ExternalInterrupt::isEnabled(ioPin.port, ioPin.pin);
+        return activePort::ExternalInterrupt::isEnabled(ioPin);
     }
 
     inline bool isEnabled() noexcept __attribute__((always_inline)) { return isEnabled(ioPin); }
 
  private:
     //------------------------------------------- variables -----------------------------------------//
-    IOPin ioPin;
+    const IOPin ioPin;
 };
 
 }  // namespace microhal
