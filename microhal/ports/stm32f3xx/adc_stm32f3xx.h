@@ -367,7 +367,7 @@ class Adc final {
     ADC_TypeDef &adc;
     registers::ADC &adc_;
     microhal::os::Semaphore regularSequenceFinishSemaphore = {};
-    Signal<void> signal;
+    Signal<void> signal = {};
 
     void enableInterrupts(Interrupt interrupts) { adc.IER |= static_cast<uint32_t>(interrupts); }
 
