@@ -12,7 +12,7 @@ namespace stm32f3xx {
 
 Timer *Timer::tim3 = nullptr;
 
-extern "C" void TIM1_CC_IRQHandler(void) {
+void TIM1_CC_IRQHandler(void) {
     static volatile int i;
     i++;
     uint32_t sr = TIM1->SR;
@@ -24,7 +24,7 @@ extern "C" void TIM1_CC_IRQHandler(void) {
     TIM1->SR = sr;
 }
 
-extern "C" void TIM3_IRQHandler(void) {
+void TIM3_IRQHandler(void) {
     uint32_t sr = TIM3->SR;
     if (sr & TIM_SR_UIF) {
         TIM3->SR &= ~TIM_SR_UIF;

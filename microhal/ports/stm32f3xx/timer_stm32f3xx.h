@@ -18,6 +18,7 @@ namespace microhal {
 namespace stm32f3xx {
 
 extern "C" {
+void TIM1_CC_IRQHandler(void);
 void TIM3_IRQHandler(void);
 }
 
@@ -580,7 +581,8 @@ class Timer {
           compare2(*static_cast<TimerRegisterMap *>(addr), 2),
           compare3(*static_cast<TimerRegisterMap *>(addr), 3),
           compare4(*static_cast<TimerRegisterMap *>(addr), 4),
-          capture1(*static_cast<TimerRegisterMap *>(addr), 1) {
+          capture1(*static_cast<TimerRegisterMap *>(addr), 1),
+          capture2(*static_cast<TimerRegisterMap *>(addr), 2) {
         if (addr == TIM3) {
             tim3 = this;
         }
@@ -635,8 +637,18 @@ class Timer {
 
     void disableUpdateEventGeneration() { timer.CR1.UDIS = 1; }
 
-    void setPrescaler(uint16_t prescaler) { timer.PSC = prescaler; }
-    uint32_t getPrescaler() const { return timer.PSC; }
+    /**
+     * @note if 0 is passed as a function parameter it will have the same effect as passing 1.
+     * @param prescaler from 0 to 65536, if 0 or 1 is passed it will set prescaler to 1
+     */
+    void setPrescaler(uint32_t prescaler) {
+        if (prescaler == 0) {
+            timer.PSC = 0;
+        } else {
+            timer.PSC = prescaler - 1;
+        }
+    }
+    uint32_t getPrescaler() const { return timer.PSC + 1; }
 
     void setClockSource(ClockSource clockSource) {
         switch (clockSource) {
@@ -665,6 +677,29 @@ class Timer {
         return false;
     }
 
+    template <typename T>
+    bool registerIsrFunction(const T &slot, const typename T::type &object) {
+        if (signal.connect(slot, object)) {
+            return true;
+        }
+        return false;
+    }
+
+    bool unregisterIsrFunction(void (*interruptFunction)(void)) {
+        if (signal.disconnect(interruptFunction)) {
+            return true;
+        }
+        return false;
+    }
+
+    template <typename T>
+    bool unregisterIsrFunction(const T &slot, const typename T::type &object) {
+        if (signal.disconnect(slot, object)) {
+            return true;
+        }
+        return false;
+    }
+
     uint32_t maxCounterValue() const { return 0xFFFF; }
 
     uint32_t getTimerClockSourceFrequency() const { return ClockManager::TimerFrequency(*(TIM_TypeDef *)&timer); }
@@ -680,27 +715,27 @@ class Timer {
     class OutputCompare {
      public:
         enum class Mode {
-            Frozen = 0,  //! The comparison between the output compare register TIMx_CCRx and the counter TIMx_CNT has no effect on the outputs.(this
-                         //! mode is used to generate a timing base).
-            SetChannelToActiveOnMatch,    //! Set channel x to active level on match. OCxREF signal is forced high when the counter TIMx_CNT matches
-                                          //! the capture/compare register
-            SetChannelToInactiveOnMatch,  //! Set channel x to inactive level on match. OC1REF signal is forced low when the counter TIMx_CNT matches
-                                          //! the capture/compare register x (TIMx_CCRx).
+            Frozen = 0,                 //! The comparison between the output compare register TIMx_CCRx and the counter TIMx_CNT has no effect on the
+                                        //! outputs.(this mode is used to generate a timing base).
+            SetChannelToActiveOnMatch,  //! Set channel x to active level on match. OCxREF signal is forced high when the counter TIMx_CNT
+                                        //! matches the capture/compare register
+            SetChannelToInactiveOnMatch,  //! Set channel x to inactive level on match. OC1REF signal is forced low when the counter TIMx_CNT
+                                          //! matches the capture/compare register x (TIMx_CCRx).
             Toggle,                       //! OCxREF toggles when TIMx_CNT=TIMx_CCRx
             ForceInactiveLevel,           //! OCxREF is forced low.
             ForceActiveLevel,             //! OCxREF is forced high.
-            PWMMode1,  //! In upcounting, channel x is active as long as TIMx_CNT<TIMx_CCRx else inactive. In downcounting, channel x is inactive
-                       //! (OCxREF=‘0’) as long as TIMx_CNT>TIMx_CCR1 else active (OCxREF=’1’).
-            PWMMode2,  //! In upcounting, channel 1 is inactive as long as TIMx_CNT<TIMx_CCR1 else active. In downcounting, channel 1 is active as
-                       //! long as TIMx_CNT>TIMx_CCR1 else inactive
+            PWMMode1,  //! In upcounting, channel x is active as long as TIMx_CNT<TIMx_CCRx else inactive. In downcounting, channel x is
+                       //! inactive (OCxREF=‘0’) as long as TIMx_CNT>TIMx_CCR1 else active (OCxREF=’1’).
+            PWMMode2,  //! In upcounting, channel 1 is inactive as long as TIMx_CNT<TIMx_CCR1 else active. In downcounting, channel 1 is
+                       //! active as long as TIMx_CNT>TIMx_CCR1 else inactive
             OnePulseMode1,
             OnePulseMode2,
             CombinedPWMMode1 = 0b1100,  //! OC1REF has the same behavior as in PWM mode 1. OC1REFC is the logical OR between OC1REF and OC2REF.
             CombinedPWMMode2,           //! OC1REF has the same behavior as in PWM mode 2. OC1REFC is the logical AND between OC1REF and OC2REF.
-            AssymmetricPWMMode1,  //! OC1REF has the same behavior as in PWM mode 1. OC1REFC outputs OC1REF when the counter is counting up, OC2REF
-                                  //! when it is counting down.
-            AssymmetricPWMMode2   //! OC1REF has the same behavior as in PWM mode 2. OC1REFC outputs OC1REF when the counter is counting up, OC2REF
-                                  //! when it is counting down.
+            AssymmetricPWMMode1,        //! OC1REF has the same behavior as in PWM mode 1. OC1REFC outputs OC1REF when the counter is counting up,
+                                        //! OC2REF when it is counting down.
+            AssymmetricPWMMode2         //! OC1REF has the same behavior as in PWM mode 2. OC1REFC outputs OC1REF when the counter is counting up,
+                                        //! OC2REF when it is counting down.
         };
 
         enum class Polarity { ActiveHigh = 0, ActiveLow };
@@ -915,6 +950,7 @@ class Timer {
         enum class InputSource { TRC = 0b11, TI1 = 0b01, TI2 = 0b10, TI3 = 0b101, TI4 = 0b110 };
         enum class InputPrescaler { None = 0, Prescaler2, Prescaler4, Prescaler8 };
         enum class ActiveEdge { Rising = 0b00, Falling = 0b01, RisingAndFalling = 0b11 };
+        enum class InputFilter { None = 0, Fck_int_N2, Fck_int_N4, Fck_int_N8, Fdts2_N6, Fdts2_N8, Fdts4_N6, Fdts4_N8 };
 
         void enable() {
             switch (captureChannelNumber) {
@@ -950,32 +986,53 @@ class Timer {
             }
         }
 
-        bool setInputSource(InputSource inputSource, ActiveEdge activeEdge) {
+        bool setInputSource(InputSource inputSource, ActiveEdge activeEdge, InputFilter filter) {
             switch (captureChannelNumber) {
                 case 1:
                     if (static_cast<uint32_t>(inputSource) & 0b100) return false;  // Selected TI3 or TI4 witch is forbidden on this channel
                     timer.CCMR1.bitfieldInput.CC1S = static_cast<uint32_t>(inputSource);
+                    if (inputSource == InputSource::TI1) {
+                        timer.CCMR1.bitfieldInput.IC1F = static_cast<uint32_t>(filter);
+                    } else if (inputSource == InputSource::TI2) {
+                        timer.CCMR1.bitfieldInput.IC2F = static_cast<uint32_t>(filter);
+                    }
                     timer.CCER.CC1P = static_cast<uint32_t>(activeEdge);
                     return true;
                 case 2:
                     if (static_cast<uint32_t>(inputSource) & 0b100) return false;  // Selected TI3 or TI4 witch is forbidden on this channel
                     static constexpr const uint8_t map[4] = {0b00, 0b10, 0b01, 0b11};
                     timer.CCMR1.bitfieldInput.CC2S = map[static_cast<uint32_t>(inputSource)];
+                    if (inputSource == InputSource::TI1) {
+                        timer.CCMR1.bitfieldInput.IC1F = static_cast<uint32_t>(filter);
+                    } else if (inputSource == InputSource::TI2) {
+                        timer.CCMR1.bitfieldInput.IC2F = static_cast<uint32_t>(filter);
+                    }
                     timer.CCER.CC2P = static_cast<uint32_t>(activeEdge);
                     return true;
                 case 3:
-                    if (!(static_cast<uint32_t>(inputSource) & 0b100)) return false;  // Selected TI3 or TI4 witch is forbidden on this channel
+                    if (!(static_cast<uint32_t>(inputSource) & 0b100)) return false;  // Selected TI1 or TI2 witch is forbidden on this channel
                     timer.CCMR2.bitfieldInput.CC3S =
                         static_cast<uint32_t>(inputSource);  // no need to mask MSB bit, it will be truncated during field assignment
+                    if (inputSource == InputSource::TI3) {
+                        timer.CCMR2.bitfieldInput.IC3F = static_cast<uint32_t>(filter);
+                    } else if (inputSource == InputSource::TI4) {
+                        timer.CCMR2.bitfieldInput.IC4F = static_cast<uint32_t>(filter);
+                    }
                     timer.CCER.CC3P = static_cast<uint32_t>(activeEdge);
                     return true;
                 case 4:
-                    if (!(static_cast<uint32_t>(inputSource) & 0b100)) return false;  // Selected TI3 or TI4 witch is forbidden on this channel
+                    if (!(static_cast<uint32_t>(inputSource) & 0b100)) return false;  // Selected TI1 or TI2 witch is forbidden on this channel
                     static constexpr const uint8_t map2[4] = {0b00, 0b10, 0b01, 0b11};
                     timer.CCMR2.bitfieldInput.CC4S = map2[static_cast<uint32_t>(inputSource) & 0b11];
+                    if (inputSource == InputSource::TI3) {
+                        timer.CCMR2.bitfieldInput.IC3F = static_cast<uint32_t>(filter);
+                    } else if (inputSource == InputSource::TI4) {
+                        timer.CCMR2.bitfieldInput.IC4F = static_cast<uint32_t>(filter);
+                    }
                     timer.CCER.CC4P = static_cast<uint32_t>(activeEdge);
                     return true;
             }
+            return false;
         }
 
         void setInputPrescaler(InputPrescaler inputPrescaler) {
@@ -1043,15 +1100,17 @@ class Timer {
     OutputCompare compare3;
     OutputCompare compare4;
     InputCapture capture1;
+    InputCapture capture2;
 
  private:
     TimerRegisterMap &timer;
-    Signal<void> signal;
+    Signal<void> signal = {};
     static Timer *tim3;
 
     IRQn_Type getIRQn() const {
         if ((TIM_TypeDef *)&timer == TIM1) return TIM1_CC_IRQn;
         if ((TIM_TypeDef *)&timer == TIM3) return TIM3_IRQn;
+        std::terminate();
     }
 
     friend void TIM3_IRQHandler(void);

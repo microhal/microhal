@@ -135,7 +135,7 @@ extern const char __main_stack_end;  // imported main stack end (from linker scr
 
 void Reset_Handler(void);  // import the address of Reset_Handler()
 
-void (*const vectors[])(void) __attribute__((section(".vectors"))) = {
+void (*const vectors[])(void) __attribute__((section(".vectors"), used)) = {
     (void (*)(void)) & __main_stack_end,  // Main stack end address
     Reset_Handler,                        // Reset
     NMI_Handler,                          // Non-maskable interrupt (RCC clock security system)
