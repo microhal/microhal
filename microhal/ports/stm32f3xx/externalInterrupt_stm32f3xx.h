@@ -68,7 +68,7 @@ class ExternalInterrupt {
     static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
         if (signals[pinNumber].connect(slot, object)) {
             configure(pinNumber, trigger);
-            SYSCFG->EXTICR[pinNumber / 4] |= ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pinNumber % 4));
+            selectEXTILinePort({port, pinNumber});
             return true;
         }
         return false;
@@ -77,8 +77,7 @@ class ExternalInterrupt {
     static inline bool connect(void (*interruptFunction)(void), Trigger trigger, const GPIO::Port port, const GPIO::Pin pinNumber) {
         if (signals[pinNumber].connect(interruptFunction)) {
             configure(pinNumber, trigger);
-
-            SYSCFG->EXTICR[pinNumber / 4] |= ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pinNumber % 4));
+            selectEXTILinePort({port, pinNumber});
             return true;
         }
         return false;
@@ -86,30 +85,42 @@ class ExternalInterrupt {
 
     static inline bool disconnect(void (*interruptFunction)(void), const GPIO::Port port, const GPIO::Pin pinNumber) {
         if (signals[pinNumber].disconnect(interruptFunction)) {
-            SYSCFG->EXTICR[pinNumber / 4] &= ~(((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pinNumber % 4)));
+            deselectEXTILinePort({port, pinNumber});
             return true;
         }
         return false;
     }
 
-    static inline bool enable(const GPIO::Port port, const GPIO::Pin pinNumber) __attribute__((always_inline)) {
-        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
-            EXTI->IMR |= 1 << pinNumber;
-            return true;
-        }
-        return false;
-    }
-    static inline bool disable(const GPIO::Port port, const GPIO::Pin pinNumber) __attribute__((always_inline)) {
-        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
-            EXTI->IMR &= ~(1 << pinNumber);
+    template <typename T>
+    static inline bool disconnect(const T &slot, const typename T::type &object, Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
+        if (signals[pinNumber].connect(slot, object)) {
+            deselectEXTILinePort({port, pinNumber});
             return true;
         }
         return false;
     }
 
-    static inline bool isEnabled(const GPIO::Port port, const GPIO::Pin pinNumber) {
-        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
-            return EXTI->IMR & (1 << pinNumber);
+    static bool enable(IOPin pin) {
+        if (getConfiguration(pin) == pin.port) {
+            volatile auto exti = EXTI;
+            exti->IMR |= 1 << pin.pin;
+            return true;
+        }
+        return false;
+    }
+    static inline bool disable(GPIO::Port port, GPIO::Pin pinNumber) {
+        if (getConfiguration({port, pinNumber}) == port) {
+            volatile auto exti = EXTI;
+            exti->IMR &= ~(1 << pinNumber);
+            return true;
+        }
+        return false;
+    }
+
+    static bool isEnabled(IOPin pin) {
+        if (getConfiguration(pin) == pin.port) {
+            volatile auto exti = EXTI;
+            return exti->IMR & (1 << pin.pin);
         }
         return false;
     }
@@ -125,7 +136,7 @@ class ExternalInterrupt {
     friend void EXTI9_5_IRQHandler(void);
     friend void EXTI15_10_IRQHandler(void);
 
-    static void configure(uint8_t vectorNumber, Trigger trigger) {
+    static void configure(uint_fast8_t vectorNumber, Trigger trigger) {
         const uint32_t bitMask = 1 << vectorNumber;
 
         switch (trigger) {
@@ -142,6 +153,41 @@ class ExternalInterrupt {
                 EXTI->FTSR |= bitMask;
                 break;
         }
+    }
+
+    static void selectEXTILinePort(IOPin pin) {
+        uint32_t exticr = SYSCFG->EXTICR[pin.pin / 4];
+        exticr &= ~(0b1111 << (4 * (pin.pin % 4)));
+        exticr |= ((pin.port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pin.pin % 4));
+        SYSCFG->EXTICR[pin.pin / 4] = exticr;
+    }
+
+    static void deselectEXTILinePort(IOPin pin) {
+        uint32_t exticr = SYSCFG->EXTICR[pin.pin / 4];
+        exticr &= ~(0b1111 << (4 * (pin.pin % 4)));
+        SYSCFG->EXTICR[pin.pin / 4] = exticr;
+    }
+
+    static IOPin::Port getConfiguration(IOPin pin) {
+        //        constexpr IOPin::Port map[] = {IOPin::PortA, IOPin::PortB, IOPin::PortC, IOPin::PortD, IOPin::PortE};
+        uint32_t exticr = SYSCFG->EXTICR[pin.pin / 4];
+        exticr >>= 4 * (pin.pin % 4);
+        exticr &= 0b1111;
+        switch (exticr) {
+            case 0:
+                return IOPin::PortA;
+            case 1:
+                return IOPin::PortB;
+            case 2:
+                return IOPin::PortC;
+            case 3:
+                return IOPin::PortD;
+#if defined(GPIOE_BASE)
+            case 4:
+                return IOPin::PortE;
+#endif
+        }
+        std::terminate();
     }
 };
 

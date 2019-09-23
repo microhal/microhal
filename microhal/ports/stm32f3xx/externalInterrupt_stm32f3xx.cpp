@@ -39,26 +39,26 @@ Signal<void> ExternalInterrupt::signals[16];
 void ExternalInterrupt::init() {
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 
-    NVIC_EnableIRQ(EXTI0_IRQn);
     NVIC_SetPriority(EXTI0_IRQn, 0x0F);
+    NVIC_EnableIRQ(EXTI0_IRQn);
 
-    NVIC_EnableIRQ(EXTI1_IRQn);
     NVIC_SetPriority(EXTI1_IRQn, 0x0F);
+    NVIC_EnableIRQ(EXTI1_IRQn);
 
-    NVIC_EnableIRQ(EXTI2_TSC_IRQn);
     NVIC_SetPriority(EXTI2_TSC_IRQn, 0x0F);
+    NVIC_EnableIRQ(EXTI2_TSC_IRQn);
 
-    NVIC_EnableIRQ(EXTI3_IRQn);
     NVIC_SetPriority(EXTI3_IRQn, 0x0F);
+    NVIC_EnableIRQ(EXTI3_IRQn);
 
-    NVIC_EnableIRQ(EXTI4_IRQn);
     NVIC_SetPriority(EXTI4_IRQn, 0x0F);
+    NVIC_EnableIRQ(EXTI4_IRQn);
 
-    NVIC_EnableIRQ(EXTI9_5_IRQn);
     NVIC_SetPriority(EXTI9_5_IRQn, 0x0F);
+    NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-    NVIC_EnableIRQ(EXTI15_10_IRQn);
     NVIC_SetPriority(EXTI15_10_IRQn, 0x0F);
+    NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 void EXTI0_IRQHandler(void) {
@@ -174,4 +174,3 @@ void EXTI15_10_IRQHandler(void) {
 
 }  // namespace stm32f3xx
 }  // namespace microhal
-
