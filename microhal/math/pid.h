@@ -35,9 +35,15 @@ namespace microhal {
 namespace math {
 
 class PIDBase {
+ public:
+    void setLimits(float min, float max) {
+        outputLimitMin = min;
+        outputLimitMax = max;
+    }
+
  protected:
-    const float outputLimitMin;
-    const float outputLimitMax;
+    float outputLimitMin;
+    float outputLimitMax;
     float integral = 0.0f;
 
     PIDBase(float outputLimitMin, float outputLimitMax) : outputLimitMin(outputLimitMin), outputLimitMax(outputLimitMax) {}
