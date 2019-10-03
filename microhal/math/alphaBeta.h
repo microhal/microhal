@@ -39,7 +39,14 @@ class AlphaBeta {
  public:
     float a;
     float b;
+
+    constexpr AlphaBeta& operator+=(AlphaBeta other) {
+        a += other.a;
+        b += other.b;
+        return *this;
+    }
 };
+
 }  // namespace math
 }  // namespace microhal
 
