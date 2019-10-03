@@ -31,34 +31,15 @@
 
 #include <cstdint>
 #include "math/alphaBeta.h"
+#include "math/constants.h"
 
 namespace microhal {
 namespace math {
 
-AlphaBeta clarkieTransform(float a, float b, float c) {
-    static constexpr const float sqrt3Over2 = 0.866025404f;
-    static constexpr const float oneOverSqrt3 = 0.577350269f;
-    enum class Implementations { Generic, AAxisSuperpossedWidgAlfa };
+AlphaBeta clarkieTransform(float a, float b, float c);
 
-    constexpr Implementations implementation = Implementations::Generic;
-
-    AlphaBeta ab;
-    if constexpr (implementation == Implementations::Generic) {
-        ab.a = 2.0f / 3.0f * a - (2.0f / 3.0f) * 0.5f * (b - c);
-        ab.b = 2.0f / 3.0f * sqrt3Over2 * (b - c);
-    } else if (implementation == Implementations::AAxisSuperpossedWidgAlfa) {
-        ab.a = a;
-        ab.b = oneOverSqrt3 * (b - c);
-    }
-    return ab;
-}
-
-AlphaBeta clarkieTransform(float a, float b) {
-    static constexpr const float oneOverSqrt3 = 0.577350269f;
-
-    AlphaBeta ab;
-    ab.a = a;
-    ab.b = oneOverSqrt3 * (a + 2 * b);
+inline AlphaBeta clarkieTransform(float a, float b) {
+    AlphaBeta ab = {a, oneOverSqrt3 * (a + 2 * b)};
     return ab;
 }
 }  // namespace math
