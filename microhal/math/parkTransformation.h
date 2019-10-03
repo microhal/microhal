@@ -29,44 +29,19 @@
 #ifndef _MICROHAL_MATH_PARKTRANSFORMATION_H_
 #define _MICROHAL_MATH_PARKTRANSFORMATION_H_
 
-#include <cmath>
 #include "math/alphaBeta.h"
 #include "math/dq.h"
 
 namespace microhal {
 namespace math {
 
-DQ parkTransform(AlphaBeta ab, float angle) {
-    DQ dq;
-    float sin = std::sin(angle);
-    float cos = std::cos(angle);
-    dq.d = ab.a * cos + ab.b * sin;
-    dq.q = ab.b * cos - ab.a * sin;
-    return dq;
-}
+DQ parkTransform(AlphaBeta ab, float angle);
 
-DQ parkTransform(AlphaBeta ab, float sin, float cos) {
-    DQ dq;
-    dq.d = ab.a * cos + ab.b * sin;
-    dq.q = ab.b * cos - ab.a * sin;
-    return dq;
-}
+DQ parkTransform(AlphaBeta ab, float sin, float cos);
 
-AlphaBeta inverseParkTransform(DQ dq, float angle) {
-    AlphaBeta ab;
-    float cos = std::cos(angle);
-    float sin = std::sin(angle);
-    ab.a = dq.d * cos - dq.q * sin;
-    ab.b = dq.q * cos + dq.d * sin;
-    return ab;
-}
+AlphaBeta inverseParkTransform(DQ dq, float angle);
 
-AlphaBeta inverseParkTransform(DQ dq, float sin, float cos) {
-    AlphaBeta ab;
-    ab.a = dq.d * cos - dq.q * sin;
-    ab.b = dq.q * cos + dq.d * sin;
-    return ab;
-}
+AlphaBeta inverseParkTransform(DQ dq, float sin, float cos);
 
 }  // namespace math
 }  // namespace microhal
