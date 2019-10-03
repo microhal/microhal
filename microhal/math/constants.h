@@ -35,7 +35,8 @@ namespace microhal {
 namespace math {
 
 constexpr const float pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
-}
+constexpr const float oneOverSqrt3 = 0.577350269f;
+}  // namespace math
 }  // namespace microhal
 
 #endif /* _MICROHAL_MATH_CONSTANTS_H_ */
