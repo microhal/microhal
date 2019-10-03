@@ -30,6 +30,9 @@
 #define _MICROHAL_MATH_DQ_H_
 
 #include <cstdint>
+
+namespace microhal {
+namespace math {
 /**
  * @class that represent DQ coordinate system
  */
@@ -38,5 +41,8 @@ class DQ {
     float d;
     float q;
 };
+
+}  // namespace math
+}  // namespace microhal
 
 #endif /* _MICROHAL_MATH_DQ_H_ */
