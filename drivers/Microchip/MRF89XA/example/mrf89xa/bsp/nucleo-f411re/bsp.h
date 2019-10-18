@@ -31,22 +31,26 @@
 #ifndef NUCLEO_F411RE_H_
 #define NUCLEO_F411RE_H_
 
+#include "microhal.h"
+
 namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
 namespace moduleA {
+// connected into nucleo expander CON1A
 static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
-constexpr microhal::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortD, 3);
-constexpr microhal::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortD, 10);
+constexpr microhal::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortB, 13);  // CON1A GPIO4
+constexpr microhal::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortC, 10);  // CON1A GPIO2
 extern microhal::GPIO &csDat;
 extern microhal::GPIO &csCon;
 extern microhal::GPIO &RESET;
 }  // namespace moduleA
 
 namespace moduleB {
-static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi2;
-constexpr microhal::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 2);
-constexpr microhal::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortE, 4);
+// connected into nucleo expander CON1C
+static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi3;
+constexpr microhal::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 3);  // CON1C GPIO4
+constexpr microhal::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortC, 2);  // CON1C GPIO2
 extern microhal::GPIO &csDat;
 extern microhal::GPIO &csCon;
 extern microhal::GPIO &RESET;
