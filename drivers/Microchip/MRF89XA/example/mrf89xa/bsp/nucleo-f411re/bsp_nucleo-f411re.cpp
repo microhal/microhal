@@ -29,6 +29,7 @@
  */
 
 #include "microhal.h"
+#include "ports/stm32f4xx/clockManager.h"
 
 #include "bsp.h"
 
@@ -74,8 +75,19 @@ void hardwareConfig(void) {
     (void)bsp::moduleA::spi;
     (void)bsp::moduleB::spi;
     (void)bsp::debugPort;
-    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
+    Core::flash_latency(100000000);
+    stm32f4xx::ClockManager::PLL::clockSource(stm32f4xx::ClockManager::PLL::ClockSource::HSI);
+    stm32f4xx::ClockManager::PLL::MDivider(4);
+    stm32f4xx::ClockManager::PLL::Main::enable();
+    stm32f4xx::ClockManager::PLL::Main::N(50);
+    stm32f4xx::ClockManager::PLL::Main::P(2);
+    stm32f4xx::ClockManager::PLL::Main::Q(4);
+    while (!stm32f4xx::ClockManager::PLL::Main::isReady()) {
+    }
+    stm32f4xx::ClockManager::SYSCLK::source(stm32f4xx::ClockManager::SYSCLK::Source::PLL);
+    while (stm32f4xx::ClockManager::SYSCLK::source() != stm32f4xx::ClockManager::SYSCLK::Source::PLL)
+        ;
 
     IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
