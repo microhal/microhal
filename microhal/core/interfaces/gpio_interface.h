@@ -34,7 +34,6 @@
  * INCLUDES
  */
 #include <cstdint>
-#include <mutex>
 
 namespace microhal {
 /* ************************************************************************************************
@@ -71,9 +70,9 @@ class GPIO {
     virtual ~GPIO() = default;
 
     /** Set pin to high state */
-    bool set() { return setState(1); };
+    virtual bool set() = 0;
     /** Set pin to low state */
-    bool reset() { return setState(0); };
+    virtual bool reset() = 0;
     /** Set pin to opposite state */
     void toggle() { get() ? reset() : set(); }
     /**
@@ -100,8 +99,6 @@ class GPIO {
 
     bool setDirectionInput(PullType pullUpOrDown) { return configure(Direction::Input, OutputType::PushPull, pullUpOrDown); }
     bool setDirectionOutput(OutputType outputType, PullType pullUpOrDown) { return configure(Direction::Output, outputType, pullUpOrDown); }
-
-    bool setPullType(PullType pullType);
     /**
      * @brief Returns state of pin
      *
@@ -143,7 +140,6 @@ class GPIO {
     bool operator!=(bool state) { return get() != state; }
 
  private:
-    virtual bool setState(bool) = 0;
     virtual bool configure(Direction, OutputType, PullType) = 0;
 };
 

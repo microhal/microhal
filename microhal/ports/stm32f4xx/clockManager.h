@@ -37,6 +37,8 @@
 #include "can_registers.h"
 #include "device/stm32f4xx.h"
 
+#define _MICROHAL_CLOCKMANAGER_HAS_POWERMODE 1
+
 namespace microhal {
 namespace stm32f4xx {
 

@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      GPIO port driver
  *
@@ -8,7 +8,7 @@
  * created on: 17-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2017, Pawel Okas
+ * @copyright Copyright (c) 2014-2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,44 +27,37 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gpio_stm32f4xx.h"
-#include "clockManager.h"
+#include "gpio_stm_common.h"
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
-void GPIO::pinInitialize(const Port port_, const uint_fast8_t pin, const PinConfiguration config) {
-    volatile GPIO_TypeDef *port = reinterpret_cast<volatile GPIO_TypeDef *>(port_);
+void GPIOCommonBase::pinInitialize(PinConfiguration config) {
+    volatile GPIO_TypeDef *port = reinterpret_cast<volatile GPIO_TypeDef *>(pin.port);
 
-    ClockManager::enable(*reinterpret_cast<const GPIO_TypeDef *>(port_), ClockManager::PowerMode::Normal);
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::enable(*const_cast<GPIO_TypeDef *>(port), ClockManager::PowerMode::Normal);
+#else
+    ClockManager::enable(*const_cast<GPIO_TypeDef *>(port));
+#endif
 
-    uint32_t afr = port->AFR[pin / 8];
-    afr &= ~(0b1111 << ((pin % 8) * 4));                    // clear old configuration
-    afr |= ((0xF0 & config.mode) >> 4) << ((pin % 8) * 4);  // set new configuration
-    port->AFR[pin / 8] = afr;
+    uint32_t afr = port->AFR[pin.pin / 8];
+    afr &= ~(0b1111 << ((pin.pin % 8) * 4));                    // clear old configuration
+    afr |= ((0xF0 & config.mode) >> 4) << ((pin.pin % 8) * 4);  // set new configuration
+    port->AFR[pin.pin / 8] = afr;
 
     // set mode -> config.mode is split to 2 part 4MSB bit
     //      contain alternate function and 4LSB bit contain mode
     uint32_t moder = port->MODER;
-    moder &= ~((0b11) << (pin * 2));             // clear old configuration
-    moder |= (0x03 & config.mode) << (pin * 2);  // set new configuration
+    moder &= ~((0b11) << (pin.pin * 2));             // clear old configuration
+    moder |= (0x03 & config.mode) << (pin.pin * 2);  // set new configuration
     port->MODER = moder;
     // set type
-    uint32_t otyper = port->OTYPER;
-    otyper &= ~(0b1 << pin);       // clear old configuration
-    otyper |= config.type << pin;  // set new configuration
-    port->OTYPER = otyper;
-    // set pullup
-    uint32_t pupdr = port->PUPDR;
-    pupdr &= ~(0b11 << (pin * 2));      // clear old configuration
-    pupdr |= config.pull << (pin * 2);  // set new configuration
-    port->PUPDR = pupdr;
-    // set speed
-    uint32_t ospeedr = port->OSPEEDR;
-    ospeedr &= ~(0b11 << (pin * 2));       // clear old configuration
-    ospeedr |= config.speed << (pin * 2);  // set new configuration
-    port->OSPEEDR = ospeedr;
+    setDirection(static_cast<Direction>(config.type));
+    setPullType(static_cast<PullType>(config.pull));
+    setSpeed(config.speed);
 }
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

@@ -37,10 +37,11 @@ namespace bsp {
 namespace detail {
 using Port = microhal::stm32f3xx::GPIO::Port;
 
-constexpr microhal::IOPin ld2_pin(Port::PortA, 5);
-constexpr microhal::IOPin led3_pin(Port::PortD, 13);
-constexpr microhal::IOPin led5_pin(Port::PortD, 14);
-constexpr microhal::IOPin led6_pin(Port::PortD, 15);
+constexpr IOPin ld2_pin(microhal::stm32f3xx::GPIO::Port::PortA, 5);  // green LED
+// constexpr IOPin led2_pin(microhal::stm32f3xx::GPIO::Port::PortF, 6);   // LED on nucleo expansion board
+// constexpr IOPin led3_pin(microhal::stm32f3xx::GPIO::Port::PortF, 7);   // LED on nucleo expansion board
+constexpr IOPin led4_pin(microhal::stm32f3xx::GPIO::Port::PortA, 13);  // LED on nucleo expansion board
+constexpr IOPin led5_pin(microhal::stm32f3xx::GPIO::Port::PortA, 14);  // LED on nucleo expansion board
 
 constexpr microhal::IOPin button1_pin(Port::PortC, 13);
 

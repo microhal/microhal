@@ -1,14 +1,14 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      GPIO port driver
+ * @brief
  *
- * @authors    Michal Karwatowski, Pawel Okas
- * created on: 17-01-2014
- * last modification: <DD-MM-YYYY>
+ * @authors    Pawel Okas
+ * created on: 01-01-2018
+ * last modification: 01-01-2018
  *
- * @copyright Copyright (c) 2014 - 2018, Pawel Okas
+ * @copyright Copyright (c) 2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,31 +27,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_GPIO_STM32F4XX_H_
-#define _MICROHAL_GPIO_STM32F4XX_H_
-/* ************************************************************************************************
+#ifndef _MICROHAL_MICROHALCONFIG_H_
+#define _MICROHAL_MICROHALCONFIG_H_
+/* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "ports/stmCommon/gpio_stm_common.h"
 
-namespace microhal {
-namespace stm32f4xx {
-namespace gpio_detail {
-enum class AlternateFunction : uint8_t {
-    Timer_1_2 = 1,
-    Timer_3_4_5 = 2,
-    Serial = 0x07,  //!< Serial
-    Serial_4_5_6 = 0x08,
-    SPI = 0x05,    //!< Alternate function for SPI 1 and 2
-    SPI_3 = 0x06,  //!< Alternate function for SPI 3
-    I2C = 0x04,    //!< I2C
-    CAN1_2_TIM12_13_14 = 0x09,
-    USB = 0x0A
-};
-}
-
-using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
-}  // namespace stm32f4xx
-}  // namespace microhal
-
-#endif  // _MICROHAL_GPIO_STM32F4XX_H_
+// clang-format off
+//***********************************************************************************************//
+//                                    Diagnostic configuration                                   //
+//***********************************************************************************************//
+#define MICROHAL_DIAGNOSTIC_TEXT_VISIBLE		// when defined message text is printed in diagnostic channel messages
+#define MICROHAL_DIAGNOSTIC_LOG_LEVEL Debug		// Set compile time log level for embedded diagnostic channel (diagChannel)
+												// Emergency -> highest log priority
+												// Alert
+												// Critical
+												// Error
+												// Warning
+												// Notice
+												// Informational
+												// Debug  -> lowest log priority
+// clang_format on
+#endif  // _MICROHAL_MICROHALCONFIG_H_

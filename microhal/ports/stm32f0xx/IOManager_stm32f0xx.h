@@ -49,27 +49,32 @@ class IOManager {
  public:
     IOManager() = delete;
 
-    template <int serial, SerialPinType serialType, stm32f0xx::GPIO::Port port, stm32f0xx::GPIO::Pin pinNr>
+    template <int serial, SerialPinType serialType, stm32f0xx::IOPin::Port port, stm32f0xx::IOPin::Pin pinNr>
     static void routeSerial(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::NoPull, stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::PushPull) {
+        IOPin pin(port, pin);
         // clang-format off
         // assert for Serial1
-        static_assert( (serial != 1 || serialType != Txd || ((port == GPIO::PortA && pinNr == 9))), "Serial1 Txd can be connected only to: PortA.9.");
-        static_assert( (serial != 1 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 10))), "Serial1 Rxd can be connected only to: PortA.10.");
+        static_assert( (serial != 1 || serialType != Txd || ((port == IOPin::PortA && pinNr == 9))), "Serial1 Txd can be connected only to: PortA.9.");
+        static_assert( (serial != 1 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 10))), "Serial1 Rxd can be connected only to: PortA.10.");
         // clang-format on
 
-        GPIO::setAlternateFunction(port, pinNr, GPIO::Serial, pull, type);
+        stm32f0xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(GPIO::AlternateFunction::Serial, pull, type);
     }
 
-    template <int i2cNumber, i2cPinType i2cType, GPIO::Port port, GPIO::Pin pinNr>
+    template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
     static void routeI2C(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::NoPull, stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::OpenDrain) {
+        IOPin pin(port, pin);
+
+        static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
+        static_assert(i2cNumber <= 1, "STM32F4xx has only 1 I2C.");
         // clang-format off
-		static_assert (i2cNumber != 0, "I2C port numbers starts from 1.");
-		static_assert (i2cNumber <= 1, "STM32F4xx has only 1 I2C.");
 		//assert for I2C1
-		static_assert( (i2cNumber != 1 || i2cType != SDA || ((port == GPIO::PortF && pinNr == 0))), "I2C1 SDA can be connected only to: PortF.0.");
-		static_assert( (i2cNumber != 1 || i2cType != SCL || ((port == GPIO::PortF && pinNr == 1))), "I2C1 SCL can be connected only to: PortF.1.");
+		static_assert( (i2cNumber != 1 || i2cType != SDA || ((port == IOPin::PortF && pinNr == 0))), "I2C1 SDA can be connected only to: PortF.0.");
+		static_assert( (i2cNumber != 1 || i2cType != SCL || ((port == IOPin::PortF && pinNr == 1))), "I2C1 SCL can be connected only to: PortF.1.");
         // clang-format on
-        stm32f0xx::GPIO::setAlternateFunction(port, pinNr, stm32f0xx::GPIO::I2C, pull, type);
+        stm32f0xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, pull, type);
     }
 
  private:

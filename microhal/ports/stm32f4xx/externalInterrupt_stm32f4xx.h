@@ -35,9 +35,9 @@
 
 #include <cstdint>
 
-#include "IOPin.h"
 #include "device/stm32f4xx.h"
 #include "gpio_stm32f4xx.h"
+#include "ports/stmCommon/IOPin.h"
 
 #include "signalSlot/signalSlot.h"
 
@@ -92,9 +92,9 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool enable(IOPin::Port port, IOPin::Pin pinNumber) {
-        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
-            EXTI->IMR |= 1 << pinNumber;
+    static inline bool enable(IOPin pin) {
+        if ((SYSCFG->EXTICR[pin.pin / 4] >> (4 * (pin.pin % 4))) == ((pin.port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
+            EXTI->IMR |= 1 << pin.pin;
             return true;
         }
         return false;
@@ -107,9 +107,9 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool isEnabled(IOPin::Port port, IOPin::Pin pinNumber) {
-        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
-            return EXTI->IMR & (1 << pinNumber);
+    static inline bool isEnabled(IOPin pin) {
+        if ((SYSCFG->EXTICR[pin.pin / 4] >> (4 * (pin.pin % 4))) == ((pin.port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
+            return EXTI->IMR & (1 << pin.pin);
         }
         return false;
     }

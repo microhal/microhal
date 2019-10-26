@@ -35,9 +35,9 @@
 
 #include <cstdint>
 
-#include "IOPin.h"
 #include "device/stm32f3xx.h"
 #include "gpio_stm32f3xx.h"
+#include "ports/stmCommon/IOPin.h"
 
 #include "signalSlot/signalSlot.h"
 
@@ -74,7 +74,7 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, const GPIO::Port port, const GPIO::Pin pinNumber) {
+    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
         if (signals[pinNumber].connect(interruptFunction)) {
             configure(pinNumber, trigger);
             selectEXTILinePort({port, pinNumber});
@@ -83,7 +83,7 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool disconnect(void (*interruptFunction)(void), const GPIO::Port port, const GPIO::Pin pinNumber) {
+    static inline bool disconnect(void (*interruptFunction)(void), IOPin::Port port, IOPin::Pin pinNumber) {
         if (signals[pinNumber].disconnect(interruptFunction)) {
             deselectEXTILinePort({port, pinNumber});
             return true;
@@ -108,7 +108,7 @@ class ExternalInterrupt {
         }
         return false;
     }
-    static inline bool disable(GPIO::Port port, GPIO::Pin pinNumber) {
+    static inline bool disable(IOPin::Port port, IOPin::Pin pinNumber) {
         if (getConfiguration({port, pinNumber}) == port) {
             volatile auto exti = EXTI;
             exti->IMR &= ~(1 << pinNumber);
