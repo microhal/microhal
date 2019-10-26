@@ -1,22 +1,21 @@
 /**
- * @file
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for stm32f4-Discovery board
  *
- * @authors    Pawel Okas
- * created on: 18-11-2016
+ * @authors    Pawel
+ * created on: 16-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2014, microHAL
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * 	   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- * 	      documentation and/or other materials provided with the distribution.
+ *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
  *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
  *        software without specific prior written permission.
  *
@@ -34,19 +33,18 @@
 namespace bsp {
 namespace detail {
 
-using namespace microhal::stm32f4xx;
+using namespace microhal::stm32f0xx;
 
-constexpr IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);  // green LED
-// constexpr IOPin led2_pin(microhal::stm32f3xx::GPIO::Port::PortF, 6);   // LED on nucleo expansion board
-// constexpr IOPin led3_pin(microhal::stm32f3xx::GPIO::Port::PortF, 7);   // LED on nucleo expansion board
-constexpr IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortA, 13);  // LED on nucleo expansion board
-constexpr IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortA, 14);  // LED on nucleo expansion board
-constexpr IOPin led7_pin(microhal::stm32f4xx::GPIO::Port::PortA, 15);
+constexpr IOPin led3_pin(microhal::stm32f0xx::GPIO::Port::PortC, 9);
+constexpr IOPin led4_pin(microhal::stm32f0xx::GPIO::Port::PortC, 8);
 
-GPIO redLed(led5_pin, GPIO::Direction::Output);
-GPIO greenLed(ld2_pin, GPIO::Direction::Output);
-GPIO blueLed(led4_pin, GPIO::Direction::Output);
-GPIO orangeLed(led7_pin, GPIO::Direction::Input);
+constexpr IOPin led5_pin(microhal::stm32f0xx::GPIO::Port::PortC, 10);
+constexpr IOPin led6_pin(microhal::stm32f0xx::GPIO::Port::PortC, 11);
+
+GPIO redLed(led3_pin, GPIO::Direction::Output);
+GPIO greenLed(led4_pin, GPIO::Direction::Output);
+GPIO blueLed(led5_pin, GPIO::Direction::Output);
+GPIO orangeLed(led6_pin, GPIO::Direction::Output);
 
 }  // namespace detail
 
@@ -56,14 +54,4 @@ microhal::GPIO &blueLed = detail::blueLed;
 microhal::GPIO &orangeLed = detail::orangeLed;
 }  // namespace bsp
 
-void hardwareConfig(void) {
-    microhal::stm32f4xx::Core::fpu_enable();
-
-    SysTick_Config(16000000 / 1000);
-}
-
-uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void) {
-    SysTick_time++;
-}
+void hardwareConfig(void) {}

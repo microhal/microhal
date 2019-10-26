@@ -9,17 +9,17 @@
 #define EXTERNALINTERRUPT_STM_H_
 
 #ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/externalInterrupt_stm32f0xx.h"
+#include "ports/stmCommon/externalInterrupt_stmCommon.h"
 namespace microhal {
 namespace activePort = stm32f0xx;
 }
 #elif defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/externalInterrupt_stm32f3xx.h"
+#include "ports/stmCommon/externalInterrupt_stmCommon.h"
 namespace microhal {
 namespace activePort = stm32f3xx;
 }
 #elif defined(MCU_TYPE_STM32F4XX)
-#include "ports/stm32f4xx/externalInterrupt_stm32f4xx.h"
+#include "ports/stmCommon/externalInterrupt_stmCommon.h"
 namespace microhal {
 namespace activePort = stm32f4xx;
 }

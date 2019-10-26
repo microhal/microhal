@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      externalInterrupt example main file
  *
@@ -8,7 +8,7 @@
  * created on: 30-01-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014, microHAL
+ * @copyright Copyright (c) 2014, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -55,11 +55,11 @@ class LEDcontroller {
 };
 
 int main(void) {
-    // initialize external interrupt module
-    ExternalInterrupt::init();
+    // initialize external interrupt module, we also specified default priority to 6
+    ExternalInterrupt::init(6);
 
     // NOTICE: We are using button as an interrupt source. To see to which pin the button is connected open bsp folder
-    //         and find microhal_bsp.h for your development board.
+    //         and find bsp.h for your development board.
 
     // ------------------ using external interrupts without object -------------------------------------
     // connect function to interrupt

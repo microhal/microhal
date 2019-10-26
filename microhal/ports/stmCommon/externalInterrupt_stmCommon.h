@@ -27,32 +27,33 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_EXTERNALINTERRUPT_STM32F3XX_H_
-#define _MICROHAL_EXTERNALINTERRUPT_STM32F3XX_H_
+#ifndef _MICROHAL_EXTERNALINTERRUPT_STMCOMMON_H_
+#define _MICROHAL_EXTERNALINTERRUPT_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
-
 #include <cstdint>
+#include <exception>
 
-#include "device/stm32f3xx.h"
-#include "gpio_stm32f3xx.h"
-#include "ports/stmCommon/IOPin.h"
-
+#include "IOPin.h"
 #include "signalSlot/signalSlot.h"
+#include "stmCommonDefines.h"
+
+#include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
+
+#ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
+#error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
+#endif
 
 namespace microhal {
-namespace stm32f3xx {
-
-extern "C" {
-void EXTI0_IRQHandler(void);
-void EXTI1_IRQHandler(void);
-void EXTI2_IRQHandler(void);
-void EXTI3_IRQHandler(void);
-void EXTI4_IRQHandler(void);
-void EXTI9_5_IRQHandler(void);
-void EXTI15_10_IRQHandler(void);
-}
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+static void externalInterrupt0Irq();
+static void externalInterrupt1Irq();
+static void externalInterrupt2Irq();
+static void externalInterrupt3Irq();
+static void externalInterrupt4Irq();
+static void externalInterrupt9_5Irq(uint32_t);
+static void externalInterrupt15_10Irq(uint32_t);
 /* ************************************************************************************************
  * CLASS
  */
@@ -62,7 +63,7 @@ class ExternalInterrupt {
 
     ExternalInterrupt() = delete;
 
-    static void init();
+    static void init(uint32_t priority);
 
     template <typename T>
     static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
@@ -128,13 +129,13 @@ class ExternalInterrupt {
  private:
     static Signal<void> signals[16];
 
-    friend void EXTI0_IRQHandler(void);
-    friend void EXTI1_IRQHandler(void);
-    friend void EXTI2_IRQHandler(void);
-    friend void EXTI3_IRQHandler(void);
-    friend void EXTI4_IRQHandler(void);
-    friend void EXTI9_5_IRQHandler(void);
-    friend void EXTI15_10_IRQHandler(void);
+    friend void externalInterrupt0Irq();
+    friend void externalInterrupt1Irq();
+    friend void externalInterrupt2Irq();
+    friend void externalInterrupt3Irq();
+    friend void externalInterrupt4Irq();
+    friend void externalInterrupt9_5Irq(uint32_t);
+    friend void externalInterrupt15_10Irq(uint32_t);
 
     static void configure(uint_fast8_t vectorNumber, Trigger trigger) {
         const uint32_t bitMask = 1 << vectorNumber;
@@ -191,7 +192,7 @@ class ExternalInterrupt {
     }
 };
 
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif  // _MICROHAL_EXTERNALINTERRUPT_STM32F3XX_H_
+#endif  // _MICROHAL_EXTERNALINTERRUPT_STMCOMMON_H_
