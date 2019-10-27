@@ -31,10 +31,11 @@
  * INCLUDES
  */
 
-#include "serialPort_polling_stm32f3xx.h"
+#include "serialPort_polling_stmCommon.h"
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 #if defined(MICROHAL_USE_SERIAL_PORT1_POLLING)
 SerialPort_polling SerialPort_polling::Serial1(*USART1);
@@ -48,6 +49,34 @@ SerialPort &SerialPort::Serial2 = SerialPort_polling::Serial2;
 SerialPort_polling SerialPort_polling::Serial3(*USART3);
 SerialPort &SerialPort::Serial3 = SerialPort_polling::Serial3;
 #endif
+#ifdef MICROHAL_USE_SERIAL_PORT4_POLLING
+SerialPort_polling SerialPort_polling::Serial4(*UART4);
+SerialPort &SerialPort::Serial4 = SerialPort_polling::Serial4;
+#endif
+#if defined(MICROHAL_USE_SERIAL_PORT5_POLLING)
+SerialPort_polling SerialPort_polling::Serial5(*UART5);
+SerialPort &SerialPort::Serial5 = SerialPort_polling::Serial5;
+#endif
+#if defined(MICROHAL_USE_SERIAL_PORT6_POLLING)
+SerialPort_polling SerialPort_polling::Serial6(*USART6);
+SerialPort &SerialPort::Serial6 = SerialPort_polling::Serial6;
+#endif
+#if defined(MICROHAL_USE_SERIAL_PORT7_POLLING)
+SerialPort_polling SerialPort_polling::Serial7(*UART7);
+SerialPort &SerialPort::Serial7 = SerialPort_polling::Serial7;
+#endif
+#if defined(MICROHAL_USE_SERIAL_PORT8_POLLING)
+SerialPort_polling SerialPort_polling::Serial8(*UART8);
+SerialPort &SerialPort::Serial8 = SerialPort_polling::Serial8;
+#endif
 
-}  // namespace stm32f3xx
+SerialPort_polling::SerialPort_polling(USART_TypeDef &usart) : SerialPort(usart) {
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::enable(usart, ClockManager::PowerMode::Normal);
+#else
+    ClockManager::enable(usart);
+#endif
+}
+
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

@@ -3,7 +3,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      STM32F4xx serial port driver implementation. Driver support receiving and transmitting using polling mode.
+ * @brief      STM32F0xx serial port driver implementation. Driver support receiving and transmitting using polling mode.
  *
  * @authors    Pawel Okas
  * created on: 17-04-2014
@@ -28,11 +28,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_SERIALPORT_POLLING_STM32F4XX_H_
-#define _MICROHAL_SERIALPORT_POLLING_STM32F4XX_H_
+#ifndef _MICROHAL_SERIALPORT_POLLING_STM32F0XX_H_
+#define _MICROHAL_SERIALPORT_POLLING_STM32F0XX_H_
 /* ************************************************************************************************
  * INCLUDES
  */
 #include "ports/stmCommon/serialPort_polling_stmCommon.h"
 
-#endif  // _MICROHAL_SERIALPORT_POLLING_STM32F4XX_H_
+#endif  // _MICROHAL_SERIALPORT_POLLING_STM32F0XX_H_
