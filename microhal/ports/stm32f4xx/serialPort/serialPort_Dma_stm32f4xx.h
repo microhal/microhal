@@ -32,7 +32,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "serialPort_bufferedBase.h"
+#include "ports/common/serialPort_bufferedBase.h"
 
 #include <thread>
 
@@ -70,7 +70,7 @@ void DMA2_Stream7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class SerialPort_Dma : public SerialPort_BufferedBase<SerialPort_Dma> {
+class SerialPort_Dma : public common::SerialPort_BufferedBase<SerialPort_Dma> {
  public:
 #ifdef MICROHAL_USE_SERIAL_PORT1_DMA
     static SerialPort_Dma Serial1;
