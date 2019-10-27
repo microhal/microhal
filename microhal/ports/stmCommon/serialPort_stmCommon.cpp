@@ -31,12 +31,13 @@
  * INCLUDES
  */
 
-#include "serialPort_stm32f3xx.h"
-#include "clockManager.h"
-#include "core_stm32f3xx.h"
+#include "ports/stm32f3xx/serialPort_stm32f3xx.h"
+#include "stmCommonDefines.h"
+
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
     usart.BRR = ClockManager::USARTFrequency(usart) / baudRate;
@@ -63,6 +64,7 @@ bool SerialPort::setParity(SerialPort::Parity parity) noexcept {
     }
     return true;
 }
+
 bool SerialPort::setStopBits(SerialPort::StopBits stopBits) noexcept {
     switch (stopBits) {
         case SerialPort::OneStop:
@@ -94,27 +96,5 @@ bool SerialPort::setDataBits(SerialPort::DataBits dataBits) noexcept {
     return true;
 }
 
-void SerialPort::enableInterrupt(uint32_t interruptPriority) {
-    switch (reinterpret_cast<uint32_t>(&usart)) {
-        case reinterpret_cast<uint32_t>(USART1_BASE):
-            NVIC_SetPriority(USART1_IRQn, interruptPriority);
-            NVIC_ClearPendingIRQ(USART1_IRQn);
-            NVIC_EnableIRQ(USART1_IRQn);
-            break;
-        case reinterpret_cast<uint32_t>(USART2_BASE):
-            NVIC_SetPriority(USART2_IRQn, interruptPriority);
-            NVIC_ClearPendingIRQ(USART2_IRQn);
-            NVIC_EnableIRQ(USART2_IRQn);
-            break;
-        case reinterpret_cast<uint32_t>(USART3_BASE):
-            NVIC_SetPriority(USART3_IRQn, interruptPriority);
-            NVIC_ClearPendingIRQ(USART3_IRQn);
-            NVIC_EnableIRQ(USART3_IRQn);
-            break;
-        default:
-            std::terminate();
-    }
-}
-
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

@@ -6,6 +6,7 @@
  */
 
 #include "serialPort_dma_stm32f3xx.h"
+#include "../clockManager.h"
 
 namespace microhal {
 namespace stm32f3xx {

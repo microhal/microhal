@@ -1,7 +1,6 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
  * @brief      STM32F4xx serial port driver implementation. Driver support receiving and transmitting using interrupts.
  *
@@ -9,7 +8,7 @@
  * created on: 17-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2017, Pawel Okas
+ * @copyright Copyright (c) 2014-2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,11 +30,11 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "serialPort_interrupt_stm32f4xx.h"
-#include "../clockManager.h"
+#include "serialPort_interrupt_stmCommon.h"
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 //***********************************************************************************************//
 //                                   STATIC VARIABLES
 //***********************************************************************************************//
@@ -90,7 +89,12 @@ SerialPort &SerialPort::Serial8 = SerialPort_interrupt::Serial8;
 
 SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
     ClockManager::enable(usart, ClockManager::PowerMode::Normal);
+#else
+    ClockManager::enable(usart);
+#endif
+
 #ifndef HAL_RTOS_FreeRTOS
     const uint32_t priority = 0;
 #else
@@ -108,15 +112,18 @@ bool SerialPort_interrupt::open(OpenMode mode) noexcept {
 //***********************************************************************************************//
 //                                     interrupt functions                                       //
 //***********************************************************************************************//
-inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_interrupt &serial) {
-    uint16_t sr = usart->SR;
-
-    if (sr & USART_SR_RXNE) {
-        char tmp = usart->DR;
-        serial.rxBuffer.append(tmp);
-        if (serial.waitForBytes != 0 && serial.rxBuffer.getLength() == serial.waitForBytes) {
-            serial.waitForBytes = 0;
-            bool shouldYeld = serial.rxSemaphore.giveFromISR();
+#if defined(MCU_TYPE_STM32F3XX)
+void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
+    uint32_t sr = usart.ISR;
+    if (sr & USART_ISR_ORE) {
+        usart.ICR = USART_ICR_ORECF;
+    }
+    if (sr & USART_ISR_RXNE) {
+        char tmp = usart.RDR;
+        rxBuffer.append(tmp);
+        if (waitForBytes != 0 && rxBuffer.getLength() == waitForBytes) {
+            waitForBytes = 0;
+            bool shouldYeld = rxSemaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
             portYIELD_FROM_ISR(shouldYeld);
 #else
@@ -124,11 +131,51 @@ inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_
 #endif
         }
     }
-    if ((sr & USART_SR_TXE) && (usart->CR1 & USART_CR1_TXEIE)) {
-        if (serial.txBuffer.isEmpty()) {
-            usart->CR1 &= ~USART_CR1_TXEIE;
-            if (serial.txWait) {
-                usart->CR1 |= USART_CR1_TCIE;
+
+    if ((sr & USART_ISR_TXE) && (usart.CR1 & USART_CR1_TXEIE)) {
+        if (txBuffer.isEmpty()) {
+            usart.CR1 &= ~USART_CR1_TXEIE;
+            if (txWait) {
+                usart.CR1 |= USART_CR1_TCIE;
+            }
+        } else {
+            usart.TDR = txBuffer.get_unsafe();
+        }
+    } else if ((sr & USART_ISR_TC) && (usart.CR1 & USART_CR1_TCIE)) {
+        usart.CR1 &= ~USART_CR1_TCIE;
+        if (txWait) {
+            txWait = false;
+            auto shouldYeld = txFinish.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
+#else
+            (void)shouldYeld;
+#endif
+        }
+    }
+}
+#else
+void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
+    uint16_t sr = usart.SR;
+
+    if (sr & USART_SR_RXNE) {
+        char tmp = usart.DR;
+        rxBuffer.append(tmp);
+        if (waitForBytes != 0 && rxBuffer.getLength() == waitForBytes) {
+            waitForBytes = 0;
+            bool shouldYeld = rxSemaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+            portYIELD_FROM_ISR(shouldYeld);
+#else
+            (void)shouldYeld;
+#endif
+        }
+    }
+    if ((sr & USART_SR_TXE) && (usart.CR1 & USART_CR1_TXEIE)) {
+        if (txBuffer.isEmpty()) {
+            usart.CR1 &= ~USART_CR1_TXEIE;
+            if (txWait) {
+                usart.CR1 |= USART_CR1_TCIE;
                 //    			auto shouldYeld = serial.txFinish.giveFromISR();
                 //#if defined (HAL_RTOS_FreeRTOS)
                 //    			portYIELD_FROM_ISR(shouldYeld);
@@ -137,13 +184,13 @@ inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_
                 //#endif
             }
         } else {
-            usart->DR = serial.txBuffer.get_unsafe();
+            usart.DR = txBuffer.get_unsafe();
         }
-    } else if ((sr & USART_SR_TC) && (usart->CR1 & USART_CR1_TCIE)) {
-        usart->CR1 &= ~USART_CR1_TCIE;
-        if (serial.txWait) {
-            serial.txWait = false;
-            auto shouldYeld = serial.txFinish.giveFromISR();
+    } else if ((sr & USART_SR_TC) && (usart.CR1 & USART_CR1_TCIE)) {
+        usart.CR1 &= ~USART_CR1_TCIE;
+        if (txWait) {
+            txWait = false;
+            auto shouldYeld = txFinish.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
             portYIELD_FROM_ISR(shouldYeld);
 #else
@@ -152,49 +199,51 @@ inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_
         }
     }
 }
+#endif
+
 //***********************************************************************************************//
 //                                          IRQHandlers                                          //
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
 void USART1_IRQHandler(void) {
-    serialPort_interruptFunction(USART1, SerialPort_interrupt::Serial1);
+    SerialPort_interrupt::Serial1.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
 void USART2_IRQHandler(void) {
-    serialPort_interruptFunction(USART2, SerialPort_interrupt::Serial2);
+    SerialPort_interrupt::Serial2.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
 void USART3_IRQHandler(void) {
-    serialPort_interruptFunction(USART3, SerialPort_interrupt::Serial3);
+    SerialPort_interrupt::Serial3.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT4_INTERRUPT
 void UART4_IRQHandler(void) {
-    serialPort_interruptFunction(UART4, SerialPort_interrupt::Serial4);
+    SerialPort_interrupt::Serial4.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT5_INTERRUPT
 void UART5_IRQHandler(void) {
-    serialPort_interruptFunction(UART5, SerialPort_interrupt::Serial5);
+    SerialPort_interrupt::Serial5.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
 void USART6_IRQHandler(void) {
-    serialPort_interruptFunction(USART6, SerialPort_interrupt::Serial6);
+    SerialPort_interrupt::Serial6.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT
 void UART6_IRQHandler(void) {
-    serialPort_interruptFunction(UART7, SerialPort_interrupt::Serial7);
+    SerialPort_interrupt::Serial7.__SerialPort_USART_interruptFunction();
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT8_INTERRUPT
 void UART8_IRQHandler(void) {
-    serialPort_interruptFunction(UART8, SerialPort_interrupt::Serial8);
+    SerialPort_interrupt::Serial8.__SerialPort_USART_interruptFunction();
 }
 #endif
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

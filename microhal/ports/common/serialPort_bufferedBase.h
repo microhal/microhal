@@ -39,9 +39,10 @@
 #include "microhal_semaphore.h"
 
 #if defined(VENDOR_STMICROELECTRONICS)
-#if defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/serialPort_stm32f3xx.h"
-#endif
+#include "ports/stmCommon/stmCommonDefines.h"
+//#if defined(MCU_TYPE_STM32F3XX)
+#include "ports/stmCommon/serialPort_stmCommon.h"
+//#endif
 #endif
 
 namespace microhal {
@@ -50,7 +51,7 @@ namespace common {
  * CLASS
  */
 template <class Derived>
-class SerialPort_BufferedBase : public stm32f3xx::SerialPort {
+class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
  public:
     SerialPort_BufferedBase(USART_TypeDef &usart, char *const rxData, size_t rxDataSize, char *const txData, size_t txDataSize) noexcept
         : SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize), txFinish(), rxSemaphore() {}
@@ -122,8 +123,11 @@ class SerialPort_BufferedBase : public stm32f3xx::SerialPort {
     }
 
     bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final {
+#if defined(MCU_TYPE_STM32F3XX)
         if (txBuffer.isNotEmpty() || !(usart.ISR & USART_ISR_TXE)) {
-            // if (txBuffer.isNotEmpty() || !(usart.SR & USART_SR_TXE)) {
+#else
+        if (txBuffer.isNotEmpty() || !(usart.SR & USART_SR_TXE)) {
+#endif
             txWait = true;
             if (txFinish.wait(timeout) == false) {
                 txWait = false;

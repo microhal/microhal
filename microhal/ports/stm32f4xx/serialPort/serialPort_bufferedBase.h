@@ -32,8 +32,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "../serialPort_stm32f4xx.h"
-
+#include <ports/stmCommon/serialPort_stmCommon.h>
 #include <chrono>
 
 #include "buffers/cyclicBuffer.h"

@@ -31,61 +31,6 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "../serialPort_stm32f3xx.h"
-#include "buffers/cyclicBuffer.h"
-#include "ports/common/serialPort_bufferedBase.h"
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-namespace microhal {
-namespace stm32f3xx {
-/* ************************************************************************************************
- * EXTERN DECLARATION
- */
-extern "C" {
-void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
-void USART3_IRQHandler(void);
-}
-/* ************************************************************************************************
- * CLASS
- */
-class SerialPort_interrupt : public common::SerialPort_BufferedBase<SerialPort_interrupt> {
- public:
-#ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
-    static SerialPort_interrupt Serial1;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
-    static SerialPort_interrupt Serial2;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
-    static SerialPort_interrupt Serial3;
-#endif
-
-    //--------------------------------------------- functions ---------------------------------------//
-    bool open(OpenMode mode) noexcept;
-
- private:
-    //------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize);
-
-    void startTransmission_impl() { usart.CR1 |= USART_CR1_TXEIE; }
-
-    void updateRxBuffer_impl() {}
-
-    void configureRxWait_impl(size_t bytesToReceive) { waitForBytes = bytesToReceive; }
-
-    //------------------------------------------- friends -------------------------------------------//
-    friend SerialPort_BufferedBase<SerialPort_interrupt>;
-    void __SerialPort_USART_interruptFunction();
-
-    friend void USART1_IRQHandler(void);
-    friend void USART2_IRQHandler(void);
-    friend void USART3_IRQHandler(void);
-};
-
-}  // namespace stm32f3xx
-}  // namespace microhal
+#include "ports/stmCommon/serialPort_interrupt_stmCommon.h"
 
 #endif  // _MICROHAL_SERIALPORT_INTERRUPT_STM32F3XX_H_
