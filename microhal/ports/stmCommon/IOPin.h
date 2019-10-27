@@ -33,15 +33,15 @@ namespace ioPinDetail {
         static bool const value = sizeof(test<T>(0)) == sizeof(yes); \
     };
 
-_MICROHAL_HAS_PORT(PortA);
-_MICROHAL_HAS_PORT(PortB);
-_MICROHAL_HAS_PORT(PortC);
-_MICROHAL_HAS_PORT(PortD);
-_MICROHAL_HAS_PORT(PortE);
-_MICROHAL_HAS_PORT(PortF);
-_MICROHAL_HAS_PORT(PortG);
-_MICROHAL_HAS_PORT(PortH);
-_MICROHAL_HAS_PORT(PortI);
+_MICROHAL_HAS_PORT(PortA)
+_MICROHAL_HAS_PORT(PortB)
+_MICROHAL_HAS_PORT(PortC)
+_MICROHAL_HAS_PORT(PortD)
+_MICROHAL_HAS_PORT(PortE)
+_MICROHAL_HAS_PORT(PortF)
+_MICROHAL_HAS_PORT(PortG)
+_MICROHAL_HAS_PORT(PortH)
+_MICROHAL_HAS_PORT(PortI)
 }  // namespace ioPinDetail
 
 struct IOPin {

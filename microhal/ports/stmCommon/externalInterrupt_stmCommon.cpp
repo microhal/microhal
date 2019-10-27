@@ -45,7 +45,7 @@ namespace detail {
         template <class U>                                           \
         static no test(...);                                         \
         static bool const value = sizeof(test<T>(0)) == sizeof(yes); \
-    };
+    }
 
 #define _MICROHAL_INIT_EXTI(x, y)         \
     template <typename T>                 \
@@ -84,7 +84,7 @@ _MICROHAL_INIT_EXTI(Exti15_10, EXTI15_10_IRQn)
 
 _MICROHAL_HAS_IRQn(EXTI0_1_IRQn);
 _MICROHAL_HAS_IRQn(EXTI2_3_IRQn);
-_MICROHAL_HAS_IRQn(EXTI4_15_IRQn)
+_MICROHAL_HAS_IRQn(EXTI4_15_IRQn);
 }  // namespace detail
 
 Signal<void> ExternalInterrupt::signals[16];
