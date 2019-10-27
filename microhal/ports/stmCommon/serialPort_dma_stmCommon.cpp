@@ -307,6 +307,15 @@ inline void DMA_tx_function(SerialPort_Dma &serial) {
         GLUE(DMA1_Stream, n)->CR &= ~DMA_SxCR_EN;                    \
         DMA_tx_function(SerialPort_Dma::s);                          \
     }
+
+#define DMA1_RX_STREAM_IRQHANDLER(s, n)                                 \
+    void GLUE3(DMA1_Stream, n, _IRQHandler)(void) {                     \
+        ENABLE_IF_LESS_4(n, DMA1->LIFCR = GLUE(DMA_LIFCR_CTCIF, n);)    \
+        ENABLE_IF_MORE_4(n, DMA1->HIFCR = GLUE(DMA_HIFCR_CTCIF, n);)    \
+        GLUE(DMA1_Stream, n)->CR &= ~DMA_SxCR_EN;                       \
+        DMA_rx_function(SerialPort_Dma::s, GLUE(DMA1_Stream, n)->NDTR); \
+    }
+
 // ---------------------------- serial port 1
 #ifdef MICROHAL_USE_SERIAL_PORT1_DMA
 void USART1_IRQHandler(void) {
@@ -364,31 +373,15 @@ void USART3_IRQHandler(void) {
     serialPort_interruptFunction(USART3, SerialPort_Dma::Serial3);
 }
 // rx
-void DMA1_Stream1_IRQHandler(void) {
-    DMA1->LIFCR = DMA_LIFCR_CTCIF1;
-    DMA1_Stream1->CR &= ~DMA_SxCR_EN;
-
-    DMA_rx_function(SerialPort_Dma::Serial3, DMA1_Stream1->NDTR);
-}
-// tx
-
-#if defined(MICROHAL_SERIAL_PORT3_DMA_TX_STREAM)
-DMA1_TX_STREAM_IRQHANDLER(Serial3, MICROHAL_SERIAL_PORT3_DMA_TX_STREAM)
-// void DMA1_Stream3_IRQHandler(void) {
-//    DMA1->LIFCR = DMA_LIFCR_CTCIF3;
-//    DMA1_Stream3->CR &= ~DMA_SxCR_EN;
-//    DMA_tx_function(SerialPort_Dma::Serial3);
-//}
-//#elif MICROHAL_SERIAL_PORT3_DMA_TX_STREAM == 4
-// void DMA1_Stream4_IRQHandler(void) {
-//    DMA1->HIFCR = DMA_HIFCR_CTCIF4;
-//    DMA1_Stream4->CR &= ~DMA_SxCR_EN;
+// void DMA1_Stream1_IRQHandler(void) {
+//    DMA1->LIFCR = DMA_LIFCR_CTCIF1;
+//    DMA1_Stream1->CR &= ~DMA_SxCR_EN;
 //
-//    DMA_tx_function(SerialPort_Dma::Serial3);
+//    DMA_rx_function(SerialPort_Dma::Serial3, DMA1_Stream1->NDTR);
 //}
-#else
-#error
-#endif
+// tx
+DMA1_RX_STREAM_IRQHANDLER(Serial3, MICROHAL_SERIAL_PORT3_DMA_RX_STREAM)
+DMA1_TX_STREAM_IRQHANDLER(Serial3, MICROHAL_SERIAL_PORT3_DMA_TX_STREAM)
 #endif
 // ---------------------------- serial port 4
 #ifdef MICROHAL_USE_SERIAL_PORT4_DMA
