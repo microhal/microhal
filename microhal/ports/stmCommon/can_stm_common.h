@@ -25,8 +25,37 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _MICROHAL_CAN_STMCOMMON_H_
+#define _MICROHAL_CAN_STMCOMMON_H_
+
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include "can/canInterface.h"
+#include "can/canMessage.h"
+#include "gsl/span"
+#include "microhal_semaphore.h"
+#include "stmCommonDefines.h"
+
+#include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_CANREGISTERS
+
+#ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
+#error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
+#endif
+
+#undef CAN1
+#undef CAN2
+#undef CAN
+
+namespace microhal {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 extern "C" {
+void CAN_TX_IRQHandler();
+void CAN_RX0_IRQHandler();
+void CAN_RX1_IRQHandler();
 void CAN1_TX_IRQHandler();
 void CAN1_RX0_IRQHandler();
 void CAN1_RX1_IRQHandler();
@@ -54,7 +83,11 @@ class CAN final : public can::CAN_Interface {
     static constexpr const uint32_t bitRateMax = 1000000;
 #if defined(CAN_BASE) || defined(CAN1_BASE) || defined(CAN2_BASE)
     CAN(registers::CAN::Device canDevice) : can(*reinterpret_cast<registers::CAN *>(canDevice)) {
-        ClockManager::enable(can/*, ClockManager::PowerMode::Normal*/);
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+        ClockManager::enable(can, ClockManager::PowerMode::Normal);
+#else
+        ClockManager::enable(can);
+#endif
         objectPtr[registers::CAN::getNumber(canDevice) - 1] = this;
         can.ier.enableInterrupt(Interrupt::TransmitMailboxEmpty);
 #ifndef HAL_RTOS_FreeRTOS
@@ -71,7 +104,11 @@ class CAN final : public can::CAN_Interface {
         can.ier.disableInterrupt(Interrupt::TransmitMailboxEmpty);
         if (objectPtr[0] == this) objectPtr[0] = nullptr;
         if (objectPtr[1] == this) objectPtr[1] = nullptr;
-        ClockManager::disable(can/*, ClockManager::PowerMode::Normal*/);
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+        ClockManager::disable(can, ClockManager::PowerMode::Normal);
+#else
+        ClockManager::disable(can);
+#endif
     }
 #endif
     //  constexpr CAN_TypeDef *canNumToDevicePtr(uint8_t num) { return reinterpret_cast<CAN_TypeDef *>(CAN1_BASE); }
@@ -145,9 +182,9 @@ class CAN final : public can::CAN_Interface {
  private:
     registers::CAN &can;
     static CAN *objectPtr[2];
-    mutable microhal::os::Semaphore txFinish;
+    mutable microhal::os::Semaphore txFinish = {};
     mutable bool txWait = false;
-    mutable microhal::os::Semaphore dataReady;
+    mutable microhal::os::Semaphore dataReady = {};
 
     int_fast8_t getEmptyMailboxNumber() {
         if (emptyTxMailboxCount()) {
@@ -185,7 +222,7 @@ class CAN final : public can::CAN_Interface {
 
     IRQn_Type irq() {
 #if defined(CAN_BASE)
-        if (&can == reinterpret_cast<registers::CAN*>(registers::CAN::Device::CAN1)) return CAN_TX_IRQn;
+        if (&can == reinterpret_cast<registers::CAN *>(registers::CAN::Device::CAN1)) return CAN_TX_IRQn;
 #endif
 #if defined(CAN1_BASE)
         if (&can == &registers::can1) return CAN1_TX_IRQn;
@@ -199,6 +236,9 @@ class CAN final : public can::CAN_Interface {
     void interruptFunction();
     void rxInterruptFunction();
 
+    friend void CAN_TX_IRQHandler();
+    friend void CAN_RX0_IRQHandler();
+    friend void CAN_RX1_IRQHandler();
     friend void CAN1_TX_IRQHandler();
     friend void CAN1_RX0_IRQHandler();
     friend void CAN1_RX1_IRQHandler();
@@ -206,5 +246,7 @@ class CAN final : public can::CAN_Interface {
     friend void CAN2_RX0_IRQHandler();
     friend void CAN2_RX1_IRQHandler();
 };
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+}  // namespace microhal
 
-
+#endif  // _MICROHAL_CAN_STMCOMMON_H_

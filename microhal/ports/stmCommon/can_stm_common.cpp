@@ -5,7 +5,18 @@
  *      Author: pokas
  */
 
+#include "can_stm_common.h"
 
+namespace microhal {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+namespace registers {
+#if defined(CAN1_BASE)
+CAN &can1 = *reinterpret_cast<CAN *>(CAN1_BASE);
+#endif
+#if defined(CAN2_BASE)
+CAN &can2 = *reinterpret_cast<CAN *>(CAN2_BASE);
+#endif
+}  // namespace registers
 
 CAN *CAN::objectPtr[2] = {nullptr, nullptr};
 
@@ -37,14 +48,14 @@ bool CAN::transmit(const Message &message) {
     auto mailbox_no = getEmptyMailboxNumber();
     if (mailbox_no >= 0) {
         volatile TxMailbox &mailbox = can.sTxMailBox[mailbox_no];
-        mailbox.tir.bitfield.IDE = message.id.ide;
+        mailbox.tir.bitfield.IDE = message.getID().isExtended();
         if (message.isExtendedID()) {
-            mailbox.tir.bitfield.STID_EXID = message.id.stid_exid;
+            mailbox.tir.bitfield.STID_EXID = message.getID().getID();
         } else {
-            mailbox.tir.bitfield.STID_EXID = message.id.stid_exid << 18;
+            mailbox.tir.bitfield.STID_EXID = message.getID().getID() << 18;
         }
         auto data = message.getData();
-        mailbox.tir.bitfield.RTR = (data.size_bytes() == 0);
+        mailbox.tir.bitfield.RTR = message.isRemoteFrame() ? 1 : 0;
         mailbox.tdtr.bitfield.DLC = data.size_bytes();
         // put data into mailbox
         if (data.size()) mailbox.TDLR = *reinterpret_cast<const uint32_t *>(data.data());
@@ -69,7 +80,7 @@ static void mailboxToMessage(volatile CAN::RxMailbox &mailbox, can::Message &mes
     } else if (size) {
         uint8_t data[8];
         *reinterpret_cast<uint32_t *>(data) = mailbox.RDLR;
-        *reinterpret_cast<uint32_t *>(&data[4]) = mailbox.RDLR;
+        *reinterpret_cast<uint32_t *>(&data[4]) = mailbox.RDHR;
         message.setDataFrame({data, size});
     }
 }
@@ -275,4 +286,5 @@ extern "C" void CAN2_RX1_IRQHandler() {
 }
 
 extern "C" void CAN2_SCE_IRQHandler() {}
-
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+}  // namespace microhal

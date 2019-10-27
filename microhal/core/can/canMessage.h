@@ -34,6 +34,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include "diagnostic/diagnostic.h"
 
 #include "gsl/span"
 
@@ -49,33 +50,36 @@ class Message {
     class ID {
      public:
         bool isStandard() const { return ide == 0; }
-        bool isExtended() const { return ide; }
-        uint32_t getID() const { return id; }
+        bool isExtended() const { return ide == 1; }
+        uint32_t getID() const { return stid_exid; }
+
+        bool operator==(const ID &rhs) const {
+            if (ide == rhs.ide && stid_exid == rhs.stid_exid) return true;
+            return false;
+        }
 
      protected:
-        uint32_t id : 29;
-        uint32_t ide : 1;
+        uint32_t ide : 2;
+        uint32_t remote : 1;
+        uint32_t stid_exid : 29;
 
-        ID(uint32_t id, uint32_t ide) : id(id), ide(ide) {}
+        constexpr ID(uint32_t id, uint32_t ide) : ide(ide), remote(0), stid_exid(id) {}
+
+        friend Message;
     };
     static_assert(sizeof(ID) == sizeof(uint32_t), "Microhal internal error, sizeof CAN::Message::ID incorrect. Check compiler options.");
 
     class StandardID : public ID {
      public:
-        StandardID(uint32_t id) : ID(id, 0) {}
+        constexpr StandardID(uint32_t id) : ID(id, 0) {}
     };
     class ExtendedID : public ID {
      public:
-        ExtendedID(uint32_t id) : ID(id, 1) {}
+        constexpr ExtendedID(uint32_t id) : ID(id, 1) {}
     };
 
-    struct {
-        uint32_t ide : 2 = 2;
-        uint32_t remote : 1;
-        uint32_t stid_exid : 29;
-    } id;
-
-    Message() : size(0) {}
+    Message() : id({0, 2}), size(0) {}
+    Message(ID id) : id(id), size(0) {}
     /**
      * param stdid Standard Identifier 11 bits
      */
@@ -105,7 +109,7 @@ class Message {
         std::copy_n(std::begin(data), data.size_bytes(), this->data);
         return true;
     }
-    uint32_t getID() const { return id.stid_exid; }
+    ID getID() const { return id; }
     gsl::span<const uint8_t> getData() const {
         gsl::span<const uint8_t> d(data, size);
         return d;
@@ -118,6 +122,7 @@ class Message {
     bool operator==(const Message &b) const { return id.stid_exid == b.id.stid_exid && id.ide == b.id.ide && dataEqual(b); }
 
  private:
+    ID id;
     uint_fast8_t size;
     uint8_t data[8];
 
@@ -131,6 +136,18 @@ class Message {
 };
 
 }  // namespace can
+
+template <diagnostic::LogLevel level, bool B>
+inline diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, const can::Message &message) {
+    if (message.isStandardID())
+        logChannel << "CAN Standard ID: " << message.getID().getID();
+    else
+        logChannel << "CAN Extended ID: " << message.getID().getID();
+
+    logChannel << diagnostic::endl << "\tisRemoteFrame: " << message.isRemoteFrame() << diagnostic::endl;
+    if (message.isDataFrame()) logChannel << "\tData: " << diagnostic::toHex(message.getData()) << diagnostic::endl;
+    return logChannel;
+}
 }  // namespace microhal
 
 #endif  // _MICROHAL_CANMESSAGE_H_

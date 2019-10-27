@@ -55,7 +55,7 @@ extern "C" int main(int, void *);
 
 static void run_main(void *) {
     char *params[5];
-    params[0] = "AT45";
+    params[0] = "CAN";
     main(1, params);
     while (1)
         ;

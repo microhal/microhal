@@ -4,7 +4,7 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 24-07-2019
+ * created on: 30-03-2019
  *
  * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
@@ -24,36 +24,12 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _MICROHAL_PORTS_CAN_STM32F3XX_H_
-#define _MICROHAL_PORTS_CAN_STM32F3XX_H_
 
+#ifndef _MICROHAL_CAN_STM32F3XX_H_
+#define _MICROHAL_CAN_STM32F3XX_H_
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <algorithm>
-#include <array>
-#include <cstddef>
-#include <cstdint>
+#include "ports/stmCommon/can_stm_common.h"
 
-#include "gsl/span"
-
-#include "can/canInterface.h"
-#include "can/canMessage.h"
-#include "can_registers.h"
-#include "clockManager.h"
-#include "core_stm32f3xx.h"
-#include "microhal_semaphore.h"
-
-#include "microhalPortConfig_stm32f3xx.h"
-
-#undef CAN1
-#undef CAN2
-#undef CAN
-
-namespace microhal {
-namespace stm32f3xx {
-
-#include "../common/stm/can_stm_common.hincl"
-}
-}  // namespace microhal
-#endif /* _MICROHAL_PORTS_CAN_STM32F3XX_H_ */
+#endif  // _MICROHAL_CAN_STM32F3XX_H_

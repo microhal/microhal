@@ -16,10 +16,12 @@
 #define _MICROHAL_ACTIVE_PORT_NAMESPACE stm32f3xx
 #define _MICROHAL_INCLUDE_PORT_clockManager "ports/stm32f3xx/clockManager.h"
 #define _MICROHAL_INCLUDE_PORT_DEVICE "ports/stm32f3xx/device/stm32f3xx.h"
+#define _MICROHAL_INCLUDE_PORT_CANREGISTERS "ports/stm32f3xx/can_registers.h"
 #elif defined(MCU_TYPE_STM32F4XX)
 #define _MICROHAL_ACTIVE_PORT_NAMESPACE stm32f4xx
 #define _MICROHAL_INCLUDE_PORT_clockManager "ports/stm32f4xx/clockManager.h"
 #define _MICROHAL_INCLUDE_PORT_DEVICE "ports/stm32f4xx/device/stm32f4xx.h"
+#define _MICROHAL_INCLUDE_PORT_CANREGISTERS "ports/stm32f4xx/can_registers.h"
 #else
 #error "MCU type must be specified."
 #endif
