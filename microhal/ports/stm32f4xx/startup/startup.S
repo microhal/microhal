@@ -99,13 +99,8 @@ Reset_Handler:
 | Call C++ constructors for global and static objects
 +-----------------------------------------------------------------------------+
 */
-
-#ifdef __USES_CXX
 	ldr		r0, =__libc_init_array
 	blx		r0
-	//blx __libc_init_array
-#endif
-
 /*
 +-----------------------------------------------------------------------------+
 | Branch to low_level_init_1() function

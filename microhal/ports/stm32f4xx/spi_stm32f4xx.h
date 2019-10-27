@@ -12,12 +12,12 @@
  */
 #include <cmath>
 #include <limits>
-#include "IOPin.h"
 #include "clockManager.h"
 #include "device/stm32f4xx.h"
 #include "gpio_stm32f4xx.h"
 #include "interfaces/spi_interface.h"
 #include "microhalPortConfig_stm32f4xx.h"
+#include "ports/stmCommon/IOPin.h"
 
 namespace microhal {
 class SPIDevice;
