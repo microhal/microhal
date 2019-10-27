@@ -30,11 +30,11 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "serialPort_Dma_stm32f4xx.h"
-#include "../clockManager.h"
+#include "serialPort_dma_stmCommon.h"
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 //***********************************************************************************************//
 //                                   STATIC VARIABLES
 //***********************************************************************************************//
@@ -276,6 +276,37 @@ inline void DMA_tx_function(SerialPort_Dma &serial) {
 //***********************************************************************************************//
 //                                          IRQHandlers                                          //
 //***********************************************************************************************//
+#define GLUE3(x, y, z) x##y##z
+#define GLUE(x, y) x##y
+#define EXPAND(x) x
+
+#define ENABLE_IF_LESS_4(c, v) ENABLE_IF_L_##c(v)
+#define ENABLE_IF_MORE_4(c, v) ENABLE_IF_M_##c(v)
+#define ENABLE_IF_L_0(x) x
+#define ENABLE_IF_L_1(x) x
+#define ENABLE_IF_L_2(x) x
+#define ENABLE_IF_L_3(x) x
+#define ENABLE_IF_L_4(x)
+#define ENABLE_IF_L_5(x)
+#define ENABLE_IF_L_6(x)
+#define ENABLE_IF_L_7(x)
+
+#define ENABLE_IF_M_0(x)
+#define ENABLE_IF_M_1(x)
+#define ENABLE_IF_M_2(x)
+#define ENABLE_IF_M_3(x)
+#define ENABLE_IF_M_4(x) x
+#define ENABLE_IF_M_5(x) x
+#define ENABLE_IF_M_6(x) x
+#define ENABLE_IF_M_7(x) x
+
+#define DMA1_TX_STREAM_IRQHANDLER(s, n)                              \
+    void GLUE3(DMA1_Stream, n, _IRQHandler)(void) {                  \
+        ENABLE_IF_LESS_4(n, DMA1->LIFCR = GLUE(DMA_LIFCR_CTCIF, n);) \
+        ENABLE_IF_MORE_4(n, DMA1->HIFCR = GLUE(DMA_HIFCR_CTCIF, n);) \
+        GLUE(DMA1_Stream, n)->CR &= ~DMA_SxCR_EN;                    \
+        DMA_tx_function(SerialPort_Dma::s);                          \
+    }
 // ---------------------------- serial port 1
 #ifdef MICROHAL_USE_SERIAL_PORT1_DMA
 void USART1_IRQHandler(void) {
@@ -340,20 +371,21 @@ void DMA1_Stream1_IRQHandler(void) {
     DMA_rx_function(SerialPort_Dma::Serial3, DMA1_Stream1->NDTR);
 }
 // tx
-#if MICROHAL_SERIAL_PORT3_DMA_TX_STREAM == 3
-void DMA1_Stream3_IRQHandler(void) {
-    DMA1->LIFCR = DMA_LIFCR_CTCIF3;
-    DMA1_Stream3->CR &= ~DMA_SxCR_EN;
 
-    DMA_tx_function(SerialPort_Dma::Serial3);
-}
-#elif MICROHAL_SERIAL_PORT3_DMA_TX_STREAM == 4
-void DMA1_Stream4_IRQHandler(void) {
-    DMA1->HIFCR = DMA_HIFCR_CTCIF4;
-    DMA1_Stream4->CR &= ~DMA_SxCR_EN;
-
-    DMA_tx_function(SerialPort_Dma::Serial3);
-}
+#if defined(MICROHAL_SERIAL_PORT3_DMA_TX_STREAM)
+DMA1_TX_STREAM_IRQHANDLER(Serial3, MICROHAL_SERIAL_PORT3_DMA_TX_STREAM)
+// void DMA1_Stream3_IRQHandler(void) {
+//    DMA1->LIFCR = DMA_LIFCR_CTCIF3;
+//    DMA1_Stream3->CR &= ~DMA_SxCR_EN;
+//    DMA_tx_function(SerialPort_Dma::Serial3);
+//}
+//#elif MICROHAL_SERIAL_PORT3_DMA_TX_STREAM == 4
+// void DMA1_Stream4_IRQHandler(void) {
+//    DMA1->HIFCR = DMA_HIFCR_CTCIF4;
+//    DMA1_Stream4->CR &= ~DMA_SxCR_EN;
+//
+//    DMA_tx_function(SerialPort_Dma::Serial3);
+//}
 #else
 #error
 #endif
@@ -477,5 +509,5 @@ void DMA1_Stream0_IRQHandler(void) {
 }
 #endif
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
