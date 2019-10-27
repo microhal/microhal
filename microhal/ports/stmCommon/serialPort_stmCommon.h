@@ -38,7 +38,9 @@
 
 #include _MICROHAL_INCLUDE_PORT_DEVICE
 
-#if defined(MCU_TYPE_STM32F3XX)
+#if defined(MCU_TYPE_STM32F0XX)
+#include "microhalPortConfig_stm32f0xx.h"
+#elif defined(MCU_TYPE_STM32F3XX)
 #include "microhalPortConfig_stm32f3xx.h"
 #elif defined(MCU_TYPE_STM32F4XX)
 #include "microhalPortConfig_stm32f4xx.h"

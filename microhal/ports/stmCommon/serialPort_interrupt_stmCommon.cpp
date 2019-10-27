@@ -112,7 +112,7 @@ bool SerialPort_interrupt::open(OpenMode mode) noexcept {
 //***********************************************************************************************//
 //                                     interrupt functions                                       //
 //***********************************************************************************************//
-#if defined(MCU_TYPE_STM32F3XX)
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
 void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
     uint32_t sr = usart.ISR;
     if (sr & USART_ISR_ORE) {

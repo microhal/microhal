@@ -51,12 +51,20 @@ class IOManager {
 
     template <int serial, SerialPinType serialType, stm32f0xx::IOPin::Port port, stm32f0xx::IOPin::Pin pinNr>
     static void routeSerial(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::NoPull, stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::PushPull) {
-        IOPin pin(port, pin);
-        // clang-format off
-        // assert for Serial1
-        static_assert( (serial != 1 || serialType != Txd || ((port == IOPin::PortA && pinNr == 9))), "Serial1 Txd can be connected only to: PortA.9.");
-        static_assert( (serial != 1 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 10))), "Serial1 Rxd can be connected only to: PortA.10.");
-        // clang-format on
+        constexpr IOPin pin(port, pinNr);
+
+        if constexpr (serial == 1) {
+            static_assert(serialType != Txd || (pin == IOPin{IOPin::PortA, 9} || (pin == IOPin{IOPin::PortB, 6})),
+                          "Serial1 Txd can be connected only to: PortA.9 or PortB.6.");
+            static_assert(serialType != Rxd || (pin == IOPin{IOPin::PortA, 10}) || (pin == IOPin{IOPin::PortB, 7}),
+                          "Serial1 Rxd can be connected only to: PortA.10 or PortB.7.");
+        }
+        if constexpr (serial == 2) {
+            static_assert(serialType != Txd || (pin == IOPin{IOPin::PortA, 1} || (pin == IOPin{IOPin::PortA, 14})),
+                          "Serial1 Txd can be connected only to: PortA.1 or PortA.14.");
+            static_assert(serialType != Rxd || (pin == IOPin{IOPin::PortA, 3}) || (pin == IOPin{IOPin::PortA, 15}),
+                          "Serial1 Rxd can be connected only to: PortA.3 or PortA.15.");
+        }
 
         stm32f0xx::GPIO gpio(pin);
         gpio.setAlternateFunction(GPIO::AlternateFunction::Serial, pull, type);
@@ -64,7 +72,7 @@ class IOManager {
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
     static void routeI2C(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::NoPull, stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::OpenDrain) {
-        IOPin pin(port, pin);
+        IOPin pin(port, pinNr);
 
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
         static_assert(i2cNumber <= 1, "STM32F4xx has only 1 I2C.");

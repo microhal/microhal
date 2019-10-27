@@ -123,7 +123,7 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
     }
 
     bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final {
-#if defined(MCU_TYPE_STM32F3XX)
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
         if (txBuffer.isNotEmpty() || !(usart.ISR & USART_ISR_TXE)) {
 #else
         if (txBuffer.isNotEmpty() || !(usart.SR & USART_SR_TXE)) {
