@@ -851,7 +851,10 @@ class ClockManager {
      * @param CAN device pointer
      * @return
      */
-    static uint32_t CANFrequency(const registers::CAN &can) { return APB1::frequency(); }
+    static uint32_t CANFrequency(const registers::CAN &can) {
+        (void)can;
+        return APB1::frequency();
+    }
     /**
      * @brief This function return usart clock
      *

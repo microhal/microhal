@@ -41,7 +41,7 @@ uint32_t CAN::getBaudrate() {
     uint32_t brp = can.btr.bitfield.BRP + 1;
     uint32_t ts1 = can.btr.bitfield.TS1 + 1;
     uint32_t ts2 = can.btr.bitfield.TS2 + 1;
-    return frequency / (brp * (1 + ts1 + ts2));
+    return frequency / (brp * (ts1 + ts2));
 }
 
 bool CAN::transmit(const Message &message) {
