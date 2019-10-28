@@ -8,7 +8,7 @@
  created on: 16-04-2014
  last modification: <DD-MM-YYYY>
 
- @copyright Copyright (c) 2014, microHAL
+ @copyright Copyright (c) 2014, Pawel Okas
  All rights reserved.
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
  conditions are met:
@@ -39,35 +39,41 @@ static constexpr uint32_t externalClockFrequency = 8000000;  // this is HSE freq
 static constexpr bool externalLSEPresent = false;
 static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
+//***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//
 //***********************************************************************************************//
+
+//***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-// --------------------------- serial port 1
-//#define MICROHAL_USE_SERIAL_PORT1_DMA	//available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
-//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
-//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT_DMA -> receiving via interrupt, transmit via DMA
-//						 MICROHAL_USE_SERIAL_PORTx_DMA -> receiving and transmit using DMA
-
+// =================== Serial port 1 ===================
+#define MICROHAL_USE_SERIAL_PORT1_DISABLED /* available settings, replace 'x' with your port number:                               \
+                                            * MICROHAL_USE_SERIAL_PORTx_DISABLED                                                   \
+                                            * MICROHAL_USE_SERIAL_PORTx_POLLING                                                    \
+                                            * MICROHAL_USE_SERIAL_PORTx_INTERRUPT                                                  \
+                                            * MICROHAL_USE_SERIAL_PORTx_INTERRUPT_DMA -> receiving via interrupt, transmit via DMA \
+                                            * MICROHAL_USE_SERIAL_PORTx_DMA -> receiving and transmit using DMA                    \
+                                            */
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 1000
-// serial port 1 TX stream can be connected only to DMA2 Stream 7
-#define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5  // serial port 1 RX stream can be connected to DMA2 Stream 2 or 5
+#define MICROHAL_SERIAL_PORT1_DMA_TX_STREAM 4  // Serial port 1 TX stream can be connected only to DMA1 Channel 4.
+#define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5  // Serial port 1 RX stream can be connected only to DMA1 Channel 5.
 
-// --------------------------- serial port 2
-#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+// =================== Serial port 2 ===================
+#define MICROHAL_USE_SERIAL_PORT2_DMA
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 1000
-// serial port 2 TX stream can be connected only to DMA1 Stream 6.
-// serial port 2 RX stream can be connected only to DMA1 Stream 5
+#define MICROHAL_SERIAL_PORT2_DMA_TX_STREAM 7  // Serial port 2 TX stream can be connected only to DMA1 Channel 7.
+#define MICROHAL_SERIAL_PORT2_DMA_RX_STREAM 6  // Serial port 2 RX stream can be connected only to DMA1 Channel 6.
 
-// --------------------------- serial port 3
-//#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+// =================== Serial port 3 ===================
+//#define MICROHAL_USE_SERIAL_PORT3_DMA
 #define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 1000
-#define MICROHAL_SERIAL_PORT3_DMA_TX_STREAM 3  // Serial port 3 Tx stream can be connected to DMA1 Stream 3 or 4.
-// Serial port 3 RX stream can be connected only to DMA1 Stream 1.
+#define MICROHAL_SERIAL_PORT3_DMA_TX_STREAM 2  // Serial port 3 TX stream can be connected only to DMA1 Channel 2.
+#define MICROHAL_SERIAL_PORT3_DMA_RX_STREAM 3  // Serial port 3 RX stream can be connected only to DMA1 Channel 3.
+
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//

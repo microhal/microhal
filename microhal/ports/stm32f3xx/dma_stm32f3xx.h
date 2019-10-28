@@ -52,10 +52,10 @@ class Channel {
 
     void priority(Priority priority) { channel.CCR = (channel.CCR & ~DMA_CCR_PL) | static_cast<uint32_t>(priority); }
 
-    void peripheralAddress(volatile void *addr) { channel.CPAR = reinterpret_cast<uint32_t>(addr); }
-    void memoryAddress(void *memoryAddr) { channel.CMAR = reinterpret_cast<uint32_t>(memoryAddr); }
+    void setPeripheralAddress(volatile void *addr) { channel.CPAR = reinterpret_cast<uint32_t>(addr); }
+    void setMemoryAddress(void *memoryAddr) { channel.CMAR = reinterpret_cast<uint32_t>(memoryAddr); }
 
-    void *memoryAddress() { return reinterpret_cast<void *>(channel.CMAR); }
+    void *getMemoryAddress() { return reinterpret_cast<void *>(channel.CMAR); }
 
     void setNumberOfItemsToTransfer(size_t len) { channel.CNDTR = len; }
     size_t getNumberOfItemsInTransfer() const { return channel.CNDTR; }

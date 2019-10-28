@@ -57,20 +57,6 @@ void USART3_IRQHandler(void);
 void UART4_IRQHandler(void);
 void UART5_IRQHandler(void);
 void USART6_IRQHandler(void);
-
-void DMA1_Stream0_IRQHandler(void);
-void DMA1_Stream1_IRQHandler(void);
-void DMA1_Stream2_IRQHandler(void);
-void DMA1_Stream3_IRQHandler(void);
-void DMA1_Stream4_IRQHandler(void);
-void DMA1_Stream5_IRQHandler(void);
-void DMA1_Stream6_IRQHandler(void);
-void DMA1_Stream7_IRQHandler(void);
-
-void DMA2_Stream1_IRQHandler(void);
-void DMA2_Stream2_IRQHandler(void);
-void DMA2_Stream5_IRQHandler(void);
-void DMA2_Stream7_IRQHandler(void);
 }
 /* ************************************************************************************************
  * CLASS
@@ -159,19 +145,6 @@ class SerialPort_Dma : public common::SerialPort_BufferedBase<SerialPort_Dma> {
     friend inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_Dma &serial);
     friend inline void DMA_rx_function(SerialPort_Dma &serial, uint32_t DMA_Stream_NDTR);
     friend inline void DMA_tx_function(SerialPort_Dma &serial);
-
-    //    friend void USART1_IRQHandler(void);
-    //    friend void USART2_IRQHandler(void);
-    //    friend void USART3_IRQHandler(void);
-    //    friend void USART4_IRQHandler(void);
-    //    friend void USART5_IRQHandler(void);
-    //    friend void USART6_IRQHandler(void);
-    //
-    //    friend void DMA1_Stream1_IRQHandler(void);
-    //    friend void DMA1_Stream3_IRQHandler(void);
-    //    friend void DMA1_Stream4_IRQHandler(void);
-    //    friend void DMA1_Stream5_IRQHandler(void);
-    //    friend void DMA1_Stream6_IRQHandler(void);
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
