@@ -167,27 +167,9 @@ class Adc final {
      * @param triggerSource - @ref TriggerSource
      * @param eventNumber - Select hardware trigger source, ignored in Software trigger mode
      */
-    void configureTriggerSource(TriggerSource triggerSource, ExternalTriggerSource externalTrigger) {
-        adc_.CFGR.EXTEN = static_cast<uint32_t>(triggerSource);
-        adc_.CFGR.EXTSEL = static_cast<uint32_t>(externalTrigger);
-    }
+    void configureTriggerSource(TriggerSource triggerSource, ExternalTriggerSource externalTrigger);
 
-    void initDMA(uint16_t *data, size_t len) {
-        DMA::dma1->clockEnable();
-        auto &stream = DMA::dma1->stream[0];
-        stream.peripheralAddress(&adc.DR);
-        stream.memoryAddress(data);
-        stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
-        stream.setNumberOfItemsToTransfer(len);
-        stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
-                    DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
-                    DMA::Channel::TransmisionDirection::PerToMem);
-        stream.enableCircularMode();
-        stream.enable();
-
-        adc_.CFGR.DMACFG = 1;
-        adc_.CFGR.DMAEN = 1;
-    }
+    void initDMA(uint16_t *data, size_t len);
 
     Interrupt getInterrupFlags() const { return static_cast<Interrupt>(adc.ISR); }
     void clearInterruptFlags(Interrupt interrupt) { adc.ISR = static_cast<uint32_t>(interrupt); }
@@ -264,6 +246,9 @@ class Adc final {
      * @return
      */
     bool configureSamplingSequence(gsl::span<Adc::Channel> sequence);
+    bool configureChannelOffset(Channel channel, uint16_t offset);
+    bool enableChannelOffset(Channel channel);
+    bool disableChannelOffset(Channel channel);
 
     bool waitForRegularSequenceEnd(std::chrono::milliseconds timeout) { return regularSequenceFinishSemaphore.wait(timeout); }
 
@@ -296,19 +281,7 @@ class Adc final {
     /**
      * @note Calibrate function can be called only when ADC is disabled.
      */
-    bool calibrate(CalibrationType calibrationType) {
-        // Software is allowed to set ADCAL only when the ADC is disabled (ADCAL=0, ADSTART=0, ADSTP=0, ADDIS=0 and ADEN=0).
-        uint32_t cr = adc.CR;
-        if ((cr & (ADC_CR_ADCAL | ADC_CR_ADSTART | ADC_CR_ADSTP | ADC_CR_ADDIS | ADC_CR_ADEN)) == 0) {
-            adc_.CR.ADCALDIF = static_cast<uint32_t>(calibrationType);
-            adc_.CR.ADCAL = 1;
-            do {
-                // wait until calibration is ready
-            } while (adc_.CR.ADCAL == 1);
-            return true;
-        }
-        return false;
-    }
+    bool calibrate(CalibrationType calibrationType);
 
     bool registerIsrFunction(void (*interruptFunction)(void), uint32_t interruptPriority) {
         if (interruptFunction == nullptr) {
@@ -318,6 +291,14 @@ class Adc final {
         if (signal.connect(interruptFunction)) {
             //  DMA::dma1->stream[0].enableInterrupt(DMA::Channel::Interrupt::TransferComplete);
             //   DMA::dma1->enableInterrupt(DMA::dma1->stream[0], interruptPriority);
+            return true;
+        }
+        return false;
+    }
+
+    template <typename T>
+    bool registerIsrFunction(const T &slot, const typename T::type &object) {
+        if (signal.connect(slot, object)) {
             return true;
         }
         return false;
@@ -365,27 +346,18 @@ class Adc final {
     static Adc *adc1;
     static Adc *adc2;
     ADC_TypeDef &adc;
-    registers::ADC &adc_;
+    volatile registers::ADC &adc_;
     microhal::os::Semaphore regularSequenceFinishSemaphore = {};
     Signal<void> signal = {};
+
+    registers::ADC::OFR_t *findOffsetRegisterForChannel(Channel channel);
+    registers::ADC::OFR_t *findEmptyOffsetRegister();
 
     void enableInterrupts(Interrupt interrupts) { adc.IER |= static_cast<uint32_t>(interrupts); }
 
     void setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel);
 
-    void enableVoltageRegulator() {
-        // check if already enabled, if not the enable Voltage Regulator
-        if (adc_.CR.ADVREGEN != 0b01) {
-            // this have to be done in two steps, Do not optimize!
-            adc_.CR.ADVREGEN = 0;
-            adc_.CR.ADVREGEN = 0b01;
-
-            // wait for ADC voltage regulator enable
-            while (adc_.CR.ADVREGEN == 0) {
-            }
-        }
-    }
-
+    void enableVoltageRegulator();
     void disableVoltageRegulator() {
         adc.CR &= ~(0b11 << ADC_CR_ADVREGEN_Pos);
         adc.CR |= 0b10 << ADC_CR_ADVREGEN_Pos;

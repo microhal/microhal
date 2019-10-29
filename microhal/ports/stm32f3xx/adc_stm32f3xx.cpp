@@ -57,6 +57,84 @@ void Adc::setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequence
     adc.SQR1 = sqr1;
 }
 
+bool Adc::configureChannelOffset(Channel channel, uint16_t offset) {
+    if (auto offsetRegister = findOffsetRegisterForChannel(channel); offsetRegister != nullptr) {
+        offsetRegister->OFFSET = offset;
+        return true;
+    } else if (auto offsetRegister = findEmptyOffsetRegister(); offsetRegister != nullptr) {
+        offsetRegister->OFFSET_CH = static_cast<uint32_t>(channel);
+        offsetRegister->OFFSET = offset;
+        return true;
+    }
+    return false;
+}
+
+bool Adc::enableChannelOffset(Channel channel) {
+    if (auto offsetRegister = findOffsetRegisterForChannel(channel); offsetRegister != nullptr) {
+        offsetRegister->OFFSET_EN = 1;
+        return true;
+    }
+    return false;
+}
+
+bool Adc::disableChannelOffset(Channel channel) {
+    if (auto offsetRegister = findOffsetRegisterForChannel(channel); offsetRegister != nullptr) {
+        offsetRegister->OFFSET_EN = 0;
+        return true;
+    }
+    return false;
+}
+
+registers::ADC::OFR_t *Adc::findOffsetRegisterForChannel(Channel channel) {
+    for (size_t i = 0; i < 4; i++) {
+        if (adc_.OFR[i].OFFSET_CH == static_cast<uint32_t>(channel)) return const_cast<registers::ADC::OFR_t *>(&adc_.OFR[i]);
+    }
+    return nullptr;
+}
+
+registers::ADC::OFR_t *Adc::findEmptyOffsetRegister() {
+    for (size_t i = 0; i < 4; i++) {
+        if (adc_.OFR[i].OFFSET_CH == 0) return const_cast<registers::ADC::OFR_t *>(&adc_.OFR[i]);
+    }
+    return nullptr;
+}
+
+bool Adc::calibrate(CalibrationType calibrationType) {
+    // Software is allowed to set ADCAL only when the ADC is disabled (ADCAL=0, ADSTART=0, ADSTP=0, ADDIS=0 and ADEN=0).
+    uint32_t cr = adc.CR;
+    if ((cr & (ADC_CR_ADCAL | ADC_CR_ADSTART | ADC_CR_ADSTP | ADC_CR_ADDIS | ADC_CR_ADEN)) == 0) {
+        adc_.CR.ADCALDIF = static_cast<uint32_t>(calibrationType);
+        adc_.CR.ADCAL = 1;
+        do {
+            // wait until calibration is ready
+        } while (adc_.CR.ADCAL == 1);
+        return true;
+    }
+    return false;
+}
+
+void Adc::initDMA(uint16_t *data, size_t len) {
+    DMA::dma1->clockEnable();
+    auto &stream = DMA::dma1->stream[0];
+    stream.peripheralAddress(&adc.DR);
+    stream.memoryAddress(data);
+    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+    stream.setNumberOfItemsToTransfer(len);
+    stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
+                DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
+                DMA::Channel::TransmisionDirection::PerToMem);
+    stream.enableCircularMode();
+    stream.enable();
+
+    adc_.CFGR.DMACFG = 1;
+    adc_.CFGR.DMAEN = 1;
+}
+
+void Adc::configureTriggerSource(TriggerSource triggerSource, ExternalTriggerSource externalTrigger) {
+    adc_.CFGR.EXTEN = static_cast<uint32_t>(triggerSource);
+    adc_.CFGR.EXTSEL = static_cast<uint32_t>(externalTrigger);
+}
+
 void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize) {
     DMA::dma1->clockEnable();
     auto &stream = DMA::dma1->stream[0];
@@ -73,6 +151,19 @@ void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSiz
     ADC12_COMMON->CCR |= ADC_CCR_DMACFG;  // select circular mode
 }
 
+void Adc::enableVoltageRegulator() {
+    // check if already enabled, if not the enable Voltage Regulator
+    if (adc_.CR.ADVREGEN != 0b01) {
+        // this have to be done in two steps, Do not optimize!
+        adc_.CR.ADVREGEN = 0;
+        adc_.CR.ADVREGEN = 0b01;
+
+        // wait for ADC voltage regulator enable
+        while (adc_.CR.ADVREGEN == 0) {
+        }
+    }
+}
+
 void Adc::interruptFunction() {
     uint32_t isr = adc.ISR;
     uint32_t ier = adc.IER;
@@ -81,13 +172,7 @@ void Adc::interruptFunction() {
 
     if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularSequence) {
         interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
-        Adc::adc1->signal.emit();
-        //        bool shouldYeld = regularSequenceFinishSemaphore.giveFromISR();
-        //#if defined(HAL_RTOS_FreeRTOS)
-        //        portYIELD_FROM_ISR(shouldYeld);
-        //#else
-        //        (void)shouldYeld;
-        //#endif
+        signal.emit();
     }
 
     if (activeAndEnabledInterruptFlags & Adc::Interrupt::Overrun) {
