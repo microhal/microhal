@@ -35,6 +35,28 @@
 namespace microhal {
 using namespace diagnostic;
 
+bool OneWire::read(uint8_t *data, size_t length) const noexcept {
+    if (serial.waitForWriteFinish(std::chrono::milliseconds{100})) {
+        serial.clear(SerialPort::Direction::Input);
+        const uint8_t write[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+        static_assert(sizeof(write) == 8, "Internal microhal error.");
+        for (size_t byte = 0; byte < length; byte++) {
+            serial.write(reinterpret_cast<const char *>(write), sizeof(write));
+            uint8_t read[8];
+            serial.read(reinterpret_cast<char *>(read), sizeof(read), std::chrono::milliseconds{100});
+            uint8_t tmp = 0;
+            for (uint8_t bitPos = 0; bitPos < 8; bitPos++) {
+                if (read[bitPos] == 0xFF) {
+                    tmp |= 1 << (bitPos);
+                }
+            }
+            data[byte] = tmp;
+        }
+        return true;
+    }
+    return false;
+}
+
 bool OneWire::searchRom(Rom *deviceRom) {
     if (sendResetPulse()) {
         if (write(Command::SearchROM)) {
@@ -54,7 +76,7 @@ bool OneWire::searchRom(Rom *deviceRom) {
 
                     if (bit != complementaryBit) {
                         writeBit(bit);
-                        if (bit) devRom |= 1 << position;
+                        if (bit) devRom |= uint64_t{1} << position;
                     } else {
                         if (firstDeviceSearch) {
                             // always go to 0
@@ -63,7 +85,7 @@ bool OneWire::searchRom(Rom *deviceRom) {
                         } else {
                             if (lastTransition > position) {
                                 transitionTmp = position;
-                                if (lastFound.getRaw() & 1 << position) {
+                                if (lastFound.getRaw() & uint64_t{1} << position) {
                                     writeBit(1);
                                     devRom |= 1 << position;
                                 } else {
@@ -71,7 +93,7 @@ bool OneWire::searchRom(Rom *deviceRom) {
                                 }
                             } else if (lastTransition == position) {
                                 writeBit(1);
-                                devRom |= 1 << position;
+                                devRom |= uint64_t{1} << position;
                             } else {
                                 transitionTmp = position;
                                 writeBit(0);
@@ -105,7 +127,6 @@ bool OneWire::readBit(uint8_t &bit, uint8_t &complementaryBit) {
         serial.clear(SerialPort::Direction::Input);
         const uint8_t write[] = {0xFF, 0xFF};
         static_assert(sizeof(write) == 2, "");
-
         serial.write(reinterpret_cast<const char *>(write), sizeof(write));
         uint8_t read[2];
         serial.read(reinterpret_cast<char *>(read), sizeof(read), std::chrono::milliseconds{10});

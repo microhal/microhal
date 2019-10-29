@@ -53,7 +53,11 @@ class OneWire {
         constexpr bool operator==(Rom rom) const noexcept { return rom == this->rom; }
         uint8_t familyCode() const { return rom & 0xFF; }
 
-        constexpr auto getRaw() const { return rom; }
+        constexpr uint64_t getRaw() const { return rom; }
+        Rom &operator=(const Rom &rhs) {
+            rom = rhs.rom;
+            return *this;
+        }
 
      private:
         uint64_t rom;
@@ -97,27 +101,7 @@ class OneWire {
         return true;
     }
 
-    bool read(uint8_t *data, size_t length) const noexcept {
-        if (serial.waitForWriteFinish(std::chrono::milliseconds{100})) {
-            serial.clear(SerialPort::Direction::Input);
-            const uint8_t write[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-            static_assert(sizeof(write) == 8, "Internal microhal error.");
-            for (size_t byte = 0; byte < length; byte++) {
-                serial.write(reinterpret_cast<const char *>(write), sizeof(write));
-                uint8_t read[8];
-                serial.read(reinterpret_cast<char *>(read), sizeof(read), std::chrono::milliseconds{100});
-                uint8_t tmp = 0;
-                for (uint8_t bitPos = 0; bitPos < 8; bitPos++) {
-                    if (read[bitPos] == 0xFF) {
-                        tmp |= 1 << (bitPos);
-                    }
-                }
-                data[byte] = tmp;
-            }
-            return true;
-        }
-        return false;
-    }
+    bool read(uint8_t *data, size_t length) const noexcept;
 
     bool sendResetPulse() const;
 
@@ -145,7 +129,8 @@ class OneWire {
 };
 
 template <microhal::diagnostic::LogLevel level, bool B>
-inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, OneWire::Rom rom) {
+inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel,
+                                                                  const OneWire::Rom &rom) {
     return logChannel << microhal::diagnostic::toHex(rom.getRaw());
 }
 
