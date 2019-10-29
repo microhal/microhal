@@ -218,12 +218,12 @@ void SerialPort_Dma::prepareRxDmaTransfer(size_t bytesToReceive) {
 }
 
 bool SerialPort_Dma::clearImpl(Direction dir) noexcept {
-    if (SerialPort::Input || SerialPort::AllDirections) {
+    if ((dir == SerialPort::Input) || (dir == SerialPort::AllDirections)) {
         rxStream.disable();
         rxBuffer.flush();
         prepareRxDmaTransfer();
     }
-    if (SerialPort::Output || SerialPort::AllDirections) {
+    if ((dir == SerialPort::Output) || (dir == SerialPort::AllDirections)) {
         txStream.disable();
         txBuffer.flush();
         transferInProgress = 0;
