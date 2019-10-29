@@ -47,6 +47,25 @@
 
 namespace microhal {
 namespace common {
+
+namespace detail {
+template <typename T>
+class has_clearImpl {
+ private:
+    template <typename C>
+    static constexpr auto test(C *c) -> typename std::is_same<bool, decltype(c->clearImpl(SerialPort::Direction::AllDirections))>::type {
+        return {};
+    }
+    template <typename C>
+    static constexpr std::false_type test(...) {
+        return {};
+    }
+
+ public:
+    static constexpr bool value = test<T>(nullptr);
+};
+
+}  // namespace detail
 /* ************************************************************************************************
  * CLASS
  */
@@ -145,21 +164,25 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
      * @retval false - if an error occurred
      */
     bool clear(Direction dir) noexcept final {
-        switch (dir) {
-            case SerialPort::Input:
-                rxBuffer.flush();
-                break;
-            case SerialPort::Output:
-                txBuffer.flush();
-                break;
-            case SerialPort::AllDirections:
-                rxBuffer.flush();
-                txBuffer.flush();
-                break;
-            default:
-                return false;
+        if constexpr (detail::has_clearImpl<Derived>::value) {
+            return static_cast<Derived *>(this)->clearImpl(dir);
+        } else {
+            switch (dir) {
+                case SerialPort::Input:
+                    rxBuffer.flush();
+                    break;
+                case SerialPort::Output:
+                    txBuffer.flush();
+                    break;
+                case SerialPort::AllDirections:
+                    rxBuffer.flush();
+                    txBuffer.flush();
+                    break;
+                default:
+                    return false;
+            }
+            return true;
         }
-        return true;
     }
 
     size_t inputQueueSize() const noexcept final { return rxBuffer.getSize(); }
@@ -169,10 +192,10 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
  protected:
     CyclicBuffer<char> rxBuffer;
     CyclicBuffer<char> txBuffer;
-    mutable bool txWait = false;
+    mutable bool volatile txWait = false;
     mutable microhal::os::Semaphore txFinish;
     microhal::os::Semaphore rxSemaphore;
-    size_t waitForBytes = 0;
+    volatile size_t waitForBytes = 0;
 
     void startTransmission() { static_cast<Derived *>(this)->startTransmission_impl(); }
 

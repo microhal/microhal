@@ -98,10 +98,20 @@ class SerialPort_Dma : public common::SerialPort_BufferedBase<SerialPort_Dma> {
         return rxBuffer.getLength() + receivedBytes;
     }
 
+    /**@brief This function clear buffer specified in dir parameter. If dir == Input function will
+     *        flush rxBuffer, if dir == Output then txBuffer will be flushed.
+     *        If dir == AllDirections both buffers will be cleared.
+     *
+     * @param[in] dir - buffer direction to be cleared
+     * @retval true - if buffer was cleared successful
+     * @retval false - if an error occurred
+     */
+    bool clearImpl(Direction dir) noexcept;
+
  private:
     //------------------------------------------- variables -----------------------------------------//
-    size_t transferInProgress = 0;
-    size_t rxTransferInProgress = 0;
+    volatile size_t transferInProgress = 0;
+    volatile size_t rxTransferInProgress = 0;
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
     DMA::Channel &txStream;
     DMA::Channel &rxStream;

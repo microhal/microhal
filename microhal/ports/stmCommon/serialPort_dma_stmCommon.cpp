@@ -38,12 +38,22 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 //***********************************************************************************************//
 //                                   STATIC VARIABLES
 //***********************************************************************************************//
+#define _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(TX_SIZE, RX_SIZE, TX_DMA, RX_DMA, u, d)                                                          \
+    static char txBufferData_##u[TX_SIZE];                                                                                                      \
+    static char rxBufferData_##u[RX_SIZE];                                                                                                      \
+    SerialPort_Dma SerialPort_Dma::Serial##u(*USART##u, rxBufferData_##u, txBufferData_##u, sizeof(rxBufferData_##u), sizeof(txBufferData_##u), \
+                                             *DMA::d, DMA::d->stream[TX_DMA], DMA::d->stream[RX_DMA]);                                          \
+    SerialPort &SerialPort::Serial##u = SerialPort_Dma::Serial##u;
+
 #ifdef MICROHAL_USE_SERIAL_PORT1_DMA
-static char txBufferData_1[MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE];
-static char rxBufferData_1[MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial1(*USART1, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1), sizeof(txBufferData_1), *DMA::dma2,
-                                       DMA::dma2->stream[7], DMA::dma2->stream[MICROHAL_SERIAL_PORT1_DMA_RX_STREAM]);
-SerialPort &SerialPort::Serial1 = SerialPort_Dma::Serial1;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT1_DMA_TX_STREAM, MICROHAL_SERIAL_PORT1_DMA_RX_STREAM, 1, dma2)
+// static char txBufferData_1[MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE];
+// static char rxBufferData_1[MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE];
+// SerialPort_Dma SerialPort_Dma::Serial1(*USART1, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1), sizeof(txBufferData_1), *DMA::dma2,
+//                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT1_DMA_TX_STREAM],
+//                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT1_DMA_RX_STREAM]);
+// SerialPort &SerialPort::Serial1 = SerialPort_Dma::Serial1;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT2_DMA
 static char txBufferData_2[MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE];
@@ -206,6 +216,22 @@ void SerialPort_Dma::prepareRxDmaTransfer(size_t bytesToReceive) {
     } else {
     }
 }
+
+bool SerialPort_Dma::clearImpl(Direction dir) noexcept {
+    if (SerialPort::Input || SerialPort::AllDirections) {
+        rxStream.disable();
+        rxBuffer.flush();
+        prepareRxDmaTransfer();
+    }
+    if (SerialPort::Output || SerialPort::AllDirections) {
+        txStream.disable();
+        txBuffer.flush();
+        transferInProgress = 0;
+        txWait = false;
+    }
+    return true;
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+
 //***********************************************************************************************//
 //                                     interrupt functions                                       //
 //***********************************************************************************************//
@@ -219,7 +245,7 @@ inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_
     (void)sr;
 }
 
-inline void DMA_rx_function(SerialPort_Dma &serial, uint32_t DMA_Stream_NDTR) {
+void DMA_rx_function(SerialPort_Dma &serial, uint32_t DMA_Stream_NDTR) {
     // update rx buffer
     size_t receivedBytes = serial.rxTransferInProgress - DMA_Stream_NDTR;
     serial.rxBuffer.updateWritePointer(receivedBytes);
@@ -242,7 +268,7 @@ inline void DMA_rx_function(SerialPort_Dma &serial, uint32_t DMA_Stream_NDTR) {
     }
 }
 
-inline void DMA_tx_function(SerialPort_Dma &serial) {
+void DMA_tx_function(SerialPort_Dma &serial) {
     serial.txBuffer.updateReadPointer(serial.transferInProgress);
     serial.transferInProgress = 0;
     if (serial.prepareDmaTransfer() == 0 && serial.txWait) {
