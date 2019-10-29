@@ -61,8 +61,8 @@ class IOManager {
         static_assert((serial != 2 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 3) || (port == IOPin::PortD && pinNr == 6))),
                       "Serial2 Rxd can be connected only to: PortA.3 or PortD.6.");
 #else
-        static_assert((serial != 2 || serialType != Txd || ((port == GPIO::PortA && pinNr == 2))), "Serial2 Txd can be connected only to: PortA.2.");
-        static_assert((serial != 2 || serialType != Rxd || ((port == GPIO::PortA && pinNr == 3))), "Serial2 Rxd can be connected only to: PortA.3.");
+        static_assert((serial != 2 || serialType != Txd || ((port == IOPin::PortA && pinNr == 2))), "Serial2 Txd can be connected only to: PortA.2.");
+        static_assert((serial != 2 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 3))), "Serial2 Rxd can be connected only to: PortA.3.");
 #endif
 // assert for Serial3
 #if !defined(STM32F410Tx) && !defined(STM32F410Cx) && !defined(STM32F410Rx)
