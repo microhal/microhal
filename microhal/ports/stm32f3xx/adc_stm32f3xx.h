@@ -175,8 +175,8 @@ class Adc final {
     void initDMA(uint16_t *data, size_t len) {
         DMA::dma1->clockEnable();
         auto &stream = DMA::dma1->stream[0];
-        stream.peripheralAddress(&adc.DR);
-        stream.memoryAddress(data);
+        stream.setPeripheralAddress(&adc.DR);
+        stream.setMemoryAddress(data);
         stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
         stream.setNumberOfItemsToTransfer(len);
         stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,

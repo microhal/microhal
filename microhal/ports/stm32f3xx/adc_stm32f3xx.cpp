@@ -60,8 +60,8 @@ void Adc::setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequence
 void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize) {
     DMA::dma1->clockEnable();
     auto &stream = DMA::dma1->stream[0];
-    stream.peripheralAddress(&ADC12_COMMON->CDR);
-    stream.memoryAddress(data);
+    stream.setPeripheralAddress(&ADC12_COMMON->CDR);
+    stream.setMemoryAddress(data);
     stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     stream.setNumberOfItemsToTransfer(dataSize);
     stream.init(DMA::Channel::MemoryDataSize::Word, DMA::Channel::PeripheralDataSize::Word, DMA::Channel::MemoryIncrementMode::PointerIncremented,

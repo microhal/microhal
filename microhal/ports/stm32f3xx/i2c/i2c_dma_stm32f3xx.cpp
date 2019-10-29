@@ -70,8 +70,8 @@ I2C &I2C::i2c3 = I2C_dma::i2c3;
  * ***********************************************************************************************/
 I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *data, size_t size) noexcept {
     // configure DMA
-    txStream.numberOfItemsToTransfer(size);
-    txStream.memoryAddress(const_cast<uint8_t *>(data));
+    txStream.setNumberOfItemsToTransfer(size);
+    txStream.setMemoryAddress(const_cast<uint8_t *>(data));
     txStream.enable();
 
     // configure I2C
@@ -100,8 +100,8 @@ I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *data, size
 }
 
 I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *dataA, size_t dataASize, const uint8_t *dataB, size_t dataBSize) noexcept {
-    txStream.numberOfItemsToTransfer(dataASize);
-    txStream.memoryAddress(const_cast<uint8_t *>(dataA));
+    txStream.setNumberOfItemsToTransfer(dataASize);
+    txStream.setMemoryAddress(const_cast<uint8_t *>(dataA));
     txStream.enable();
 
     uint32_t cr2 = i2c.CR2;
@@ -131,8 +131,8 @@ I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *dataA, siz
 }
 
 I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t *data, size_t size) noexcept {
-    rxStream.numberOfItemsToTransfer(size);
-    rxStream.memoryAddress(data);
+    rxStream.setNumberOfItemsToTransfer(size);
+    rxStream.setMemoryAddress(data);
     rxStream.enable();
 
     uint32_t cr2 = i2c.CR2;
@@ -160,8 +160,8 @@ I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t *data, size_t size
 }
 
 I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *dataA, size_t dataASize, uint8_t *dataB, size_t dataBSize) noexcept {
-    rxStream.numberOfItemsToTransfer(dataASize);
-    rxStream.memoryAddress(dataA);
+    rxStream.setNumberOfItemsToTransfer(dataASize);
+    rxStream.setMemoryAddress(dataA);
     rxStream.enable();
 
     uint32_t cr2 = i2c.CR2;
@@ -191,12 +191,12 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *dataA, size_t dataASize
 }
 
 I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress, const uint8_t *writeData, size_t writeSize, uint8_t *readData, size_t readSize) noexcept {
-    txStream.numberOfItemsToTransfer(writeSize);
-    txStream.memoryAddress(const_cast<uint8_t *>(writeData));
+    txStream.setNumberOfItemsToTransfer(writeSize);
+    txStream.setMemoryAddress(const_cast<uint8_t *>(writeData));
     txStream.enable();
 
-    rxStream.numberOfItemsToTransfer(readSize);
-    rxStream.memoryAddress(readData);
+    rxStream.setNumberOfItemsToTransfer(readSize);
+    rxStream.setMemoryAddress(readData);
     rxStream.enable();
 
     uint32_t cr2 = i2c.CR2;
@@ -235,13 +235,13 @@ void I2C_dma::init(void) {
     rxStream.deinit();
     rxStream.init(DMA::Channel::MemoryDataSize::Byte, DMA::Channel::PeripheralDataSize::Byte, DMA::Channel::MemoryIncrementMode::PointerIncremented,
                   DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
-    rxStream.peripheralAddress(&i2c.RXDR);
+    rxStream.setPeripheralAddress(&i2c.RXDR);
 
     // tx
     txStream.deinit();
     txStream.init(DMA::Channel::MemoryDataSize::Byte, DMA::Channel::PeripheralDataSize::Byte, DMA::Channel::MemoryIncrementMode::PointerIncremented,
                   DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::MemToPer);
-    txStream.peripheralAddress(&i2c.TXDR);
+    txStream.setPeripheralAddress(&i2c.TXDR);
 }
 //***********************************************************************************************//
 //                                     interrupt functions //
@@ -308,8 +308,8 @@ void I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
             transferLength -= toWrite;
 
             stream.disable();
-            stream.memoryAddress(obj.transfer.bufferB.ptr);
-            stream.numberOfItemsToTransfer(obj.transfer.bufferB.length);
+            stream.setMemoryAddress(obj.transfer.bufferB.ptr);
+            stream.setNumberOfItemsToTransfer(obj.transfer.bufferB.length);
             stream.enable();
         }
 
