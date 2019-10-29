@@ -63,7 +63,7 @@ class ExternalInterrupt {
     static void init();
 
     template <typename T>
-    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, const GPIO::Port port, const GPIO::Pin pinNumber) {
+    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
         if (signals[pinNumber].connect(slot, object)) {
             configure(pinNumber, trigger);
             SYSCFG->EXTICR[pinNumber / 4] |= ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pinNumber % 4));
@@ -72,7 +72,7 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, const GPIO::Port port, const GPIO::Pin pinNumber) {
+    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
         if (signals[pinNumber].connect(interruptFunction)) {
             configure(pinNumber, trigger);
 
@@ -82,7 +82,7 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool disconnect(void (*interruptFunction)(void), const GPIO::Port port, const GPIO::Pin pinNumber) {
+    static inline bool disconnect(void (*interruptFunction)(void), IOPin::Port port, IOPin::Pin pinNumber) {
         if (signals[pinNumber].disconnect(interruptFunction)) {
             SYSCFG->EXTICR[pinNumber / 4] &= ~(((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pinNumber % 4)));
             return true;
@@ -90,14 +90,14 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool enable(const GPIO::Port port, const GPIO::Pin pinNumber) __attribute__((always_inline)) {
-        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
-            EXTI->IMR |= 1 << pinNumber;
+    static inline bool enable(IOPin pin) __attribute__((always_inline)) {
+        if ((SYSCFG->EXTICR[pin.pin / 4] >> (4 * (pin.pin % 4))) == ((pin.port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
+            EXTI->IMR |= 1 << pin.pin;
             return true;
         }
         return false;
     }
-    static inline bool disable(const GPIO::Port port, const GPIO::Pin pinNumber) __attribute__((always_inline)) {
+    static inline bool disable(IOPin::Port port, IOPin::Pin pinNumber) __attribute__((always_inline)) {
         if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
             EXTI->IMR &= ~(1 << pinNumber);
             return true;
@@ -105,9 +105,9 @@ class ExternalInterrupt {
         return false;
     }
 
-    static inline bool isEnabled(const GPIO::Port port, const GPIO::Pin pinNumber) {
-        if ((SYSCFG->EXTICR[pinNumber / 4] >> (4 * (pinNumber % 4))) == ((port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
-            return EXTI->IMR & (1 << pinNumber);
+    static inline bool isEnabled(IOPin pin) {
+        if ((SYSCFG->EXTICR[pin.pin / 4] >> (4 * (pin.pin % 4))) == ((pin.port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE))) {
+            return EXTI->IMR & (1 << pin.pin);
         }
         return false;
     }

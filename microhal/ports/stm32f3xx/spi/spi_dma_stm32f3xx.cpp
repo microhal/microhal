@@ -45,8 +45,8 @@ SPI &SPI::spi1 = SPI_dma::spi1;
 //                                           Functions
 //***********************************************************************************************//
 inline SPI::Error SPI_dma::write(const void *data, size_t len, bool last) {
-    txStream.numberOfItemsToTransfer(len);
-    txStream.memoryAddress(const_cast<void *>(data));
+    txStream.setNumberOfItemsToTransfer(len);
+    txStream.setMemoryAddress(const_cast<void *>(data));
     txStream.enable();
 
     spi.CR2 |= SPI_CR2_TXDMAEN;
@@ -71,12 +71,12 @@ SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeL
         txStream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     }
     // configure tx
-    txStream.numberOfItemsToTransfer(writeLen);
-    txStream.memoryAddress(const_cast<void *>(writePtr));
+    txStream.setNumberOfItemsToTransfer(writeLen);
+    txStream.setMemoryAddress(const_cast<void *>(writePtr));
 
     // configure rx
-    rxStream.numberOfItemsToTransfer(readLen);
-    rxStream.memoryAddress(readPtr);
+    rxStream.setNumberOfItemsToTransfer(readLen);
+    rxStream.setMemoryAddress(readPtr);
 
     while (spi.SR & SPI_SR_FTLVL_Msk) {
     }
@@ -111,13 +111,13 @@ void SPI_dma::init() {
     rxStream.deinit();
     rxStream.init(DMA::Channel::MemoryDataSize::Byte, DMA::Channel::PeripheralDataSize::Byte, DMA::Channel::MemoryIncrementMode::PointerIncremented,
                   DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
-    rxStream.peripheralAddress(&spi.DR);
+    rxStream.setPeripheralAddress(&spi.DR);
     rxStream.enableInterrupt(DMA::Channel::Interrupt::TransferComplete);
     // tx
     txStream.deinit();
     txStream.init(DMA::Channel::MemoryDataSize::Byte, DMA::Channel::PeripheralDataSize::Byte, DMA::Channel::MemoryIncrementMode::PointerIncremented,
                   DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::MemToPer);
-    txStream.peripheralAddress(&spi.DR);
+    txStream.setPeripheralAddress(&spi.DR);
     txStream.enableInterrupt(DMA::Channel::Interrupt::TransferComplete);
 
     IRQn_Type rxIRQ = DMA1_Channel2_IRQn, txIRQ = DMA1_Channel3_IRQn;

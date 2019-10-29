@@ -66,7 +66,7 @@ bool DS18B20::readScrathpad(uint8_t scratchpad[9]) const {
         oneWire.write(OneWire::Command::MatchROM);
         oneWire.write(reinterpret_cast<const uint8_t *>(&rom), sizeof(rom));
         oneWire.write(static_cast<uint8_t>(Command::ReadScratchpad));
-        oneWire.read(scratchpad, sizeof(scratchpad));
+        oneWire.read(scratchpad, 9);
         // todo(pokas) add crc check return scratchpad.crc == CRC<uint8_t, "x^8 + x^5 + x^4 + 1">::calculate(scratchpad, 8);
         return true;
     }

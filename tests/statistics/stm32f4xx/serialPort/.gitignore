@@ -6,3 +6,5 @@
 /STM32F410Tx Interrupt/
 /STM32F405xx Interrupt/
 /jenkins/
+/polling/
+/dma/

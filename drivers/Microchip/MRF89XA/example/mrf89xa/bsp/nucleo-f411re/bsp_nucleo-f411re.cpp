@@ -29,6 +29,7 @@
  */
 
 #include "microhal.h"
+#include "ports/stm32f4xx/clockManager.h"
 
 #include "bsp.h"
 
@@ -43,9 +44,9 @@ namespace bsp {
 
 namespace moduleA {
 namespace detail {
-stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortD, 8}, stm32f4xx::GPIO::Direction::Input);
-stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortD, 1}, stm32f4xx::GPIO::Direction::Input);
-stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortD, 0}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortC, 11}, stm32f4xx::GPIO::Direction::Input);  // CON1A GPIO1
+stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortA, 15}, stm32f4xx::GPIO::Direction::Input);  // CON1A SS
+stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortD, 2}, stm32f4xx::GPIO::Direction::Input);   // CON1A GPIO3
 }  // namespace detail
 microhal::GPIO &csDat = detail::csDat;
 microhal::GPIO &csCon = detail::csCon;
@@ -54,9 +55,9 @@ microhal::GPIO &RESET = detail::RESET;
 
 namespace moduleB {
 namespace detail {
-stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortB, 8}, stm32f4xx::GPIO::Direction::Input);
-stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortA, 3}, stm32f4xx::GPIO::Direction::Input);
-stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortA, 1}, stm32f4xx::GPIO::Direction::Input);
+stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortB, 0}, stm32f4xx::GPIO::Direction::Input);  // CON1C GPIO1
+stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortC, 1}, stm32f4xx::GPIO::Direction::Input);  // CON1C SS
+stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortC, 3}, stm32f4xx::GPIO::Direction::Input);  // CON1C GPIO3
 }  // namespace detail
 microhal::GPIO &csDat = detail::csDat;
 microhal::GPIO &csCon = detail::csCon;
@@ -74,8 +75,19 @@ void hardwareConfig(void) {
     (void)bsp::moduleA::spi;
     (void)bsp::moduleB::spi;
     (void)bsp::debugPort;
-    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
+    Core::flash_latency(100000000);
+    stm32f4xx::ClockManager::PLL::clockSource(stm32f4xx::ClockManager::PLL::ClockSource::HSI);
+    stm32f4xx::ClockManager::PLL::MDivider(4);
+    stm32f4xx::ClockManager::PLL::Main::enable();
+    stm32f4xx::ClockManager::PLL::Main::N(50);
+    stm32f4xx::ClockManager::PLL::Main::P(2);
+    stm32f4xx::ClockManager::PLL::Main::Q(4);
+    while (!stm32f4xx::ClockManager::PLL::Main::isReady()) {
+    }
+    stm32f4xx::ClockManager::SYSCLK::source(stm32f4xx::ClockManager::SYSCLK::Source::PLL);
+    while (stm32f4xx::ClockManager::SYSCLK::source() != stm32f4xx::ClockManager::SYSCLK::Source::PLL)
+        ;
 
     IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
@@ -91,11 +103,18 @@ void hardwareConfig(void) {
     stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
     stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler8);
+    stm32f4xx::IOManager::routeSPI<3, SCK, stm32f4xx::IOPin::PortB, 3>();
+    stm32f4xx::IOManager::routeSPI<3, MISO, stm32f4xx::IOPin::PortB, 4>();
+    stm32f4xx::IOManager::routeSPI<3, MOSI, stm32f4xx::IOPin::PortB, 5>();
+
+    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler256);
     stm32f4xx::SPI::spi1.enable();
 
+    stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler256);
+    stm32f4xx::SPI::spi3.enable();
+
     xTaskHandle mainHandle;
-    xTaskCreate(run_main, (const char *)"main", (10 * 1024), 0, tskIDLE_PRIORITY, &mainHandle);
+    xTaskCreate(run_main, (const char *)"main", (11 * 1024), 0, tskIDLE_PRIORITY, &mainHandle);
 
     vTaskStartScheduler();
 }

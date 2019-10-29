@@ -1,14 +1,13 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  Pawel Okas
  * @version    $Id$
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 06-08-2018
- * last modification: 06-08-2018
+ * created on: 26-08-2016
+ * last modification: 26-08-2016
  *
- * @copyright Copyright (c) 2018, Pawel Okas
+ * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,84 +31,6 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "serialPort_bufferedBase.h"
-
-#include <thread>
-
-#include "buffers/cyclicBuffer.h"
-#include "microhal_semaphore.h"
-
-namespace microhal {
-namespace stm32f0xx {
-/* ************************************************************************************************
- * EXTERN DECLARATION
- */
-extern "C" {
-void USART1_IRQHandler(void);   /* USART1                       */
-void USART2_IRQHandler(void);   /* USART2                       */
-void USART3_4_IRQHandler(void); /* USART3, USART4 */
-void USART3_6_IRQHandler(void); /* USART3, USART4, USART5, USART6 */
-void USART3_8_IRQHandler(void); /* USART3, USART4, USART5, USART6, USART7, USART8 */
-}
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-class SerialPort_interrupt : public SerialPort_BufferedBase<SerialPort_interrupt> {
- public:
-#ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
-    static SerialPort_interrupt Serial1;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
-    static SerialPort_interrupt Serial2;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
-    static SerialPort_interrupt Serial3;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_INTERRUPT
-    static SerialPort_interrupt Serial4;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT5_INTERRUPT
-    static SerialPort_interrupt Serial5;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
-    static SerialPort_interrupt Serial6;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
-    static SerialPort_interrupt Serial7;
-#endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
-    static SerialPort_interrupt Serial8;
-#endif
-    //--------------------------------------------- functions ---------------------------------------//
-    bool open(OpenMode mode) noexcept;
-
- private:
-    //------------------------------------------- variables -----------------------------------------//
-
-    //------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize);
-
-    // virtual ~SerialPort_interrupt(){
-    //}
-    //--------------------------------------------- functions ---------------------------------------//
-    void startTransmission_impl() { usart.CR1 |= USART_CR1_TXEIE; }
-
-    void updateRxBuffer_impl() {}
-
-    void configureRxWait_impl(size_t bytesToReceive) { waitForBytes = bytesToReceive; }
-    //------------------------------------------- friends -------------------------------------------//
-    friend SerialPort_BufferedBase<SerialPort_interrupt>;
-    friend inline void serialPort_interruptFunction(USART_TypeDef *const usart, SerialPort_interrupt &serialObject);
-
-    friend void USART1_IRQHandler(void);   /* USART1                       */
-    friend void USART2_IRQHandler(void);   /* USART2                       */
-    friend void USART3_4_IRQHandler(void); /* USART3, USART4 */
-    friend void USART3_6_IRQHandler(void); /* USART3, USART4, USART5, USART6 */
-    friend void USART3_8_IRQHandler(void); /* USART3, USART4, USART5, USART6, USART7, USART8 */
-};
-
-}  // namespace stm32f0xx
-}  // namespace microhal
+#include "ports/stmCommon/serialPort_interrupt_stmCommon.h"
 
 #endif  // _MICROHAL_SERIALPORT_INTERRUPT_STM32F0XX_H_

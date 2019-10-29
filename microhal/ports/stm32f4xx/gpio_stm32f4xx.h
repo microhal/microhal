@@ -32,216 +32,25 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <interfaces/gpio_interface.h>
-#include <cstdint>
-#include "IOPin.h"
-#include "device/stm32f4xx.h"
+#include "ports/stmCommon/gpio_stm_common.h"
 
 namespace microhal {
 namespace stm32f4xx {
-
-/* ************************************************************************************************
- * CLASS
- */
-class GPIO : public microhal::GPIO {
- public:
-    /**
-     * @brief Possible pin speed
-     */
-    typedef enum : uint8_t {
-        LowSpeed = 0x00,     //!< LOW_SPEED
-        MediumSpeed = 0x01,  //!< MEDIUM_SPEED
-        HighSpeed = 0x03     //!< HIGH_SPEED
-    } Speed;
-
- private:
-    /**
-     *
-     */
-    typedef struct __attribute__((packed)) {
-        uint8_t mode;
-        uint8_t type;
-        uint8_t pull;
-        uint8_t speed;
-    } PinConfiguration;
-    static_assert(sizeof(PinConfiguration) == 4, "");
-    /**
-     *
-     */
-    typedef enum : uint8_t {
-        Timer_1_2 = 1,
-        Timer_3_4_5 = 2,
-        Serial = 0x07,  //!< Serial
-        Serial_4_5_6 = 0x08,
-        SPI = 0x05,    //!< Alternate function for SPI 1 and 2
-        SPI_3 = 0x06,  //!< Alternate function for SPI 3
-        I2C = 0x04,    //!< I2C
-        CAN1_2_TIM12_13_14 = 0x09,
-        USB = 0x0A
-    } AlternateFunction;
-
- public:
-    using Port = IOPin::Port;
-    using Pin = IOPin::Pin;
-    //--------------------------------------- constructors --------------------------------------//
-    constexpr GPIO(IOPin pin) : pin(pin) {}
-    /**
-     * @brief Constructor of GPIO class
-     *
-     * @param port - port to be used
-     * @param pin - pin on used port
-     * @param dir - direction of port
-     * @param pull - pull up setting
-     * @param type - output type setting
-     */
-    GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed) : pin(pin) {
-        pinInitialize(pin.port, pin.pin, PinConfiguration{dir, type, pull, speed});
-    }
-
-    ~GPIO() {}
-
-    bool setState(bool value) final {
-        if (value) {
-            setMask(pin.port, 1 << pin.pin);
-        } else {
-            resetMask(pin.port, 1 << pin.pin);
-        }
-        return true;
-    }
-
-    bool get() const final {
-        auto port = pin.port;
-        return (getMask(port) & static_cast<uint16_t>(1 << pin.pin));
-    }
-
-    bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
-        pinInitialize(pin.port, pin.pin, PinConfiguration{dir, type, pull, NoPull});
-        return true;
-    }
-    //------------------------------------ static functions -------------------------------------//
-    /** @brief This function set pins to high state.
-     *
-     * @param port - port name
-     * @param mask - if bit in mask is set then corresponding pin will be set
-     */
-    static void setMask(Port port, uint16_t mask) { reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = mask; }
-    /** @brief This function set pins to low state.
-     *
-     * @param port - port name
-     * @param mask - if bit in mask is set then corresponding pin will be reset
-     */
-    static void resetMask(Port port, uint16_t mask) { reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = mask << 16; }
-    /** @brief This function return port state.
-     *
-     * @param port - port name
-     * @return - read value of pins. If pin zero is set then LSB in returned value will be set.
-     */
-    static uint16_t getMask(Port port) { return reinterpret_cast<volatile GPIO_TypeDef *>(port)->IDR; }
-    /** This function set pin to high state.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    // static void set(IOPin pin) { setMask(pin.port, 1 << pin.pin); }
-    /** This function set pin to low state.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    //   static void reset(IOPin pin) { resetMask(pin.port, 1 << pin.pin); }
-    /** This function read pin state
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    //  static bool get(IOPin pin) { return (getMask(pin.port) & static_cast<uint16_t>(1 << pin.pin)); }
-    /** This function check for pin set.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    //  static bool isSet(IOPin pin) { return get(pin); }
-    /** This function check for pin reset.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    // static bool isReset(IOPin pin) { return !get(pin); }
-    /** Sets pin to opposite state
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    // static void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
-    // using microhal::GPIO::toggle;
-    /** This function set pin direction.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @param direction - pin direction
-     */
-    static void setDirection(IOPin pin, Direction direction) { reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->OTYPER |= direction << pin.pin; }
-    /** This function set pin direction.
-     *
-     * @param direction - pin direction
-     */
-    void setDirection(Direction direction) { setDirection(pin, direction); }
-    /** This function set pin pull type
-     *
-     * @param port
-     * @param pin
-     * @param pullType
-     */
-    static void setPullType(IOPin pin, PullType pullType) { reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->PUPDR |= pullType << (pin.pin * 2); }
-    /** This function set pin pull type
-     *
-     * @param pullType
-     */
-    inline void setPullType(PullType pullType) { setPullType(pin, pullType); }
-    //----------------------------- not portable functions -----------------------------------
-    /** This function set pin speed
-     *
-     * @param pin -
-     * @param speed - pin speed
-     */
-    static void setSpeed(IOPin pin, Speed speed) { reinterpret_cast<volatile GPIO_TypeDef *>(pin.port)->OSPEEDR |= speed << (pin.pin); }
-    /** This function set pin speed
-     *
-     * @param speed - pin speed
-     */
-    void setSpeed(const Speed speed) { setSpeed(pin, speed); }
-
- protected:
-    const IOPin pin;
-
-    static void pinInitialize(Port port, uint_fast8_t pin, PinConfiguration configuration);
-    /**
-     *
-     * @param port
-     * @param pin
-     * @param function
-     * @param pull
-     * @param type
-     * @param speed
-     */
-    static void setAlternateFunction(Port port, Pin pin, AlternateFunction function, PullType pull = NoPull, OutputType type = PushPull,
-                                     Speed speed = HighSpeed) {
-        // 0x02 in mode enable alternate function
-        pinInitialize(port, pin, PinConfiguration{static_cast<uint8_t>(0x02 | (function << 4)), type, pull, speed});
-    }
-
-    static void setAnalogFunction(Port port, Pin pin, PullType pull = NoPull, Speed speed = HighSpeed) {
-        // 0x03 in mode enable analog function
-        pinInitialize(port, pin, PinConfiguration{static_cast<uint8_t>(0x03), 0x00, pull, speed});
-    }
-    //----------------------------------------- friends -----------------------------------------//
-    friend class IOManager;
-    friend class DataBus;
+namespace gpio_detail {
+enum class AlternateFunction : uint8_t {
+    Timer_1_2 = 1,
+    Timer_3_4_5 = 2,
+    Serial = 0x07,  //!< Serial
+    Serial_4_5_6 = 0x08,
+    SPI = 0x05,    //!< Alternate function for SPI 1 and 2
+    SPI_3 = 0x06,  //!< Alternate function for SPI 3
+    I2C = 0x04,    //!< I2C
+    CAN1_2_TIM12_13_14 = 0x09,
+    USB = 0x0A
 };
+}
 
+using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
 }  // namespace stm32f4xx
 }  // namespace microhal
 

@@ -58,7 +58,7 @@ class ExternalInterrupt {
     //---------------------------------------- constructors -----------------------------------------//
     explicit constexpr ExternalInterrupt(IOPin ioPin) noexcept : ioPin(ioPin) {}
     //------------------------------------------ functions ------------------------------------------//
-    inline static void init() noexcept { activePort::ExternalInterrupt::init(); }
+    inline static void init(uint32_t priority) noexcept { activePort::ExternalInterrupt::init(priority); }
     /**
      *
      * @param interruptFunction - pointer to interrupt function

@@ -68,6 +68,8 @@ class IOManager {
     static void routeSerial(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::PushPull) {
         static_assert(serial < 4, "This MCU have only 3 Serial ports.");
         static_assert(serial != 0, "Serial port numbers starts from 1.");
+        constexpr IOPin pin(port, pinNr);
+
         if constexpr (serial == 1) {
             if constexpr (serialType == Txd)
                 static_assert((port == IOPin::PortA && pinNr == 9) || (port == IOPin::PortB && pinNr == 6) || (port == IOPin::PortC && pinNr == 4),
@@ -92,7 +94,8 @@ class IOManager {
                 static_assert((port == IOPin::PortB && pinNr == 8) || (port == IOPin::PortB && pinNr == 9) || (port == IOPin::PortC && pinNr == 11),
                               "Serial3 Rxd can be connected only to: PortB.8, PortB.11, PortC.11.");
         }
-        GPIO::setAlternateFunction(port, pinNr, GPIO::Serial, pull, type);
+        stm32f3xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::Serial, pull, type);
     }
 
     template <int spiNumber, SpiPinType spiType, stm32f3xx::IOPin::Port port, stm32f3xx::IOPin::Pin pinNr>
@@ -128,15 +131,16 @@ class IOManager {
             static_assert( (spiNumber != 3 || spiType != MISO || ((port == IOPin::PortA && pinNr == 2) || (port == IOPin::PortC && pinNr == 11)|| (port == IOPin::PortB && pinNr == 4))), "SPI3 MISO can be connected only to: PortA.2 or PortC.11 or PortB.4");
             static_assert( (spiNumber != 3 || spiType != MOSI || ((port == IOPin::PortA && pinNr == 3) || (port == IOPin::PortC && pinNr == 12)|| (port == IOPin::PortB && pinNr == 5))), "SPI3 MOSI can be connected only to: PortA.3 or PortC.12 or PortB.5");
         // clang-format on
+        stm32f3xx::GPIO gpio(pin);
         if (spiNumber == 3) {
-            stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_3, pull, type);
+            gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::SPI_3, pull, type);
         } else if (spiNumber == 2) {
-            stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::SPI_2, pull, type);
+            gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::SPI_2, pull, type);
         } else if (spiNumber == 1) {
             if ((pinNr == 11) || (pinNr == 12) || (pinNr == 13)) {
-                stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF6, pull, type);
+                gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::AF6, pull, type);
             } else {
-                stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF5, pull, type);
+                gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::AF5, pull, type);
             }
         }
 
@@ -165,6 +169,8 @@ class IOManager {
     static void routeI2C(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
         static_assert(i2cNumber <= 3, "STM32F3xx has only 3 I2C.");
+        constexpr IOPin pin(port, pinNr);
+
         if constexpr (i2cNumber == 1) {
             if constexpr (i2cType == SDA)
                 static_assert((port == IOPin::PortB && pinNr == 7) || (port == IOPin::PortB && pinNr == 9),
@@ -182,13 +188,15 @@ class IOManager {
             if constexpr (i2cType == SCL) static_assert(port == IOPin::PortA && pinNr == 8, "I2C3 SCL can be connected only to: PortA.8.");
         }
 
-        stm32f3xx::GPIO::setAlternateFunction(port, pinNr, stm32f3xx::GPIO::AF4, pull, type);
+        stm32f3xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::AF4, pull, type);
     }
 
     template <int adcNumber, IOPin::Port port, IOPin::Pin pinNr>
     static void routeADC(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull) {
         static_assert(adcNumber != 0, "ADC numbers starts from 1.");
         static_assert(adcNumber <= 2, "STM32F3xx has only 2 ADC.");
+        constexpr IOPin pin(port, pinNr);
 
         if constexpr (adcNumber == 1) {
             if constexpr (port == IOPin::PortA) {
@@ -196,7 +204,8 @@ class IOManager {
             }
         }
 
-        stm32f3xx::GPIO::setAnalogFunction(port, pinNr, pull);
+        stm32f3xx::GPIO gpio(pin);
+        gpio.setAnalogFunction(pull);
     }
 
     template <int DACNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
@@ -220,8 +229,8 @@ class IOManager {
                 static_assert(pin == IOPin{IOPin::PortA, 6}, "I2C2 SDA can be connected only to: PortB.11.");
             }
         }
-
-        stm32f3xx::GPIO::setAnalogFunction(pin.port, pin.pin);
+        stm32f3xx::GPIO gpio(pin);
+        gpio.setAnalogFunction();
     }
 
     template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
@@ -287,7 +296,8 @@ class IOManager {
             alternateFunction = GPIO::AlternateFunction::AF4;
         }
 
-        stm32f3xx::GPIO::setAlternateFunction(port, pinNr, alternateFunction, pull, type);
+        stm32f3xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(alternateFunction, pull, type);
     }
 
     template <CanPinType canPinType, IOPin::Port port, IOPin::Pin pinNr>
@@ -300,7 +310,8 @@ class IOManager {
             static_assert(pin == IOPin{IOPin::PortA, 12} || pin == IOPin{IOPin::PortB, 9}, "CAN TX can be connected only to: PortA.12 or PortB.9.");
         }
 
-        stm32f3xx::GPIO::setAlternateFunction(port, pinNr, GPIO::AlternateFunction::CAN_TIM1_TIM15);
+        stm32f3xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(GPIO::AlternateFunction::CAN_TIM1_TIM15);
     }
 
  private:

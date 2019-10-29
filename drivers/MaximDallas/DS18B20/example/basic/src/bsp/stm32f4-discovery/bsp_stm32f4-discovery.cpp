@@ -4,13 +4,13 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
-extern "C" ssize_t _write_r(struct _reent *, int, const void *, size_t) {
-    return 0;
-}
+stm32f4xx::GPIO oneWireDataPullup({IOPin::PortE, 5}, stm32f4xx::GPIO::Direction::Output, stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::PushPull);
 
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
+
+    oneWireDataPullup.set();
 
     IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
     IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();

@@ -182,10 +182,10 @@ class MRF89XA : private microhal::SPIDevice {
      * @brief These enum contain possible sub-GHz frequency bands. Band can be selected by @ref configureChannel function.
      */
     enum FrequencyBandSelect : uint8_t {
-        Band_902_915MHz = 0x00,  //!< Band_902_915MHz
-        Band_915_928MHz = 0x08,  //!< Band_915_928MHz this mode is default
-        Band_950_960MHz = 0x10,  //!< Band_950_960MHz same as 863MHz mode, application circuit dependent
-        Band_863_870MHz = 0x11,  //!< Band_863_870MHz band configuration same as 950MHz application circuit dependent
+        Band_902_915MHz = 0b00 << 3,        //!< Band_902_915MHz
+        Band_915_928MHz = 0b01 << 3,        //!< Band_915_928MHz this mode is default
+        Band_950_960MHz = 0b10 << 3,        //!< Band_950_960MHz same as 863MHz mode, application circuit dependent
+        Band_863_870MHz = 0b10 << 3 | 0b1,  //!< Band_863_870MHz band configuration same as 950MHz application circuit dependent
     };
     /**
      * @brief These enum contain possible modulation types. To set modulation use @ref setModulation function.
@@ -367,9 +367,12 @@ class MRF89XA : private microhal::SPIDevice {
      * @param IRQ1pin - interrupt 1 pin
      * @param log - reference to diagnostic channel where driver logs will be printed
      */
-    MRF89XA(microhal::SPI &spi, microhal::GPIO &csCon, microhal::GPIO &csDat, microhal::IOPin IRQ1pin,
+    MRF89XA(microhal::SPI &spi, microhal::GPIO &csCon, microhal::GPIO &csDat, microhal::IOPin IRQ1pin, microhal::GPIO &reset,
             microhal::diagnostic::Diagnostic<microhal::diagnostic::LogLevel::Debug> &log = microhal::diagnostic::diagChannel)
-        : microhal::SPIDevice(spi, csCon), data(spi, csDat), IRQ1interrupt(IRQ1pin), log(log) {}
+        : microhal::SPIDevice(spi, csCon), data(spi, csDat), IRQ1interrupt(IRQ1pin), resetPin(reset), log(log), irqRun(&MRF89XA::IRQThread, this) {
+        resetPin.setDirectionOutput(microhal::GPIO::OutputType::OpenDrain, microhal::GPIO::PullType::NoPull);
+        resetPin.reset();
+    }
     /**
      * @brief These function configure RF channels. MRF89XA contain two sets of PLL registers that can be used to quick carrier frequency change.
      *  First set of PLL register values is calculated by this function from channelAcarrier parameter, the second one is calculated form channalB
@@ -421,8 +424,8 @@ class MRF89XA : private microhal::SPIDevice {
         if (setBand(band) == false) return false;
         if (setModulation(mod) == false) return false;
 
-        if (setPLL1_config(125, 100, 20) == false) return false;
-        // if (setPLL1_config(89, 72, 25) == false) return false;
+        // if (setPLL1_config(125, 100, 20) == false) return false;
+        if (setPLL1_config(89, 72, 25) == false) return false;
 
         // if (setPLL1_config(100, pA, sA) == false) return false;
         if (setPLL2_config(100, pB, sB) == false) return false;
@@ -783,6 +786,13 @@ class MRF89XA : private microhal::SPIDevice {
 
     bool clearPLLlockFlag() { return setBitsInRegister(FTPRIREG, LSTSPLL); }
 
+    void reset() {
+        resetPin.set();
+        std::this_thread::sleep_for(std::chrono::milliseconds{1});
+        resetPin.reset();
+        std::this_thread::sleep_for(std::chrono::milliseconds{5});
+    }
+
     void IRQ0_func();
     /**
      * @brief These function show all registers values on diagnosti channel passed as parameter, in case of lack of parameter
@@ -798,10 +808,10 @@ class MRF89XA : private microhal::SPIDevice {
         uint8_t regValue;
         for (uint8_t regAddr = 0; regAddr <= FCRCREG; regAddr += 2) {
             if (readRegister(regAddr | READ_REGISTER_CMD, regValue)) {
-                log << microhal::diagnostic::Debug << "Register address = " << microhal::diagnostic::toHex(regAddr >> 1)
+                log << microhal::diagnostic::Debug << "Register address = " << microhal::diagnostic::toHex(uint8_t(regAddr >> 1))
                     << ", value = " << microhal::diagnostic::toHex(regValue) << microhal::diagnostic::endl;
             } else {
-                log << microhal::diagnostic::Debug << "Unable to read register with address = " << microhal::diagnostic::toHex(regAddr >> 1)
+                log << microhal::diagnostic::Debug << "Unable to read register with address = " << microhal::diagnostic::toHex(uint8_t(regAddr >> 1))
                     << microhal::diagnostic::endl;
             }
         }
@@ -824,15 +834,21 @@ class MRF89XA : private microhal::SPIDevice {
     /**
      * @brief function that is used to process interrupts from IRQ1 line.
      */
-    void IRQ1_func();  // these must be declared before slot
+    void IRQ1_func();           // these must be declared before slot
+    void IRQ1_semaphoreGive();  // these must be declared before slot
 
     microhal::SPIDevice data;
     microhal::ExternalInterrupt IRQ1interrupt;
+    microhal::GPIO &resetPin;
     microhal::diagnostic::Diagnostic<microhal::diagnostic::LogLevel::Debug> &log;
     microhal::os::Semaphore semaphoreSend;
+    microhal::os::Semaphore semaphoreIrq;
     std::chrono::milliseconds maxPacktetSendTime{10000};  // fixme add calculation of max transmission time to setBaudrate function
-    microhal::Slot_0<MRF89XA, &MRF89XA::IRQ1_func> irq1_slot;
+    // microhal::Slot_0<MRF89XA, &MRF89XA::IRQ1_func> irq1_slot;
+    microhal::Slot_0<MRF89XA, &MRF89XA::IRQ1_semaphoreGive> irq1_slot;
+    std::thread irqRun;
 
+    void IRQThread();
     /**
      * @brief These function set the frequency band to be used in sub-GHz range.
      *

@@ -49,12 +49,12 @@ TEST_CASE("Message test") {
     message.setExtendedID(0xFFFF);
     CHECK_FALSE(message.isStandardID());
     CHECK(message.isExtendedID());
-    CHECK(message.getID() == 0xFFFF);
+    CHECK(message.getID().getID() == 0xFFFF);
 
     message.setStandardID(0xFF);
     CHECK_FALSE(message.isExtendedID());
     CHECK(message.isStandardID());
-    CHECK(message.getID() == 0xFF);
+    CHECK(message.getID().getID() == 0xFF);
 
     // try set remote request on message but with to big size
     CHECK_FALSE(message.setRemoteRequest(9));

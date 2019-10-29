@@ -1,14 +1,13 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
  * @brief
  *
- * @authors    buleks
+ * @authors    Pawel Okas
  * created on: 22-07-2016
  * last modification: 22-07-2016
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2016-2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,54 +31,6 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include <microhal.h>
-#include <cstdint>
-#include "interfaces/serialPort_interface.h"
-#include "microhalPortConfig_stm32f3xx.h"
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-namespace microhal {
-namespace stm32f3xx {
-
-class SerialPort : public microhal::SerialPort {
- public:
-#if defined(MICROHAL_USE_SERIAL_PORT1_POLLING) || (defined MICROHAL_USE_SERIAL_PORT1_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT1_DMA)
-    static SerialPort &Serial1;
-#endif
-#if (defined MICROHAL_USE_SERIAL_PORT2_POLLING) || (defined MICROHAL_USE_SERIAL_PORT2_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT2_DMA)
-    static SerialPort &Serial2;
-#endif
-#if (defined MICROHAL_USE_SERIAL_PORT3_POLLING) || (defined MICROHAL_USE_SERIAL_PORT3_INTERRUPT) || (defined MICROHAL_USE_SERIAL_PORT3_DMA)
-    static SerialPort &Serial3;
-#endif
-
-    virtual bool open(OpenMode mode) noexcept = 0;
-    bool isOpen(void) const noexcept final { return ((usart.CR1 & USART_CR1_UE) == USART_CR1_UE); }
-    void close() noexcept final { usart.CR1 = 0; }
-
-    bool setBaudRate(uint32_t baudRate) noexcept final;
-    uint32_t getBaudRate() const noexcept final;
-    bool setParity(SerialPort::Parity parity) noexcept final;
-    bool setStopBits(SerialPort::StopBits stopBits) noexcept final;
-    bool setDataBits(SerialPort::DataBits dataBits) noexcept final;
-
- protected:
-    //------------------------------------------- variables -----------------------------------------//
-    USART_TypeDef &usart;
-//------------------------------------------- constructors --------------------------------------//
-#if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
-    constexpr
-#endif
-        SerialPort(USART_TypeDef &usart)
-        : usart(usart) {
-    }
-
-    void enableInterrupt(uint32_t interruptPriority);
-};
-
-}  // namespace stm32f3xx
-}  // namespace microhal
+#include "ports/stmCommon/serialPort_stmCommon.h"
 
 #endif  // _MICROHAL_SERIALPORT_STM32F3XX_H_

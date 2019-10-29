@@ -92,6 +92,7 @@ class Stream {
     void disableInterrupt(Interrupt interrupts) { stream.CR &= ~(static_cast<uint32_t>(interrupts)); }
     void enable() { stream.CR |= DMA_SxCR_EN; }
     void disable() { stream.CR &= ~DMA_SxCR_EN; }
+    bool isEnabled() { return stream.CR & DMA_SxCR_EN; }
 };
 
 class DMA {

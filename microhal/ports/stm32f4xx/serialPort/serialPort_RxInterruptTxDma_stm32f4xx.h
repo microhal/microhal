@@ -33,7 +33,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "serialPort_bufferedBase.h"
+#include "ports/common/serialPort_bufferedBase.h"
 
 #include <thread>
 
@@ -67,7 +67,7 @@ void DMA2_Stream7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class SerialPort_RxInterruptTxDma : public SerialPort_BufferedBase<SerialPort_RxInterruptTxDma> {
+class SerialPort_RxInterruptTxDma : public common::SerialPort_BufferedBase<SerialPort_RxInterruptTxDma> {
  public:
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT_DMA
     static SerialPort_RxInterruptTxDma Serial1;

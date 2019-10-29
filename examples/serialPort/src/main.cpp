@@ -56,6 +56,7 @@ int main(void) {
             if (availableBytes > sizeof(buffer)) {
                 availableBytes = sizeof(buffer);
             }
+            bsp::serialPortA.read(buffer, availableBytes);
             // make echo
             bsp::serialPortA.write(buffer, availableBytes);
         }

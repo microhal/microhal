@@ -68,7 +68,7 @@ int main() {
     diagChannel << Debug << "Device ROM from read: " << rom << endl;
     diagChannel << Debug << "Device ROM from search: " << searchRom << endl;
 
-    DS18B20 ds(oneWire, rom);
+    DS18B20 ds(oneWire, OneWire::Rom(rom));
 
     ds.resolution(DS18B20::Resolution::Bits_12);
 

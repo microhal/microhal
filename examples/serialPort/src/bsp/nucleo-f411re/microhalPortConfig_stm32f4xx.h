@@ -40,24 +40,47 @@ static constexpr uint32_t externalClockFrequency = 8000000;  // this is HSE freq
 static constexpr bool externalLSEPresent = false;
 static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
+//***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//
 //***********************************************************************************************//
+
+//***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-//#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT			// available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
-                                                        // MICROHAL_USE_SERIAL_PORTx_INTERRUPT
-                                                        // MICROHAL_USE_SERIAL_PORTx_DMA
-#define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
+// =================== Serial port 1 ===================
+#define MICROHAL_USE_SERIAL_PORT1_ /* available settings are:                                                              \
+                                       * MICROHAL_USE_SERIAL_PORTx_POLLING                                                    \
+                                       * MICROHAL_USE_SERIAL_PORTx_INTERRUPT                                                  \
+                                       * MICROHAL_USE_SERIAL_PORTx_INTERRUPT_DMA -> receiving via interrupt, transmit via DMA \
+                                       * MICROHAL_USE_SERIAL_PORTx_DMA -> receiving and transmit using DMA                    \
+                                       */
+#define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT1_DMA_TX_STREAM 1  // Serial port 1 TX stream can be connected only to DMA2 Stream 7.
+#define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5  // Serial port 1 RX stream can be connected to DMA2 Stream 2 or 5.
 
-#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
-#define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
+// =================== Serial port 2 ===================
+#define MICROHAL_USE_SERIAL_PORT2_DMA
+#define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
+#define MICROHAL_SERIAL_PORT2_DMA_TX_STREAM 6  // Serial port 2 TX stream can be connected only to DMA1 Stream 6.
+#define MICROHAL_SERIAL_PORT2_DMA_RX_STREAM 5  // Serial port 2 RX stream can be connected only to DMA1 Stream 5.
 
-//#define MICROHAL_USE_SERIAL_PORT6_INTERRUPT
-#define MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE 128
+// =================== Serial port 3 ===================
+//#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+#define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT3_DMA_TX_STREAM 4  // Serial port 3 TX stream can be connected to DMA1 Stream 3 or 4.
+#define MICROHAL_SERIAL_PORT3_DMA_RX_STREAM 1  // Serial port 3 RX stream can be connected only to DMA1 Stream 1.
+
+// =================== Serial port 4 ===================
+//#define MICROHAL_USE_SERIAL_PORT4_INTERRUPT
+#define MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT4_DMA_TX_STREAM 4  // Serial port 4 TX stream can be connected only to DMA1 Stream 4.
+#define MICROHAL_SERIAL_PORT4_DMA_RX_STREAM 2  // Serial port 4 RX stream can be connected only to DMA1 Stream 2
+
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//

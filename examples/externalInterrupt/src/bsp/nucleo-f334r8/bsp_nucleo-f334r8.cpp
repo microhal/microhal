@@ -36,17 +36,18 @@ namespace detail {
 
 using namespace microhal::stm32f3xx;
 
-constexpr microhal::IOPin ld2_pin(microhal::stm32f3xx::IOPin::Port::PortA, 5);
-constexpr microhal::IOPin led3_pin(microhal::stm32f3xx::IOPin::Port::PortD, 13);
-constexpr microhal::IOPin led5_pin(microhal::stm32f3xx::IOPin::Port::PortD, 14);
-constexpr microhal::IOPin led6_pin(microhal::stm32f3xx::IOPin::Port::PortD, 15);
-
+constexpr IOPin ld2_pin(microhal::stm32f3xx::GPIO::Port::PortA, 5);  // green LED
+// constexpr IOPin led2_pin(microhal::stm32f3xx::GPIO::Port::PortF, 6);   // LED on nucleo expansion board
+// constexpr IOPin led3_pin(microhal::stm32f3xx::GPIO::Port::PortF, 7);   // LED on nucleo expansion board
+constexpr IOPin led4_pin(microhal::stm32f3xx::GPIO::Port::PortA, 13);  // LED on nucleo expansion board
+constexpr IOPin led5_pin(microhal::stm32f3xx::GPIO::Port::PortA, 14);  // LED on nucleo expansion board
+constexpr IOPin led7_pin(microhal::stm32f3xx::GPIO::Port::PortA, 15);
 constexpr microhal::IOPin button_pin(microhal::stm32f3xx::IOPin::Port::PortC, 13);
 
 GPIO redLed(led5_pin, GPIO::Direction::Output);
 GPIO greenLed(ld2_pin, GPIO::Direction::Output);
-GPIO blueLed(led6_pin, GPIO::Direction::Output);
-GPIO orangeLed(led3_pin, GPIO::Direction::Output);
+GPIO blueLed(led4_pin, GPIO::Direction::Output);
+GPIO orangeLed(led7_pin, GPIO::Direction::Output);
 
 }  // namespace detail
 
@@ -57,7 +58,6 @@ microhal::GPIO &orangeLed = detail::orangeLed;
 }  // namespace bsp
 
 void hardwareConfig(void) {
-    // Core::pll_start(8000000, 168000000);
     microhal::stm32f3xx::Core::fpu_enable();
 
     SysTick_Config(8000000 / 1000);

@@ -39,18 +39,38 @@
 #include "microhal_semaphore.h"
 
 #if defined(VENDOR_STMICROELECTRONICS)
-#if defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/serialPort_stm32f3xx.h"
-#endif
+#include "ports/stmCommon/stmCommonDefines.h"
+//#if defined(MCU_TYPE_STM32F3XX)
+#include "ports/stmCommon/serialPort_stmCommon.h"
+//#endif
 #endif
 
 namespace microhal {
 namespace common {
+
+namespace detail {
+template <typename T>
+class has_clearImpl {
+ private:
+    template <typename C>
+    static constexpr auto test(C *c) -> typename std::is_same<bool, decltype(c->clearImpl(SerialPort::Direction::AllDirections))>::type {
+        return {};
+    }
+    template <typename C>
+    static constexpr std::false_type test(...) {
+        return {};
+    }
+
+ public:
+    static constexpr bool value = test<T>(nullptr);
+};
+
+}  // namespace detail
 /* ************************************************************************************************
  * CLASS
  */
 template <class Derived>
-class SerialPort_BufferedBase : public stm32f3xx::SerialPort {
+class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
  public:
     SerialPort_BufferedBase(USART_TypeDef &usart, char *const rxData, size_t rxDataSize, char *const txData, size_t txDataSize) noexcept
         : SerialPort(usart), rxBuffer(rxData, rxDataSize), txBuffer(txData, txDataSize), txFinish(), rxSemaphore() {}
@@ -122,8 +142,11 @@ class SerialPort_BufferedBase : public stm32f3xx::SerialPort {
     }
 
     bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final {
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
         if (txBuffer.isNotEmpty() || !(usart.ISR & USART_ISR_TXE)) {
-            // if (txBuffer.isNotEmpty() || !(usart.SR & USART_SR_TXE)) {
+#else
+        if (txBuffer.isNotEmpty() || !(usart.SR & USART_SR_TXE)) {
+#endif
             txWait = true;
             if (txFinish.wait(timeout) == false) {
                 txWait = false;
@@ -141,21 +164,25 @@ class SerialPort_BufferedBase : public stm32f3xx::SerialPort {
      * @retval false - if an error occurred
      */
     bool clear(Direction dir) noexcept final {
-        switch (dir) {
-            case SerialPort::Input:
-                rxBuffer.flush();
-                break;
-            case SerialPort::Output:
-                txBuffer.flush();
-                break;
-            case SerialPort::AllDirections:
-                rxBuffer.flush();
-                txBuffer.flush();
-                break;
-            default:
-                return false;
+        if constexpr (detail::has_clearImpl<Derived>::value) {
+            return static_cast<Derived *>(this)->clearImpl(dir);
+        } else {
+            switch (dir) {
+                case SerialPort::Input:
+                    rxBuffer.flush();
+                    break;
+                case SerialPort::Output:
+                    txBuffer.flush();
+                    break;
+                case SerialPort::AllDirections:
+                    rxBuffer.flush();
+                    txBuffer.flush();
+                    break;
+                default:
+                    return false;
+            }
+            return true;
         }
-        return true;
     }
 
     size_t inputQueueSize() const noexcept final { return rxBuffer.getSize(); }
@@ -165,10 +192,10 @@ class SerialPort_BufferedBase : public stm32f3xx::SerialPort {
  protected:
     CyclicBuffer<char> rxBuffer;
     CyclicBuffer<char> txBuffer;
-    mutable bool txWait = false;
+    mutable bool volatile txWait = false;
     mutable microhal::os::Semaphore txFinish;
     microhal::os::Semaphore rxSemaphore;
-    size_t waitForBytes = 0;
+    volatile size_t waitForBytes = 0;
 
     void startTransmission() { static_cast<Derived *>(this)->startTransmission_impl(); }
 

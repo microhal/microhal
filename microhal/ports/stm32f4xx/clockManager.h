@@ -37,6 +37,8 @@
 #include "can_registers.h"
 #include "device/stm32f4xx.h"
 
+#define _MICROHAL_CLOCKMANAGER_HAS_POWERMODE 1
+
 namespace microhal {
 namespace stm32f4xx {
 
@@ -849,7 +851,10 @@ class ClockManager {
      * @param CAN device pointer
      * @return
      */
-    static uint32_t CANFrequency(const registers::CAN &can) { return APB1::frequency(); }
+    static uint32_t CANFrequency(const registers::CAN &can) {
+        (void)can;
+        return APB1::frequency();
+    }
     /**
      * @brief This function return usart clock
      *

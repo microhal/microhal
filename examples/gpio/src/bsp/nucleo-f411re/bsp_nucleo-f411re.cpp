@@ -37,10 +37,11 @@ namespace bsp {
 namespace detail {
 using Port = microhal::stm32f4xx::GPIO::Port;
 
-constexpr IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);    // green LED
-constexpr IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortD, 13);  // orange LED
-constexpr IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortD, 14);  // red LED
-constexpr IOPin led6_pin(microhal::stm32f4xx::GPIO::Port::PortD, 15);  // blue LED
+constexpr IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);  // green LED
+// constexpr IOPin led2_pin(microhal::stm32f4xx::GPIO::Port::PortF, 6);  // LED on nucleo expansion board
+// constexpr IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortF, 7);   // LED on nucleo expansion board
+constexpr IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortA, 13);  // LED on nucleo expansion board
+constexpr IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortA, 14);  // LED on nucleo expansion board
 
 constexpr IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
 
@@ -59,7 +60,7 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    SysTick_Config(168000000 / 1000);
+    SysTick_Config(16000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
