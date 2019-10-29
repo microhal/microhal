@@ -181,8 +181,10 @@ class ExternalInterrupt {
                 return IOPin::PortB;
             case 2:
                 return IOPin::PortC;
+#if defined(GPIOD_BASE)
             case 3:
                 return IOPin::PortD;
+#endif
 #if defined(GPIOE_BASE)
             case 4:
                 return IOPin::PortE;
