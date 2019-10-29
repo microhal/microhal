@@ -72,10 +72,13 @@ class DS18B20 {
     bool startConversion(bool waitForConversionEnd);
 
     bool temperature(float *temp) {
+        static constexpr uint16_t mask[] = {0xFFF8, 0xFFFB, 0xFFFE, 0xFFFF};
         uint8_t scratchpad[9];
         if (readScrathpad(scratchpad)) {
+            uint8_t configuration = scratchpad[4] >> 5;
             int16_t temporary = scratchpad[1] << 8 | scratchpad[0];
-            *temp = (float)temporary / 16;  // calculate actual temperature
+            temporary &= mask[configuration];  // mask out undefined bits
+            *temp = (float)temporary / 16;     // calculate actual temperature
             return true;
         }
         return false;
