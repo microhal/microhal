@@ -36,6 +36,11 @@ typedef enum { OTG_FS_SOF, OTG_FS_ID, OTG_FS_VBUS, OTG_FS_DM, OTG_FS_DP } USBPin
 
 namespace stm32f4xx {
 
+template <auto T>
+constexpr static bool contain(const std::array<IOPin, T> &list, const IOPin &pin) {
+    return std::find(list.begin(), list.end(), pin) != list.end();
+}
+
 class IOManager {
  public:
     IOManager();
@@ -49,35 +54,60 @@ class IOManager {
     template <int serial, SerialPinType serialType, stm32f4xx::IOPin::Port port, stm32f4xx::IOPin::Pin pinNr>
     static void routeSerial(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
         constexpr IOPin pin(port, pinNr);
+
         // assert for Serial1
-        static_assert((serial != 1 || serialType != Txd || ((port == IOPin::PortA && pinNr == 9) || (port == IOPin::PortB && pinNr == 6))),
-                      "Serial1 Txd can be connected only to: PortA.9 or PortB.6.");
-        static_assert((serial != 1 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 10) || (port == IOPin::PortB && pinNr == 7))),
-                      "Serial1 Rxd can be connected only to: PortA.10 or PortB.7.");
-// assert for Serial2
+        if constexpr (serial == 1) {
+            if constexpr (serialType == Txd) {
+                static_assert(pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 6},
+                              "Serial1 Txd can be connected only to: PortA.9 or PortB.6.");
+            }
+            if constexpr (serialType == Rxd) {
+                static_assert(pin == IOPin{IOPin::PortA, 10} || pin == IOPin{IOPin::PortB, 7},
+                              "Serial1 Rxd can be connected only to: PortA.10 or PortB.7.");
+            }
+        }
+        // assert for Serial2
+        if constexpr (serial == 1) {
 #if !defined(STM32F410Tx) && !defined(STM32F410Cx) && !defined(STM32F410Rx)
-        static_assert((serial != 2 || serialType != Txd || ((port == IOPin::PortA && pinNr == 2) || (port == IOPin::PortD && pinNr == 5))),
-                      "Serial2 Txd can be connected only to: PortA.2 or PortD.5.");
-        static_assert((serial != 2 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 3) || (port == IOPin::PortD && pinNr == 6))),
-                      "Serial2 Rxd can be connected only to: PortA.3 or PortD.6.");
+            if constexpr (serialType == Txd) {
+                static_assert(pin == IOPin{IOPin::PortA, 2} || pin == IOPin{IOPin::PortD, 5},
+                              "Serial2 Txd can be connected only to: PortA.2 or PortD.5.");
+            }
+            if constexpr (serialType == Rxd) {
+                static_assert(pin == IOPin{IOPin::PortA, 3} || pin == IOPin{IOPin::PortD, 6},
+                              "Serial2 Rxd can be connected only to: PortA.3 or PortD.6.");
+            }
 #else
-        static_assert((serial != 2 || serialType != Txd || ((port == IOPin::PortA && pinNr == 2))), "Serial2 Txd can be connected only to: PortA.2.");
-        static_assert((serial != 2 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 3))), "Serial2 Rxd can be connected only to: PortA.3.");
+            if constexpr (serialType == Txd) {
+                static_assert(pin == IOPin{IOPin::PortA, 2}, "Serial2 Txd can be connected only to: PortA.2.");
+            }
+            if constexpr (serialType == Rxd) {
+                static_assert(pin == IOPin{IOPin::PortA, 3}, "Serial2 Rxd can be connected only to: PortA.3.");
+            }
 #endif
+        }
 // assert for Serial3
 #if !defined(STM32F410Tx) && !defined(STM32F410Cx) && !defined(STM32F410Rx)
-        static_assert((serial != 3 || serialType != Txd ||
-                       ((port == IOPin::PortB && pinNr == 10) || (port == IOPin::PortC && pinNr == 10) || (port == IOPin::PortD && pinNr == 8))),
-                      "Serial3 Txd can be connected only to: PortB.10 or PortC.10 or PortD.8.");
-        static_assert((serial != 3 || serialType != Rxd ||
-                       ((port == IOPin::PortB && pinNr == 11) || (port == IOPin::PortC && pinNr == 11) || (port == IOPin::PortD && pinNr == 9))),
-                      "Serial3 Rxd can be connected only to: PortB.11 or PortC.11 or PortD.9.");
+        if constexpr (serial == 3) {
+            if constexpr (serialType == Txd) {
+                static_assert(pin == IOPin{IOPin::PortB, 10} || pin == IOPin{IOPin::PortC, 10} || pin == IOPin{IOPin::PortD, 8},
+                              "Serial3 Txd can be connected only to: PortB.10 or PortC.10 or PortD.8.");
+            }
+            if constexpr (serialType == Rxd) {
+                static_assert(pin == IOPin{IOPin::PortB, 11} || pin == IOPin{IOPin::PortC, 11} || pin == IOPin{IOPin::PortD, 9},
+                              "Serial3 Rxd can be connected only to: PortB.11 or PortC.11 or PortD.9.");
+            }
 #else
-        static_assert((serial != 3 || serialType != Txd || ((port == IOPin::PortB && pinNr == 10) || (port == IOPin::PortC && pinNr == 10))),
-                      "Serial3 Txd can be connected only to: PortB.10 or PortC.10.");
-        static_assert((serial != 3 || serialType != Rxd || ((port == IOPin::PortB && pinNr == 11) || (port == IOPin::PortC && pinNr == 11))),
-                      "Serial3 Rxd can be connected only to: PortB.11 or PortC.11.");
+        if constexpr (serialType == Txd) {
+            static_assert(pin == IOPin{IOPin::PortB, 10} || pin == IOPin{IOPin::PortC, 10},
+                          "Serial3 Txd can be connected only to: PortB.10 or PortC.10.");
+        }
+        if constexpr (serialType == Rxd) {
+            static_assert(pin == IOPin{IOPin::PortB, 11} || pin == IOPin{IOPin::PortC, 11},
+                          "Serial3 Rxd can be connected only to: PortB.11 or PortC.11.");
+        }
 #endif
+        }
         // assert for Serial4
         static_assert((serial != 4 || serialType != Txd || (port == IOPin::PortA && pinNr == 0) || (port == IOPin::PortC && pinNr == 10)),
                       "Serial4 Txd can be connected to: PortA.0 or PortC.10.");
@@ -90,7 +120,7 @@ class IOManager {
         static_assert((serial != 5 || serialType != Rxd || ((port == IOPin::PortD && pinNr == 2) || (port == IOPin::PortA && pinNr == 3))),
                       "Serial5 Rxd can be connected only to: PortD.2, PortA.3.");
 #else
-        static_assert((serial != 5 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 2))), "Serial5 Rxd can be connected only to: PortA.3.");
+    static_assert((serial != 5 || serialType != Rxd || ((port == IOPin::PortA && pinNr == 2))), "Serial5 Rxd can be connected only to: PortA.3.");
 #endif
         // assert for Serial6
         if constexpr (serial == 6) {
@@ -111,11 +141,7 @@ class IOManager {
         static_assert((serial != 8 || serialType != Txd || ((port == IOPin::PortE && pinNr == 1))), "Serial8 Txd can be connected only to: PortE.1.");
         static_assert((serial != 8 || serialType != Rxd || ((port == IOPin::PortE && pinNr == 0))), "Serial8 Rxd can be connected only to: PortE.0.");
 #endif
-        // check that pin is use only once
 
-        // static_assert(used<port, pinNr>(), "Reuse of pin.");
-
-        // todo call gpio route function
         GPIO gpio(pin);
         gpio.setAlternateFunction(serial < 4 ? GPIO::AlternateFunction::Serial : GPIO::AlternateFunction::Serial_4_5_6, pull, type);
     }
@@ -270,7 +296,7 @@ class IOManager {
         GPIO gpio(pin);
         gpio.setAlternateFunction(GPIO::AlternateFunction::CAN1_2_TIM12_13_14);
     }
-};
+};  // namespace stm32f4xx
 
 }  // namespace stm32f4xx
 }  // namespace microhal

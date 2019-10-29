@@ -1,15 +1,13 @@
 /*
- * portConfigurationAssert_stm32f4xx.cpp
+ * portConfigurationAssert_stm32f407xx.cpp
  *
- *  Created on: Oct 28, 2019
+ *  Created on: Oct 29, 2019
  *      Author: pokas
  */
 
-#include "microhalPortConfig_stm32f4xx.h"
+#ifndef _MICROHAL_STM32F4XX_PORTCONFIGURATIONASSERT_STM32F407XX_H_
+#define _MICROHAL_STM32F4XX_PORTCONFIGURATIONASSERT_STM32F407XX_H_
 
-#if defined(STM32F407xx)
-#include "portConfigurationAssert_stm32f407xx.h"
-#elif defined(STM32F411xE)
 // ********************* Serial Port 1
 // ---- POLLING and INTERRUPT
 #if defined(MICROHAL_USE_SERIAL_PORT1_POLLING) || defined(MICROHAL_USE_SERIAL_PORT1_INTERRUPT)
@@ -21,7 +19,7 @@
 #if defined(MICROHAL_USE_SERIAL_PORT1_DMA)
 // clang-format off
     #ifndef MICROHAL_SERIAL_PORT1_DMA_TX_STREAM
-        #error MICROHAL_SERIAL_PORT1_DMA_TX_STREAM have to be defined inside microhalPortConfig_stm32f3xx.h
+        #error MICROHAL_SERIAL_PORT1_DMA_TX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
     #elif MICROHAL_SERIAL_PORT1_DMA_TX_STREAM != 7  // Serial port 1 TX stream can be connected only to DMA2 Channel 7.
         #error MICROHAL_SERIAL_PORT1_DMA_TX_STREAM have to be equal 7, please check your microhalPortConfig_stm32f4xx.h
     #endif
@@ -49,28 +47,76 @@
     #endif
     #ifndef MICROHAL_SERIAL_PORT2_DMA_RX_STREAM
         #error MICROHAL_SERIAL_PORT2_DMA_RX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
-    #elif MICROHAL_SERIAL_PORT2_DMA_RX_STREAM != 5 && MICROHAL_SERIAL_PORT2_DMA_RX_STREAM != 7  // Serial port 2 RX stream can be connected to DMA1 Channel 5 or DMA1 Channel 7.
+    #elif MICROHAL_SERIAL_PORT2_DMA_RX_STREAM != 5  // Serial port 2 RX stream can be connected to DMA1 Channel 5.
         #error MICROHAL_SERIAL_PORT2_DMA_TX_STREAM have to be equal 5 or 7, please check your microhalPortConfig_stm32f4xx.h
     #endif
 // clang-format on
 #endif
 // ********************* Serial Port 3
-// ---- POLLING, INTERRUPT, INTERRUPT_DMA, DMA
-#if defined(MICROHAL_USE_SERIAL_PORT3_POLLING) || defined(MICROHAL_USE_SERIAL_PORT3_INTERRUPT) || \
-    defined(MICROHAL_USE_SERIAL_PORT3_INTERRUPT_DMA) || defined(MICROHAL_USE_SERIAL_PORT3_DMA)
-#error Enabled Serial Port 3 by defining MICROHAL_USE_SERIAL_PORT3_xxx but STM32F411xE do not have Serial port 3 hardware. Please disable Serial Port 3
+// ---- POLLING and INTERRUPT
+#if defined(MICROHAL_USE_SERIAL_PORT3_POLLING) || defined(MICROHAL_USE_SERIAL_PORT3_INTERRUPT)
+#endif
+// ---- INTERRUPT_DMA
+#if defined(MICROHAL_USE_SERIAL_PORT3_INTERRUPT_DMA)
+#endif
+// ---- DMA
+#if defined(MICROHAL_USE_SERIAL_PORT3_DMA)
+// clang-format off
+    #ifndef MICROHAL_SERIAL_PORT3_DMA_TX_STREAM
+        #error MICROHAL_SERIAL_PORT3_DMA_TX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
+    #elif MICROHAL_SERIAL_PORT3_DMA_TX_STREAM != 3 && MICROHAL_SERIAL_PORT3_DMA_TX_STREAM != 4 // Serial port 3 TX stream can be connected only to DMA1 Channel 3 or DMA1 Channel 4.
+        #error MICROHAL_SERIAL_PORT3_DMA_TX_STREAM have to be equal 3 or 4, please check your microhalPortConfig_stm32f4xx.h
+    #endif
+    #ifndef MICROHAL_SERIAL_PORT3_DMA_RX_STREAM
+        #error MICROHAL_SERIAL_PORT3_DMA_RX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
+    #elif MICROHAL_SERIAL_PORT3_DMA_RX_STREAM != 1 // Serial port 3 RX stream can be connected to DMA1 Channel 1.
+        #error MICROHAL_SERIAL_PORT3_DMA_TX_STREAM have to be equal 1, please check your microhalPortConfig_stm32f4xx.h
+    #endif
+// clang-format on
 #endif
 // ********************* Serial Port 4
-// ---- POLLING, INTERRUPT, INTERRUPT_DMA, DMA
-#if defined(MICROHAL_USE_SERIAL_PORT4_POLLING) || defined(MICROHAL_USE_SERIAL_PORT4_INTERRUPT) || \
-    defined(MICROHAL_USE_SERIAL_PORT4_INTERRUPT_DMA) || defined(MICROHAL_USE_SERIAL_PORT4_DMA)
-#error Enabled Serial Port 4 by defining MICROHAL_USE_SERIAL_PORT4_xxx but STM32F411xE do not have Serial port 4 hardware. Please disable Serial Port 4
+// ---- POLLING and INTERRUPT
+#if defined(MICROHAL_USE_SERIAL_PORT4_POLLING) || defined(MICROHAL_USE_SERIAL_PORT4_INTERRUPT)
+#endif
+// ---- INTERRUPT_DMA
+#if defined(MICROHAL_USE_SERIAL_PORT4_INTERRUPT_DMA)
+#endif
+// ---- DMA
+#if defined(MICROHAL_USE_SERIAL_PORT4_DMA)
+// clang-format off
+    #ifndef MICROHAL_SERIAL_PORT4_DMA_TX_STREAM
+        #error MICROHAL_SERIAL_PORT4_DMA_TX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
+    #elif MICROHAL_SERIAL_PORT4_DMA_TX_STREAM != 4 // Serial port 4 TX stream can be connected only to DMA1 Channel 4.
+        #error MICROHAL_SERIAL_PORT4_DMA_TX_STREAM have to be equal 4, please check your microhalPortConfig_stm32f4xx.h
+    #endif
+    #ifndef MICROHAL_SERIAL_PORT4_DMA_RX_STREAM
+        #error MICROHAL_SERIAL_PORT4_DMA_RX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
+    #elif MICROHAL_SERIAL_PORT4_DMA_RX_STREAM != 2 // Serial port 4 RX stream can be connected to DMA1 Channel 2.
+        #error MICROHAL_SERIAL_PORT4_DMA_TX_STREAM have to be equal 2, please check your microhalPortConfig_stm32f4xx.h
+    #endif
+// clang-format on
 #endif
 // ********************* Serial Port 5
-// ---- POLLING, INTERRUPT, INTERRUPT_DMA, DMA
-#if defined(MICROHAL_USE_SERIAL_PORT5_POLLING) || defined(MICROHAL_USE_SERIAL_PORT5_INTERRUPT) || \
-    defined(MICROHAL_USE_SERIAL_PORT5_INTERRUPT_DMA) || defined(MICROHAL_USE_SERIAL_PORT5_DMA)
-#error Enabled Serial Port 5 by defining MICROHAL_USE_SERIAL_PORT5_xxx but STM32F411xE do not have Serial port 5 hardware. Please disable Serial Port 5
+// ---- POLLING and INTERRUPT
+#if defined(MICROHAL_USE_SERIAL_PORT5_POLLING) || defined(MICROHAL_USE_SERIAL_PORT5_INTERRUPT)
+#endif
+// ---- INTERRUPT_DMA
+#if defined(MICROHAL_USE_SERIAL_PORT5_INTERRUPT_DMA)
+#endif
+// ---- DMA
+#if defined(MICROHAL_USE_SERIAL_PORT5_DMA)
+// clang-format off
+    #ifndef MICROHAL_SERIAL_PORT5_DMA_TX_STREAM
+        #error MICROHAL_SERIAL_PORT5_DMA_TX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
+    #elif MICROHAL_SERIAL_PORT5_DMA_TX_STREAM != 7 // Serial port 5 TX stream can be connected only to DMA1 Channel 7.
+        #error MICROHAL_SERIAL_PORT5_DMA_TX_STREAM have to be equal 7, please check your microhalPortConfig_stm32f4xx.h
+    #endif
+    #ifndef MICROHAL_SERIAL_PORT5_DMA_RX_STREAM
+        #error MICROHAL_SERIAL_PORT5_DMA_RX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
+    #elif MICROHAL_SERIAL_PORT5_DMA_RX_STREAM != 0 // Serial port 5 RX stream can be connected to DMA1 Channel 0.
+        #error MICROHAL_SERIAL_PORT5_DMA_TX_STREAM have to be equal 0, please check your microhalPortConfig_stm32f4xx.h
+    #endif
+// clang-format on
 #endif
 // ********************* Serial Port 6
 // ---- POLLING and INTERRUPT
@@ -89,7 +135,7 @@
     #endif
     #ifndef MICROHAL_SERIAL_PORT6_DMA_RX_STREAM
         #error MICROHAL_SERIAL_PORT6_DMA_RX_STREAM have to be defined inside microhalPortConfig_stm32f4xx.h
-    #elif MICROHAL_SERIAL_PORT6_DMA_RX_STREAM != 1 && MICROHAL_SERIAL_PORT2_DMA_RX_STREAM != 2  // Serial port 6 RX stream can be connected to DMA1 Channel 1 or DMA1 Channel 2.
+    #elif MICROHAL_SERIAL_PORT6_DMA_RX_STREAM != 1 && MICROHAL_SERIAL_PORT2_DMA_RX_STREAM != 2  // Serial port 6 RX stream can be connected to DMA2 Channel 1 or DMA1 Channel 2.
         #error MICROHAL_SERIAL_PORT6_DMA_TX_STREAM have to be equal 1 or 2, please check your microhalPortConfig_stm32f4xx.h
     #endif
 // clang-format on
@@ -106,6 +152,5 @@
     defined(MICROHAL_USE_SERIAL_PORT8_INTERRUPT_DMA) || defined(MICROHAL_USE_SERIAL_PORT8_DMA)
 #error Enabled Serial Port 8 by defining MICROHAL_USE_SERIAL_PORT8_xxx but STM32F411xE do not have Serial port 8 hardware. Please disable Serial Port 8
 #endif
-#else
-#warning Port configuration assertions are not available for selected MCU, please double check your settings inside: microhalPortConfig_stm32f4xx.h
-#endif
+
+#endif /* _MICROHAL_STM32F4XX_PORTCONFIGURATIONASSERT_STM32F407XX_H_ */
