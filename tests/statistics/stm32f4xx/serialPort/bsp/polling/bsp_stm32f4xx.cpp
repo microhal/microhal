@@ -27,7 +27,6 @@
  */ /* ==========================================================================================================================
                                                                                                                                         */
 
-#include "SPIDevice/SPIDevice.h"
 #include "microhal.h"
 
 #include "bsp.h"
@@ -41,8 +40,8 @@ void hardwareConfig(void) {
 
     SysTick_Config(168000000 / 1000);
 
-    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortA, 9>();
-    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortA, 10>();
+    IOManager::routeSerial<1, Txd, stm32f4xx::IOPin::PortA, 9>();
+    IOManager::routeSerial<1, Rxd, stm32f4xx::IOPin::PortA, 10>();
 }
 
 uint64_t SysTick_time = 0;
