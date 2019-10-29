@@ -107,8 +107,8 @@ class SerialPort_interrupt : public common::SerialPort_BufferedBase<SerialPort_i
     friend void USART1_IRQHandler(void);
     friend void USART2_IRQHandler(void);
     friend void USART3_IRQHandler(void);
-    friend void USART4_IRQHandler(void);
-    friend void USART5_IRQHandler(void);
+    friend void UART4_IRQHandler(void);
+    friend void UART5_IRQHandler(void);
     friend void USART6_IRQHandler(void);
     friend void UART7_IRQHandler(void);
     friend void UART8_IRQHandler(void);

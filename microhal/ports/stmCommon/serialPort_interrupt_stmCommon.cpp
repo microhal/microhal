@@ -235,7 +235,7 @@ void USART6_IRQHandler(void) {
 }
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT
-void UART6_IRQHandler(void) {
+void UART7_IRQHandler(void) {
     SerialPort_interrupt::Serial7.__SerialPort_USART_interruptFunction();
 }
 #endif
