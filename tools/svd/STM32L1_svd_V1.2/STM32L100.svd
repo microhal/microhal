@@ -4056,8 +4056,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>OSPEEDER</name>
-          <displayName>OSPEEDER</displayName>
+          <name>OSPEEDR</name>
+          <displayName>OSPEEDR</displayName>
           <description>GPIO port output speed
           register</description>
           <addressOffset>0x8</addressOffset>
@@ -5295,8 +5295,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>OSPEEDER</name>
-          <displayName>OSPEEDER</displayName>
+          <name>OSPEEDR</name>
+          <displayName>OSPEEDR</displayName>
           <description>GPIO port output speed
           register</description>
           <addressOffset>0x8</addressOffset>
@@ -6534,8 +6534,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>OSPEEDER</name>
-          <displayName>OSPEEDER</displayName>
+          <name>OSPEEDR</name>
+          <displayName>OSPEEDR</displayName>
           <description>GPIO port output speed
           register</description>
           <addressOffset>0x8</addressOffset>
