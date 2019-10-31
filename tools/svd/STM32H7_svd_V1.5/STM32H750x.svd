@@ -12314,8 +12314,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
       </addressBlock>
       <registers>
         <register>
-          <name>GPIO_MODER</name>
-          <displayName>GPIO_MODER</displayName>
+          <name>MODER</name>
+          <displayName>MODER</displayName>
           <description>GPIO port mode register</description>
           <addressOffset>0x0</addressOffset>
           <size>0x20</size>
@@ -12453,8 +12453,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_OTYPER</name>
-          <displayName>GPIO_OTYPER</displayName>
+          <name>OTYPER</name>
+          <displayName>OTYPER</displayName>
           <description>GPIO port output type register</description>
           <addressOffset>0x4</addressOffset>
           <size>0x20</size>
@@ -12592,8 +12592,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_OSPEEDR</name>
-          <displayName>GPIO_OSPEEDR</displayName>
+          <name>OSPEEDR</name>
+          <displayName>OSPEEDR</displayName>
           <description>GPIO port output speed
           register</description>
           <addressOffset>0x8</addressOffset>
@@ -12780,8 +12780,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_PUPDR</name>
-          <displayName>GPIO_PUPDR</displayName>
+          <name>PUPDR</name>
+          <displayName>PUPDR</displayName>
           <description>GPIO port pull-up/pull-down
           register</description>
           <addressOffset>0xC</addressOffset>
@@ -12920,8 +12920,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_IDR</name>
-          <displayName>GPIO_IDR</displayName>
+          <name>IDR</name>
+          <displayName>IDR</displayName>
           <description>GPIO port input data register</description>
           <addressOffset>0x10</addressOffset>
           <size>0x20</size>
@@ -13059,8 +13059,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_ODR</name>
-          <displayName>GPIO_ODR</displayName>
+          <name>ODR</name>
+          <displayName>ODR</displayName>
           <description>GPIO port output data register</description>
           <addressOffset>0x14</addressOffset>
           <size>0x20</size>
@@ -13230,8 +13230,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_BSRR</name>
-          <displayName>GPIO_BSRR</displayName>
+          <name>BSRR</name>
+          <displayName>BSRR</displayName>
           <description>GPIO port bit set/reset
           register</description>
           <addressOffset>0x18</addressOffset>
@@ -13514,8 +13514,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_LCKR</name>
-          <displayName>GPIO_LCKR</displayName>
+          <name>LCKR</name>
+          <displayName>LCKR</displayName>
           <description>This register is used to lock the
           configuration of the port bits when a correct write
           sequence is applied to bit 16 (LCKK). The value of bits
@@ -13682,8 +13682,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_AFRL</name>
-          <displayName>GPIO_AFRL</displayName>
+          <name>AFRL</name>
+          <displayName>AFRL</displayName>
           <description>GPIO alternate function low
           register</description>
           <addressOffset>0x20</addressOffset>
@@ -13766,8 +13766,8 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>GPIO_AFRH</name>
-          <displayName>GPIO_AFRH</displayName>
+          <name>AFRH</name>
+          <displayName>AFRH</displayName>
           <description>GPIO alternate function high
           register</description>
           <addressOffset>0x24</addressOffset>
