@@ -14353,9 +14353,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
       </interrupt>
       <registers>
         <register>
-          <name>CAN_MCR</name>
-          <displayName>CAN_MCR</displayName>
-          <description>CAN_MCR</description>
+          <name>MCR</name>
+          <displayName>MCR</displayName>
+          <description>MCR</description>
           <addressOffset>0x0</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -14424,9 +14424,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_MSR</name>
-          <displayName>CAN_MSR</displayName>
-          <description>CAN_MSR</description>
+          <name>MSR</name>
+          <displayName>MSR</displayName>
+          <description>MSR</description>
           <addressOffset>0x4</addressOffset>
           <size>0x20</size>
           <resetValue>0x00000000</resetValue>
@@ -14497,9 +14497,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TSR</name>
-          <displayName>CAN_TSR</displayName>
-          <description>CAN_TSR</description>
+          <name>TSR</name>
+          <displayName>TSR</displayName>
+          <description>TSR</description>
           <addressOffset>0x8</addressOffset>
           <size>0x20</size>
           <resetValue>0x00000000</resetValue>
@@ -14667,9 +14667,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RF0R</name>
-          <displayName>CAN_RF0R</displayName>
-          <description>CAN_RF0R</description>
+          <name>RF0R</name>
+          <displayName>RF0R</displayName>
+          <description>RF0R</description>
           <addressOffset>0xC</addressOffset>
           <size>0x20</size>
           <resetValue>0x00000000</resetValue>
@@ -14705,9 +14705,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RF1R</name>
-          <displayName>CAN_RF1R</displayName>
-          <description>CAN_RF1R</description>
+          <name>RF1R</name>
+          <displayName>RF1R</displayName>
+          <description>RF1R</description>
           <addressOffset>0x10</addressOffset>
           <size>0x20</size>
           <resetValue>0x00000000</resetValue>
@@ -14743,9 +14743,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_IER</name>
-          <displayName>CAN_IER</displayName>
-          <description>CAN_IER</description>
+          <name>IER</name>
+          <displayName>IER</displayName>
+          <description>IER</description>
           <addressOffset>0x14</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -14838,9 +14838,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_ESR</name>
-          <displayName>CAN_ESR</displayName>
-          <description>CAN_ESR</description>
+          <name>ESR</name>
+          <displayName>ESR</displayName>
+          <description>ESR</description>
           <addressOffset>0x18</addressOffset>
           <size>0x20</size>
           <resetValue>0x00000000</resetValue>
@@ -14890,9 +14890,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_BTR</name>
-          <displayName>CAN_BTR</displayName>
-          <description>CAN_BTR</description>
+          <name>BTR</name>
+          <displayName>BTR</displayName>
+          <description>BTR</description>
           <addressOffset>0x1C</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -14937,9 +14937,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TI0R</name>
-          <displayName>CAN_TI0R</displayName>
-          <description>CAN_TI0R</description>
+          <name>TI0R</name>
+          <displayName>TI0R</displayName>
+          <description>TI0R</description>
           <addressOffset>0x180</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -14978,9 +14978,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDT0R</name>
-          <displayName>CAN_TDT0R</displayName>
-          <description>CAN_TDT0R</description>
+          <name>TDT0R</name>
+          <displayName>TDT0R</displayName>
+          <description>TDT0R</description>
           <addressOffset>0x184</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15007,9 +15007,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDL0R</name>
-          <displayName>CAN_TDL0R</displayName>
-          <description>CAN_TDL0R</description>
+          <name>TDL0R</name>
+          <displayName>TDL0R</displayName>
+          <description>TDL0R</description>
           <addressOffset>0x188</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15042,9 +15042,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDH0R</name>
-          <displayName>CAN_TDH0R</displayName>
-          <description>CAN_TDH0R</description>
+          <name>TDH0R</name>
+          <displayName>TDH0R</displayName>
+          <description>TDH0R</description>
           <addressOffset>0x18C</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15077,9 +15077,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TI1R</name>
-          <displayName>CAN_TI1R</displayName>
-          <description>CAN_TI1R</description>
+          <name>TI1R</name>
+          <displayName>TI1R</displayName>
+          <description>TI1R</description>
           <addressOffset>0x190</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15118,9 +15118,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDT1R</name>
-          <displayName>CAN_TDT1R</displayName>
-          <description>CAN_TDT1R</description>
+          <name>TDT1R</name>
+          <displayName>TDT1R</displayName>
+          <description>TDT1R</description>
           <addressOffset>0x194</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15147,9 +15147,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDL1R</name>
-          <displayName>CAN_TDL1R</displayName>
-          <description>CAN_TDL1R</description>
+          <name>TDL1R</name>
+          <displayName>TDL1R</displayName>
+          <description>TDL1R</description>
           <addressOffset>0x198</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15182,9 +15182,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDH1R</name>
-          <displayName>CAN_TDH1R</displayName>
-          <description>CAN_TDH1R</description>
+          <name>TDH1R</name>
+          <displayName>TDH1R</displayName>
+          <description>TDH1R</description>
           <addressOffset>0x19C</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15217,9 +15217,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TI2R</name>
-          <displayName>CAN_TI2R</displayName>
-          <description>CAN_TI2R</description>
+          <name>TI2R</name>
+          <displayName>TI2R</displayName>
+          <description>TI2R</description>
           <addressOffset>0x1A0</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15258,9 +15258,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDT2R</name>
-          <displayName>CAN_TDT2R</displayName>
-          <description>CAN_TDT2R</description>
+          <name>TDT2R</name>
+          <displayName>TDT2R</displayName>
+          <description>TDT2R</description>
           <addressOffset>0x1A4</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15287,9 +15287,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDL2R</name>
-          <displayName>CAN_TDL2R</displayName>
-          <description>CAN_TDL2R</description>
+          <name>TDL2R</name>
+          <displayName>TDL2R</displayName>
+          <description>TDL2R</description>
           <addressOffset>0x1A8</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15322,9 +15322,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_TDH2R</name>
-          <displayName>CAN_TDH2R</displayName>
-          <description>CAN_TDH2R</description>
+          <name>TDH2R</name>
+          <displayName>TDH2R</displayName>
+          <description>TDH2R</description>
           <addressOffset>0x1AC</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15357,9 +15357,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RI0R</name>
-          <displayName>CAN_RI0R</displayName>
-          <description>CAN_RI0R</description>
+          <name>RI0R</name>
+          <displayName>RI0R</displayName>
+          <description>RI0R</description>
           <addressOffset>0x1B0</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15392,9 +15392,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RDT0R</name>
-          <displayName>CAN_RDT0R</displayName>
-          <description>CAN_RDT0R</description>
+          <name>RDT0R</name>
+          <displayName>RDT0R</displayName>
+          <description>RDT0R</description>
           <addressOffset>0x1B4</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15421,9 +15421,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RDL0R</name>
-          <displayName>CAN_RDL0R</displayName>
-          <description>CAN_RDL0R</description>
+          <name>RDL0R</name>
+          <displayName>RDL0R</displayName>
+          <description>RDL0R</description>
           <addressOffset>0x1B8</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15456,9 +15456,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RDH0R</name>
-          <displayName>CAN_RDH0R</displayName>
-          <description>CAN_RDH0R</description>
+          <name>RDH0R</name>
+          <displayName>RDH0R</displayName>
+          <description>RDH0R</description>
           <addressOffset>0x1BC</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15491,9 +15491,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RI1R</name>
-          <displayName>CAN_RI1R</displayName>
-          <description>CAN_RI1R</description>
+          <name>RI1R</name>
+          <displayName>RI1R</displayName>
+          <description>RI1R</description>
           <addressOffset>0x1C0</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15526,9 +15526,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RDT1R</name>
-          <displayName>CAN_RDT1R</displayName>
-          <description>CAN_RDT1R</description>
+          <name>RDT1R</name>
+          <displayName>RDT1R</displayName>
+          <description>RDT1R</description>
           <addressOffset>0x1C4</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15555,9 +15555,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RDL1R</name>
-          <displayName>CAN_RDL1R</displayName>
-          <description>CAN_RDL1R</description>
+          <name>RDL1R</name>
+          <displayName>RDL1R</displayName>
+          <description>RDL1R</description>
           <addressOffset>0x1C8</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15590,9 +15590,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_RDH1R</name>
-          <displayName>CAN_RDH1R</displayName>
-          <description>CAN_RDH1R</description>
+          <name>RDH1R</name>
+          <displayName>RDH1R</displayName>
+          <description>RDH1R</description>
           <addressOffset>0x1CC</addressOffset>
           <size>0x20</size>
           <access>read-only</access>
@@ -15625,9 +15625,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_FMR</name>
-          <displayName>CAN_FMR</displayName>
-          <description>CAN_FMR</description>
+          <name>FMR</name>
+          <displayName>FMR</displayName>
+          <description>FMR</description>
           <addressOffset>0x200</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15642,9 +15642,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_FM1R</name>
-          <displayName>CAN_FM1R</displayName>
-          <description>CAN_FM1R</description>
+          <name>FM1R</name>
+          <displayName>FM1R</displayName>
+          <description>FM1R</description>
           <addressOffset>0x204</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15737,9 +15737,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_FS1R</name>
-          <displayName>CAN_FS1R</displayName>
-          <description>CAN_FS1R</description>
+          <name>FS1R</name>
+          <displayName>FS1R</displayName>
+          <description>FS1R</description>
           <addressOffset>0x20C</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15832,9 +15832,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_FFA1R</name>
-          <displayName>CAN_FFA1R</displayName>
-          <description>CAN_FFA1R</description>
+          <name>FFA1R</name>
+          <displayName>FFA1R</displayName>
+          <description>FFA1R</description>
           <addressOffset>0x214</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
@@ -15941,9 +15941,9 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           </fields>
         </register>
         <register>
-          <name>CAN_FA1R</name>
-          <displayName>CAN_FA1R</displayName>
-          <description>CAN_FA1R</description>
+          <name>FA1R</name>
+          <displayName>FA1R</displayName>
+          <description>FA1R</description>
           <addressOffset>0x21C</addressOffset>
           <size>0x20</size>
           <access>read-write</access>
