@@ -11402,8 +11402,8 @@
                </fields>
             </register>
             <register>
-               <name>GPIOB_OSPEEDR</name>
-               <displayName>GPIOB_OSPEEDR</displayName>
+               <name>OSPEEDR</name>
+               <displayName>OSPEEDR</displayName>
                <description>GPIO port output speed           register</description>
                <addressOffset>0x8</addressOffset>
                <size>0x20</size>
@@ -12630,8 +12630,8 @@
                </fields>
             </register>
             <register>
-               <name>GPIOB_OSPEEDR</name>
-               <displayName>GPIOB_OSPEEDR</displayName>
+               <name>OSPEEDR</name>
+               <displayName>OSPEEDR</displayName>
                <description>GPIO port output speed           register</description>
                <addressOffset>0x8</addressOffset>
                <size>0x20</size>
@@ -13826,8 +13826,8 @@
                </fields>
             </register>
             <register>
-               <name>GPIOB_OSPEEDR</name>
-               <displayName>GPIOB_OSPEEDR</displayName>
+               <name>OSPEEDR</name>
+               <displayName>OSPEEDR</displayName>
                <description>GPIO port output speed           register</description>
                <addressOffset>0x8</addressOffset>
                <size>0x20</size>
