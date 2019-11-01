@@ -117,42 +117,42 @@ void ExternalInterrupt::init(uint32_t priority) {
 //***********************************************************************************************//
 //                                     Interrupt functions                                       //
 //***********************************************************************************************//
-static void externalInterrupt0Irq() {
+void externalInterrupt0Irq() {
     // clear interrupt
     EXTI->PR |= EXTI_PR_PR0;
 
     ExternalInterrupt::signals[0].emit();
 }
 
-static void externalInterrupt1Irq() {
+void externalInterrupt1Irq() {
     // clear interrupt
     EXTI->PR |= EXTI_PR_PR1;
 
     ExternalInterrupt::signals[1].emit();
 }
 
-static void externalInterrupt2Irq() {
+void externalInterrupt2Irq() {
     // clear interrupt
     EXTI->PR |= EXTI_PR_PR2;
 
     ExternalInterrupt::signals[2].emit();
 }
 
-static void externalInterrupt3Irq() {
+void externalInterrupt3Irq() {
     // clear interrupt
     EXTI->PR |= EXTI_PR_PR3;
 
     ExternalInterrupt::signals[3].emit();
 }
 
-static void externalInterrupt4Irq() {
+void externalInterrupt4Irq() {
     // clear interrupt
     EXTI->PR |= EXTI_PR_PR4;
 
     ExternalInterrupt::signals[4].emit();
 }
 
-static void externalInterrupt9_5Irq(uint32_t pr) {
+void externalInterrupt9_5Irq(uint32_t pr) {
     if (pr & EXTI_PR_PR5) {
         // clear interrupt
         EXTI->PR |= EXTI_PR_PR5;
@@ -185,7 +185,7 @@ static void externalInterrupt9_5Irq(uint32_t pr) {
     }
 }
 
-static void externalInterrupt15_10Irq(uint32_t pr) {
+void externalInterrupt15_10Irq(uint32_t pr) {
     if (pr & EXTI_PR_PR10) {
         // clear interrupt
         EXTI->PR |= EXTI_PR_PR10;

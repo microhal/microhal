@@ -47,13 +47,13 @@
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-static void externalInterrupt0Irq();
-static void externalInterrupt1Irq();
-static void externalInterrupt2Irq();
-static void externalInterrupt3Irq();
-static void externalInterrupt4Irq();
-static void externalInterrupt9_5Irq(uint32_t);
-static void externalInterrupt15_10Irq(uint32_t);
+[[maybe_unused]] void externalInterrupt0Irq();
+[[maybe_unused]] void externalInterrupt1Irq();
+[[maybe_unused]] void externalInterrupt2Irq();
+[[maybe_unused]] void externalInterrupt3Irq();
+[[maybe_unused]] void externalInterrupt4Irq();
+[[maybe_unused]] void externalInterrupt9_5Irq(uint32_t);
+[[maybe_unused]] void externalInterrupt15_10Irq(uint32_t);
 /* ************************************************************************************************
  * CLASS
  */
