@@ -247,8 +247,11 @@ class ClockManager {
             RCC->APB1ENR &= ~RCC_APB1ENR_USBEN;
         } else {
             std::terminate();
+        }
+    }
 #endif
 
+#if defined(CRS)
     static void enable(const CRS_TypeDef &crs) {
         if (&crs == CRS) {
             RCC->APB1ENR |= RCC_APB1ENR_CRSEN;
@@ -264,24 +267,7 @@ class ClockManager {
             std::terminate();
         }
     }
-
-    static uint32_t USARTFrequency(const USART_TypeDef &usart) {
-        UsartClockSource usartClockSource = USARTClockSource(usart);
-
-        switch (usartClockSource) {
-            case PCLK:
-                return APB1Frequency();
-            case SYSCLK:
-                return SYSCLK::frequency();
-            case LSE:
-                while (1)
-                    ;
-                return 0;  // LSE::frequency();
-                break;
-            case HSI:
-                return HSI::frequency();
-        }
-    }
+#endif
 
     static uint32_t USARTFrequency(const USART_TypeDef &usart);
 
@@ -298,9 +284,10 @@ class ClockManager {
         std::terminate();
     }
 
+#if defined(RCC_CFGR3_USBSW)
     static void USBClockSource(UsbClockSource clockSource) { RCC->CFGR3 = (RCC->CFGR3 & ~RCC_CFGR3_USBSW) | clockSource; }
     static UsbClockSource USBClockSource() { return static_cast<UsbClockSource>((RCC->CFGR3 >> RCC_CFGR3_USBSW_Pos) & 0x01); }
-
+#endif
     static void flashLatency(Frequency sysclkFrequency_Hz) {
         if (sysclkFrequency_Hz < 24000000) {
             FLASH->ACR &= ~FLASH_ACR_LATENCY;
@@ -310,26 +297,8 @@ class ClockManager {
     }
 
     static Frequency APB1Frequency();
-    //    {
-    //        const uint32_t ppre1 = (RCC->CFGR & RCC_CFGR_PPRE_Msk) >> RCC_CFGR_PPRE_Pos;
-    //        if (ppre1 & 0b100) {
-    //            const uint32_t div[] = {2, 4, 8, 16};
-    //            return AHBFrequency() / div[ppre1 & 0b011];
-    //        } else {
-    //            return AHBFrequency();
-    //        }
-    //    }
 
     static uint32_t AHBFrequency() noexcept;
-    //    {
-    //        const uint32_t hpre = (RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos;
-    //        if (hpre & 0b1000) {
-    //            const uint32_t div[] = {2, 4, 8, 16, 64, 128, 256, 512};
-    //            return SYSCLK::frequency() / div[hpre & 0b0111];
-    //        } else {
-    //            return SYSCLK::frequency();
-    //        }
-    //    }
 
     struct SYSCLK {
         enum class Source : decltype(RCC_CFGR_SWS_0) { HSI, HSE = RCC_CFGR_SWS_0, PLL = RCC_CFGR_SWS_1, HSI48 = RCC_CFGR_SWS_1 | RCC_CFGR_SWS_0 };
@@ -346,9 +315,11 @@ class ClockManager {
                     // flashLatency(PLL::VCOOutputFrequency());
                     std::terminate();
                     break;
+#if defined(RCC_CR2_HSI48ON)
                 case Source::HSI48:
                     flashLatency(HSI48::frequency());
                     break;
+#endif
             }
             RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | (static_cast<typename std::underlying_type<Source>::type>(source) >> 2);
         }
@@ -365,9 +336,11 @@ class ClockManager {
                     // freq = PLLCLKFrequency();
                     std::terminate();
                     break;
+#if defined(RCC_CR2_HSI48ON)
                 case RCC_CFGR_SWS_1 | RCC_CFGR_SWS_0:
                     freq = HSI48::frequency();
                     break;
+#endif
             }
             return freq;
         }
@@ -385,7 +358,7 @@ class ClockManager {
         static void disable() noexcept { RCC->CR &= ~RCC_CR_HSION; }
         static bool isReady() noexcept { return RCC->CR & RCC_CR_HSIRDY; }
     };
-
+#if defined(RCC_CR2_HSI48ON)
     struct HSI48 {
         /**
          * @brief This function return HSI48 frequency.
@@ -398,7 +371,7 @@ class ClockManager {
         static void disable() noexcept { RCC->CR2 &= ~RCC_CR2_HSI48ON; }
         static bool isReady() noexcept { return RCC->CR2 & RCC_CR2_HSI48RDY; }
     };
-
+#endif
     struct HSE {
         /**
          * @brief This function return HSE frequency. This value is defined under HSE_FREQUENCY
