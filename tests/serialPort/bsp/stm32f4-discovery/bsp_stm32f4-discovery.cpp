@@ -26,8 +26,8 @@
 
  *//* ========================================================================================================================== */
 
-#include "microhal.h"
 #include "bsp.h"
+#include "microhal.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
@@ -36,24 +36,23 @@ void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<1, Txd, stm32f4xx::GPIO::PortB, 6>();
-    IOManager::routeSerial<1, Rxd, stm32f4xx::GPIO::PortB, 7>();
+    IOManager::routeSerial<1, Txd, stm32f4xx::IOPin::PortB, 6>();
+    IOManager::routeSerial<1, Rxd, stm32f4xx::IOPin::PortB, 7>();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::GPIO::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::GPIO::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::GPIO::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::GPIO::PortD, 9>();
+    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
+    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
 
-    IOManager::routeSerial<4, Txd, stm32f4xx::GPIO::PortC, 10>();
-    IOManager::routeSerial<4, Rxd, stm32f4xx::GPIO::PortC, 11>();
+    IOManager::routeSerial<4, Txd, stm32f4xx::IOPin::PortC, 10>();
+    IOManager::routeSerial<4, Rxd, stm32f4xx::IOPin::PortC, 11>();
 
-    SysTick_Config(168000000/1000);
+    SysTick_Config(168000000 / 1000);
 }
 
-uint64_t SysTick_time = 0;;
+uint64_t SysTick_time = 0;
 
-extern "C" void SysTick_Handler(void)
-{
-	SysTick_time++;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }
