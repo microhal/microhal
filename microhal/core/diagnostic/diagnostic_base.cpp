@@ -92,19 +92,27 @@ void Diagnostic_base::write(const char *c) {
 }
 
 void Diagnostic_base::write(uint32_t data, uint8_t radix) {
-    char buffer[33];
+    char buffer[35];
 
-    switch (radix) {
-        case 2:
-            ioDevice->write("0b");
-            break;
-        case 16:
-            ioDevice->write("0x");
-            break;
+    if ((radix == 2) || (radix == 16)) {
+        switch (radix) {
+            case 2:
+                buffer[0] = '0';
+                buffer[1] = 'b';
+                break;
+            case 16:
+                buffer[0] = '0';
+                buffer[1] = 'x';
+                break;
+        }
+        itoa(data, &buffer[2], radix);
+        size_t len = strlen(buffer) + 1;
+        writeText(buffer, len);
+    } else {
+        itoa(data, buffer, radix);
+        size_t len = strlen(buffer);
+        writeText(buffer, len);
     }
-    itoa(data, buffer, radix);
-    size_t len = strlen(buffer);
-    writeText(buffer, len);
 
     insertSpace();
 }
