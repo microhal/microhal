@@ -12,14 +12,13 @@ namespace microhal {
 namespace stm32f4xx {
 
 class Core {
-    static void flash_latency(uint32_t frequency);
     Core(void) = delete;
 
  public:
     using Frequency = uint32_t;
 
     typedef enum : uint32_t { HSI = 0x00, HSE = 0x01, PLLCLK = 0x02 } SYSCLKsource;
-
+    static void flash_latency(uint32_t frequency);
     static bool pll_start(uint32_t crystal, uint32_t frequency);
     /*------------------------------------------------------------------------*/ /**
 	 * \brief Enables FPU
