@@ -35,8 +35,10 @@
 #include <type_traits>
 #include "microhalPortConfig_stm32f3xx.h"
 
-#include "can_registers.h"
 #include "device/stm32f3xx.h"
+
+#undef CAN
+#include "ports/stmCommon/registers/can_registers.h"
 
 namespace microhal {
 namespace stm32f3xx {
@@ -169,14 +171,14 @@ class ClockManager {
 
 #if defined(CAN_BASE)
     static void enable(const registers::CAN &can) {
-        if (&can == reinterpret_cast<registers::CAN *>(CAN_BASE)) {
+        if ((int)&can == CAN_BASE) {
             RCC->APB1ENR |= RCC_APB1ENR_CANEN;
         } else {
             std::terminate();
         }
     }
     static void disable(const registers::CAN &can) {
-        if (&can == reinterpret_cast<registers::CAN *>(CAN_BASE)) {
+        if ((int)&can == CAN_BASE) {
             RCC->APB1ENR &= ~RCC_APB1ENR_CANEN;
         } else {
             std::terminate();
