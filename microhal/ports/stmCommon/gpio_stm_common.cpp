@@ -42,17 +42,17 @@ void GPIOCommonBase::pinInitialize(PinConfiguration config) {
     ClockManager::enable(*const_cast<GPIO_TypeDef *>(port));
 #endif
 
-    uint32_t afr = port->AFR[pin.pin / 8];
+    auto afr = gpio.afr[pin.pin / 8].volatileLoad();
     afr &= ~(0b1111 << ((pin.pin % 8) * 4));                    // clear old configuration
     afr |= ((0xF0 & config.mode) >> 4) << ((pin.pin % 8) * 4);  // set new configuration
-    port->AFR[pin.pin / 8] = afr;
+    gpio.afr[pin.pin / 8].volatileStore(afr);
 
     // set mode -> config.mode is split to 2 part 4MSB bit
     //      contain alternate function and 4LSB bit contain mode
-    uint32_t moder = port->MODER;
+    auto moder = gpio.moder.volatileLoad();
     moder &= ~((0b11) << (pin.pin * 2));             // clear old configuration
     moder |= (0x03 & config.mode) << (pin.pin * 2);  // set new configuration
-    port->MODER = moder;
+    gpio.moder.volatileStore(moder);
     // set type
     setDirection(static_cast<Direction>(config.type));
     setPullType(static_cast<PullType>(config.pull));

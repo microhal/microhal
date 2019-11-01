@@ -29,8 +29,8 @@
 
 #include "microhal.h"
 
-#include <experimental/string_view>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 #include "bsp.h"
@@ -39,7 +39,7 @@ using namespace microhal;
 using SerialPortList = std::vector<SerialPort *>;
 
 // -------------------------------------------------- tests --------------------------------------------------
-void sendTest(std::experimental::string_view str, SerialPortList ports) {
+void sendTest(std::string_view str, SerialPortList ports) {
     for (auto serial : ports) {
         serial->write(str);
     }
@@ -57,7 +57,7 @@ void echoTest(SerialPort &serial, SerialPortList ports) {
         if (serial.availableBytes() >= 3) {
             char buffer[10];
             serial.read(buffer, sizeof(buffer));
-            std::experimental::string_view cmd(buffer);
+            std::string_view cmd(buffer);
             if (cmd == "end") break;
         }
     }
@@ -88,22 +88,22 @@ void writeSerials(SerialPortList ports) {
 }
 
 //---------------------------------------------------------------- end of tests ------------------------------------------------------
-auto findCommandBegin(std::experimental::string_view command) {
+auto findCommandBegin(std::string_view command) {
     return command.find('-');
 }
 
-auto readCommand(SerialPort &serial) {
+std::string readCommand(SerialPort &serial) {
     char tmp[200] = {};
     size_t inBuffer = 0;
     while (1) {
         inBuffer += serial.read(tmp + inBuffer, sizeof(tmp) - inBuffer);
         if (inBuffer) {
-            std::experimental::string_view command(tmp);
-            if (command.find('\r') != std::experimental::string_view::npos) {
-                if (command.find('-') != std::experimental::string_view::npos && command.find('-') < command.find('\r')) {
+            std::string_view command(tmp);
+            if (command.find('\r') != std::string_view::npos) {
+                if (command.find('-') != std::string_view::npos && command.find('-') < command.find('\r')) {
                     // we have command in buffer lets extract it
                     auto cmd = command.substr(command.find('-') + 1, command.find('\r') - 1);
-                    return cmd.to_string();
+                    return std::string(cmd);
                 } else {
                     inBuffer -= command.find('\r') + 1;
                     std::copy(std::begin(tmp) + command.find('\r') + 1, std::end(tmp), std::begin(tmp));
@@ -117,19 +117,18 @@ void testController(SerialPort &serial, SerialPortList ports) {
     serial.write("Serial tests");
     while (1) {
         auto commandParameter = readCommand(serial);
-        std::experimental::string_view commandAndParameter(commandParameter);
-        auto command = commandAndParameter.find(' ') == std::experimental::string_view::npos
-                           ? commandAndParameter
-                           : commandAndParameter.substr(0, commandAndParameter.find(' '));
+        std::string_view commandAndParameter(commandParameter);
+        auto command = commandAndParameter.find(' ') == std::string_view::npos ? commandAndParameter
+                                                                               : commandAndParameter.substr(0, commandAndParameter.find(' '));
         auto parameter = commandAndParameter.substr(command.length(), commandAndParameter.length());
 
-        parameter.remove_prefix(parameter.find_first_not_of(' ') != std::experimental::string_view::npos ? parameter.find_first_not_of(' ') : 0);
+        parameter.remove_prefix(parameter.find_first_not_of(' ') != std::string_view::npos ? parameter.find_first_not_of(' ') : 0);
 
         if (command == "baudrate") {
             serial.write("Received baudrate command");
 
             char *end;
-            auto i = strtol(parameter.to_string().c_str(), &end, 10);
+            auto i = strtol(std::string(parameter).c_str(), &end, 10);
             if (errno == ERANGE) {
                 serial.write("range error, got ");
                 errno = 0;

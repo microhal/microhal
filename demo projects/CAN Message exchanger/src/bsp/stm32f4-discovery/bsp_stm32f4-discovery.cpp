@@ -32,7 +32,7 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
-CAN can1(CAN::Device::CAN1);
+CAN can1(registers::can1);
 
 namespace bsp {
 bool init() {
@@ -56,11 +56,11 @@ void deinit() {}
 
 }  // namespace bsp
 
-extern "C" int main(int, void *);
+extern "C" int main(int, char **);
 
 static void run_main(void *) {
     char *params[5];
-    params[0] = "AT45";
+    params[0] = "CAN";
     main(1, params);
     while (1)
         ;

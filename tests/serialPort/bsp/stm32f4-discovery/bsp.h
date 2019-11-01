@@ -14,14 +14,13 @@
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
-static microhal::SerialPort *serialPorts[] = {
-		&microhal::stm32f4xx::SerialPort::Serial1,
-		&microhal::stm32f4xx::SerialPort::Serial2,
-		&microhal::stm32f4xx::SerialPort::Serial3,
-		&microhal::stm32f4xx::SerialPort::Serial4//,
-		//microhal::stm32f4xx::SerialPort::Serial5,
-		//microhal::stm32f4xx::SerialPort::Serial6
-};
+#include "microhal.h"
 
+static microhal::SerialPort *serialPorts[] = {
+    &microhal::stm32f4xx::SerialPort::Serial1, &microhal::stm32f4xx::SerialPort::Serial2, &microhal::stm32f4xx::SerialPort::Serial3,
+    &microhal::stm32f4xx::SerialPort::Serial4  //,
+                                               // microhal::stm32f4xx::SerialPort::Serial5,
+    // microhal::stm32f4xx::SerialPort::Serial6
+};
 
 #endif /* STM32F4DISCOVERY_H_ */

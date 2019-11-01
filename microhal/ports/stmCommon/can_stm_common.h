@@ -36,10 +36,10 @@
 #include "can/canMessage.h"
 #include "gsl/span"
 #include "microhal_semaphore.h"
+#include "registers/can_registers.h"
 #include "stmCommonDefines.h"
 
 #include _MICROHAL_INCLUDE_PORT_clockManager
-#include _MICROHAL_INCLUDE_PORT_CANREGISTERS
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -71,10 +71,9 @@ class CAN final : public can::CAN_Interface {
  public:
     using Message = can::Message;
     using Interrupt = registers::CAN::IER::Interrupt;
-    using TxMailbox = registers::CAN_TxMailBox_TypeDef;
-    using Filter = registers::CAN_FilterRegister_TypeDef;
-    using RxMailbox = registers::CAN_FIFOMailBox_TypeDef;
-    using Device = registers::CAN::Device;
+    using TxMailbox = registers::CAN::TxMailBox;
+    using Filter = registers::CAN::FilterRegister;
+    using RxMailbox = registers::CAN::FIFOMailBox;
     enum Error { None = 0, Stuff, Form, Acknowledgment, BitRecessive, BitDominant, Crc, SoftwareSet };
     enum class Mode { Normal, Loopback, Silent, LoopbackAndSilent };
     enum class Sleep { Sleep, Wakeup, AutoWakeup };
@@ -82,14 +81,24 @@ class CAN final : public can::CAN_Interface {
     static constexpr const Protocol supportedProtocols[] = {Protocol::v2_0A, Protocol::V2_0B};
     static constexpr const uint32_t bitRateMax = 1000000;
 #if defined(CAN_BASE) || defined(CAN1_BASE) || defined(CAN2_BASE)
-    CAN(registers::CAN::Device canDevice) : can(*reinterpret_cast<registers::CAN *>(canDevice)) {
+    CAN(registers::CAN *canDevice) : can(*canDevice) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
         ClockManager::enable(can, ClockManager::PowerMode::Normal);
 #else
         ClockManager::enable(can);
 #endif
-        objectPtr[registers::CAN::getNumber(canDevice) - 1] = this;
-        can.ier.enableInterrupt(Interrupt::TransmitMailboxEmpty);
+        if (canDevice == registers::can1) {
+            objectPtr[0] = this;
+#ifdef _MICROHAL_CAN2_BASE
+        } else if (canDevice == registers::can2) {
+            objectPtr[1] = this;
+#endif
+        } else {
+            std::terminate();
+        }
+        auto ier = can.ier.volatileLoad();
+        ier.enableInterrupt(Interrupt::TransmitMailboxEmpty);
+        can.ier.volatileStore(ier);
 #ifndef HAL_RTOS_FreeRTOS
         const uint32_t priority = 0;
 #else
@@ -99,9 +108,14 @@ class CAN final : public can::CAN_Interface {
     };
 
     ~CAN() {
+        if ((objectPtr[0] != this) && (objectPtr[1] != this)) {
+            return;
+        }
         initializationRequest();  // This will wait until ongoing transmission will be finished
         disableInterrupt();
-        can.ier.disableInterrupt(Interrupt::TransmitMailboxEmpty);
+        auto ier = can.ier.volatileLoad();
+        ier.disableInterrupt(Interrupt::TransmitMailboxEmpty);
+        can.ier.volatileStore(ier);
         if (objectPtr[0] == this) objectPtr[0] = nullptr;
         if (objectPtr[1] == this) objectPtr[1] = nullptr;
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
@@ -111,8 +125,6 @@ class CAN final : public can::CAN_Interface {
 #endif
     }
 #endif
-    //  constexpr CAN_TypeDef *canNumToDevicePtr(uint8_t num) { return reinterpret_cast<CAN_TypeDef *>(CAN1_BASE); }
-    //  registers::CAN &getCanFromNum(uint8_t num) { return registers::can1; }
 
     bool isProtocolSupported(Protocol protocol) final {
         if (std::find(std::begin(supportedProtocols), std::end(supportedProtocols), protocol) != std::end(supportedProtocols))
@@ -121,18 +133,26 @@ class CAN final : public can::CAN_Interface {
             return false;
     }
 
-    void reset() { can.mcr.bitfield.RESET = 1; }
+    void reset() {
+        auto mcr = can.mcr.volatileLoad();
+        mcr.RESET = 1;
+        can.mcr.volatileStore(mcr);
+    }
     void setMode(Mode mode);
     void sleepMode(Sleep sleepMode);
 
     void enableAutomaticRetransmission() {
         initializationRequest();
-        can.mcr.bitfield.NART = 0;
+        auto mcr = can.mcr.volatileLoad();
+        mcr.NART = 0;
+        can.mcr.volatileStore(mcr);
         exitInitializationMode();
     }
     void disableAutomaticRetransmission() {
         initializationRequest();
-        can.mcr.bitfield.NART = 1;
+        auto mcr = can.mcr.volatileLoad();
+        mcr.NART = 1;
+        can.mcr.volatileStore(mcr);
         exitInitializationMode();
     }
 
@@ -155,27 +175,37 @@ class CAN final : public can::CAN_Interface {
 
     bool waitForMessage(std::chrono::milliseconds timeout) const noexcept final {
         if (pendingMessageCount() == 0) {
-            can.ier.enableInterrupt(Interrupt::FIFO0_MessagePending | Interrupt::FIFO1_MessagePending);
+            auto ier = can.ier.volatileLoad();
+            ier.enableInterrupt(Interrupt::FIFO0_MessagePending | Interrupt::FIFO1_MessagePending);
+            can.ier.volatileStore(ier);
             return dataReady.wait(timeout);
         }
         return true;
     }
 
-    uint_fast8_t pendingMessageCount() const { return can.rf0r.mesagesCount() + can.rf1r.mesagesCount(); }
+    uint_fast8_t pendingMessageCount() const {
+        auto rf0r = can.rf0r.volatileLoad();
+        auto rf1r = can.rf1r.volatileLoad();
+        return rf0r.mesagesCount() + rf1r.mesagesCount();
+    }
 
-    Error getLastError() { return static_cast<Error>(can.esr.bitfield.LEC); }
+    Error getLastError() {
+        auto esr = can.esr.volatileLoad();
+        return static_cast<Error>(esr.LEC.get());
+    }
 
-    uint32_t receiveErrorCount() const final { return can.esr.bitfield.REC; }
-    uint32_t transmitErrorCount() const final { return can.esr.bitfield.TEC; }
+    uint32_t receiveErrorCount() const final { return can.esr.volatileLoad().REC; }
+    uint32_t transmitErrorCount() const final { return can.esr.volatileLoad().TEC; }
 
     bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;
     bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;
 
     uint_fast8_t emptyTxMailboxCount() const {
+        auto tsr = can.tsr.volatileLoad();
         uint_fast8_t count = 0;
-        if (can.tsr.bitfield.TME0) count++;
-        if (can.tsr.bitfield.TME1) count++;
-        if (can.tsr.bitfield.TME2) count++;
+        if (tsr.TME0) count++;
+        if (tsr.TME1) count++;
+        if (tsr.TME2) count++;
         return count;
     }
 
@@ -188,29 +218,53 @@ class CAN final : public can::CAN_Interface {
 
     int_fast8_t getEmptyMailboxNumber() {
         if (emptyTxMailboxCount()) {
-            return can.tsr.bitfield.CODE;
+            return can.tsr.volatileLoad().CODE;
         }
         return -1;
     }
 
     void initializationRequest() {
-        can.mcr.bitfield.INRQ = 1;
-        while (can.msr.bitfield.INAK == 0) {
+        auto mcr = can.mcr.volatileLoad();
+        mcr.INRQ = 1;
+        can.mcr.volatileStore(mcr);
+
+        while (can.msr.volatileLoad().INAK == 0) {
         }
     }
 
     void exitInitializationMode() {
-        can.mcr.bitfield.INRQ = 0;
-        // while (can.msr.bitfield.INAK == 1) {
+        auto mcr = can.mcr.volatileLoad();
+        mcr.INRQ = 0;
+        can.mcr.volatileStore(mcr);
+        // while (can.msr.volatileLoad().INAK == 1) {
         // }
     }
 
     // Filter functions
-    void activateFilterInitMode() { can.fmr.bitfield.FINIT = 1; }
-    void deactivateFilterInitMode() { can.fmr.bitfield.FINIT = 0; }
-    void activateFilter(uint_fast8_t filterNumber) { can.FA1R |= 1 << filterNumber; }
-    void deactivateFilter(uint_fast8_t filterNumber) { can.FA1R &= ~(1 << filterNumber); }
-    bool isFilterActive(uint_fast8_t filterNumber) { return can.FA1R & (1 << filterNumber); }
+    void activateFilterInitMode() {
+        auto fmr = can.fmr.volatileLoad();
+        fmr.FINIT = 1;
+        can.fmr.volatileStore(fmr);
+    }
+    void deactivateFilterInitMode() {
+        auto fmr = can.fmr.volatileLoad();
+        fmr.FINIT = 0;
+        can.fmr.volatileStore(fmr);
+    }
+    void activateFilter(uint_fast8_t filterNumber) {
+        auto fa1r = can.fa1r.volatileLoad();
+        fa1r |= 1 << filterNumber;
+        can.fa1r.volatileStore(fa1r);
+    }
+    void deactivateFilter(uint_fast8_t filterNumber) {
+        auto fa1r = can.fa1r.volatileLoad();
+        fa1r &= ~(1 << filterNumber);
+        can.fa1r.volatileStore(fa1r);
+    }
+    bool isFilterActive(uint_fast8_t filterNumber) {
+        auto fa1r = can.fa1r.volatileLoad();
+        return fa1r.isBitSet(filterNumber);
+    }
 
     // ISR related functions
     void enableInterrupt(uint32_t priority) {
@@ -221,14 +275,14 @@ class CAN final : public can::CAN_Interface {
     void disableInterrupt() { NVIC_DisableIRQ(irq()); }
 
     IRQn_Type irq() {
-#if defined(CAN_BASE)
-        if (&can == reinterpret_cast<registers::CAN *>(registers::CAN::Device::CAN1)) return CAN_TX_IRQn;
+#if defined(_MICROHAL_CAN_BASE)
+        if ((int)&can == _MICROHAL_CAN_BASE) return CAN_TX_IRQn;
 #endif
-#if defined(CAN1_BASE)
-        if (&can == &registers::can1) return CAN1_TX_IRQn;
+#if defined(_MICROHAL_CAN1_BASE)
+        if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_TX_IRQn;
 #endif
-#if defined(CAN2_BASE)
-        if (&can == &registers::can2) return CAN2_TX_IRQn;
+#if defined(_MICROHAL_CAN2_BASE)
+        if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_TX_IRQn;
 #endif
         std::terminate();
     }
