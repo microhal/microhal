@@ -683,6 +683,75 @@ bool CAN::removeIdentifierList16(CAN::Filter::ID16 id) {
     return false;
 }
 
+void CAN::enableInterrupt(uint32_t priority) {
+    NVIC_SetPriority(txIrq(), priority);
+    NVIC_SetPriority(rx0Irq(), priority);
+    NVIC_SetPriority(rx1Irq(), priority);
+    NVIC_SetPriority(sceIrq(), priority);
+    NVIC_EnableIRQ(txIrq());
+    NVIC_EnableIRQ(rx0Irq());
+    NVIC_EnableIRQ(rx1Irq());
+}
+
+void CAN::disableInterrupt() {
+    NVIC_DisableIRQ(txIrq());
+    NVIC_DisableIRQ(rx0Irq());
+    NVIC_DisableIRQ(rx1Irq());
+    NVIC_DisableIRQ(sceIrq());
+}
+
+IRQn_Type CAN::txIrq() {
+#if defined(_MICROHAL_CAN_BASE)
+    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_TX_IRQn;
+#endif
+#if defined(_MICROHAL_CAN1_BASE)
+    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_TX_IRQn;
+#endif
+#if defined(_MICROHAL_CAN2_BASE)
+    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_TX_IRQn;
+#endif
+    std::terminate();
+}
+
+IRQn_Type CAN::rx0Irq() {
+#if defined(_MICROHAL_CAN_BASE)
+    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_RX0_IRQn;
+#endif
+#if defined(_MICROHAL_CAN1_BASE)
+    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_RX0_IRQn;
+#endif
+#if defined(_MICROHAL_CAN2_BASE)
+    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_RX0_IRQn;
+#endif
+    std::terminate();
+}
+
+IRQn_Type CAN::rx1Irq() {
+#if defined(_MICROHAL_CAN_BASE)
+    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_RX1_IRQn;
+#endif
+#if defined(_MICROHAL_CAN1_BASE)
+    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_RX1_IRQn;
+#endif
+#if defined(_MICROHAL_CAN2_BASE)
+    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_RX1_IRQn;
+#endif
+    std::terminate();
+}
+
+IRQn_Type CAN::sceIrq() {
+#if defined(_MICROHAL_CAN_BASE)
+    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_SCE_IRQn;
+#endif
+#if defined(_MICROHAL_CAN1_BASE)
+    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_SCE_IRQn;
+#endif
+#if defined(_MICROHAL_CAN2_BASE)
+    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_SCE_IRQn;
+#endif
+    std::terminate();
+}
+
 void CAN::dumpFilterConfig() {
     auto fa1r = can.fa1r.volatileLoad();
     auto fs1r = can.fs1r.volatileLoad();
@@ -777,7 +846,7 @@ extern "C" void CAN1_RX1_IRQHandler() {
 
 extern "C" void CAN1_SCE_IRQHandler() {}
 
-// CAN 2
+#ifdef _MICROHAL_CAN2_BASE
 extern "C" void CAN2_TX_IRQHandler() {
     CAN::objectPtr[1]->interruptFunction();
 }
@@ -790,5 +859,6 @@ extern "C" void CAN2_RX1_IRQHandler() {
 }
 
 extern "C" void CAN2_SCE_IRQHandler() {}
+#endif
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
