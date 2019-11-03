@@ -275,25 +275,12 @@ class CAN final : public can::CAN_Interface {
     void setFilterMode(uint_fast8_t filterNumber, FilterMode filterMode);
 
     // ISR related functions
-    void enableInterrupt(uint32_t priority) {
-        NVIC_SetPriority(irq(), priority);
-        NVIC_EnableIRQ(irq());
-    }
-
-    void disableInterrupt() { NVIC_DisableIRQ(irq()); }
-
-    IRQn_Type irq() {
-#if defined(_MICROHAL_CAN_BASE)
-        if ((int)&can == _MICROHAL_CAN_BASE) return CAN_TX_IRQn;
-#endif
-#if defined(_MICROHAL_CAN1_BASE)
-        if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_TX_IRQn;
-#endif
-#if defined(_MICROHAL_CAN2_BASE)
-        if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_TX_IRQn;
-#endif
-        std::terminate();
-    }
+    void enableInterrupt(uint32_t priority);
+    void disableInterrupt();
+    IRQn_Type txIrq();
+    IRQn_Type rx0Irq();
+    IRQn_Type rx1Irq();
+    IRQn_Type sceIrq();
 
     void interruptFunction();
     void rxInterruptFunction();

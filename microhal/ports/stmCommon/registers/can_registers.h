@@ -302,23 +302,23 @@ struct CAN {
     // interrupt enable register
     union IER {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> TMEIE;  /*!< TMEIE */
-            microhal::Bitfield<uint32_t, 1, 1> FMPIE0; /*!< FMPIE0 */
-            microhal::Bitfield<uint32_t, 2, 1> FFIE0;  /*!< FFIE0 */
-            microhal::Bitfield<uint32_t, 3, 1> FOVIE0; /*!< FOVIE0 */
-            microhal::Bitfield<uint32_t, 4, 1> FMPIE1; /*!< FMPIE1 */
-            microhal::Bitfield<uint32_t, 5, 1> FFIE1;  /*!< FFIE1 */
-            microhal::Bitfield<uint32_t, 6, 1> FOVIE1; /*!< FOVIE1 */
-            microhal::Bitfield<uint32_t, 8, 1> EWGIE;  /*!< EWGIE */
-            microhal::Bitfield<uint32_t, 9, 1> EPVIE;  /*!< EPVIE */
-            microhal::Bitfield<uint32_t, 10, 1> BOFIE; /*!< BOFIE */
-            microhal::Bitfield<uint32_t, 11, 1> LECIE; /*!< LECIE */
-            microhal::Bitfield<uint32_t, 15, 1> ERRIE; /*!< ERRIE */
-            microhal::Bitfield<uint32_t, 16, 1> WKUIE; /*!< WKUIE */
-            microhal::Bitfield<uint32_t, 17, 1> SLKIE; /*!< SLKIE */
+            microhal::Bitfield<uint32_t, 0, 1> TMEIE;  /*!< Transmit mailbox empty interrupt enable */
+            microhal::Bitfield<uint32_t, 1, 1> FMPIE0; /*!< FIFO 0 message pending interrupt enable */
+            microhal::Bitfield<uint32_t, 2, 1> FFIE0;  /*!< FIFO 0 full interrupt enable */
+            microhal::Bitfield<uint32_t, 3, 1> FOVIE0; /*!< FIFO 0 overrun interrupt enable */
+            microhal::Bitfield<uint32_t, 4, 1> FMPIE1; /*!< FIFO 1 message pending interrupt enable */
+            microhal::Bitfield<uint32_t, 5, 1> FFIE1;  /*!< FIFO 1 full interrupt enable */
+            microhal::Bitfield<uint32_t, 6, 1> FOVIE1; /*!< FIFO 1 overrun interrupt enable */
+            microhal::Bitfield<uint32_t, 8, 1> EWGIE;  /*!< Error warning interrupt enable */
+            microhal::Bitfield<uint32_t, 9, 1> EPVIE;  /*!< Error passive interrupt enable */
+            microhal::Bitfield<uint32_t, 10, 1> BOFIE; /*!< Bus-off interrupt enable */
+            microhal::Bitfield<uint32_t, 11, 1> LECIE; /*!< Last error code interrupt enable */
+            microhal::Bitfield<uint32_t, 15, 1> ERRIE; /*!< Error interrupt enable */
+            microhal::Bitfield<uint32_t, 16, 1> WKUIE; /*!< Wakeup interrupt enable */
+            microhal::Bitfield<uint32_t, 17, 1> SLKIE; /*!< Sleep interrupt enable */
         };
 
-        enum class Interrupt {
+        enum class Interrupt : uint32_t {
             Sleep = 1 << 17,
             Wakeup = 1 << 16,
             Error = 1 << 15,
@@ -334,8 +334,8 @@ struct CAN {
             FIFO0_MessagePending = 1 << 1,
             TransmitMailboxEmpty = 1 << 0
         };
-        void enableInterrupt(Interrupt interrupt) volatile { raw |= static_cast<uint32_t>(interrupt); }
-        void disableInterrupt(Interrupt interrupt) volatile { raw &= ~static_cast<uint32_t>(interrupt); }
+        void enableInterrupt(Interrupt interrupt) { raw |= static_cast<uint32_t>(interrupt); }
+        void disableInterrupt(Interrupt interrupt) { raw &= ~static_cast<uint32_t>(interrupt); }
 
         operator uint32_t() const { return raw; }
         operator bool() const { return raw; }
