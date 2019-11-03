@@ -107,23 +107,7 @@ class CAN final : public can::CAN_Interface {
         enableInterrupt(priority);
     };
 
-    ~CAN() {
-        if ((objectPtr[0] != this) && (objectPtr[1] != this)) {
-            return;
-        }
-        initializationRequest();  // This will wait until ongoing transmission will be finished
-        disableInterrupt();
-        auto ier = can.ier.volatileLoad();
-        ier.disableInterrupt(Interrupt::TransmitMailboxEmpty);
-        can.ier.volatileStore(ier);
-        if (objectPtr[0] == this) objectPtr[0] = nullptr;
-        if (objectPtr[1] == this) objectPtr[1] = nullptr;
-#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::disable(can, ClockManager::PowerMode::Normal);
-#else
-        ClockManager::disable(can);
-#endif
-    }
+    ~CAN();
 #endif
 
     bool isProtocolSupported(Protocol protocol) final {
@@ -197,8 +181,15 @@ class CAN final : public can::CAN_Interface {
     uint32_t receiveErrorCount() const final { return can.esr.volatileLoad().REC; }
     uint32_t transmitErrorCount() const final { return can.esr.volatileLoad().TEC; }
 
-    bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;
-    bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;
+    bool addFilter(const can::Filter &filter) final;
+    bool removeFilter(const can::Filter &filter) final;
+    void removeAllFilters() {
+        activateFilterInitMode();
+        registers::CAN::FA1R fa1r;
+        fa1r = 0;
+        can.fa1r.volatileStore(fa1r);
+        deactivateFilterInitMode();
+    }
 
     uint_fast8_t emptyTxMailboxCount() const {
         auto tsr = can.tsr.volatileLoad();
@@ -208,6 +199,8 @@ class CAN final : public can::CAN_Interface {
         if (tsr.TME2) count++;
         return count;
     }
+
+    void dumpFilterConfig();
 
  private:
     registers::CAN &can;
@@ -241,6 +234,19 @@ class CAN final : public can::CAN_Interface {
     }
 
     // Filter functions
+    Filter &findInactiveFilter(FilterMode mode);
+
+    bool addIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask);
+    bool addIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask);
+    bool addIdentifierList32(CAN::Filter::ID32 id);
+    bool addIdentifierList16(CAN::Filter::ID16 id);
+    bool removeIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask);
+    bool removeIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask);
+    bool removeIdentifierList32(CAN::Filter::ID32 id);
+    bool removeIdentifierList16(CAN::Filter::ID16 id);
+    FilterMode getFilterMode(uint_fast8_t filterNumber) const;
+    static FilterMode getFilterMode(registers::CAN::FS1R fs1r, registers::CAN::FM1R fm1r, uint_fast8_t filterNumber);
+
     void activateFilterInitMode() {
         auto fmr = can.fmr.volatileLoad();
         fmr.FINIT = 1;
@@ -263,8 +269,10 @@ class CAN final : public can::CAN_Interface {
     }
     bool isFilterActive(uint_fast8_t filterNumber) {
         auto fa1r = can.fa1r.volatileLoad();
-        return fa1r.isBitSet(filterNumber);
+        return isFilterActive(fa1r, filterNumber);
     }
+    static bool isFilterActive(registers::CAN::FA1R fa1r, uint_fast8_t filterNumber) { return fa1r.isFilterActive(filterNumber); }
+    void setFilterMode(uint_fast8_t filterNumber, FilterMode filterMode);
 
     // ISR related functions
     void enableInterrupt(uint32_t priority) {

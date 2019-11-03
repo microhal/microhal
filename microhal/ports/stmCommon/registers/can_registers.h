@@ -1,6 +1,7 @@
 #ifndef _MICROHAL_PERIPHERAL_REGISTER_CAN
 #define _MICROHAL_PERIPHERAL_REGISTER_CAN
 
+#include <array>
 #include "bitfield.h"
 #include "registersBaseAddressDefinitions.h"
 #include "volatileRegister.h"
@@ -1194,7 +1195,9 @@ struct CAN {
 #endif
         };
 
-        bool isBitSet(uint_fast8_t bitNumber) { return raw & (1 << bitNumber); }
+        void activateFilter(uint_fast8_t filterNumber) { raw |= 1 << filterNumber; }
+        void deactivateFilter(uint_fast8_t filterNumber) { raw &= ~(1 << filterNumber); }
+        bool isFilterActive(uint_fast8_t filterNumber) { return raw & (1 << filterNumber); }
 
         operator uint32_t() const { return raw; }
         operator bool() const { return raw; }
@@ -1238,7 +1241,7 @@ struct CAN {
 #endif
     struct FilterRegister {
         // Filter bank x register 1
-        union FxR1 {
+        union FxRx {
             union {
                 microhal::Bitfield<uint32_t, 0, 1> FB0;   /*!< Filter bits */
                 microhal::Bitfield<uint32_t, 1, 1> FB1;   /*!< Filter bits */
@@ -1277,15 +1280,15 @@ struct CAN {
             operator uint32_t() const { return raw; }
             operator bool() const { return raw; }
 
-            FxR1 &operator=(uint32_t value) {
+            FxRx &operator=(uint32_t value) {
                 raw = value;
                 return *this;
             }
-            FxR1 &operator|=(uint32_t value) {
+            FxRx &operator|=(uint32_t value) {
                 raw |= value;
                 return *this;
             }
-            FxR1 &operator&=(uint32_t value) {
+            FxRx &operator&=(uint32_t value) {
                 raw &= value;
                 return *this;
             }
@@ -1296,99 +1299,22 @@ struct CAN {
             bool operator<(uint32_t value) const { return raw < value; }
             bool operator>=(uint32_t value) const { return raw >= value; }
             bool operator<=(uint32_t value) const { return raw <= value; }
-            FxR1 operator&(uint32_t value) const {
-                FxR1 tmp;
+            FxRx operator&(uint32_t value) const {
+                FxRx tmp;
                 tmp.raw = raw & value;
                 return tmp;
             }
-            FxR1 operator|(uint32_t value) const {
-                FxR1 tmp;
+            FxRx operator|(uint32_t value) const {
+                FxRx tmp;
                 tmp.raw = raw | value;
                 return tmp;
             }
 
          private:
             uint32_t raw;
-            friend class VolatileRegister<FxR1, AccessType::ReadOnly>;
-            friend class VolatileRegister<FxR1, AccessType::WriteOnly>;
-            friend class VolatileRegister<FxR1, AccessType::ReadWrite>;
-        };
-
-        // Filter bank x register 2
-        union FxR2 {
-            union {
-                microhal::Bitfield<uint32_t, 0, 1> FB0;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 1, 1> FB1;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 2, 1> FB2;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 3, 1> FB3;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 4, 1> FB4;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 5, 1> FB5;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 6, 1> FB6;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 7, 1> FB7;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 8, 1> FB8;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 9, 1> FB9;   /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 10, 1> FB10; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 11, 1> FB11; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 12, 1> FB12; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 13, 1> FB13; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 14, 1> FB14; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 15, 1> FB15; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 16, 1> FB16; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 17, 1> FB17; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 18, 1> FB18; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 19, 1> FB19; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 20, 1> FB20; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 21, 1> FB21; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 22, 1> FB22; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 23, 1> FB23; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 24, 1> FB24; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 25, 1> FB25; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 26, 1> FB26; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 27, 1> FB27; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 28, 1> FB28; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 29, 1> FB29; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 30, 1> FB30; /*!< Filter bits */
-                microhal::Bitfield<uint32_t, 31, 1> FB31; /*!< Filter bits */
-            };
-
-            operator uint32_t() const { return raw; }
-            operator bool() const { return raw; }
-
-            FxR2 &operator=(uint32_t value) {
-                raw = value;
-                return *this;
-            }
-            FxR2 &operator|=(uint32_t value) {
-                raw |= value;
-                return *this;
-            }
-            FxR2 &operator&=(uint32_t value) {
-                raw &= value;
-                return *this;
-            }
-
-            bool operator==(uint32_t value) const { return raw == value; }
-            bool operator!=(uint32_t value) const { return raw != value; }
-            bool operator>(uint32_t value) const { return raw > value; }
-            bool operator<(uint32_t value) const { return raw < value; }
-            bool operator>=(uint32_t value) const { return raw >= value; }
-            bool operator<=(uint32_t value) const { return raw <= value; }
-            FxR2 operator&(uint32_t value) const {
-                FxR2 tmp;
-                tmp.raw = raw & value;
-                return tmp;
-            }
-            FxR2 operator|(uint32_t value) const {
-                FxR2 tmp;
-                tmp.raw = raw | value;
-                return tmp;
-            }
-
-         private:
-            uint32_t raw;
-            friend class VolatileRegister<FxR2, AccessType::ReadOnly>;
-            friend class VolatileRegister<FxR2, AccessType::WriteOnly>;
-            friend class VolatileRegister<FxR2, AccessType::ReadWrite>;
+            friend class VolatileRegister<FxRx, AccessType::ReadOnly>;
+            friend class VolatileRegister<FxRx, AccessType::WriteOnly>;
+            friend class VolatileRegister<FxRx, AccessType::ReadWrite>;
         };
 
         union ID32 {
@@ -1396,7 +1322,8 @@ struct CAN {
                 microhal::Bitfield<uint32_t, 0, 1> zero;
                 microhal::Bitfield<uint32_t, 1, 1> rtr;
                 microhal::Bitfield<uint32_t, 2, 1> ide;
-                microhal::Bitfield<uint32_t, 3, 29> stid_exid;
+                microhal::Bitfield<uint32_t, 21, 11> stid;
+                microhal::Bitfield<uint32_t, 3, 29> exid;
             };
 
             operator uint32_t() const { return raw; }
@@ -1447,6 +1374,17 @@ struct CAN {
                 microhal::Bitfield<uint16_t, 5, 11> stid;
             };
 
+            void setExtendedId(uint32_t id) {
+                exid_15_17 = id >> 15;
+                stid = id >> 19;
+            }
+
+            uint32_t getExtendedId() const {
+                uint32_t id = stid << 19;
+                id |= exid_15_17 << 15;
+                return id;
+            }
+
             operator uint32_t() const { return raw; }
 
             ID16 &operator=(uint16_t value) {
@@ -1463,6 +1401,7 @@ struct CAN {
             }
 
             bool operator==(uint16_t value) const { return raw == value; }
+            bool operator==(ID16 value) const { return raw == value.raw; }
             bool operator!=(uint16_t value) const { return raw != value; }
             bool operator>(uint16_t value) const { return raw > value; }
             bool operator<(uint16_t value) const { return raw < value; }
@@ -1486,27 +1425,43 @@ struct CAN {
             friend class VolatileRegister<ID16, AccessType::ReadWrite>;
         };
 
+        union IdentifierMask16Bit {
+            struct {
+                ID16 id;
+                ID16 mask;
+            };
+
+         private:
+            uint32_t raw;
+            friend class VolatileRegister<IdentifierMask16Bit, AccessType::ReadOnly>;
+            friend class VolatileRegister<IdentifierMask16Bit, AccessType::WriteOnly>;
+            friend class VolatileRegister<IdentifierMask16Bit, AccessType::ReadWrite>;
+        };
+
+        union IdentifierList16Bit {
+            struct {
+                ID16 id0;
+                ID16 id1;
+            };
+
+         private:
+            uint32_t raw;
+            friend class VolatileRegister<IdentifierList16Bit, AccessType::ReadOnly>;
+            friend class VolatileRegister<IdentifierList16Bit, AccessType::WriteOnly>;
+            friend class VolatileRegister<IdentifierList16Bit, AccessType::ReadWrite>;
+        };
+
         union {
             struct {
-                VolatileRegister<FxR1, AccessType::ReadWrite> fr1;
-                VolatileRegister<FxR2, AccessType::ReadWrite> fr2;
+                VolatileRegister<FxRx, AccessType::ReadWrite> fr[2];
             } raw;
             struct {
                 VolatileRegister<ID32, AccessType::ReadWrite> id;
                 VolatileRegister<ID32, AccessType::ReadWrite> mask;
             } identifierMask;
-            struct {
-                VolatileRegister<ID32, AccessType::ReadWrite> id[2];
-            } identifierList;
-            struct {
-                VolatileRegister<ID16, AccessType::ReadWrite> id1;
-                VolatileRegister<ID16, AccessType::ReadWrite> mask1;
-                VolatileRegister<ID16, AccessType::ReadWrite> id2;
-                VolatileRegister<ID16, AccessType::ReadWrite> mask2;
-            } identifierMask16bit;
-            struct {
-                VolatileRegister<ID16, AccessType::ReadWrite> id[4];
-            } identifierList16bit;
+            VolatileRegister<ID32, AccessType::ReadWrite> identifierList[2];
+            VolatileRegister<IdentifierMask16Bit, AccessType::ReadWrite> identifierMask16bit[2];
+            VolatileRegister<IdentifierList16Bit, AccessType::ReadWrite> identifierList16bit[2];
         };
     };
     static_assert(sizeof(FilterRegister) == 2 * sizeof(uint32_t), "");
@@ -1539,9 +1494,9 @@ struct CAN {
     uint32_t reserved1[28]; /*!< Reserved register	Address offset: 0x1d0 */
 #endif
 #ifdef _MICROHAL_REGISTERS_STM_CAN_FILTERS_HAS_FILTER_BANK14_TO_FILTER_BANK_27
-    FilterRegister filterRegister[28];
+    std::array<FilterRegister, 28> filterRegister;
 #else
-    FilterRegister filterRegister[14];
+    std::array<FilterRegister, 14> filterRegister;
 #endif
 #endif
 };

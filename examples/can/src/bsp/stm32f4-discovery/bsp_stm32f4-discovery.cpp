@@ -51,7 +51,7 @@ void deinit() {}
 
 }  // namespace bsp
 
-extern "C" int main(int, void *);
+extern "C" int main(int, char **);
 
 static void run_main(void *) {
     char *params[5];

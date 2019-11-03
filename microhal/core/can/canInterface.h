@@ -30,6 +30,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include "canFilter.h"
 #include "canMessage.h"
 
 namespace microhal {
@@ -49,8 +50,8 @@ class CAN_Interface {
     virtual bool waitForTransmitFinish(std::chrono::milliseconds timeout) const noexcept = 0;
     virtual bool waitForMessage(std::chrono::milliseconds timeout) const noexcept = 0;
 
-    virtual bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
-    virtual bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) = 0;
+    virtual bool addFilter(const Filter &filter) = 0;
+    virtual bool removeFilter(const Filter &filter) = 0;
     virtual uint32_t receiveErrorCount() const = 0;
     virtual uint32_t transmitErrorCount() const = 0;
 };
