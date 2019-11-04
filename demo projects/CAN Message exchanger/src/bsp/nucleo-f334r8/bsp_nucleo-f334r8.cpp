@@ -63,14 +63,18 @@ static void run_main(void*) {
 }
 
 void hardwareConfig(void) {
-    // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
+    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
+    stm32f3xx::ClockManager::PLL::frequency(72000000);
+    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
 
     stm32f3xx::IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
     stm32f3xx::IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
 
-    stm32f3xx::IOManager::routeCAN<RX, stm32f3xx::IOPin::PortA, 11>();
-    stm32f3xx::IOManager::routeCAN<TX, stm32f3xx::IOPin::PortA, 12>();
+    // stm32f3xx::IOManager::routeCAN<RX, stm32f3xx::IOPin::PortA, 11>();
+    // stm32f3xx::IOManager::routeCAN<TX, stm32f3xx::IOPin::PortA, 12>();
+    stm32f3xx::IOManager::routeCAN<RX, stm32f3xx::IOPin::PortB, 8>();
+    stm32f3xx::IOManager::routeCAN<TX, stm32f3xx::IOPin::PortB, 9>();
 
     TaskHandle_t xHandle = NULL;
 
