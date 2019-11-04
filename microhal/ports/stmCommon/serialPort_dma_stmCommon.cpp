@@ -38,78 +38,54 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 //***********************************************************************************************//
 //                                   STATIC VARIABLES
 //***********************************************************************************************//
+
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#define _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(TX_SIZE, RX_SIZE, TX_DMA, RX_DMA, u, d)                                                          \
+    static char txBufferData_##u[TX_SIZE];                                                                                                      \
+    static char rxBufferData_##u[RX_SIZE];                                                                                                      \
+    SerialPort_Dma SerialPort_Dma::Serial##u(*USART##u, rxBufferData_##u, txBufferData_##u, sizeof(rxBufferData_##u), sizeof(txBufferData_##u), \
+                                             DMA::dma1->stream[TX_DMA - 1], DMA::dma1->stream[RX_DMA - 1]);                                     \
+    SerialPort &SerialPort::Serial##u = SerialPort_Dma::Serial##u;
+#else
 #define _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(TX_SIZE, RX_SIZE, TX_DMA, RX_DMA, u, d)                                                          \
     static char txBufferData_##u[TX_SIZE];                                                                                                      \
     static char rxBufferData_##u[RX_SIZE];                                                                                                      \
     SerialPort_Dma SerialPort_Dma::Serial##u(*USART##u, rxBufferData_##u, txBufferData_##u, sizeof(rxBufferData_##u), sizeof(txBufferData_##u), \
                                              *DMA::d, DMA::d->stream[TX_DMA], DMA::d->stream[RX_DMA]);                                          \
     SerialPort &SerialPort::Serial##u = SerialPort_Dma::Serial##u;
+#endif
 
 #ifdef MICROHAL_USE_SERIAL_PORT1_DMA
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT1_DMA_TX_STREAM, MICROHAL_SERIAL_PORT1_DMA_RX_STREAM, 1, dma2)
-// static char txBufferData_1[MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE];
-// static char rxBufferData_1[MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE];
-// SerialPort_Dma SerialPort_Dma::Serial1(*USART1, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1), sizeof(txBufferData_1), *DMA::dma2,
-//                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT1_DMA_TX_STREAM],
-//                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT1_DMA_RX_STREAM]);
-// SerialPort &SerialPort::Serial1 = SerialPort_Dma::Serial1;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT2_DMA
-static char txBufferData_2[MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE];
-static char rxBufferData_2[MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE];
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
-SerialPort_Dma SerialPort_Dma::Serial2(*USART2, rxBufferData_2, txBufferData_2, sizeof(rxBufferData_2), sizeof(txBufferData_2),
-                                       DMA::dma1->stream[MICROHAL_SERIAL_PORT2_DMA_TX_STREAM - 1],
-                                       DMA::dma1->stream[MICROHAL_SERIAL_PORT2_DMA_RX_STREAM - 1]);
-#else
-SerialPort_Dma SerialPort_Dma::Serial2(*USART2, rxBufferData_2, txBufferData_2, sizeof(rxBufferData_2), sizeof(txBufferData_2), *DMA::dma1,
-                                       DMA::dma1->stream[6], DMA::dma1->stream[5]);
-#endif
-SerialPort &SerialPort::Serial2 = SerialPort_Dma::Serial2;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT2_DMA_TX_STREAM, MICROHAL_SERIAL_PORT2_DMA_RX_STREAM, 2, dma1)
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT3_DMA
-static char txBufferData_3[MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE];
-static char rxBufferData_3[MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial3(*USART3, rxBufferData_3, txBufferData_3, sizeof(rxBufferData_3), sizeof(txBufferData_3), *DMA::dma1,
-                                       DMA::dma1->stream[MICROHAL_SERIAL_PORT3_DMA_TX_STREAM], DMA::dma1->stream[1]);
-SerialPort &SerialPort::Serial3 = SerialPort_Dma::Serial3;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT3_DMA_TX_STREAM, MICROHAL_SERIAL_PORT3_DMA_RX_STREAM, 3, dma1)
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT4_DMA
-static char txBufferData_4[MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE];
-static char rxBufferData_4[MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial4(*UART4, rxBufferData_4, txBufferData_4, sizeof(rxBufferData_4), sizeof(txBufferData_4), *DMA::dma1,
-                                       DMA::dma1->stream[4], DMA::dma1->stream[2]);
-SerialPort &SerialPort::Serial4 = SerialPort_Dma::Serial4;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT4_DMA_TX_STREAM, MICROHAL_SERIAL_PORT4_DMA_RX_STREAM, 4, dma1)
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT5_DMA
-static char txBufferData_5[MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE];
-static char rxBufferData_5[MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial5(*UART5, rxBufferData_5, txBufferData_5, sizeof(rxBufferData_5), sizeof(txBufferData_5), *DMA::dma1,
-                                       DMA::dma1->stream[7], DMA::dma1->stream[0]);
-SerialPort &SerialPort::Serial5 = SerialPort_Dma::Serial5;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT5_DMA_TX_STREAM, MICROHAL_SERIAL_PORT5_DMA_RX_STREAM, 5, dma1)
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT6_DMA
-static char txBufferData_6[MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE];
-static char rxBufferData_6[MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial6(*USART6, rxBufferData_6, txBufferData_6, sizeof(rxBufferData_6), sizeof(txBufferData_6), *DMA::dma2,
-                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT6_DMA_TX_STREAM],
-                                       DMA::dma2->stream[MICROHAL_SERIAL_PORT6_DMA_RX_STREAM]);
-SerialPort &SerialPort::Serial6 = SerialPort_Dma::Serial6;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT6_DMA_TX_STREAM, MICROHAL_SERIAL_PORT6_DMA_RX_STREAM, 6, dma2)
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT7_DMA
-static char txBufferData_7[MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE];
-static char rxBufferData_7[MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial7(*UART7, rxBufferData_7, txBufferData_7, sizeof(rxBufferData_7), sizeof(txBufferData_7), *DMA::dma1,
-                                       DMA::dma1->stream[1], DMA::dma1->stream[3]);
-SerialPort &SerialPort::Serial7 = SerialPort_Dma::Serial7;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT7_DMA_TX_STREAM, MICROHAL_SERIAL_PORT7_DMA_RX_STREAM, 7, dma1)
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT8_DMA
-static char txBufferData_8[MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE];
-static char rxBufferData_8[MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE];
-SerialPort_Dma SerialPort_Dma::Serial8(*UART8, rxBufferData_8, txBufferData_8, sizeof(rxBufferData_8), sizeof(txBufferData_8), *DMA::dma1,
-                                       DMA::dma1->stream[0], DMA::dma1->stream[6]);
-SerialPort &SerialPort::Serial8 = SerialPort_Dma::Serial8;
+_MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE,
+                                       MICROHAL_SERIAL_PORT8_DMA_TX_STREAM, MICROHAL_SERIAL_PORT8_DMA_RX_STREAM, 8, dma1)
 #endif
 
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
