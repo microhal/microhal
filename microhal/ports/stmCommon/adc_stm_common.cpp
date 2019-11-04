@@ -5,7 +5,7 @@
  *      Author: pokas
  */
 
-#include "adc_stm32f3xx.h"
+#include "adc_stm_common.h"
 
 namespace microhal {
 namespace stm32f3xx {
@@ -15,7 +15,7 @@ Adc *Adc::adc2 = nullptr;
 
 bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
     if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
-    if (adc.CR & ADC_CR_ADSTART) return false;
+    if (adc.cr.volatileLoad().ADSTART) return false;
 
     for (int i = 0; i < sequence.length(); i++) {
         if (sequence.at(i) == Channel::Channel0) return false;
@@ -30,84 +30,87 @@ bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
 }
 
 void Adc::setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequencePosition, Channel channel) {
-    uint32_t sqr1 = adc.SQR1;
-    sqr1 &= ~0b1111;
-    sqr1 |= sequenceLength - 1;
+    auto sqr1 = adc.sqr1.volatileLoad();
+    sqr1.L = sequenceLength - 1;
 
     if (sequencePosition <= 4) {
         sqr1 &= ~(0b11111 << (sequencePosition * 6));
         sqr1 |= (channel << (sequencePosition * 6));
     } else if (sequencePosition <= 9) {
-        uint32_t sqr = adc.SQR2;
+        auto sqr = adc.sqr2.volatileLoad();
         sqr &= ~(0b11111 << ((sequencePosition - 5) * 6));
         sqr |= (channel << ((sequencePosition - 5) * 6));
-        adc.SQR2 = sqr;
+        adc.sqr2.volatileStore(sqr);
     } else if (sequencePosition <= 14) {
-        uint32_t sqr = adc.SQR3;
+        auto sqr = adc.sqr3.volatileLoad();
         sqr &= ~(0b11111 << ((sequencePosition - 10) * 6));
         sqr |= (channel << ((sequencePosition - 10) * 6));
-        adc.SQR3 = sqr;
+        adc.sqr3.volatileStore(sqr);
     } else if (sequencePosition <= 16) {
-        uint32_t sqr = adc.SQR4;
+        auto sqr = adc.sqr4.volatileLoad();
         sqr &= ~(0b11111 << ((sequencePosition - 15) * 6));
         sqr |= (channel << ((sequencePosition - 15) * 6));
-        adc.SQR4 = sqr;
+        adc.sqr4.volatileStore(sqr);
     }
 
-    adc.SQR1 = sqr1;
+    adc.sqr1.volatileStore(sqr1);
 }
 
 bool Adc::configureChannelOffset(Channel channel, uint16_t offset) {
-    if (auto offsetRegister = findOffsetRegisterForChannel(channel); offsetRegister != nullptr) {
-        offsetRegister->OFFSET = offset;
-        return true;
-    } else if (auto offsetRegister = findEmptyOffsetRegister(); offsetRegister != nullptr) {
-        offsetRegister->OFFSET_CH = static_cast<uint32_t>(channel);
-        offsetRegister->OFFSET = offset;
-        return true;
+    for (size_t i = 0; i < 4; i++) {
+        auto ofr = adc.ofr[i].volatileLoad();
+        if (ofr.OFFSET_CH == static_cast<uint32_t>(channel)) {
+            ofr.OFFSET = offset;
+            adc.ofr[i].volatileStore(ofr);
+            return true;
+        }
+    }
+    // unable to find offset for specific channel, try to find empty offset register and assign it with requested channel
+    for (size_t i = 0; i < 4; i++) {
+        auto ofr = adc.ofr[i].volatileLoad();
+        if (ofr.OFFSET_CH == 0) {
+            ofr.OFFSET_CH = static_cast<uint32_t>(channel);
+            ofr.OFFSET = offset;
+            adc.ofr[i].volatileStore(ofr);
+            return true;
+        }
     }
     return false;
 }
 
 bool Adc::enableChannelOffset(Channel channel) {
-    if (auto offsetRegister = findOffsetRegisterForChannel(channel); offsetRegister != nullptr) {
-        offsetRegister->OFFSET_EN = 1;
-        return true;
+    for (size_t i = 0; i < 4; i++) {
+        auto ofr = adc.ofr[i].volatileLoad();
+        if (ofr.OFFSET_CH == static_cast<uint32_t>(channel)) {
+            ofr.OFFSET_EN = 1;
+            adc.ofr[i].volatileStore(ofr);
+            return true;
+        }
     }
     return false;
 }
 
 bool Adc::disableChannelOffset(Channel channel) {
-    if (auto offsetRegister = findOffsetRegisterForChannel(channel); offsetRegister != nullptr) {
-        offsetRegister->OFFSET_EN = 0;
-        return true;
+    for (size_t i = 0; i < 4; i++) {
+        auto ofr = adc.ofr[i].volatileLoad();
+        if (ofr.OFFSET_CH == static_cast<uint32_t>(channel)) {
+            ofr.OFFSET_EN = 0;
+            adc.ofr[i].volatileStore(ofr);
+            return true;
+        }
     }
     return false;
 }
 
-registers::ADC::OFR_t *Adc::findOffsetRegisterForChannel(Channel channel) {
-    for (size_t i = 0; i < 4; i++) {
-        if (adc_.OFR[i].OFFSET_CH == static_cast<uint32_t>(channel)) return const_cast<registers::ADC::OFR_t *>(&adc_.OFR[i]);
-    }
-    return nullptr;
-}
-
-registers::ADC::OFR_t *Adc::findEmptyOffsetRegister() {
-    for (size_t i = 0; i < 4; i++) {
-        if (adc_.OFR[i].OFFSET_CH == 0) return const_cast<registers::ADC::OFR_t *>(&adc_.OFR[i]);
-    }
-    return nullptr;
-}
-
 bool Adc::calibrate(CalibrationType calibrationType) {
     // Software is allowed to set ADCAL only when the ADC is disabled (ADCAL=0, ADSTART=0, ADSTP=0, ADDIS=0 and ADEN=0).
-    uint32_t cr = adc.CR;
-    if ((cr & (ADC_CR_ADCAL | ADC_CR_ADSTART | ADC_CR_ADSTP | ADC_CR_ADDIS | ADC_CR_ADEN)) == 0) {
-        adc_.CR.ADCALDIF = static_cast<uint32_t>(calibrationType);
-        adc_.CR.ADCAL = 1;
+    auto cr = adc.cr.volatileLoad();
+    if (cr.ADCAL == 0 && cr.ADSTART == 0 && cr.ADSTP == 0 && cr.ADDIS == 0 && cr.ADEN == 0) {
+        cr.ADCALDIF = static_cast<uint32_t>(calibrationType);
+        cr.ADCAL = 1;
         do {
             // wait until calibration is ready
-        } while (adc_.CR.ADCAL == 1);
+        } while (adc.cr.volatileLoad().ADCAL == 1);
         return true;
     }
     return false;
@@ -116,8 +119,8 @@ bool Adc::calibrate(CalibrationType calibrationType) {
 void Adc::initDMA(uint16_t *data, size_t len) {
     DMA::dma1->clockEnable();
     auto &stream = DMA::dma1->stream[0];
-    stream.peripheralAddress(&adc.DR);
-    stream.memoryAddress(data);
+    stream.setPeripheralAddress(&adc.dr);
+    stream.setMemoryAddress(data);
     stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     stream.setNumberOfItemsToTransfer(len);
     stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
@@ -126,13 +129,17 @@ void Adc::initDMA(uint16_t *data, size_t len) {
     stream.enableCircularMode();
     stream.enable();
 
-    adc_.CFGR.DMACFG = 1;
-    adc_.CFGR.DMAEN = 1;
+    auto cfgr = adc.cfgr.volatileLoad();
+    cfgr.DMACFG = 1;
+    cfgr.DMAEN = 1;
+    adc.cfgr.volatileStore(cfgr);
 }
 
 void Adc::configureTriggerSource(TriggerSource triggerSource, ExternalTriggerSource externalTrigger) {
-    adc_.CFGR.EXTEN = static_cast<uint32_t>(triggerSource);
-    adc_.CFGR.EXTSEL = static_cast<uint32_t>(externalTrigger);
+    auto cfgr = adc.cfgr.volatileLoad();
+    cfgr.EXTEN = static_cast<uint32_t>(triggerSource);
+    cfgr.EXTSEL = static_cast<uint32_t>(externalTrigger);
+    adc.cfgr.volatileStore(cfgr);
 }
 
 void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize) {
@@ -147,39 +154,51 @@ void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSiz
     stream.enableCircularMode();
     stream.enable();
 
-    ADC12_COMMON->CCR |= (resolution == Resolution_8Bit || resolution == Resolution_12Bit) ? ADC_CCR_MDMA_1 : ADC_CCR_MDMA;
-    ADC12_COMMON->CCR |= ADC_CCR_DMACFG;  // select circular mode
+    auto ccr = registers::adc12Common->ccr.volatileLoad();
+    ccr.MDMA = (resolution == Resolution_8Bit || resolution == Resolution_12Bit) ? 0b10 : 0b11;
+    ccr.DMACFG = 1;
+    registers::adc12Common->ccr.volatileStore(ccr);
 }
 
 void Adc::enableVoltageRegulator() {
     // check if already enabled, if not the enable Voltage Regulator
-    if (adc_.CR.ADVREGEN != 0b01) {
+    auto cr = adc.cr.volatileLoad();
+    if (cr.ADVREGEN != 0b01) {
         // this have to be done in two steps, Do not optimize!
-        adc_.CR.ADVREGEN = 0;
-        adc_.CR.ADVREGEN = 0b01;
+        cr.ADVREGEN = 0;
+        adc.cr.volatileStore(cr);
+        cr.ADVREGEN = 0b01;
+        adc.cr.volatileStore(cr);
 
         // wait for ADC voltage regulator enable
-        while (adc_.CR.ADVREGEN == 0) {
+        while (adc.cr.volatileLoad().ADVREGEN == 0) {
         }
     }
 }
 
+void Adc::disableVoltageRegulator() {
+    auto cr = adc.cr.volatileLoad();
+    cr.ADVREGEN = 0b00;
+    adc.cr.volatileStore(cr);
+    cr.ADVREGEN = 0b10;
+    adc.cr.volatileStore(cr);
+}
+
 void Adc::interruptFunction() {
-    uint32_t isr = adc.ISR;
-    uint32_t ier = adc.IER;
+    auto isr = adc.isr.volatileLoad();
+    auto ier = adc.ier.volatileLoad();
     uint32_t activeAndEnabledInterruptFlags = isr & ier;
-    uint32_t interruptFlagToClear = 0;
 
     if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularSequence) {
-        interruptFlagToClear |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
+        isr |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
         signal.emit();
     }
 
     if (activeAndEnabledInterruptFlags & Adc::Interrupt::Overrun) {
-        interruptFlagToClear |= static_cast<uint32_t>(Adc::Interrupt::Overrun);
+        isr |= static_cast<uint32_t>(Adc::Interrupt::Overrun);
     }
     // clear flags of interrupt that have been served
-    adc.ISR = interruptFlagToClear;
+    adc.isr.volatileStore(isr);
 }
 
 void ADC1_2_IRQHandler(void) {
