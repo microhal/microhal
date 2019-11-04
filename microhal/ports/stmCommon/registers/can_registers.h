@@ -1508,15 +1508,15 @@ constexpr CAN::IER::Interrupt operator|(CAN::IER::Interrupt a, CAN::IER::Interru
 }
 
 #if defined(_MICROHAL_CAN_BASE)
-[[maybe_unused]] static CAN *can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN_BASE);
+[[maybe_unused]] static CAN *const can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN_BASE);
 #endif
 
 #if defined(_MICROHAL_CAN1_BASE)
-[[maybe_unused]] static CAN *can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN1_BASE);
+[[maybe_unused]] static CAN *const can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN1_BASE);
 #endif
 
 #if defined(_MICROHAL_CAN2_BASE)
-[[maybe_unused]] static CAN *can2 = reinterpret_cast<CAN *>(_MICROHAL_CAN2_BASE);
+[[maybe_unused]] static CAN *const can2 = reinterpret_cast<CAN *>(_MICROHAL_CAN2_BASE);
 #endif
 
 }  // namespace registers
