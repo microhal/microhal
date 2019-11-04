@@ -1,6 +1,6 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      diagnostic component
  *
@@ -8,7 +8,7 @@
  * created on: 9-12-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2015, microHAL
+ * @copyright Copyright (c) 2015-2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -30,8 +30,10 @@
 #ifndef _MICROHAL_DIAGNOSTICS_CONVERSION_H_
 #define _MICROHAL_DIAGNOSTICS_CONVERSION_H_
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
+#include "gsl/span"
 
 namespace microhal {
 namespace diagnostic {
@@ -40,6 +42,8 @@ template <unsigned int base>
 class Converter {
  public:
     explicit constexpr Converter(uint8_t data) noexcept : data(data), length(0), dataPtr(nullptr) {}
+
+    explicit constexpr Converter(uint16_t data) noexcept : data(data), length(0), dataPtr(nullptr) {}
 
     explicit constexpr Converter(uint32_t data) noexcept : data(data), length(0), dataPtr(nullptr) {}
 
@@ -53,6 +57,12 @@ class Converter {
     explicit constexpr Converter(const uint16_t *data, size_t size) noexcept : data(2), length(size / sizeof(uint16_t)), dataPtr(data) {}
 
     explicit constexpr Converter(const uint8_t *data, size_t size) noexcept : data(1), length(size / sizeof(uint8_t)), dataPtr(data) {}
+
+    template <typename T, size_t S>
+    explicit constexpr Converter(const std::array<T, S> &array) noexcept : data(sizeof(T)), length(array.size()), dataPtr(array.data()) {}
+
+    template <typename T>
+    explicit constexpr Converter(const gsl::span<T> &span) noexcept : data(sizeof(T)), length(span.size()), dataPtr(span.data()) {}
 
  private:
     template <LogLevel compileTimeLogLevel, bool B>
