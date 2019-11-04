@@ -45,6 +45,14 @@ class AlphaBeta {
         b += other.b;
         return *this;
     }
+
+    constexpr AlphaBeta& operator*=(float mul) {
+        a *= mul;
+        b *= mul;
+        return *this;
+    }
+
+    constexpr AlphaBeta operator*(float mul) { return {a * mul, b * mul}; }
 };
 
 }  // namespace math
