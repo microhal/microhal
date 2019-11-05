@@ -35911,7 +35911,7 @@
                <fields>
                   <field>
                      <name>FRE</name>
-                     <description>frame format error</description>
+                     <description>Frame format error</description>
                      <bitOffset>8</bitOffset>
                      <bitWidth>1</bitWidth>
                      <access>read-only</access>

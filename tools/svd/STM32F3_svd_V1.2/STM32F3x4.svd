@@ -12650,7 +12650,7 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
             </field>
             <field>
               <name>CRCL</name>
-              <description>Data frame format</description>
+              <description>CRC length</description>
               <bitOffset>11</bitOffset>
               <bitWidth>1</bitWidth>
             </field>
