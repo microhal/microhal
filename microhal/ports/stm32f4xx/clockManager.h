@@ -229,15 +229,15 @@ class ClockManager {
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= rccLpEnableFlag;
         }
     }
-    static void enable(const I2C_TypeDef &i2c, PowerMode mode) {
-        if (&i2c == I2C1) {
+    static void enableI2C(uint32_t number, PowerMode mode) {
+        if (number == 1) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_I2C1LPEN;
-        } else if (&i2c == I2C2) {
+        } else if (number == 2) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_I2C2LPEN;
 #if defined(I2C3)
-        } else if (&i2c == I2C3) {
+        } else if (number == 3) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_I2C3LPEN;
 #endif
@@ -928,13 +928,13 @@ class ClockManager {
      * @param i2c device pointer
      * @return
      */
-    static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
-        if (&i2c == I2C1)
+    static uint32_t I2CFrequency(uint_fast8_t i2cNumber) {
+        if (i2cNumber == 1)
             return APB1::frequency();
-        else if (&i2c == I2C2)
+        else if (i2cNumber == 2)
             return APB1::frequency();
 #if defined(I2C3)
-        else if (&i2c == I2C3)
+        else if (i2cNumber == 3)
             return APB1::frequency();
 #endif
         std::terminate();  // Error should newer go there

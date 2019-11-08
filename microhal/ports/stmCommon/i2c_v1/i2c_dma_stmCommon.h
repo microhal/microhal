@@ -16,14 +16,15 @@
  * INCLUDES
  */
 #include <cstdint>
-#include "../clockManager.h"
-#include "../device/stm32f4xx.h"
-#include "../dma_stm32f4xx.h"
-#include "../i2c_stm32f4xx.h"
+#include "i2c_stmCommon.h"
 #include "microhal_semaphore.h"
 
+#include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_DMA
+#include _MICROHAL_INCLUDE_PORT_CONFIG
+
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 extern "C" {
 void I2C1_EV_IRQHandler(void);
@@ -45,7 +46,7 @@ void DMA1_Stream7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class I2C_dma : public stm32f4xx::I2C {
+class I2C_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
  public:
 //---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_I2C1_DMA
@@ -86,9 +87,9 @@ class I2C_dma : public stm32f4xx::I2C {
         Buffer bufferB;
     } transfer;
     //---------------------------------- constructors -------------------------------
-    I2C_dma(I2C_TypeDef &i2c, DMA::Stream &rxStream, DMA::Stream &txStream)
+    I2C_dma(registers::I2C *i2c, DMA::Stream &rxStream, DMA::Stream &txStream)
         : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), semaphore(), transfer() {
-        ClockManager::enable(i2c, ClockManager::PowerMode::Normal);
+        ClockManager::enableI2C(getI2CNumber(), ClockManager::PowerMode::Normal);
         init();
 #ifndef HAL_RTOS_FreeRTOS
         const uint32_t priority = 0;
@@ -101,8 +102,8 @@ class I2C_dma : public stm32f4xx::I2C {
 
     //---------------------------------- functions ----------------------------------
     void init(void);
-    static void IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c);
-    static void IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c);
+    static void IRQFunction(I2C_dma &obj, registers::I2C *const i2c);
+    static void IRQErrorFunction(I2C_dma &obj, registers::I2C *const i2c);
     //---------------------------------- friends ------------------------------------
 
     friend void I2C1_EV_IRQHandler(void);
@@ -122,7 +123,7 @@ class I2C_dma : public stm32f4xx::I2C {
     friend void DMA1_Stream7_IRQHandler(void);
 };
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
 #endif  // I2C_DMA_STM32F4XX_H_

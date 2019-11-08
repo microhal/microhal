@@ -5,50 +5,54 @@
  *      Author: pawel
  */
 
-#include "i2c_polling_stm32f4xx.h"
+#include "i2c_polling_stmCommon.h"
+
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************
  *                                   STATIC VARIABLES
  * ***********************************************************************************************/
 #ifdef MICROHAL_USE_I2C1_POLLING
-I2C_polling I2C_polling::i2c1(*I2C1);
+I2C_polling I2C_polling::i2c1(registers::i2c1);
 I2C &I2C::i2c1 = I2C_polling::i2c1;
 #endif
 #ifdef MICROHAL_USE_I2C2_POLLING
-I2C_polling I2C_polling::i2c2(*I2C2);
+I2C_polling I2C_polling::i2c2(registers::i2c2);
 I2C &I2C::i2c2 = I2C_polling::i2c2;
 #endif
 #ifdef MICROHAL_USE_I2C3_POLLING
-I2C_polling I2C_polling::i2c3(*I2C3);
+I2C_polling I2C_polling::i2c3(registers::i2c3);
 I2C &I2C::i2c3 = I2C_polling::i2c3;
 #endif
 /* ************************************************************************************************
  *                                   FUNCTIONS IMPLEMENTATION
  * ***********************************************************************************************/
-static I2C::Error sendStart(I2C_TypeDef &i2c) {
+static I2C::Error sendStart(registers::I2C &i2c) {
     // Generate the Start condition
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
     // wait for start sent
-    uint16_t status;
+    registers::I2C::SR1 status;
     do {
-        status = i2c.SR1;
+        status = i2c.sr1.volatileLoad();
         const I2C::Error error = I2C::errorCheckAndClear(&i2c, status);
         if (error != I2C::Error::None) return error;
-    } while (!(status & I2C_SR1_SB));
+    } while (!(status.SB));
 
     return I2C::Error::None;
 }
 
-static I2C::Error sendDeviceAddress(I2C_TypeDef &i2c, uint8_t deviceAddress) {
-    i2c.DR = deviceAddress;
-    uint16_t status;
+static I2C::Error sendDeviceAddress(registers::I2C &i2c, uint8_t deviceAddress) {
+    i2c.dr.volatileStore({deviceAddress});
+    registers::I2C::SR1 status;
     do {
-        status = i2c.SR1;
+        status = i2c.sr1.volatileLoad();
         const I2C::Error error = I2C::errorCheckAndClear(&i2c, status);
         if (error != I2C::Error::None) return error;
-    } while (!(status & I2C_SR1_ADDR));
+    } while (!(status.ADDR));
 
     return I2C::Error::None;
 }
@@ -65,12 +69,12 @@ I2C::Error I2C_polling::writeRead(DeviceAddress deviceAddress, const uint8_t *wr
                                   size_t read_size) noexcept {
     I2C::Error error = write_implementation(deviceAddress, write, write_size, write, 0);
     if (error == Error::None) {
-        volatile uint16_t status;
+        registers::I2C::SR1 status;
         do {
-            status = i2c.SR1;
+            status = i2c.sr1.volatileLoad();
             error = errorCheckAndClear(&i2c, status);
             if (error != Error::None) return error;
-        } while (!(status & I2C_SR1_BTF));
+        } while (!(status.BTF));
 
         error = read(deviceAddress, (uint8_t *)data_read, read_size);
     }
@@ -90,15 +94,17 @@ I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write,
 
     const I2C::Error error = write_implementation(deviceAddress, write, write_size, write, 0);
     if (error == Error::None) {
-        uint16_t status;
+        registers::I2C::SR1 status;
         do {
-            status = i2c.SR1;
+            status = i2c.sr1.volatileLoad();
             const I2C::Error error = errorCheckAndClear(&i2c, status);
             if (error != Error::None) return error;
-        } while (!(status & I2C_SR1_BTF));
+        } while (!(status.BTF));
     }
     // Send I2Cx STOP Condition
-    i2c.CR1 |= I2C_CR1_STOP;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.STOP.set();
+    i2c.cr1.volatileStore(cr1);
 
     return error;
 }
@@ -107,29 +113,30 @@ I2C::Error I2C_polling::write(DeviceAddress deviceAddress, const uint8_t *write_
                               size_t write_data_sizeB) noexcept {
     const I2C::Error error = write_implementation(deviceAddress, write_data, write_data_size, write_dataB, write_data_sizeB);
     if (error == Error::None) {
-        uint16_t status;
+        registers::I2C::SR1 status;
         do {
-            status = i2c.SR1;
+            status = i2c.sr1.volatileLoad();
             const I2C::Error error = errorCheckAndClear(&i2c, status);
             if (error != Error::None) return error;
-        } while (!(status & I2C_SR1_BTF));
+        } while (!(status.BTF));
     }
     // Send I2Cx STOP Condition
-    i2c.CR1 |= I2C_CR1_STOP;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.STOP.set();
+    i2c.cr1.volatileStore(cr1);
 
     return error;
 }
 
 I2C::Error I2C_polling::write(uint8_t data) {
     Error error;
-    uint16_t status;
-
+    registers::I2C::SR1 status;
     do {
-        status = i2c.SR1;
+        status = i2c.sr1.volatileLoad();
         error = errorCheckAndClear(&i2c, status);
         if (error != Error::None) return error;
-    } while (!(status & I2C_SR1_TXE));
-    i2c.DR = data;
+    } while (!(status.TxE));
+    i2c.dr.volatileStore(data);
 
     return Error::None;
 }
@@ -147,7 +154,7 @@ I2C::Error I2C_polling::write_implementation(DeviceAddress deviceAddress, const 
     const I2C::Error deviceAddressError = sendDeviceAddress(i2c, deviceAddress);
     if (deviceAddressError != I2C::Error::None) return startError;
 
-    __attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete, read sr2 for clear addr flag,
+    i2c.sr2.volatileLoad();  // do not delete, read sr2 for clear addr flag,
 
     const uint8_t *ptr = static_cast<const uint8_t *>(write_data);
     while (write_data_size--) {
@@ -173,48 +180,50 @@ I2C::Error I2C_polling::read_implementation(DeviceAddress deviceAddress, uint8_t
     const I2C::Error deviceReadAddressError = sendDeviceAddress(i2c, deviceAddress + 1);
     if (deviceReadAddressError != I2C::Error::None) return deviceReadAddressError;
 
-    __attribute__((unused)) volatile uint16_t tmp = i2c.SR2;  // do not delete,read sr2 for clear addr flag
+    i2c.sr2.volatileLoad();  // do not delete,read sr2 for clear addr flag
 
     I2C::Error error;
-    volatile uint16_t status;
-
     // buffer A
-    i2c.CR1 |= I2C_CR1_ACK;
-
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.ACK.set();
+    i2c.cr1.volatileStore(cr1);
+    registers::I2C::SR1 status;
     for (size_t i = 0; i < dataLength; i++) {
         do {
-            status = i2c.SR1;
+            status = i2c.sr1.volatileLoad();
             error = errorCheckAndClear(&i2c, status);
             if (error != Error::None) return error;
-        } while (!(status & I2C_SR1_RXNE));
-        ((uint8_t *)data)[i] = i2c.DR;
+        } while (!(status.RxNE));
+        ((uint8_t *)data)[i] = i2c.dr.volatileLoad().DATA;
     }
     // buffer B
     size_t i = 0;
     if (dataBLength > 1) {
         for (; i < dataBLength - 1; i++) {
             do {
-                status = i2c.SR1;
+                status = i2c.sr1.volatileLoad();
                 error = errorCheckAndClear(&i2c, status);
                 if (error != Error::None) return error;
-            } while (!(status & I2C_SR1_RXNE));
-            ((uint8_t *)dataB)[i] = i2c.DR;
+            } while (!(status.RxNE));
+            ((uint8_t *)dataB)[i] = i2c.dr.volatileLoad().DATA;
         }
     }
 
-    i2c.CR1 &= ~I2C_CR1_ACK;
+    cr1.ACK.clear();
     // Generate the Stop condition
-    i2c.CR1 |= I2C_CR1_STOP;
+    cr1.STOP.set();
+    i2c.cr1.volatileStore(cr1);
+
     // wait until one byte has been received
     do {
-        status = i2c.SR1;
+        status = i2c.sr1.volatileLoad();
         error = errorCheckAndClear(&i2c, status);
         if (error != Error::None) return error;
-    } while (!(status & I2C_SR1_RXNE));
+    } while (!(status.RxNE));
     // read data from I2C data register
-    ((uint8_t *)dataB)[i] = i2c.DR;
+    ((uint8_t *)dataB)[i] = i2c.dr.volatileLoad().DATA;
     return Error::None;
 }
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

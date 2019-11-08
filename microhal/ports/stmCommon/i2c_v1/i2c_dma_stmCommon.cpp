@@ -12,10 +12,12 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "i2c_dma_stm32f4xx.h"
+#include "i2c_dma_stmCommon.h"
+
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************
  *                                   STATIC VARIABLES
  * ***********************************************************************************************/
@@ -33,7 +35,7 @@ I2C &I2C::i2c1 = I2C_dma::i2c1;
 #if MICROHAL_I2C2_DMA_RX_STREAM != 2 && MICROHAL_I2C2_DMA_RX_STREAM != 3
 #error I2C RX DMA channel can be confugured as 2 or 3 only
 #endif
-I2C_dma I2C_dma::i2c2(*I2C2, DMA::dma1->stream[MICROHAL_I2C2_DMA_RX_STREAM], DMA::dma1->stream[7]);
+I2C_dma I2C_dma::i2c2(registers::i2c2, DMA::dma1->stream[MICROHAL_I2C2_DMA_RX_STREAM], DMA::dma1->stream[MICROHAL_I2C2_DMA_TX_STREAM]);
 I2C &I2C::i2c2 = I2C_dma::i2c2;
 #endif
 #ifdef MICROHAL_USE_I2C3_DMA
@@ -62,10 +64,15 @@ I2C::Error I2C_dma::write(DeviceAddress deviceAddress, const uint8_t *write_data
     txStream.setMemoryBank0(write_data);
     txStream.enable();
 
-    while (i2c.SR1 & I2C_SR1_BTF) {
+    while (i2c.sr1.volatileLoad().BTF) {
     }
-    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.DMAEN.clear();
+    cr2.LAST.clear();
+    i2c.cr2.volatileStore(cr2);
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -85,10 +92,15 @@ I2C::Error I2C_dma::write(DeviceAddress address, const uint8_t *dataA, size_t da
     txStream.setMemoryBank0(dataA);
     txStream.enable();
 
-    while (i2c.SR1 & I2C_SR1_BTF) {
+    while (i2c.sr1.volatileLoad().BTF) {
     }
-    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.DMAEN.clear();
+    cr2.LAST.clear();
+    i2c.cr2.volatileStore(cr2);
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -113,12 +125,23 @@ I2C::Error I2C_dma::read(DeviceAddress deviceAddress, uint8_t *data, size_t leng
     rxStream.setMemoryBank0(data);
     rxStream.enable();
 
-    while (i2c.SR1 & I2C_SR1_BTF) {
+    while (i2c.sr1.volatileLoad().BTF) {
     }
-    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST & ~I2C_CR2_ITBUFEN;
-    i2c.CR2 |= I2C_CR2_LAST;
-    i2c.CR1 &= ~I2C_CR1_ACK & ~I2C_CR1_POS;
-    i2c.CR1 |= I2C_CR1_START | I2C_CR1_ACK;  // | I2C_CR1_PE;
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.DMAEN.clear();
+    cr2.ITBUFEN.clear();
+    cr2.LAST.clear();
+    i2c.cr2.volatileStore(cr2);
+    cr2.LAST.set();
+    i2c.cr2.volatileStore(cr2);
+
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.POS.clear();
+    cr1.ACK.clear();
+    i2c.cr1.volatileStore(cr1);
+    cr1.START.set();
+    cr1.ACK.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -137,11 +160,17 @@ I2C::Error I2C_dma::read(uint8_t deviceAddress, uint8_t *data, size_t dataLength
     rxStream.setMemoryBank0(data);
     rxStream.enable();
 
-    while (i2c.SR1 & I2C_SR1_BTF) {
+    while (i2c.sr1.volatileLoad().BTF) {
     }
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.DMAEN.clear();
+    cr2.LAST.clear();
+    cr2.ITBUFEN.clear();
+    i2c.cr2.volatileStore(cr2);
 
-    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST & ~I2C_CR2_ITBUFEN;
-    i2c.CR1 |= I2C_CR1_START;  // | I2C_CR1_ACK; // | I2C_CR1_PE;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -165,10 +194,16 @@ I2C::Error I2C_dma::writeRead(DeviceAddress deviceAddress, const uint8_t *write_
     rxStream.setMemoryBank0(read_data);
     rxStream.enable();
 
-    while (i2c.SR1 & I2C_SR1_BTF) {
+    while (i2c.sr1.volatileLoad().BTF) {
     }
-    i2c.CR2 &= ~I2C_CR2_DMAEN & ~I2C_CR2_LAST;
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.DMAEN.clear();
+    cr2.LAST.clear();
+    i2c.cr2.volatileStore(cr2);
+
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -187,7 +222,7 @@ void I2C_dma::init(void) {
     rxStream.init(dma.channel(rxStream, &i2c), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::PerToMem);
-    rxStream.setPeripheralAddress(&i2c.DR);
+    rxStream.setPeripheralAddress(&i2c.dr);
     rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
     // tx
@@ -195,7 +230,7 @@ void I2C_dma::init(void) {
     txStream.init(dma.channel(txStream, &i2c), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::MemToPer);
-    txStream.setPeripheralAddress(&i2c.DR);
+    txStream.setPeripheralAddress(&i2c.dr);
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
     dma.clearInterruptFlag(txStream, DMA::Stream::Interrupt::TransferComplete);
@@ -203,7 +238,9 @@ void I2C_dma::init(void) {
     dma.enableInterrupt(txStream, 6);
     dma.enableInterrupt(rxStream, 6);
 
-    i2c.CR1 |= I2C_CR1_PE;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.PE.set();
+    i2c.cr1.volatileStore(cr1);
 }
 ///**
 // *
@@ -232,28 +269,34 @@ void I2C_dma::init(void) {
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
-void __attribute__((optimize("O0"))) I2C_dma::IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
+void __attribute__((optimize("O0"))) I2C_dma::IRQFunction(I2C_dma &obj, registers::I2C *const i2c) {
     using Mode = I2C_dma::Mode;
-    uint16_t sr1 = i2c->SR1;
+    auto sr1 = i2c->sr1.volatileLoad();
 
-    if (sr1 == I2C_SR1_SB) {  // sent start sequence
-        i2c->DR = obj.transfer.deviceAddress | (static_cast<uint8_t>(obj.transfer.mode) & 0x01);
-        i2c->CR1 |= I2C_CR1_ACK;
-        i2c->CR2 |= I2C_CR2_DMAEN;
-    } else if (sr1 & I2C_SR1_ADDR) {  // adres(MASTER MODE) was sent
-        if (obj.transfer.rxLength == 1) i2c->CR1 &= ~I2C_CR1_ACK;
-        __attribute__((unused)) volatile uint16_t tmp = i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
-    } else if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) && (sr1 & I2C_SR1_RXNE) == 0) {
+    auto cr1 = i2c->cr1.volatileLoad();
+    auto cr2 = i2c->cr2.volatileLoad();
+    if ((uint32_t)sr1 == I2C_SR1_SB) {  // sent start sequence
+        registers::I2C::DR dr;
+        dr = obj.transfer.deviceAddress | (static_cast<uint8_t>(obj.transfer.mode) & 0x01);
+        i2c->dr.volatileStore(dr);
+        // i2c->DR = obj.transfer.deviceAddress | (static_cast<uint8_t>(obj.transfer.mode) & 0x01);
+        cr1.ACK.set();
+        cr2.DMAEN.set();
+    } else if (sr1.ADDR) {  // adres(MASTER MODE) was sent
+        if (obj.transfer.rxLength == 1) cr1.ACK.clear();
+        i2c->cr1.volatileStore(cr1);
+        i2c->sr2.volatileLoad();  // to clear interrupt flag register SR2 read is necessarily
+    } else if ((sr1.TxE | sr1.BTF) && sr1.RxNE == 0) {
         switch (obj.transfer.mode) {
             case Mode::TransmitReceive: {
-                i2c->CR2 = (i2c->CR2 & ~I2C_CR2_DMAEN) | I2C_CR2_LAST;
-                // i2c->CR2 |= I2C_CR2_LAST;
+                cr2.DMAEN.clear();
+                cr2.LAST.set();
                 obj.transfer.mode = Mode::Receive;
-                i2c->CR1 |= I2C_CR1_START;
+                cr1.START.set();
                 break;
             }
             case Mode::Transmit: {
-                i2c->CR1 |= I2C_CR1_STOP;
+                cr1.STOP.set();
                 auto shouldYeld = obj.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
                 portYIELD_FROM_ISR(shouldYeld);
@@ -266,16 +309,20 @@ void __attribute__((optimize("O0"))) I2C_dma::IRQFunction(I2C_dma &obj, I2C_Type
                 break;
         }
     }
+    i2c->cr2.volatileStore(cr2);
+    i2c->cr1.volatileStore(cr1);
 }
 
-void I2C_dma::IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c) {
+void I2C_dma::IRQErrorFunction(I2C_dma &obj, registers::I2C *const i2c) {
     // Disable rx and tx DMA streams
     obj.rxStream.disable();
     obj.txStream.disable();
     // send stop signal to I2C data bus
-    i2c->CR1 |= I2C_CR1_STOP;
+    auto cr1 = i2c->cr1.volatileLoad();
+    cr1.STOP.set();
+    i2c->cr1.volatileStore(cr1);
     // read error and store it in variable
-    obj.error = I2C::errorCheckAndClear(i2c, i2c->SR1);
+    obj.error = I2C::errorCheckAndClear(i2c, i2c->sr1.volatileLoad());
     auto shouldYeld = obj.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
@@ -380,7 +427,7 @@ void DMA1_Stream7_IRQHandler(void) {
 #endif
 //***********************************************************************************************//
 #if MICROHAL_I2C2_DMA_RX_STREAM == 3
-    void DMA1_Stream3_IRQHandler(void) {
+    extern "C" void DMA1_Stream3_IRQHandler(void) {
         using Mode = I2C_dma::Mode;
         auto &i2c = I2C_dma::i2c2;
 
@@ -388,7 +435,10 @@ void DMA1_Stream7_IRQHandler(void) {
         DMA1->LIFCR = DMA_LIFCR_CTCIF3 | DMA_LIFCR_CTEIF3;
 
         if (i2c.transfer.mode == Mode::Receive) {
-            I2C2->CR1 |= I2C_CR1_STOP;
+            auto cr1 = registers::i2c2->cr1.volatileLoad();
+            cr1.STOP.set();
+            registers::i2c2->cr1.volatileStore(cr1);
+            // I2C2->CR1 |= I2C_CR1_STOP;
             // i2c.errorSemaphore = I2C_dma::Error::None;
             auto shouldYeld = i2c.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
@@ -401,16 +451,22 @@ void DMA1_Stream7_IRQHandler(void) {
             i2c.rxStream.setNumberOfItemsToTransfer(i2c.transfer.bufferB.length);
             i2c.rxStream.setMemoryBank0(i2c.transfer.bufferB.ptr);
             if (i2c.transfer.bufferB.length == 1) {
-                i2c.i2c.CR1 &= ~I2C_CR1_ACK;
+                auto cr1 = i2c.i2c.cr1.volatileLoad();
+                cr1.ACK.clear();
+                i2c.i2c.cr1.volatileStore(cr1);
+                // i2c.i2c.CR1 &= ~I2C_CR1_ACK;
             }
-            i2c.i2c.CR2 |= I2C_CR2_LAST;
+            auto cr2 = i2c.i2c.cr2.volatileLoad();
+            cr2.LAST.set();
+            // i2c.i2c.CR2 |= I2C_CR2_LAST;
+            i2c.i2c.cr2.volatileStore(cr2);
             i2c.rxStream.enable();
             i2c.transfer.mode = Mode::Receive;
         }
     }
 #endif
     //***********************************************************************************************//
-    void DMA1_Stream7_IRQHandler(void) {  // tx
+    extern "C" void DMA1_Stream7_IRQHandler(void) {  // tx
         using Mode = I2C_dma::Mode;
         auto &i2c = I2C_dma::i2c2;
 
@@ -475,25 +531,25 @@ void DMA1_Stream7_IRQHandler(void) {
 //                                          IRQHandlers //
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_I2C1_DMA
-    void I2C1_EV_IRQHandler(void) { I2C_dma::IRQFunction(I2C_dma::i2c1, I2C1); }
+    void I2C1_EV_IRQHandler(void) { I2C_dma::IRQFunction(I2C_dma::i2c1, registers::i2c1); }
 #endif
 #ifdef MICROHAL_USE_I2C2_DMA
-    void I2C2_EV_IRQHandler(void) { I2C_dma::IRQFunction(I2C_dma::i2c2, I2C2); }
+    extern "C" void I2C2_EV_IRQHandler(void) { I2C_dma::IRQFunction(I2C_dma::i2c2, registers::i2c2); }
 #endif
 #ifdef MICROHAL_USE_I2C3_DMA
-    void I2C3_EV_IRQHandler(void) { I2C_dma::IRQFunction(I2C_dma::i2c3, I2C3); }
+    void I2C3_EV_IRQHandler(void) { I2C_dma::IRQFunction(I2C_dma::i2c3, registers::i2c3); }
 #endif
 //***********************************************************************************************//
 //                                       I2C error IRQHandlers //
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_I2C1_DMA
-    void I2C1_ER_IRQHandler(void) { I2C_dma::IRQErrorFunction(I2C_dma::i2c1, I2C1); }
+    void I2C1_ER_IRQHandler(void) { I2C_dma::IRQErrorFunction(I2C_dma::i2c1, registers::i2c1); }
 #endif
 #ifdef MICROHAL_USE_I2C2_DMA
-    void I2C2_ER_IRQHandler(void) { I2C_dma::IRQErrorFunction(I2C_dma::i2c2, I2C2); }
+    extern "C" void I2C2_ER_IRQHandler(void) { I2C_dma::IRQErrorFunction(I2C_dma::i2c2, registers::i2c2); }
 #endif
 #ifdef MICROHAL_USE_I2C3_DMA
-    void I2C3_ER_IRQHandler(void) { I2C_dma::IRQErrorFunction(I2C_dma::i2c3, I2C3); }
+    void I2C3_ER_IRQHandler(void) { I2C_dma::IRQErrorFunction(I2C_dma::i2c3, registers::i2c3); }
 #endif
 }  // namespace microhal
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

@@ -32,15 +32,15 @@
  * INCLUDES
  */
 #include <cstdint>
-#include "../clockManager.h"
-#include "../device/stm32f4xx.h"
-#include "../i2c_stm32f4xx.h"
+#include "i2c_stmCommon.h"
 #include "microhal_semaphore.h"
 
-namespace microhal {
-namespace stm32f4xx {
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
-class I2C_interrupt : public stm32f4xx::I2C {
+namespace microhal {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+
+class I2C_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
  public:
 //---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_I2C1_INTERRUPT
@@ -69,8 +69,8 @@ class I2C_interrupt : public stm32f4xx::I2C {
     volatile I2C::Error error;
     os::Semaphore semaphore;
     //---------------------------------------- constructors ---------------------------------------
-    I2C_interrupt(I2C_TypeDef &i2c) : I2C(i2c), transfer(), error(), semaphore() {
-        ClockManager::enable(i2c, ClockManager::PowerMode::Normal);
+    I2C_interrupt(registers::I2C *i2c) : I2C(i2c), transfer(), error(), semaphore() {
+        ClockManager::enableI2C(getI2CNumber(), ClockManager::PowerMode::Normal);
 #ifndef HAL_RTOS_FreeRTOS
         const uint32_t priority = 0;
 #else
@@ -88,7 +88,7 @@ class I2C_interrupt : public stm32f4xx::I2C {
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t length) noexcept final;
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final;
 
-    static void IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c);
+    static void IRQFunction(I2C_interrupt &obj, registers::I2C *i2c);
     //------------------------------------------- friends -----------------------------------------
     friend void I2C1_ER_IRQHandler(void);
     friend void I2C1_EV_IRQHandler(void);
@@ -98,7 +98,7 @@ class I2C_interrupt : public stm32f4xx::I2C {
     friend void I2C3_EV_IRQHandler(void);
 };
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
 #endif  // I2C_INTERRUPT_STM32F4XX_H_

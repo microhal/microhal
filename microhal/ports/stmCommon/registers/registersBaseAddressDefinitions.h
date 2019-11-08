@@ -11,8 +11,12 @@
 #if defined(STM32F407xx)
 #define STM32F407
 
-#define _MICROHAL_CAN1_BASE 0x40006400  // size 0x400
-#define _MICROHAL_CAN2_BASE 0x40006800  // size 0x400
+#include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f407.h"
+//#define _MICROHAL_CAN1_BASE 0x40006400  // size 0x400
+//#define _MICROHAL_CAN2_BASE 0x40006800  // size 0x400
+
+//#define _MICROHAL_I2C1_BASE 1
+//#define _MICROHAL_I2C2_BASE 2
 #endif
 
 #if defined(STM32F334x8)

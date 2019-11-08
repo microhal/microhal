@@ -27,24 +27,26 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "i2c_interrupt_stm32f4xx.h"
-#include "microhalPortConfig_stm32f4xx.h"
+#include "i2c_interrupt_stmCommon.h"
+
+#include _MICROHAL_INCLUDE_PORT_CONFIG
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************
  *                                   STATIC VARIABLES
  * ***********************************************************************************************/
 #ifdef MICROHAL_USE_I2C1_INTERRUPT
-I2C_interrupt I2C_interrupt::i2c1(*I2C1);
+I2C_interrupt I2C_interrupt::i2c1(registers::i2c1);
 I2C &I2C::i2c1 = I2C_interrupt::i2c1;
 #endif
 #ifdef MICROHAL_USE_I2C2_INTERRUPT
-I2C_interrupt I2C_interrupt::i2c2(*I2C2);
+I2C_interrupt I2C_interrupt::i2c2(registers::i2c2);
 I2C &I2C::i2c2 = I2C_interrupt::i2c2;
 #endif
 #ifdef MICROHAL_USE_I2C3_INTERRUPT
-I2C_interrupt I2C_interrupt::i2c3(*I2C3);
+I2C_interrupt I2C_interrupt::i2c3(registers::i2c3);
 I2C &I2C::i2c3 = I2C_interrupt::i2c3;
 #endif
 /* ************************************************************************************************
@@ -57,10 +59,14 @@ I2C::Error I2C_interrupt::write(uint8_t deviceAddress, const uint8_t *data, size
     transfer.mode = Mode::Transmit;
 
     // send start
-    while (i2c.SR2 & I2C_SR2_BUSY) {
+    while (i2c.sr2.volatileLoad().BUSY) {
     }
-    i2c.CR2 |= I2C_CR2_ITBUFEN;
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.ITBUFEN.set();
+    i2c.cr2.volatileStore(cr2);
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -77,10 +83,14 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const uint8_t *writ
     transfer.mode = Mode::TransmitDoubleBuffer;
 
     // send start
-    while (i2c.SR2 & I2C_SR2_BUSY) {
+    while (i2c.sr2.volatileLoad().BUSY) {
     }
-    i2c.CR2 |= I2C_CR2_ITBUFEN;
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.ITBUFEN.set();
+    i2c.cr2.volatileStore(cr2);
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -93,12 +103,15 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t leng
     transfer.bufferA.length = length;
     transfer.mode = Mode::Receive;
 
-    i2c.CR2 &= ~I2C_CR2_ITBUFEN;
-
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.ITBUFEN.clear();
+    i2c.cr2.volatileStore(cr2);
     // send start
-    while (i2c.SR2 & I2C_SR2_BUSY) {
+    while (i2c.sr2.volatileLoad().BUSY) {
     }
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -114,11 +127,15 @@ I2C::Error I2C_interrupt::read(uint8_t deviceAddress, uint8_t *data, size_t data
     transfer.bufferB.length = dataBLength;
     transfer.mode = Mode::ReceiveDoubleBuffer;
 
-    i2c.CR2 &= ~I2C_CR2_ITBUFEN;
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.ITBUFEN.clear();
+    i2c.cr2.volatileStore(cr2);
     // send start
-    while (i2c.SR2 & I2C_SR2_BUSY) {
+    while (i2c.sr2.volatileLoad().BUSY) {
     }
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -134,11 +151,15 @@ I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write,
     transfer.bufferB.length = read_size;
     transfer.mode = Mode::TransmitReceive;
 
-    i2c.CR2 &= ~I2C_CR2_ITBUFEN;
-    while (i2c.SR2 & I2C_SR2_BUSY) {
+    auto cr2 = i2c.cr2.volatileLoad();
+    cr2.ITBUFEN.clear();
+    i2c.cr2.volatileStore(cr2);
+    while (i2c.sr2.volatileLoad().BUSY) {
     }
     // send start
-    i2c.CR1 |= I2C_CR1_START;
+    auto cr1 = i2c.cr1.volatileLoad();
+    cr1.START.set();
+    i2c.cr1.volatileStore(cr1);
 
     error = Error::None;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -148,28 +169,31 @@ I2C::Error I2C_interrupt::writeRead(DeviceAddress address, const uint8_t *write,
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
-void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
+void I2C_interrupt::IRQFunction(I2C_interrupt &obj, registers::I2C *i2c) {
     using Mode = I2C_interrupt::Mode;
 
-    uint16_t status1 = i2c->SR1;
+    auto sr1 = i2c->sr1.volatileLoad();
 
-    if (status1 == I2C_SR1_SB) {
+    if (sr1.SB && !sr1.TxE && !sr1.RxNE && !sr1.ADDR) {
         // start sequence was sent, now we need to send device address
-        i2c->DR = obj.transfer.deviceAddress | (static_cast<uint8_t>(obj.transfer.mode) & 0x01);  // set last bit of addres depending on active mode
-    } else if (status1 & I2C_SR1_ADDR) {
+        i2c->dr.volatileStore(obj.transfer.deviceAddress |
+                              (static_cast<uint8_t>(obj.transfer.mode) & 0x01));  // set last bit of addres depending on active mode
+    } else if (sr1.ADDR) {
         // address was sent, now we are working in master mode
-        __attribute__((unused)) volatile uint16_t tmp = i2c->SR2;  // to clear interrupt flag register SR2 read is necessarily
+        i2c->sr2.volatileLoad();  // to clear interrupt flag register SR2 read is necessarily
 
         uint32_t restart = 0;
         if (obj.transfer.mode == Mode::Transmit || obj.transfer.mode == Mode::TransmitReceive || obj.transfer.mode == Mode::TransmitDoubleBuffer) {
-            i2c->DR = *obj.transfer.bufferA.ptr;
+            i2c->dr.volatileStore(*obj.transfer.bufferA.ptr);
             obj.transfer.bufferA.ptr++;
             obj.transfer.bufferA.length--;
 
             if (obj.transfer.bufferA.length == 0 && obj.transfer.mode == Mode::TransmitReceive) {
                 obj.transfer.bufferA = obj.transfer.bufferB;
                 obj.transfer.mode = Mode::Receive;
-                i2c->CR1 |= I2C_CR1_START;
+                auto cr1 = i2c->cr1.volatileLoad();
+                cr1.START.set();
+                i2c->cr1.volatileStore(cr1);
                 return;
             }
         }
@@ -178,34 +202,56 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
             auto toReceive =
                 obj.transfer.mode == Mode::Receive ? obj.transfer.bufferA.length : obj.transfer.bufferA.length + obj.transfer.bufferB.length;
 
+            auto cr1 = i2c->cr1.volatileLoad();
+            auto cr2 = i2c->cr2.volatileLoad();
             if (toReceive == 1) {
                 // i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                i2c->CR2 |= I2C_CR2_ITBUFEN;
-                i2c->CR1 = (i2c->CR1 & (~I2C_CR1_ACK & ~I2C_CR1_POS)) | restart;
+                cr2.ITBUFEN.set();
+                cr1.ACK.clear();
+                cr1.POS.clear();
+                cr1 |= restart;
+                // i2c->CR1 = (i2c->CR1 & (~I2C_CR1_ACK & ~I2C_CR1_POS)) | restart;
             } else if (toReceive == 2) {
-                i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS | restart;
+                cr2.ITBUFEN.clear();
+                cr1.ACK.clear();
+                cr1.POS.set();
+                cr1 |= restart;
+                // i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+                // i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS | restart;
             } else {
-                i2c->CR2 |= I2C_CR2_ITBUFEN;
-                i2c->CR1 |= I2C_CR1_ACK /* | I2C_CR1_POS */ | restart;
+                cr2.ITBUFEN.set();
+                cr1.ACK.set();
+                cr1 |= restart;
+                // i2c->CR2 |= I2C_CR2_ITBUFEN;
+                // i2c->CR1 |= I2C_CR1_ACK /* | I2C_CR1_POS */ | restart;
             }
+            i2c->cr2.volatileStore(cr2);
+            i2c->cr1.volatileStore(cr1);
         } else {
-            if (obj.transfer.mode != Mode::Receive || obj.transfer.bufferA.length >= 2) i2c->CR2 |= I2C_CR2_ITBUFEN;
+            if (obj.transfer.mode != Mode::Receive || obj.transfer.bufferA.length >= 2) {
+                auto cr2 = i2c->cr2.volatileLoad();
+                cr2.ITBUFEN.set();
+                i2c->cr2.volatileStore(cr2);
+                // i2c->CR2 |= I2C_CR2_ITBUFEN;
+            }
         }
     } else {
-        if (status1 == (I2C_SR1_RXNE | I2C_SR1_BTF)) {
+        if ((uint32_t)sr1 == (I2C_SR1_RXNE | I2C_SR1_BTF)) {
             // here we are receiving last two bytes
-            i2c->CR1 |= I2C_CR1_STOP;
+            auto cr1 = i2c->cr1.volatileLoad();
+            cr1.STOP.set();
+            // i2c->CR1 |= I2C_CR1_STOP;
+            i2c->cr1.volatileStore(cr1);
             auto toReceive =
                 obj.transfer.mode == Mode::Receive ? obj.transfer.bufferA.length : obj.transfer.bufferA.length + obj.transfer.bufferB.length;
             if (toReceive == 1) {
-                *obj.transfer.bufferA.ptr = i2c->DR;
+                *obj.transfer.bufferA.ptr = i2c->dr.volatileLoad().DATA;
             } else if (obj.transfer.mode == Mode::Receive) {
-                *obj.transfer.bufferA.ptr++ = i2c->DR;
-                *obj.transfer.bufferA.ptr = i2c->DR;
+                *obj.transfer.bufferA.ptr++ = i2c->dr.volatileLoad().DATA;
+                *obj.transfer.bufferA.ptr = i2c->dr.volatileLoad().DATA;
             } else {
-                *obj.transfer.bufferA.ptr = i2c->DR;
-                *obj.transfer.bufferB.ptr = i2c->DR;
+                *obj.transfer.bufferA.ptr = i2c->dr.volatileLoad().DATA;
+                *obj.transfer.bufferB.ptr = i2c->dr.volatileLoad().DATA;
             }
             auto shouldYeld = obj.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
@@ -213,11 +259,11 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
 #else
             (void)shouldYeld;
 #endif
-        } else if (status1 & I2C_SR1_RXNE) {
+        } else if (sr1.RxNE) {
             auto toReceive =
                 obj.transfer.mode == Mode::Receive ? obj.transfer.bufferA.length : obj.transfer.bufferA.length + obj.transfer.bufferB.length;
             if (toReceive > 3) {
-                *obj.transfer.bufferA.ptr = i2c->DR;
+                *obj.transfer.bufferA.ptr = i2c->dr.volatileLoad().DATA;
                 obj.transfer.bufferA.ptr++;
                 obj.transfer.bufferA.length--;
                 if (obj.transfer.bufferA.length == 0) {
@@ -226,7 +272,7 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
                     obj.transfer.mode = Mode::Receive;
                 }
             } else if (toReceive == 3) {
-                *obj.transfer.bufferA.ptr = i2c->DR;
+                *obj.transfer.bufferA.ptr = i2c->dr.volatileLoad().DATA;
                 obj.transfer.bufferA.ptr++;
                 obj.transfer.bufferA.length--;
                 if (obj.transfer.bufferA.length == 0) {
@@ -234,11 +280,21 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
                     obj.transfer.bufferA = obj.transfer.bufferB;
                     obj.transfer.mode = Mode::Receive;
                 }
-                i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS;
+                auto cr1 = i2c->cr1.volatileLoad();
+                auto cr2 = i2c->cr2.volatileLoad();
+                cr2.ITBUFEN.clear();
+                cr1.ACK.clear();
+                cr1.POS.set();
+                // i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+                // i2c->CR1 = (i2c->CR1 & ~I2C_CR1_ACK) | I2C_CR1_POS;
+                i2c->cr2.volatileStore(cr2);
+                i2c->cr1.volatileStore(cr1);
             } else if (toReceive == 1) {
-                i2c->CR1 |= I2C_CR1_STOP;
-                *obj.transfer.bufferA.ptr = i2c->DR;
+                auto cr1 = i2c->cr1.volatileLoad();
+                cr1.STOP.set();
+                // i2c->CR1 |= I2C_CR1_STOP;
+                i2c->cr1.volatileStore(cr1);
+                *obj.transfer.bufferA.ptr = i2c->dr.volatileLoad().DATA;
                 auto shouldYeld = obj.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
                 portYIELD_FROM_ISR(shouldYeld);
@@ -246,9 +302,11 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
                 (void)shouldYeld;
 #endif
             }
-        } else if (status1 == I2C_SR1_TXE) {
+        } else if ((uint32_t)sr1 == I2C_SR1_TXE) {
             if (obj.transfer.bufferA.length) {
-                i2c->DR = *obj.transfer.bufferA.ptr++;
+                // registers::I2C::DR dr;
+                // dr = ;
+                i2c->dr.volatileStore(*obj.transfer.bufferA.ptr++);
                 obj.transfer.bufferA.length--;
             } else {
                 if (obj.transfer.mode == Mode::TransmitDoubleBuffer) {
@@ -258,18 +316,38 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
                     obj.transfer.bufferA = obj.transfer.bufferB;
                     obj.transfer.mode = Mode::Receive;
 
+                    auto cr1 = i2c->cr1.volatileLoad();
+                    auto cr2 = i2c->cr2.volatileLoad();
                     if (obj.transfer.bufferA.length == 1) {
-                        i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                        i2c->CR1 = (i2c->CR1 & (~I2C_CR1_ACK & ~I2C_CR1_POS)) | I2C_CR1_START;
+                        cr2.ITBUFEN.clear();
+                        cr1.ACK.clear();
+                        cr1.POS.clear();
+                        cr1.START.set();
+                        // i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+                        // i2c->CR1 = (i2c->CR1 & (~I2C_CR1_ACK & ~I2C_CR1_POS)) | I2C_CR1_START;
                     } else if (obj.transfer.bufferA.length == 2) {
-                        i2c->CR2 &= ~I2C_CR2_ITBUFEN;
-                        i2c->CR1 = I2C_CR1_ACK | I2C_CR1_POS | I2C_CR1_START;
+                        cr2.ITBUFEN.clear();
+                        cr1.ACK.set();
+                        cr1.POS.set();
+                        cr1.START.set();
+                        // i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+                        // i2c->CR1 = I2C_CR1_ACK | I2C_CR1_POS | I2C_CR1_START;
                     } else {
-                        i2c->CR1 |= I2C_CR1_ACK | I2C_CR1_START;
+                        cr1.ACK.set();
+                        cr1.START.set();
+                        // i2c->CR1 |= I2C_CR1_ACK | I2C_CR1_START;
                     }
+                    i2c->cr2.volatileStore(cr2);
+                    i2c->cr1.volatileStore(cr1);
                 } else {
-                    i2c->CR1 |= I2C_CR1_STOP;
-                    i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+                    auto cr1 = i2c->cr1.volatileLoad();
+                    auto cr2 = i2c->cr2.volatileLoad();
+                    cr1.STOP.set();
+                    cr2.ITBUFEN.clear();
+                    // i2c->CR1 |= I2C_CR1_STOP;
+                    // i2c->CR2 &= ~I2C_CR2_ITBUFEN;
+                    i2c->cr1.volatileStore(cr1);
+                    i2c->cr2.volatileStore(cr2);
                     auto shouldYeld = obj.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
                     portYIELD_FROM_ISR(shouldYeld);
@@ -286,17 +364,17 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, I2C_TypeDef *i2c) {
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_I2C1_INTERRUPT
 void I2C1_EV_IRQHandler(void) {
-    I2C_interrupt::IRQFunction(I2C_interrupt::i2c1, I2C1);
+    I2C_interrupt::IRQFunction(I2C_interrupt::i2c1, registers::i2c1);
 }
 #endif
 #ifdef MICROHAL_USE_I2C2_INTERRUPT
-void I2C2_EV_IRQHandler(void) {
-    I2C_interrupt::IRQFunction(I2C_interrupt::i2c2, I2C2);
+extern "C" void I2C2_EV_IRQHandler(void) {
+    I2C_interrupt::IRQFunction(I2C_interrupt::i2c2, registers::i2c2);
 }
 #endif
 #ifdef MICROHAL_USE_I2C3_INTERRUPT
 void I2C3_EV_IRQHandler(void) {
-    I2C_interrupt::IRQFunction(I2C_interrupt::i2c3, I2C3);
+    I2C_interrupt::IRQFunction(I2C_interrupt::i2c3, registers::i2c3);
 }
 #endif
 //***********************************************************************************************//
@@ -305,7 +383,7 @@ void I2C3_EV_IRQHandler(void) {
 #ifdef MICROHAL_USE_I2C1_INTERRUPT
 void I2C1_ER_IRQHandler(void) {
     I2C1->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c1.error = I2C::errorCheckAndClear(I2C1, I2C1->SR1);
+    I2C_interrupt::i2c1.error = I2C::errorCheckAndClear(registers::i2c1, registers::i2c1->sr1.volatileLoad());
     auto shouldYeld = I2C_interrupt::i2c1.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
@@ -315,9 +393,11 @@ void I2C1_ER_IRQHandler(void) {
 }
 #endif
 #ifdef MICROHAL_USE_I2C2_INTERRUPT
-void I2C2_ER_IRQHandler(void) {
-    I2C2->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c2.error = I2C::errorCheckAndClear(I2C2, I2C2->SR1);
+extern "C" void I2C2_ER_IRQHandler(void) {
+    auto cr1 = registers::i2c2->cr1.volatileLoad();
+    cr1.STOP.set();
+    registers::i2c2->cr1.volatileStore(cr1);
+    I2C_interrupt::i2c2.error = I2C::errorCheckAndClear(registers::i2c2, registers::i2c2->sr1.volatileLoad());
     auto shouldYeld = I2C_interrupt::i2c2.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
@@ -329,7 +409,7 @@ void I2C2_ER_IRQHandler(void) {
 #ifdef MICROHAL_USE_I2C3_INTERRUPT
 void I2C3_ER_IRQHandler(void) {
     I2C3->CR1 |= I2C_CR1_STOP;
-    I2C_interrupt::i2c3.error = I2C::errorCheckAndClear(I2C3, I2C3->SR1);
+    I2C_interrupt::i2c3.error = I2C::errorCheckAndClear(registers::i2c2, registers::i2c3->sr1.volatileLoad());
     auto shouldYeld = I2C_interrupt::i2c3.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
@@ -339,5 +419,5 @@ void I2C3_ER_IRQHandler(void) {
 }
 #endif
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
