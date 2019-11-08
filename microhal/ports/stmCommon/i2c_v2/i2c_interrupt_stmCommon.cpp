@@ -27,7 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "i2c_interrupt_stm32f3xx.h"
+#include <ports/stmCommon/i2c_v2/i2c_interrupt_stmCommon.h>
+
 #include "microhalPortConfig_stm32f3xx.h"
 
 namespace microhal {

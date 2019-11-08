@@ -29,7 +29,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "i2c_dma_stm32f3xx.h"
+#include <ports/stmCommon/i2c_v2/i2c_dma_stmCommon.h>
 
 namespace microhal {
 namespace stm32f3xx {

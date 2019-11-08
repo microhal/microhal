@@ -32,9 +32,9 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
 #include <cstdint>
 #include "../clockManager.h"
-#include "../i2c_stm32f3xx.h"
 #include "../device/stm32f3xx.h"
 
 namespace microhal {

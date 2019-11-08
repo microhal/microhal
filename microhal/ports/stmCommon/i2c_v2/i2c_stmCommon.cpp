@@ -5,7 +5,7 @@
  *      Author: Pawel
  */
 
-#include "i2c_stm32f3xx.h"
+#include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
 #include "clockManager.h"
 #include "diagnostic/diagnostic.h"
 

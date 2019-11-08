@@ -31,11 +31,11 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
 #include <cstdint>
 #include "../clockManager.h"
 #include "../device/stm32f3xx.h"
 #include "../dma_stm32f3xx.h"
-#include "../i2c_stm32f3xx.h"
 #include "microhal_semaphore.h"
 
 namespace microhal {
