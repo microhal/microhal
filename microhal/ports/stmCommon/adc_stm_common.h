@@ -33,23 +33,15 @@
  * INCLUDES
  */
 #include "gsl/gsl"
-#include "microhalPortConfig_stm32f3xx.h"
 #include "microhal_semaphore.h"
 #include "registers/adc_common_registers_v1.h"
 #include "registers/adc_registers_v1.h"
 #include "signalSlot/signalSlot.h"
 #include "stmCommonDefines.h"
 
-#if defined(MCU_TYPE_STM32F0XX)
-#include "ports/stm32f0xx/dma_stm32f0xx.h"
-#elif defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/dma_stm32f3xx.h"
-#elif defined(MCU_TYPE_STM32F4XX)
-#include "ports/stm32f4xx/dma_stm32f4xx.h"
-#endif
-
-#include _MICROHAL_INCLUDE_PORT_clockManager
 #include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
+#include _MICROHAL_INCLUDE_PORT_CONFIG
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -367,8 +359,8 @@ class Adc final {
         ccr.VREFEN = 1;
         registers::adc12Common->ccr.volatileStore(ccr);
 
-        if ((int)adc == _MICROHAL_ADC1_BASE) adc1 = this;
-        if ((int)adc == _MICROHAL_ADC2_BASE) adc2 = this;
+        if ((int)adc == _MICROHAL_ADC1_BASE_ADDRESS) adc1 = this;
+        if ((int)adc == _MICROHAL_ADC2_BASE_ADDRESS) adc2 = this;
     }
     ~Adc() {
         disableInterrupt();
