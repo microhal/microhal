@@ -33,9 +33,9 @@
 #include <cmath>
 #include <exception>
 #include <type_traits>
-#include "microhalPortConfig_stm32f3xx.h"
-
 #include "device/stm32f3xx.h"
+#include "gpio_stm32f3xx.h"
+#include "microhalPortConfig_stm32f3xx.h"
 
 #undef CAN
 #include "ports/stmCommon/registers/can_registers.h"
@@ -57,14 +57,14 @@ class ClockManager {
     ClockManager() = delete;
     // ------------------------- functions used for enable clock ------------------------------------------------------
     static void enable(const USART_TypeDef &usart);
-    static void enable(const I2C_TypeDef &i2c) {
-        if (&i2c == I2C1) RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
-#if defined(I2C2)
-        else if (&i2c == I2C2)
+    static void enableI2C(uint16_t number) {
+        if (number == 1) RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+#if defined(RCC_APB1ENR_I2C2EN)
+        else if (number == 2)
             RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
 #endif
-#if defined(I2C3)
-        else if (&i2c == I2C3)
+#if defined(RCC_APB1ENR_I2C3EN)
+        else if (number == 3)
             RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
 #endif
         else {
@@ -166,7 +166,7 @@ class ClockManager {
                 ;  // Error should newer go there
         }
     }
-    static void enable(const GPIO_TypeDef &gpio);
+    static void enableGPIO(const registers::GPIO &gpio);
     static void enable(const DAC_TypeDef &dac);
 
 #if defined(CAN_BASE)
@@ -250,8 +250,8 @@ class ClockManager {
      * @param i2c device pointer
      * @return
      */
-    static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
-        if (&i2c == I2C1)
+    static uint32_t I2CFrequency(uint16_t number) {
+        if (number == 1)
             if (RCC->CFGR3 & RCC_CFGR3_I2C1SW) {
                 return SYSCLK::frequency();
             } else {

@@ -9,9 +9,10 @@
 #define _MICROHAL_PORTS_STMCOMMON_IOPIN_H_
 
 #include <cstdint>
+#include "registers/registersBaseAddressDefinitions.h"
 #include "stmCommonDefines.h"
 
-#include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
+//#include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -49,32 +50,32 @@ struct IOPin {
      * This enum contain port list.
      */
     typedef enum {
-#if defined(GPIOA_BASE)
-        PortA = GPIOA_BASE,  //!< PortA
+#if defined(_MICROHAL_GPIOA_BASE_ADDRESS)
+        PortA = _MICROHAL_GPIOA_BASE_ADDRESS,  //!< PortA
 #endif
-#if defined(GPIOB_BASE)
-        PortB = GPIOB_BASE,  //!< PortB
+#if defined(_MICROHAL_GPIOB_BASE_ADDRESS)
+        PortB = _MICROHAL_GPIOB_BASE_ADDRESS,  //!< PortB
 #endif
-#if defined(GPIOC_BASE)
-        PortC = GPIOC_BASE,  //!< PortC
+#if defined(_MICROHAL_GPIOC_BASE_ADDRESS)
+        PortC = _MICROHAL_GPIOC_BASE_ADDRESS,  //!< PortC
 #endif
-#if defined(GPIOD_BASE)
-        PortD = GPIOD_BASE,  //!< PortD
+#if defined(_MICROHAL_GPIOD_BASE_ADDRESS)
+        PortD = _MICROHAL_GPIOD_BASE_ADDRESS,  //!< PortD
 #endif
-#if defined(GPIOE_BASE)
-        PortE = GPIOE_BASE,  //!< PortE
+#if defined(_MICROHAL_GPIOE_BASE_ADDRESS)
+        PortE = _MICROHAL_GPIOE_BASE_ADDRESS,  //!< PortE
 #endif
-#if defined(GPIOF_BASE)
-        PortF = GPIOF_BASE,  //!< PortF
+#if defined(_MICROHAL_GPIOF_BASE_ADDRESS)
+        PortF = _MICROHAL_GPIOF_BASE_ADDRESS,  //!< PortF
 #endif
-#if defined(GPIOG_BASE)
-        PortG = GPIOG_BASE,  //!< PortG
+#if defined(_MICROHAL_GPIOG_BASE_ADDRESS)
+        PortG = _MICROHAL_GPIOG_BASE_ADDRESS,  //!< PortG
 #endif
-#if defined(GPIOH_BASE)
-        PortH = GPIOH_BASE,  //!< PortG
+#if defined(_MICROHAL_GPIOH_BASE_ADDRESS)
+        PortH = _MICROHAL_GPIOH_BASE_ADDRESS,  //!< PortH
 #endif
-#if defined(GPIOI_BASE)
-        PortI = GPIOI_BASE,  //!< PortI
+#if defined(_MICROHAL_GPIOI_BASE_ADDRESS)
+        PortI = _MICROHAL_GPIOI_BASE_ADDRESS,  //!< PortI
 #endif
     } Port;
     /**

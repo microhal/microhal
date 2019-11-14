@@ -35,9 +35,9 @@
 #include <cstdint>
 #include <exception>
 #include <type_traits>
-#include "microhalPortConfig_stm32f0xx.h"
-
 #include "device/stm32f0xx.h"
+#include "gpio_stm32f0xx.h"
+#include "microhalPortConfig_stm32f0xx.h"
 
 namespace microhal {
 namespace stm32f0xx {
@@ -93,43 +93,43 @@ class ClockManager {
         }
     }
 
-    static void enable(const GPIO_TypeDef &gpio) {
-        if (&gpio == GPIOA) {
+    static void enableGPIO(const registers::GPIO &gpio) {
+        if ((int)&gpio == IOPin::PortA) {
             RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-        } else if (&gpio == GPIOB) {
+        } else if ((int)&gpio == IOPin::PortB) {
             RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-        } else if (&gpio == GPIOC) {
+        } else if ((int)&gpio == IOPin::PortC) {
             RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
 #if defined(GPIOD_BASE)
-        } else if (&gpio == GPIOD) {
+        } else if ((int)&gpio == IOPin::PortD) {
             RCC->AHBENR |= RCC_AHBENR_GPIODEN;
 #endif
 #if defined(GPIOE_BASE)
-        } else if (&gpio == GPIOE) {
+        } else if ((int)&gpio == IOPin::PortE) {
             RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
 #endif
 #if defined(GPIOF_BASE)
-        } else if (&gpio == GPIOF) {
+        } else if ((int)&gpio == IOPin::PortF) {
             RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
 #endif
 #if defined(GPIOG_BASE)
-        } else if (&gpio == GPIOG) {
+        } else if ((int)&gpio == IOPin::PortG) {
             RCC->AHBENR |= RCC_AHBENR_GPIOGEN;
 #endif
 #if defined(GPIOH_BASE)
-        } else if (&gpio == GPIOH) {
+        } else if ((int)&gpio == IOPin::PortH) {
             RCC->AHBENR |= RCC_AHBENR_GPIOHEN;
 #endif
 #if defined(GPIOI_BASE)
-        } else if (&gpio == GPIOI) {
+        } else if ((int)&gpio == IOPin::PortI) {
             RCC->AHBENR |= RCC_AHBENR_GPIOIEN;
 #endif
 #if defined(GPIOJ_BASE)
-        } else if (&gpio == GPIOJ) {
+        } else if ((int)&gpio == IOPin::PortJ) {
             RCC->AHBENR |= RCC_AHBENR_GPIOJEN;
 #endif
 #if defined(GPIOK_BASE)
-        } else if (&gpio == GPIOK) {
+        } else if ((int)&gpio == IOPin::PortK) {
             RCC->AHBENR |= RCC_AHBENR_GPIOKEN;
 #endif
         } else {

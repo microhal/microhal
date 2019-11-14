@@ -1,14 +1,14 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      GPIO port driver
  *
- * @authors    Michal Karwatowski, Pawel Okas
- * created on: 17-01-2014
+ * @authors    Pawel Okas
+ * created on: 17-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014 - 2018, Pawel Okas
+ * @copyright Copyright (c) 2014-2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,31 +27,48 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_GPIO_STM32F4XX_H_
-#define _MICROHAL_GPIO_STM32F4XX_H_
-/* ************************************************************************************************
- * INCLUDES
- */
-#include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
+#include "ports/stmCommon/gpio_v2/gpio_stmCommon.h"
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
-namespace gpio_detail {
-enum class AlternateFunction : uint8_t {
-    Timer_1_2 = 1,
-    Timer_3_4_5 = 2,
-    Serial = 0x07,  //!< Serial
-    Serial_4_5_6 = 0x08,
-    SPI = 0x05,    //!< Alternate function for SPI 1 and 2
-    SPI_3 = 0x06,  //!< Alternate function for SPI 3
-    I2C = 0x04,    //!< I2C
-    CAN1_2_TIM12_13_14 = 0x09,
-    USB = 0x0A
-};
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+
+void GPIOPort::enableClock() {
+    ClockManager::enableGPIO(&gpio);
 }
 
-using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
-}  // namespace stm32f4xx
-}  // namespace microhal
+void GPIOPort::disableClock() {
+    ClockManager::disableGPIO(&gpio);
+}
 
-#endif  // _MICROHAL_GPIO_STM32F4XX_H_
+bool GPIOCommonBase::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) {
+    port.enableClock();
+
+    if (dir == Direction::Input) {
+        uint8_t cnf = pull == PullType::NoPull ? 0b0100 : 0b1000;
+        port.configurePin(pinNo, cnf);
+        // set pullup
+        if (pull == PullType::PullUp) {
+            port.setMask(1 << pinNo);
+        } else {
+            port.resetMask(1 << pinNo);
+        }
+    } else {
+        uint8_t cnf;
+        switch (type) {
+            case OutputType::OpenCollector:
+                return false;
+            case OutputType::OpenDrain:
+                cnf = 0b0100 | MediumSpeed;
+                break;
+            case OutputType::PushPull:
+                cnf = 0b0000 | MediumSpeed;
+                break;
+        }
+        port.configurePin(pinNo, cnf);
+    }
+    return true;
+}
+
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+}  // namespace microhal

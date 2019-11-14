@@ -33,7 +33,7 @@
  * INCLUDES
  */
 #include <cstdint>
-#include "ports/stmCommon/gpio_stm_common.h"
+#include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
 
 namespace microhal {
 namespace stm32f0xx {

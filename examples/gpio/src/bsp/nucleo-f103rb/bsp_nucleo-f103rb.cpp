@@ -3,8 +3,8 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
- *
+ * @brief      board support package for nucleo-f103rb board
+ *03rb
  * @authors    Pawel Okas
  * created on: 18-11-2016
  * last modification: <DD-MM-YYYY>
@@ -35,19 +35,19 @@ using namespace microhal;
 
 namespace bsp {
 namespace detail {
-using Port = microhal::stm32f4xx::GPIO::Port;
+using Port = microhal::stm32f1xx::IOPin::Port;
 
-constexpr IOPin ld2_pin(microhal::stm32f4xx::GPIO::Port::PortA, 5);  // green LED
-// constexpr IOPin led2_pin(microhal::stm32f4xx::GPIO::Port::PortF, 6);  // LED on nucleo expansion board
-// constexpr IOPin led3_pin(microhal::stm32f4xx::GPIO::Port::PortF, 7);   // LED on nucleo expansion board
-constexpr IOPin led4_pin(microhal::stm32f4xx::GPIO::Port::PortA, 13);  // LED on nucleo expansion board
-constexpr IOPin led5_pin(microhal::stm32f4xx::GPIO::Port::PortA, 14);  // LED on nucleo expansion board
+constexpr IOPin ld2_pin(microhal::stm32f1xx::IOPin::PortA, 5);  // green LED
+// constexpr IOPin led2_pin(microhal::stm32f4xx::IOPin::PortF, 6);  // LED on nucleo expansion board
+// constexpr IOPin led3_pin(microhal::stm32f4xx::IOPin::PortF, 7);   // LED on nucleo expansion board
+constexpr IOPin led4_pin(microhal::stm32f1xx::IOPin::PortA, 13);  // LED on nucleo expansion board
+constexpr IOPin led5_pin(microhal::stm32f1xx::IOPin::PortA, 14);  // LED on nucleo expansion board
 
-constexpr IOPin button_pin(microhal::stm32f4xx::GPIO::Port::PortC, 13);
+constexpr IOPin button_pin(microhal::stm32f1xx::IOPin::PortC, 13);
 
-stm32f4xx::GPIO greenLed(ld2_pin, stm32f4xx::GPIO::Direction::Output);
-stm32f4xx::GPIO redLed(led5_pin, stm32f4xx::GPIO::Direction::Output);
-stm32f4xx::GPIO button(button_pin, stm32f4xx::GPIO::Direction::Input);
+stm32f1xx::GPIO greenLed(ld2_pin, stm32f1xx::GPIO::Direction::Output);
+stm32f1xx::GPIO redLed(led5_pin, stm32f1xx::GPIO::Direction::Output);
+stm32f1xx::GPIO button(button_pin, stm32f1xx::GPIO::Direction::Input);
 }  // namespace detail
 
 microhal::GPIO& greenLed = detail::greenLed;
@@ -58,9 +58,9 @@ microhal::GPIO& button = detail::button;
 
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
-    stm32f4xx::Core::fpu_enable();
+    // Core::fpu_enable();
 
-    SysTick_Config(16000000 / 1000);
+    // SysTick_Config(16000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;

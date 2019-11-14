@@ -35,9 +35,9 @@
 #include <interfaces/gpio_interface.h>
 #include <cstdint>
 #include <type_traits>
-#include "IOPin.h"
-#include "ports/stmCommon/registers/gpio_v1.h"
-#include "stmCommonDefines.h"
+#include "../IOPin.h"
+#include "../registers/gpio_v1.h"
+#include "../stmCommonDefines.h"
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -47,6 +47,42 @@
  */
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+
+class GPIOPort {
+ public:
+    constexpr GPIOPort(microhal::registers::GPIO *gpio) : gpio(*gpio) {}
+
+    uint16_t get() const { return (uint32_t)gpio.idr.volatileLoad(); }
+    void set(uint16_t value) { gpio.odr.volatileStore(value); }
+    void setMask(uint16_t bitsToSet) { gpio.bsrr.volatileStore(bitsToSet); }
+    void resetMask(uint16_t bitsToReset) {
+#ifdef _MICROHAL_GPIO_REGISTER_HAS_BRR
+        gpio.brr.volatileStore(bitsToReset);
+#else
+        gpio.bsrr.volatileStore(bitsToReset << 16);
+#endif
+    }
+    void setResetMask(uint16_t values, uint16_t mask) {
+        uint32_t toSet = values & mask;
+        uint32_t toReset = (~values) & mask;
+        registers::GPIO::BSRR bsrr;
+        bsrr.BS = toSet;
+        bsrr.BR = toReset;
+        gpio.bsrr.volatileStore(bsrr);
+    }
+
+    uint16_t getDirection() { return (uint32_t)gpio.otyper.volatileLoad(); }
+    void setDirection(uint16_t direction) { gpio.otyper.volatileStore(direction); }
+    uint32_t getPullConfig() { return gpio.pupdr.volatileLoad(); }
+    void setPullConfig(uint32_t pullConfig) { gpio.pupdr.volatileStore(pullConfig); }
+    uint32_t getSpeed() { return gpio.ospeedr.volatileLoad(); }
+    void setSpeed(uint32_t speed) { gpio.ospeedr.volatileStore(speed); }
+
+    microhal::registers::GPIO &getGpioHandle() { return gpio; }
+
+ private:
+    microhal::registers::GPIO &gpio;
+};
 
 class GPIOCommonBase : public microhal::GPIO {
  public:
@@ -75,7 +111,7 @@ class GPIOCommonBase : public microhal::GPIO {
     using Port = IOPin::Port;
     using GPIO = microhal::registers::GPIO;
     //--------------------------------------- constructors --------------------------------------//
-    constexpr GPIOCommonBase(IOPin pin) : pin(pin), gpio(*reinterpret_cast<GPIO *>(pin.port)) {}
+    constexpr GPIOCommonBase(IOPin pin) : port(reinterpret_cast<microhal::registers::GPIO *>(pin.port)), pinNo(pin.pin) {}
     /**
      * @brief Constructor of GPIO class
      *
@@ -86,75 +122,40 @@ class GPIOCommonBase : public microhal::GPIO {
      * @param type - output type setting
      */
     constexpr GPIOCommonBase(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
-        : pin(pin), gpio(*reinterpret_cast<GPIO *>(pin.port)) {
+        : port(reinterpret_cast<microhal::registers::GPIO *>(pin.port)), pinNo(pin.pin) {
         pinInitialize(PinConfiguration{dir, type, pull, speed});
     }
 
     virtual ~GPIOCommonBase() {}
 
     bool set() final {
-        GPIO::BSRR bsrr;
-        bsrr = 1 << pin.pin;
-        gpio.bsrr.volatileStore(bsrr);
+        port.setMask(1 << pinNo);
         return true;
     }
     bool reset() final {
-#ifdef _MICROHAL_GPIO_REGISTER_HAS_BRR
-        GPIO::BRR brr;
-        brr = 1 << pin.pin;
-        gpio.brr.volatileStore(brr);
-#else
-        GPIO::BSRR bsrr;
-        bsrr = (1 << pin.pin) << 16;
-        gpio.bsrr.volatileStore(bsrr);
-
-#endif
+        port.resetMask(1 << pinNo);
         return true;
     }
     /** This function read pin state*/
     bool get() const final {
-        auto idr = gpio.idr.volatileLoad();
-        return idr & (1 << pin.pin);
+        uint16_t io = port.get();
+        return io & (1 << pinNo);
     }
 
     bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
         pinInitialize(PinConfiguration{dir, type, pull, MediumSpeed});
         return true;
     }
-    //------------------------------------ static functions -------------------------------------//
-    /** @brief This function set pins to high state.
-     *
-     * @param port - port name
-     * @param mask - if bit in mask is set then corresponding pin will be set
-     */
-    static inline void setMask(Port port, uint16_t mask) { reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = mask; }
-    /** @brief This function set pins to low state.
-     *
-     * @param port - port name
-     * @param mask - if bit in mask is set then corresponding pin will be reset
-     */
-    static inline void resetMask(Port port, uint16_t mask) {
-        reinterpret_cast<volatile GPIO_TypeDef *>(port)->BSRR = static_cast<uint32_t>(mask) << 16;
-    }
-    /**
-     * @brief This function return port state.
-     *
-     * @param port - port name
-     * @return - read value of pins. If pin zero is set then LSB in returned value
-     * will be set.
-     */
-    static uint16_t getMask(Port port) __attribute__((always_inline)) { return reinterpret_cast<volatile GPIO_TypeDef *>(port)->IDR; }
-
     /**
      * This function set pin pull type
      *
      * @param pullType
      */
     void setPullType(PullType pullType) {
-        auto pupdr = gpio.pupdr.volatileLoad();
-        pupdr &= ~(0b11 << (pin.pin * 2));   // clear old configuration
-        pupdr |= pullType << (pin.pin * 2);  // set new configuration
-        gpio.pupdr.volatileStore(pupdr);
+        auto pupdr = port.getPullConfig();
+        pupdr &= ~(0b11 << (pinNo * 2));   // clear old configuration
+        pupdr |= pullType << (pinNo * 2);  // set new configuration
+        port.setPullConfig(pupdr);
     }
     //----------------------------- not portable functions
     /** This function set pin speed
@@ -162,17 +163,15 @@ class GPIOCommonBase : public microhal::GPIO {
      * @param speed - pin speed
      */
     void setSpeed(Speed speed) {
-        auto ospeedr = gpio.ospeedr.volatileLoad();
-        ospeedr &= ~(0b11 << (pin.pin * 2));  // clear old configuration
-        ospeedr |= speed << (pin.pin * 2);    // set new configuration
-        gpio.ospeedr.volatileStore(ospeedr);
+        auto ospeedr = port.getSpeed();
+        ospeedr &= ~(0b11 << (pinNo * 2));  // clear old configuration
+        ospeedr |= speed << (pinNo * 2);    // set new configuration
+        port.setSpeed(speed);
     }
 
-    void __setIOPin(IOPin pin) { this->pin == pin; }
-
  protected:
-    IOPin pin;
-    GPIO &gpio;
+    GPIOPort port;
+    uint8_t pinNo;
 
     void pinInitialize(PinConfiguration configuration);
 
@@ -182,10 +181,10 @@ class GPIOCommonBase : public microhal::GPIO {
      * @param direction - pin direction
      */
     void setDirection(Direction direction) {
-        auto otyper = gpio.otyper.volatileLoad();
-        otyper &= ~(1 << pin.pin);       // clear old configuration
-        otyper |= direction << pin.pin;  // set new configuration
-        gpio.otyper.volatileStore(otyper);
+        uint16_t dir = port.getDirection();
+        dir &= ~(1 << pinNo);       // clear old configuration
+        dir |= direction << pinNo;  // set new configuration
+        port.setDirection(dir);
     }
 };
 

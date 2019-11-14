@@ -62,21 +62,21 @@ void ClockManager::enable(const DAC_TypeDef &dac) {
     std::terminate();  // critical error, should never go here
 }
 
-void ClockManager::enable(const GPIO_TypeDef &gpio) {
-    if (&gpio == GPIOA)
+void ClockManager::enableGPIO(const microhal::registers::GPIO &gpio) {
+    if ((int)&gpio == IOPin::PortA)
         RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-    else if (&gpio == GPIOB)
+    else if ((int)&gpio == IOPin::PortB)
         RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-    else if (&gpio == GPIOC)
+    else if ((int)&gpio == IOPin::PortC)
         RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-    else if (&gpio == GPIOD)
+    else if ((int)&gpio == IOPin::PortD)
         RCC->AHBENR |= RCC_AHBENR_GPIODEN;
 #if defined(GPIOE_BASE)
-    else if (&gpio == GPIOE)
+    else if ((int)&gpio == IOPin::PortE)
         RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
 #endif
 #if defined(GPIOF_BASE)
-    else if (&gpio == GPIOF)
+    else if ((int)&gpio == IOPin::PortF)
         RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
 #endif
     else {

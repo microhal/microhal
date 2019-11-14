@@ -30,11 +30,11 @@
 #ifndef MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 #define MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 
+#include <microhalPortConfig_stm32f4xx.h>
 #include <exception>
 #include <type_traits>
-#include "microhalPortConfig_stm32f4xx.h"
-
 #include "device/stm32f4xx.h"
+#include "gpio_stm32f4xx.h"
 #include "ports/stmCommon/registers/can_registers.h"
 
 #define _MICROHAL_CLOCKMANAGER_HAS_POWERMODE 1
@@ -461,53 +461,53 @@ class ClockManager {
             std::terminate();  // Error should newer go there
         }
     }
-    static void enable(const GPIO_TypeDef &gpio, PowerMode mode) {
-        if (&gpio == GPIOA) {
+    static void enableGPIO(const registers::GPIO &gpio, PowerMode mode) {
+        if ((int)&gpio == IOPin::PortA) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOALPEN;
-        } else if (&gpio == GPIOB) {
+        } else if ((int)&gpio == IOPin::PortB) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOBLPEN;
-        } else if (&gpio == GPIOC) {
+        } else if ((int)&gpio == IOPin::PortC) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOCLPEN;
 #if defined(GPIOD)
-        } else if (&gpio == GPIOD) {
+        } else if ((int)&gpio == IOPin::PortD) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIODLPEN;
 #endif
 #if defined(GPIOE)
-        } else if (&gpio == GPIOE) {
+        } else if ((int)&gpio == IOPin::PortE) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOELPEN;
 #endif
 #if defined(GPIOF_BASE)
-        } else if (&gpio == GPIOF) {
+        } else if ((int)&gpio == IOPin::PortF) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOFLPEN;
 #endif
 #if defined(GPIOG_BASE)
-        } else if (&gpio == GPIOG) {
+        } else if ((int)&gpio == IOPin::PortG) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOGLPEN;
 #endif
 #if defined(GPIOH_BASE)
-        } else if (&gpio == GPIOH) {
+        } else if ((int)&gpio == IOPin::PortH) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOHLPEN;
 #endif
 #if defined(GPIOI_BASE)
-        } else if (&gpio == GPIOI) {
+        } else if ((int)&gpio == IOPin::PortI) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOIEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOILPEN;
 #endif
 #if defined(GPIOJ_BASE)
-        } else if (&gpio == GPIOJ) {
+        } else if ((int)&gpio == IOPin::PortJ) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOJEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOJLPEN;
 #endif
 #if defined(GPIOK_BASE)
-        } else if (&gpio == GPIOK) {
+        } else if ((int)&gpio == IOPin::PortK) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOKLPEN;
 #endif

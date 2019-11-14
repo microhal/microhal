@@ -1,14 +1,14 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      GPIO port driver
  *
- * @authors    Michal Karwatowski, Pawel Okas
- * created on: 17-01-2014
+ * @authors    Pawel Okas
+ * created on: 17-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014 - 2018, Pawel Okas
+ * @copyright Copyright (c) 2014-2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,31 +27,35 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_GPIO_STM32F4XX_H_
-#define _MICROHAL_GPIO_STM32F4XX_H_
-/* ************************************************************************************************
- * INCLUDES
- */
-#include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
+#include <ports/stmCommon/gpio_v1/gpio_stmCommon.h>
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f4xx {
-namespace gpio_detail {
-enum class AlternateFunction : uint8_t {
-    Timer_1_2 = 1,
-    Timer_3_4_5 = 2,
-    Serial = 0x07,  //!< Serial
-    Serial_4_5_6 = 0x08,
-    SPI = 0x05,    //!< Alternate function for SPI 1 and 2
-    SPI_3 = 0x06,  //!< Alternate function for SPI 3
-    I2C = 0x04,    //!< I2C
-    CAN1_2_TIM12_13_14 = 0x09,
-    USB = 0x0A
-};
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+
+void GPIOCommonBase::pinInitialize(PinConfiguration config) {
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::enableGPIO(port.getGpioHandle(), ClockManager::PowerMode::Normal);
+#else
+    ClockManager::enableGPIO(port.getGpioHandle());
+#endif
+
+    auto afr = port.getGpioHandle().afr[pinNo / 8].volatileLoad();
+    afr &= ~(0b1111 << ((pinNo % 8) * 4));                    // clear old configuration
+    afr |= ((0xF0 & config.mode) >> 4) << ((pinNo % 8) * 4);  // set new configuration
+    port.getGpioHandle().afr[pinNo / 8].volatileStore(afr);
+
+    // set mode -> config.mode is split to 2 part 4MSB bit
+    //      contain alternate function and 4LSB bit contain mode
+    auto moder = port.getGpioHandle().moder.volatileLoad();
+    moder &= ~((0b11) << (pinNo * 2));             // clear old configuration
+    moder |= (0x03 & config.mode) << (pinNo * 2);  // set new configuration
+    port.getGpioHandle().moder.volatileStore(moder);
+    // set type
+    setDirection(static_cast<Direction>(config.type));
+    setPullType(static_cast<PullType>(config.pull));
+    setSpeed(config.speed);
 }
 
-using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-
-#endif  // _MICROHAL_GPIO_STM32F4XX_H_
