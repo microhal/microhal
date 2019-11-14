@@ -20,6 +20,7 @@
 #define _MICROHAL_INCLUDE_PORT_DEVICE "ports/stm32f1xx/nvic.h"
 #define _MICROHAL_INCLUDE_PORT_DMA "ports/stm32f1xx/dma_stm32f1xx.h"
 #define _MICROHAL_INCLUDE_PORT_CONFIG "microhalPortConfig_stm32f1xx.h"
+#define _MICROHAL_INCLUDE_PORT_IOMANAGER "ports/stm32f1xx/IOManager.h"
 #elif defined(MCU_TYPE_STM32F3XX)
 #define _MICROHAL_ACTIVE_PORT_NAMESPACE stm32f3xx
 #define _MICROHAL_INCLUDE_PORT_clockManager "ports/stm32f3xx/clockManager.h"
