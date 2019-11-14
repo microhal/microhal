@@ -1,9 +1,9 @@
 #ifndef _MICROHAL_PERIPHERAL_REGISTER_ADC
 #define _MICROHAL_PERIPHERAL_REGISTER_ADC
 
-#include "bitfield.h"
 #include "registersBaseAddressDefinitions.h"
-#include "volatileRegister.h"
+#include "utils/bitfield.h"
+#include "utils/volatileRegister.h"
 
 // Supported MCU version 1: STM32G474xx, STM32G474xx, STM32G484xx, STM32G484xx, STM32G471xx, STM32G471xx, STM32G431xx, STM32G473xx, STM32G473xx,
 // STM32G441xx, STM32GBK1CBT6, STM32G483xx, STM32G483xx

@@ -1,9 +1,9 @@
 #ifndef _MICROHAL_PERIPHERAL_REGISTER_ADC3_Common
 #define _MICROHAL_PERIPHERAL_REGISTER_ADC3_Common
 
-#include "bitfield.h"
 #include "registersBaseAddressDefinitions.h"
-#include "volatileRegister.h"
+#include "utils/bitfield.h"
+#include "utils/volatileRegister.h"
 // Supported MCU version 1: STM32H742x, STM32H7x3, STM32H743x, STM32H753x, STM32H7x5_CM7, STM32H7x5_CM4
 // Supported MCU version 2: STM32H750x
 // Supported MCU version 3: STM32F3x4
@@ -295,8 +295,8 @@ struct ADCCommon {
 #endif
 };
 
-#if defined(_MICROHAL_ADCCOMMON_BASE)
-[[maybe_unused]] static ADCCommon *const adc12Common = reinterpret_cast<ADCCommon *>(_MICROHAL_ADCCOMMON_BASE);
+#if defined(_MICROHAL_ADC_COMMON_BASE_ADDRESS)
+[[maybe_unused]] static ADCCommon *const adc12Common = reinterpret_cast<ADCCommon *>(_MICROHAL_ADC_COMMON_BASE_ADDRESS);
 #endif
 
 }  // namespace registers
