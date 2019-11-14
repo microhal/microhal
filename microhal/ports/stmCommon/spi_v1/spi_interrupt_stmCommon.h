@@ -11,9 +11,10 @@
  * INCLUDES
  */
 #include "microhal_semaphore.h"
-#include "ports/stm32f1xx/IOManager.h"
 #include "spi_stmCommon.h"
 #include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_CONFIG
+#include _MICROHAL_INCLUDE_PORT_IOMANAGER
 
 #if !defined(MICROHAL_USE_SPI1_INTERRUPT)
 #define MICROHAL_USE_SPI1_INTERRUPT 0
@@ -140,7 +141,7 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     //--------------------------------------- constructors --------------------------------------//
     SPI_interrupt(registers::SPI &spi, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin) : SPI(spi, misoPin), semaphore() {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enableSPI(getNumber, ClockManager::PowerMode::Normal);
+        ClockManager::enableSPI(getNumber(), ClockManager::PowerMode::Normal);
 #else
         ClockManager::enableSPI(getNumber());
 #endif

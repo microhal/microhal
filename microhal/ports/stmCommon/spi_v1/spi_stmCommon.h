@@ -5,8 +5,8 @@
  *      Author: pawel
  */
 
-#ifndef SPI_STM32F4XX_H_
-#define SPI_STM32F4XX_H_
+#ifndef _MICROHAL_SPI_STMCOMMON_H_
+#define _MICROHAL_SPI_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
@@ -81,25 +81,6 @@ class SPI : public microhal::SPI {
         Prescaler128,       //!< Prescaler128
         Prescaler256,       //!< Prescaler256
     } Prescaler;
-//------------------------------------- static reference --------------------------------------//
-#if (defined MICROHAL_USE_SPI1_INTERRUPT) || (defined MICROHAL_USE_SPI1_POLLING) || (defined MICROHAL_USE_SPI1_DMA)
-    static SPI &spi1;
-#endif
-#if (defined MICROHAL_USE_SPI2_INTERRUPT) || (defined MICROHAL_USE_SPI2_POLLING) || (defined MICROHAL_USE_SPI2_DMA)
-    static SPI &spi2;
-#endif
-#if (defined MICROHAL_USE_SPI3_INTERRUPT) || (defined MICROHAL_USE_SPI3_POLLING) || (defined MICROHAL_USE_SPI3_DMA)
-    static SPI &spi3;
-#endif
-#if (defined MICROHAL_USE_SPI4_INTERRUPT) || (defined MICROHAL_USE_SPI4_POLLING) || (defined MICROHAL_USE_SPI4_DMA)
-    static SPI &spi4;
-#endif
-#if (defined MICROHAL_USE_SPI5_INTERRUPT) || (defined MICROHAL_USE_SPI5_POLLING) || (defined MICROHAL_USE_SPI5_DMA)
-    static SPI &spi5;
-#endif
-#if (defined MICROHAL_USE_SPI6_INTERRUPT) || (defined MICROHAL_USE_SPI6_POLLING) || (defined MICROHAL_USE_SPI6_DMA)
-    static SPI &spi6;
-#endif
     //---------------------------------------- functions ----------------------------------------//
     bool setMode(Mode mode) final {
         const uint32_t modeFlags[] = {0b00, 0b01, 0b10, 0b11};
@@ -201,23 +182,23 @@ class SPI : public microhal::SPI {
     IRQn_Type irq() {
         if (&spi == registers::spi1) return SPI1_IRQn;
 #if defined(SPI2)
-        else if (&spi == SPI2)
+        else if (&spi == registers::spi2)
             return SPI2_IRQn;
 #endif
 #if defined(SPI3)
-        else if (&spi == SPI3)
+        else if (&spi == registers::spi3)
             return SPI3_IRQn;
 #endif
 #if defined(SPI4)
-        else if (&spi == SPI4)
+        else if (&spi == registers::spi4)
             return SPI4_IRQn;
 #endif
 #if defined(SPI5)
-        else if (&spi == SPI5)
+        else if (&spi == registers::spi5)
             return SPI5_IRQn;
 #endif
 #if defined(SPI6)
-        else if (&spi == SPI6)
+        else if (&spi == registers::spi6)
             return SPI6_IRQn;
 #endif
         std::terminate();
@@ -263,4 +244,4 @@ class SPI : public microhal::SPI {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif  // SPI_STM32F4XX_H_
+#endif  // _MICROHAL_SPI_STMCOMMON_H_

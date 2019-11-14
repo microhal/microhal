@@ -47,9 +47,9 @@ _MICROHAL_REGISTERS_SPI_HAS_I2S
 #if defined(STM32L162) || defined(STM32L151) || defined(STM32L0x3) || defined(STM32L0x2) || defined(STM32L0x1) || defined(STM32F407) || \
     defined(STM32F429) || defined(STM32F469) || defined(STM32F413) || defined(STM32F427) || defined(STM32F405) || defined(STM32F446) || \
     defined(STM32F410) || defined(STM32F217) || defined(STM32F215)  // version 4
-_MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
-_MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
-_MICROHAL_REGISTERS_SPI_HAS_I2S
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
+#define _MICROHAL_REGISTERS_SPI_HAS_I2S
 #endif
 
 #if defined(STM32F102) || defined(STM32F107) || defined(STM32F103) || defined(STM32F101)  // version 5
@@ -78,10 +78,10 @@ _MICROHAL_REGISTERS_SPI_HAS_I2S
 
 #if defined(STM32L4x6) || defined(STM32L4x3) || defined(STM32L4x1) || defined(STM32L4x2) || defined(STM32L4x5) || defined(STM32L4R7) || \
     defined(STM32L4S9) || defined(STM32L4R9) || defined(STM32L4S5) || defined(STM32L4S7) || defined(STM32L4R5)  // version 8
-_MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
-_MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
-_MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
-_MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
 #endif
 
 #if defined(STM32F102) || defined(STM32F100)  // version 9
@@ -594,6 +594,18 @@ struct SPI {
 
 #if defined(_MICROHAL_SPI3_BASE_ADDRESS)
 [[maybe_unused]] static SPI *const spi3 = reinterpret_cast<SPI *>(_MICROHAL_SPI3_BASE_ADDRESS);
+#endif
+
+#if defined(_MICROHAL_SPI4_BASE_ADDRESS)
+[[maybe_unused]] static SPI *const spi4 = reinterpret_cast<SPI *>(_MICROHAL_SPI4_BASE_ADDRESS);
+#endif
+
+#if defined(_MICROHAL_SPI5_BASE_ADDRESS)
+[[maybe_unused]] static SPI *const spi5 = reinterpret_cast<SPI *>(_MICROHAL_SPI5_BASE_ADDRESS);
+#endif
+
+#if defined(_MICROHAL_SPI6_BASE_ADDRESS)
+[[maybe_unused]] static SPI *const spi6 = reinterpret_cast<SPI *>(_MICROHAL_SPI6_BASE_ADDRESS);
 #endif
 
 }  // namespace registers

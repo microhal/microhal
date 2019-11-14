@@ -32,6 +32,7 @@
 #define _MICROHAL_INCLUDE_PORT_DEVICE "ports/stm32f4xx/device/stm32f4xx.h"
 #define _MICROHAL_INCLUDE_PORT_DMA "ports/stm32f4xx/dma_stm32f4xx.h"
 #define _MICROHAL_INCLUDE_PORT_CONFIG "microhalPortConfig_stm32f4xx.h"
+#define _MICROHAL_INCLUDE_PORT_IOMANAGER "ports/stm32f4xx/IOManager_stm32f4xx.h"
 #else
 #error "MCU type must be specified."
 #endif

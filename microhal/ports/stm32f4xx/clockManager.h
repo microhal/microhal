@@ -261,32 +261,32 @@ class ClockManager {
             std::terminate();  // Error should newer go there
         }
     }
-    static void enable(const SPI_TypeDef &spi, PowerMode mode) {
-        if (&spi == SPI1) {
+    static void enableSPI(uint8_t number, PowerMode mode) {
+        if (number == 1) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI1LPEN;
 #if defined(SPI2)
-        } else if (&spi == SPI2) {
+        } else if (number == 2) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_SPI2LPEN;
 #endif
 #if defined(SPI3)
-        } else if (&spi == SPI3) {
+        } else if (number == 3) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_SPI3LPEN;
 #endif
 #if defined(SPI4)
-        } else if (&spi == SPI4) {
+        } else if (number == 4) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI4LPEN;
 #endif
 #if defined(SPI5)
-        } else if (&spi == SPI5) {
+        } else if (number == 5) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI5LPEN;
 #endif
 #if defined(SPI6)
-        } else if (&spi == SPI6) {
+        } else if (number == 6) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI6LPEN;
 #endif
@@ -873,26 +873,26 @@ class ClockManager {
      * @param spi device pointer
      * @return
      */
-    static uint32_t SPIFrequency(const SPI_TypeDef &spi) {
-        if (&spi == SPI1) return APB2::frequency();
+    static uint32_t SPIFrequency(uint8_t number) {
+        if (number == 1) return APB2::frequency();
 #if defined(SPI2)
-        else if (&spi == SPI2)
+        else if (number == 2)
             return APB1::frequency();
 #endif
 #if defined(SPI3)
-        else if (&spi == SPI3)
+        else if (number == 3)
             return APB1::frequency();
 #endif
 #if defined(SPI4)
-        else if (&spi == SPI4)
+        else if (number == 4)
             return APB2::frequency();
 #endif
 #if defined(SPI5)
-        else if (&spi == SPI5)
+        else if (number == 5)
             return APB2::frequency();
 #endif
 #if defined(SPI6)
-        else if (&spi == SPI6)
+        else if (number == 6)
             return APB2::frequency();
 #endif
         std::terminate();  // Error should newer go there

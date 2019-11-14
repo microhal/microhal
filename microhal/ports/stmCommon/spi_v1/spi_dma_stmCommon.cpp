@@ -14,58 +14,23 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 //***********************************************************************************************//
 //                                         SPI objects //
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_SPI1_DMA
-#if MICROHAL_SPI1_DMA_RX_STREAM != 0 && MICROHAL_SPI1_DMA_RX_STREAM != 2
-#error SPI RX DMA channel can be confugured as 0 or 2 only
+#if defined(MICROHAL_USE_SPI1_DMA) && MICROHAL_USE_SPI1_DMA == 1
+SPI_dma *SPI_dma::spi1;
 #endif
-#if MICROHAL_SPI1_DMA_TX_STREAM != 3 && MICROHAL_SPI1_DMA_TX_STREAM != 5
-#error SPI TX DMA channel can be confugured as 3 or 5 only
+#if defined(MICROHAL_USE_SPI2_DMA) && MICROHAL_USE_SPI2_DMA == 1
+SPI_dma *SPI_dma::spi2;
 #endif
-IOPin spi1MisoPin(IOPin::PortB, 4);
-SPI_dma SPI_dma::spi1(*SPI1, *DMA::dma2, DMA::dma2->stream[MICROHAL_SPI1_DMA_RX_STREAM], DMA::dma2->stream[MICROHAL_SPI1_DMA_TX_STREAM], spi1MisoPin);
-SPI &SPI::spi1 = SPI_dma::spi1;
+#if defined(MICROHAL_USE_SPI3_DMA) && MICROHAL_USE_SPI3_DMA == 1
+SPI_dma *SPI_dma::spi3;
 #endif
-#ifdef MICROHAL_USE_SPI2_DMA
-IOPin spi2MisoPin(IOPin::PortB, 4);
-SPI_dma SPI_dma::spi2(*SPI2, *DMA::dma1, DMA::dma1->stream[3], DMA::dma1->stream[4], spi2MisoPin);
-SPI &SPI::spi2 = SPI_dma::spi2;
+#if defined(MICROHAL_USE_SPI4_DMA) && MICROHAL_USE_SPI4_DMA == 1
+SPI_dma *SPI_dma::spi4;
 #endif
-#ifdef MICROHAL_USE_SPI3_DMA
-#if MICROHAL_SPI3_DMA_RX_STREAM != 0 && MICROHAL_SPI3_DMA_RX_STREAM != 2
-#error SPI RX DMA channel can be confugured as 0 or 2 only
+#if defined(MICROHAL_USE_SPI5_DMA) && MICROHAL_USE_SPI5_DMA == 1
+SPI_dma *SPI_dma::spi5;
 #endif
-#if MICROHAL_SPI3_DMA_TX_STREAM != 5 && MICROHAL_SPI3_DMA_TX_STREAM != 7
-#error SPI TX DMA channel can be confugured as 5 or 7 only
-#endif
-IOPin spi3MisoPin(IOPin::PortB, 4);
-SPI_dma SPI_dma::spi3(*SPI3, *DMA::dma1, DMA::dma1->stream[MICROHAL_SPI3_DMA_RX_STREAM], DMA::dma1->stream[MICROHAL_SPI3_DMA_TX_STREAM], spi3MisoPin);
-SPI &SPI::spi3 = SPI_dma::spi3;
-#endif
-#ifdef MICROHAL_USE_SPI4_DMA
-#if MICROHAL_SPI4_DMA_RX_STREAM != 0 && MICROHAL_SPI4_DMA_RX_STREAM != 3
-#error SPI RX DMA channel can be confugured as 0 or 3 only
-#endif
-#if MICROHAL_SPI4_DMA_TX_STREAM != 1 && MICROHAL_SPI4_DMA_TX_STREAM != 4
-#error SPI TX DMA channel can be confugured as 1 or 4 only
-#endif
-IOPin spi4MisoPin(IOPin::PortB, 4);
-SPI_dma SPI_dma::spi4(*SPI4, *DMA::dma2, DMA::dma2->stream[MICROHAL_SPI4_DMA_RX_STREAM], DMA::dma2->stream[MICROHAL_SPI4_DMA_TX_STREAM], spi4MisoPin);
-SPI &SPI::spi4 = SPI_dma::spi4;
-#endif
-#ifdef MICROHAL_USE_SPI5_DMA
-#if MICROHAL_SPI5_DMA_RX_STREAM != 3 && MICROHAL_SPI5_DMA_RX_STREAM != 5
-#error SPI RX DMA channel can be confugured as 3 or 5 only
-#endif
-#if MICROHAL_SPI5_DMA_TX_STREAM != 4 && MICROHAL_SPI5_DMA_TX_STREAM != 6
-#error SPI TX DMA channel can be confugured as 4 or 6 only
-#endif
-IOPin spi5MisoPin(IOPin::PortB, 4);
-SPI_dma SPI_dma::spi5(*SPI5, *DMA::dma2, DMA::dma2->stream[MICROHAL_SPI5_DMA_RX_STREAM], DMA::dma2->stream[MICROHAL_SPI5_DMA_TX_STREAM], spi5MisoPin);
-SPI &SPI::spi5 = SPI_dma::spi5;
-#endif
-#ifdef MICROHAL_USE_SPI6_DMA
-SPI_dma SPI_dma::spi6(*SPI6, *DMA::dma2, DMA::dma2->stream[5], DMA::dma2->stream[6], spi1MisoPin);
-SPI &SPI::spi6 = SPI_dma::spi6;
+#if defined(MICROHAL_USE_SPI6_DMA) && MICROHAL_USE_SPI6_DMA == 1
+SPI_dma *SPI_dma::spi6;
 #endif
 //***********************************************************************************************//
 //                                         Functions
@@ -148,14 +113,14 @@ void SPI_dma::init() {
     rxStream.init(dma.channel(rxStream, &spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::PerToMem);
-    rxStream.setPeripheralAddress(&spi.DR);
+    rxStream.setPeripheralAddress(&spi.dr);
     rxStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
     // tx
     txStream.deinit();
     txStream.init(dma.channel(txStream, &spi), DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer,
                   DMA::Stream::MemoryDataSize::Byte, DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::MemToPer);
-    txStream.setPeripheralAddress(&spi.DR);
+    txStream.setPeripheralAddress(&spi.dr);
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
     dma.clearInterruptFlag(rxStream, DMA::Stream::Interrupt::TransferComplete);
@@ -184,7 +149,7 @@ void SPI_dma::IRQfunction(SPI_dma &object, registers::SPI *spi) {
 //***********************************************************************************************//
 //                                         DMA IRQHandlers //
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_SPI1_DMA
+#if defined(MICROHAL_USE_SPI1_DMA) && MICROHAL_USE_SPI1_DMA == 1
 #if MICROHAL_SPI1_DMA_RX_STREAM == 1
 void DMA2_Stream1_IRQHandler(void) {
     // spi1 rx
@@ -197,7 +162,7 @@ void DMA2_Stream1_IRQHandler(void) {
 #if MICROHAL_SPI1_DMA_TX_STREAM == 5
     DMA2_Stream5->CR &= ~DMA_SxCR_EN;
 #endif
-    SPI_dma::spi1.semaphore = false;
+    SPI_dma::spi1->semaphore = false;
 }
 #endif
 #if MICROHAL_SPI1_DMA_RX_STREAM == 2
@@ -212,7 +177,7 @@ void DMA2_Stream2_IRQHandler(void) {
 #if MICROHAL_SPI1_DMA_TX_STREAM == 5
     DMA2_Stream5->CR &= ~DMA_SxCR_EN;
 #endif
-    bool shouldYeld = SPI_dma::spi1.semaphore.giveFromISR();
+    bool shouldYeld = SPI_dma::spi1->semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
 #else
@@ -227,7 +192,7 @@ void DMA2_Stream3_IRQHandler(void) {
     SPI1->CR2 &= ~SPI_CR2_TXDMAEN;
     DMA2_Stream3->CR &= ~DMA_SxCR_EN;
 
-    SPI_dma::spi1.semaphore.giveFromISR();
+    SPI_dma::spi1->semaphore.giveFromISR();
 }
 #endif
 #if MICROHAL_SPI1_DMA_TX_STREAM == 5
@@ -237,7 +202,7 @@ void DMA2_Stream5_IRQHandler(void) {
     SPI1->CR2 &= ~SPI_CR2_TXDMAEN;
     DMA2_Stream5->CR &= ~DMA_SxCR_EN;
 
-    bool shouldYeld = SPI_dma::spi1.semaphore.giveFromISR();
+    bool shouldYeld = SPI_dma::spi1->semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
 #else
@@ -246,7 +211,7 @@ void DMA2_Stream5_IRQHandler(void) {
 }
 #endif
 #endif
-#ifdef MICROHAL_USE_SPI2_DMA
+#if defined(MICROHAL_USE_SPI2_DMA) && MICROHAL_USE_SPI2_DMA == 1
 void DMA1_Stream3_IRQHandler(void) {
     // spi2 rx
     // clear DMA Stream3 interrupt flag
@@ -257,7 +222,7 @@ void DMA1_Stream3_IRQHandler(void) {
     // disable SPI DMA request
     SPI2->CR2 &= ~SPI_CR2_RXDMAEN & ~SPI_CR2_TXDMAEN;
 
-    bool shouldYeld = SPI_dma::spi2.semaphore.giveFromISR();
+    bool shouldYeld = SPI_dma::spi2->semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
 #endif
@@ -271,13 +236,13 @@ void DMA1_Stream4_IRQHandler(void) {
     // disable SPI DMA request
     SPI2->CR2 &= ~SPI_CR2_TXDMAEN;
 
-    bool shouldYeld = SPI_dma::spi2.semaphore.giveFromISR();
+    bool shouldYeld = SPI_dma::spi2->semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
 #endif
 }
 #endif
-#ifdef MICROHAL_USE_SPI3_DMA
+#if defined(MICROHAL_USE_SPI3_DMA) && MICROHAL_USE_SPI3_DMA == 1
 #if MICROHAL_SPI3_DMA_RX_STREAM == 0
 void DMA1_Stream0_IRQHandler(void) {
     // spi3 rx
@@ -289,7 +254,7 @@ void DMA1_Stream0_IRQHandler(void) {
     // disable SPI DMA request
     SPI3->CR2 &= ~SPI_CR2_RXDMAEN & ~SPI_CR2_TXDMAEN;
 
-    bool shouldYeld = SPI_dma::spi3.semaphore.giveFromISR();
+    bool shouldYeld = SPI_dma::spi3->semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
 #endif
@@ -306,7 +271,7 @@ void DMA1_Stream2_IRQHandler(void) {
     // disable SPI DMA request
     SPI3->CR2 &= ~SPI_CR2_RXDMAEN & ~SPI_CR2_TXDMAEN;
 
-    SPI_dma::spi3.semaphore.giveFromISR();
+    SPI_dma::spi3->semaphore.giveFromISR();
 }
 #endif
 #if MICROHAL_SPI3_DMA_TX_STREAM == 5
@@ -319,7 +284,7 @@ void DMA1_Stream5_IRQHandler(void) {
     // disable SPI DMA request
     SPI3->CR2 &= ~SPI_CR2_TXDMAEN;
 
-    SPI_dma::spi3.semaphore.giveFromISR();
+    SPI_dma::spi3->semaphore.giveFromISR();
 }
 #endif
 #if MICROHAL_SPI3_DMA_TX_STREAM == 7
@@ -332,7 +297,7 @@ void DMA1_Stream7_IRQHandler(void) {
     // disable SPI DMA request
     SPI3->CR2 &= ~SPI_CR2_TXDMAEN;
 
-    bool shouldYeld = SPI_dma::spi3.semaphore.giveFromISR();
+    bool shouldYeld = SPI_dma::spi3->semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
     portYIELD_FROM_ISR(shouldYeld);
 #endif
@@ -348,34 +313,34 @@ void DMA1_Stream7_IRQHandler(void) {
 //***********************************************************************************************//
 //                                         SPI IRQHandlers //
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_SPI1_DMA
+#if defined(MICROHAL_USE_SPI1_DMA) && MICROHAL_USE_SPI1_DMA == 1
 extern "C" void SPI1_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi1, registers::spi1);
+    SPI_dma::IRQfunction(*SPI_dma::spi1, registers::spi1);
 }
 #endif
-#ifdef MICROHAL_USE_SPI2_DMA
+#if defined(MICROHAL_USE_SPI2_DMA) && MICROHAL_USE_SPI2_DMA == 1
 void SPI2_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi2, registers::spi2);
+    SPI_dma::IRQfunction(*SPI_dma::spi2, registers::spi2);
 }
 #endif
-#ifdef MICROHAL_USE_SPI3_DMA
+#if defined(MICROHAL_USE_SPI3_DMA) && MICROHAL_USE_SPI3_DMA == 1
 void SPI3_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi3, registers::spi3);
+    SPI_dma::IRQfunction(*SPI_dma::spi3, registers::spi3);
 }
 #endif
-#ifdef MICROHAL_USE_SPI4_DMA
+#if defined(MICROHAL_USE_SPI4_DMA) && MICROHAL_USE_SPI4_DMA == 1
 void SPI4_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi4, registers::spi4);
+    SPI_dma::IRQfunction(*SPI_dma::spi4, registers::spi4);
 }
 #endif
-#ifdef MICROHAL_USE_SPI5_DMA
+#if defined(MICROHAL_USE_SPI5_DMA) && MICROHAL_USE_SPI5_DMA == 1
 void SPI5_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi5, registers::spi5);
+    SPI_dma::IRQfunction(*SPI_dma::spi5, registers::spi5);
 }
 #endif
-#ifdef MICROHAL_USE_SPI6_DMA
+#if defined(MICROHAL_USE_SPI6_DMA) && MICROHAL_USE_SPI6_DMA == 1
 void SPI6_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi6, registers::spi6);
+    SPI_dma::IRQfunction(*SPI_dma::spi6, registers::spi6);
 }
 #endif
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

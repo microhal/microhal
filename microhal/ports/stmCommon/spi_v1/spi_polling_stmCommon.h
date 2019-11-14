@@ -12,7 +12,8 @@
  */
 #include "spi_stmCommon.h"
 #include _MICROHAL_INCLUDE_PORT_clockManager
-#include "ports/stm32f1xx/IOManager.h"
+#include _MICROHAL_INCLUDE_PORT_CONFIG
+#include _MICROHAL_INCLUDE_PORT_IOMANAGER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -52,7 +53,7 @@ class SPI_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     //---------------------------------------- constructors ---------------------------------------
     SPI_polling(registers::SPI &spi, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin) : SPI(spi, misoPin) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enableSPI(getNumber, ClockManager::PowerMode::Normal);
+        ClockManager::enableSPI(getNumber(), ClockManager::PowerMode::Normal);
 #else
         ClockManager::enableSPI(getNumber());
 #endif

@@ -5,15 +5,15 @@
  *      Author: pawel
  */
 
-#ifndef IOMANAGER_STM32F4XX_H_
-#define IOMANAGER_STM32F4XX_H_
+#ifndef _MICROHAL_IOMANAGER_STM32F4XX_H_
+#define _MICROHAL_IOMANAGER_STM32F4XX_H_
 /* ************************************************************************************************
  * INCLUDES
  */
 #include <algorithm>
 #include <array>
 #include "serialPort.h"
-#include "spi_stm32f4xx.h"
+//#include "spi_stm32f4xx.h"
 
 namespace microhal {
 typedef enum {
@@ -146,6 +146,36 @@ class IOManager {
         gpio.setAlternateFunction(serial < 4 ? GPIO::AlternateFunction::Serial : GPIO::AlternateFunction::Serial_4_5_6, pull, type);
     }
 
+    template <int number>
+    static void routeSpi(IOPin miso, IOPin mosi, IOPin sck, stm32f4xx::GPIO::OutputType mosiType, stm32f4xx::GPIO::OutputType sckType) {
+        GPIO gpioMiso(miso);
+        GPIO gpioMosi(mosi);
+        GPIO gpioSck(sck);
+        gpioMiso.setAlternateFunction(number < 4 ? GPIO::AlternateFunction::Serial : GPIO::AlternateFunction::Serial_4_5_6, GPIO::NoPull,
+                                      GPIO::PushPull);
+        gpioMosi.setAlternateFunction(number < 4 ? GPIO::AlternateFunction::Serial : GPIO::AlternateFunction::Serial_4_5_6, GPIO::NoPull, mosiType);
+        gpioSck.setAlternateFunction(number < 4 ? GPIO::AlternateFunction::Serial : GPIO::AlternateFunction::Serial_4_5_6, GPIO::NoPull, sckType);
+    }
+
+    static constexpr bool spiPinAssert(int number, IOPin miso, IOPin mosi, IOPin sck) {
+        if (number == 1) {
+            if (!(sck == IOPin{IOPin::PortA, 5} || sck == IOPin{IOPin::PortB, 3})) return false;
+            if (!(miso == IOPin{IOPin::PortA, 6} || miso == IOPin{IOPin::PortB, 4})) return false;
+            if (!(mosi == IOPin{IOPin::PortA, 7} || mosi == IOPin{IOPin::PortB, 5})) return false;
+        } else if (number == 2) {
+            if (!(sck == IOPin{IOPin::PortB, 10} || sck == IOPin{IOPin::PortB, 13})) return false;
+            if (!(miso == IOPin{IOPin::PortB, 14} || miso == IOPin{IOPin::PortC, 2})) return false;
+            if (!(mosi == IOPin{IOPin::PortB, 15} || mosi == IOPin{IOPin::PortC, 3})) return false;
+        } else if (number == 3) {
+            if (!(sck == IOPin{IOPin::PortB, 3} || sck == IOPin{IOPin::PortC, 10})) return false;
+            if (!(miso == IOPin{IOPin::PortB, 4} || miso == IOPin{IOPin::PortC, 11})) return false;
+            if (!(mosi == IOPin{IOPin::PortB, 5} || mosi == IOPin{IOPin::PortC, 12})) return false;
+        } else {
+            return false;
+        }
+        return true;
+    }
+
     template <int spiNumber, SpiPinType spiType, IOPin::Port port, IOPin::Pin pinNr>
     static void routeSPI(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
         static_assert(spiNumber != 0, "SPI port numbers starts from 1.");
@@ -184,17 +214,17 @@ class IOManager {
             switch (spiNumber) {
                 case 1:
 #if defined(MICROHAL_USE_SPI1_POLLING) || defined(MICROHAL_USE_SPI1_INTERRUPT) || defined(MICROHAL_USE_SPI1_DMA)
-                    stm32f4xx::SPI::spi1.misoPin.__setIOPin(pin);
+                    // stm32f4xx::SPI::spi1.misoPin.__setIOPin(pin);
 #endif
                     break;
                 case 2:
 #if defined(MICROHAL_USE_SPI2_POLLING) || defined(MICROHAL_USE_SPI2_INTERRUPT) || defined(MICROHAL_USE_SPI2_DMA)
-                    stm32f4xx::SPI::spi2.misoPin.__setIOPin(pin);
+                    //  stm32f4xx::SPI::spi2.misoPin.__setIOPin(pin);
 #endif
                     break;
                 case 3:
 #if defined(MICROHAL_USE_SPI3_POLLING) || defined(MICROHAL_USE_SPI3_INTERRUPT) || defined(MICROHAL_USE_SPI3_DMA)
-                    stm32f4xx::SPI::spi3.misoPin.__setIOPin(pin);
+                    // stm32f4xx::SPI::spi3.misoPin.__setIOPin(pin);
 #endif
                     break;
             }
