@@ -37,13 +37,7 @@
 #include "ports/common/serialPort_bufferedBase.h"
 #include "stmCommonDefines.h"
 
-#if defined(MCU_TYPE_STM32F0XX)
-#include "ports/stm32f0xx/dma_stm32f0xx.h"
-#elif defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/dma_stm32f3xx.h"
-#elif defined(MCU_TYPE_STM32F4XX)
-#include "ports/stm32f4xx/dma_stm32f4xx.h"
-#endif
+#include _MICROHAL_INCLUDE_PORT_DMA
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -116,14 +110,14 @@ class SerialPort_Dma : public common::SerialPort_BufferedBase<SerialPort_Dma> {
     DMA::Channel &txStream;
     DMA::Channel &rxStream;
     //------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_Dma(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize, DMA::Channel &txStream,
-                          DMA::Channel &rxStream);
+    inline SerialPort_Dma(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize,
+                          DMA::Channel &txStream, DMA::Channel &rxStream);
 #else
     DMA::DMA &dma;
     DMA::Stream &txStream;
     DMA::Stream &rxStream;
     //------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_Dma(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize, DMA::DMA &dma,
+    inline SerialPort_Dma(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize, DMA::DMA &dma,
                           DMA::Stream &txStream, DMA::Stream &rxStream);
 #endif
     //--------------------------------------------- functions ---------------------------------------//

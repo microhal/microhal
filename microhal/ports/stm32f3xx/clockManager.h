@@ -56,7 +56,7 @@ class ClockManager {
 
     ClockManager() = delete;
     // ------------------------- functions used for enable clock ------------------------------------------------------
-    static void enable(const USART_TypeDef &usart);
+    static void enableUSART(uint8_t number);
     static void enableI2C(uint16_t number) {
         if (number == 1) RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
 #if defined(RCC_APB1ENR_I2C2EN)
@@ -186,7 +186,7 @@ class ClockManager {
     }
 #endif
     //--------------------------------------------------------------------------------------------------------------
-    static UsartClockSource USARTClockSource(const USART_TypeDef &usart);
+    static UsartClockSource USARTClockSource(uint8_t number);
 
     static void USARTClockSource(const USART_TypeDef &usart, UsartClockSource source);
     /**
@@ -205,7 +205,7 @@ class ClockManager {
      * @param usart device pointer
      * @return
      */
-    static uint32_t USARTFrequency(const USART_TypeDef &usart);
+    static uint32_t USARTFrequency(uint8_t number);
     /**
      * @brief This function return SPI clock
      *

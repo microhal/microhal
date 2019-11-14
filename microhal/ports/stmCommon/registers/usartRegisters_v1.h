@@ -416,6 +416,18 @@ struct USART {
 [[maybe_unused]] static USART *const usart3 = reinterpret_cast<USART *>(_MICROHAL_USART3_BASE_ADDRESS);
 #endif
 
+#if defined(_MICROHAL_UART4_BASE_ADDRESS)
+[[maybe_unused]] static USART *const uart4 = reinterpret_cast<USART *>(_MICROHAL_UART4_BASE_ADDRESS);
+#endif
+
+#if defined(_MICROHAL_UART5_BASE_ADDRESS)
+[[maybe_unused]] static USART *const uart5 = reinterpret_cast<USART *>(_MICROHAL_UART5_BASE_ADDRESS);
+#endif
+
+#if defined(_MICROHAL_USART6_BASE_ADDRESS)
+[[maybe_unused]] static USART *const usart6 = reinterpret_cast<USART *>(_MICROHAL_USART6_BASE_ADDRESS);
+#endif
+
 }  // namespace registers
 }  // namespace microhal
 #endif  // _MICROHAL_PERIPHERAL_REGISTER_USART

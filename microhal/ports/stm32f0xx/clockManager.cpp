@@ -35,8 +35,8 @@
 namespace microhal {
 namespace stm32f0xx {
 
-uint32_t ClockManager::USARTFrequency(const USART_TypeDef &usart) {
-    UsartClockSource usartClockSource = USARTClockSource(usart);
+uint32_t ClockManager::USARTFrequency(uint8_t number) {
+    UsartClockSource usartClockSource = USARTClockSource(number);
 
     switch (usartClockSource) {
         case PCLK:
@@ -54,15 +54,15 @@ uint32_t ClockManager::USARTFrequency(const USART_TypeDef &usart) {
     std::terminate();
 }
 
-ClockManager::UsartClockSource ClockManager::USARTClockSource(const USART_TypeDef &usart) {
+ClockManager::UsartClockSource ClockManager::USARTClockSource(uint8_t number) {
     uint32_t pos;
-    if (&usart == USART1)
+    if (number == 1)
         pos = RCC_CFGR3_USART1SW_Pos;
-    else if (&usart == USART2)
+    else if (number == 2)
         // pos = RCC_CFGR3_USART2SW_Pos;
         return UsartClockSource::PCLK;
 #if defined(USART3)
-    else if (&usart == USART3)
+    else if (number == 3)
         // pos = RCC_CFGR3_USART3SW_Pos;
         return UsartClockSource::PCLK;
 #endif

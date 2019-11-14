@@ -56,36 +56,36 @@ class ClockManager {
     enum UsbClockSource { HSI48 = 0, PLL = 1 };
 
  public:
-    static void enable(const USART_TypeDef &usart) {
+    static void enableUSART(uint8_t number) {
         uint32_t rccEnableFlag;
 
-        if (&usart == USART1)
+        if (number == 1)
             rccEnableFlag = RCC_APB2ENR_USART1EN;
-        else if (&usart == USART2)
+        else if (number == 2)
             rccEnableFlag = RCC_APB1ENR_USART2EN;
 #if defined(USART3)
-        else if (&usart == USART3)
+        else if (number == 3)
             rccEnableFlag = RCC_APB1ENR_USART3EN;
 #endif
 #if defined(UART4)
-        else if (&usart == UART4)
+        else if (number == 4)
             rccEnableFlag = RCC_APB1ENR_UART4EN;
 #endif
 #if defined(UART5)
-        else if (&usart == UART5)
+        else if (number == 5)
             rccEnableFlag = RCC_APB1ENR_UART5EN;
 #endif
 #if defined(USART6)
-        else if (&usart == USART6)
+        else if (number == 6)
             rccEnableFlag = RCC_APB2ENR_USART6EN;
 #endif
         else {
             std::terminate();
         }
 #if defined(USART6)
-        if (&usart == USART1 || &usart == USART6) {
+        if (number == 1 || number == 6) {
 #else
-        if (&usart == USART1) {
+        if (number == 1) {
 #endif
             RCC->APB2ENR |= rccEnableFlag;
         } else {
@@ -269,9 +269,9 @@ class ClockManager {
     }
 #endif
 
-    static uint32_t USARTFrequency(const USART_TypeDef &usart);
+    static uint32_t USARTFrequency(uint8_t number);
 
-    static UsartClockSource USARTClockSource(const USART_TypeDef &usart);
+    static UsartClockSource USARTClockSource(uint8_t number);
 
     static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
         if (&i2c == I2C1) {

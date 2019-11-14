@@ -40,59 +40,67 @@ namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
-    usart.BRR = ClockManager::USARTFrequency(usart) / baudRate;
+    usart.brr.volatileStore(ClockManager::USARTFrequency(number()) / baudRate);
     return true;
 }
 
 uint32_t SerialPort::getBaudRate() const noexcept {
-    return ClockManager::USARTFrequency(usart) * usart.BRR;
+    return ClockManager::USARTFrequency(number()) * (uint32_t)usart.brr.volatileLoad();
 }
 
 bool SerialPort::setParity(SerialPort::Parity parity) noexcept {
+    auto cr1 = usart.cr1.volatileLoad();
     switch (parity) {
         case SerialPort::NoParity:
-            usart.CR1 &= ~USART_CR1_PCE;
+            cr1.PCE.clear();
             break;
         case SerialPort::EvenParity:
-            usart.CR1 = (usart.CR1 & ~USART_CR1_PS) | USART_CR1_PCE;
+            cr1.PS.clear();
+            cr1.PCE.set();
             break;
         case SerialPort::OddParity:
-            usart.CR1 |= USART_CR1_PS | USART_CR1_PCE;
+            cr1.PS.set();
+            cr1.PCE.set();
             break;
         default:
             return false;
     }
+    usart.cr1.volatileStore(cr1);
     return true;
 }
 
 bool SerialPort::setStopBits(SerialPort::StopBits stopBits) noexcept {
+    auto cr2 = usart.cr2.volatileLoad();
     switch (stopBits) {
         case SerialPort::OneStop:
-            usart.CR2 &= ~USART_CR2_STOP;
+            cr2.STOP.clear();
             break;
         case SerialPort::OneAndHalfStop:
-            usart.CR2 |= USART_CR2_STOP_0 | USART_CR2_STOP_1;
+            cr2.STOP = 0b11;
             break;
         case SerialPort::TwoStop:
-            usart.CR2 = (usart.CR2 & ~USART_CR2_STOP) | USART_CR2_STOP_1;
+            cr2.STOP = 0b10;
             break;
         default:
             return false;
     }
+    usart.cr2.volatileStore(cr2);
     return true;
 }
 
 bool SerialPort::setDataBits(SerialPort::DataBits dataBits) noexcept {
+    auto cr1 = usart.cr1.volatileLoad();
     switch (dataBits) {
         case SerialPort::Data8:
-            usart.CR1 &= ~USART_CR1_M;
+            cr1.M.clear();
             break;
         case SerialPort::Data9:
-            usart.CR1 |= USART_CR1_M;
+            cr1.M.set();
             break;
         default:
             return false;
     }
+    usart.cr1.volatileStore(cr1);
     return true;
 }
 

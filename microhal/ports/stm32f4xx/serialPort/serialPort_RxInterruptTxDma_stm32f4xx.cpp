@@ -132,10 +132,10 @@ SerialPort &SerialPort::Serial8 = SerialPort_RxInterruptTxDma::Serial8;
 //  return DMA::Stream::Channel::Channel0;
 //}
 
-SerialPort_RxInterruptTxDma::SerialPort_RxInterruptTxDma(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize,
+SerialPort_RxInterruptTxDma::SerialPort_RxInterruptTxDma(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize,
                                                          size_t txDataSize, DMA::DMA &dma, DMA::Stream &txStream)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize), dma(dma), txStream(txStream) {
-    ClockManager::enable(usart, ClockManager::PowerMode::Normal);
+    ClockManager::enableUSART(number(), ClockManager::PowerMode::Normal);
     enableInterrupt(0);
     ///////////////////////////////////
     dma.clockEnable();
@@ -146,7 +146,7 @@ SerialPort_RxInterruptTxDma::SerialPort_RxInterruptTxDma(USART_TypeDef &usart, c
     txStream.init(channel, DMA::Stream::MemoryBurst::SingleTransfer, DMA::Stream::PeripheralBurst::SingleTransfer, DMA::Stream::MemoryDataSize::Byte,
                   DMA::Stream::PeripheralDataSize::Byte, DMA::Stream::MemoryIncrementMode::PointerIncremented,
                   DMA::Stream::PeripheralIncrementMode::PointerFixed, DMA::Stream::TransmisionDirection::MemToPer);
-    txStream.setPeripheralAddress(&usart.DR);
+    txStream.setPeripheralAddress(&usart.dr);
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
 
     dma.clearInterruptFlag(txStream, DMA::Stream::Interrupt::TransferComplete);
@@ -155,8 +155,15 @@ SerialPort_RxInterruptTxDma::SerialPort_RxInterruptTxDma(USART_TypeDef &usart, c
 
 bool SerialPort_RxInterruptTxDma::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
-    usart.CR1 |= (mode << 2) | USART_CR1_UE | USART_CR1_RXNEIE;
-    usart.CR3 |= USART_CR3_DMAT;
+    auto cr1 = usart.cr1.volatileLoad();
+    cr1 |= mode << 2;
+    cr1.RXNEIE.set();
+    cr1.UE.set();
+    usart.cr1.volatileStore(cr1);
+
+    auto cr3 = usart.cr3.volatileLoad();
+    cr3.DMAT.set();
+    usart.cr3.volatileStore(cr3);
     return true;
 }
 

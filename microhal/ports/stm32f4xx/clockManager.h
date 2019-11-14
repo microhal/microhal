@@ -127,42 +127,42 @@ class ClockManager {
             std::terminate();
         }
     }
-    static void enable(const USART_TypeDef &usart, PowerMode mode) {
+    static void enableUSART(uint8_t number, PowerMode mode) {
         uint32_t rccEnableFlag, rccLpEnableFlag;
 
-        if (&usart == USART1) {
+        if (number == 1) {
             rccEnableFlag = RCC_APB2ENR_USART1EN;
             rccLpEnableFlag = RCC_APB2LPENR_USART1LPEN;
-        } else if (&usart == USART2) {
+        } else if (number == 2) {
             rccEnableFlag = RCC_APB1ENR_USART2EN;
             rccLpEnableFlag = RCC_APB1LPENR_USART2LPEN;
 #if defined(USART3)
-        } else if (&usart == USART3) {
+        } else if (number == 3) {
             rccEnableFlag = RCC_APB1ENR_USART3EN;
             rccLpEnableFlag = RCC_APB1LPENR_USART3LPEN;
 #endif
 #if defined(UART4)
-        } else if (&usart == UART4) {
+        } else if (number == 4) {
             rccEnableFlag = RCC_APB1ENR_UART4EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART4LPEN;
 #endif
 #if defined(UART5)
-        } else if (&usart == UART5) {
+        } else if (number == 5) {
             rccEnableFlag = RCC_APB1ENR_UART5EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART5LPEN;
 #endif
 #if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
-        } else if (&usart == USART6) {
+        } else if (number == 6) {
             rccEnableFlag = RCC_APB2ENR_USART6EN;
             rccLpEnableFlag = RCC_APB2LPENR_USART6LPEN;
 #endif
 #if defined(UART7)
-        } else if (&usart == UART7) {
+        } else if (number == 7) {
             rccEnableFlag = RCC_APB1ENR_UART7EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART7LPEN;
 #endif
 #if defined(UART8)
-        } else if (&usart == UART8) {
+        } else if (number == 8) {
             rccEnableFlag = RCC_APB1ENR_UART8EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART8LPEN;
 #endif
@@ -170,7 +170,7 @@ class ClockManager {
             std::terminate();  // Error should newer go there
         }
 
-        if (&usart == USART1 || &usart == USART6) {
+        if (number == 1 || number == 6) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= rccEnableFlag;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= rccLpEnableFlag;
         } else {
@@ -861,36 +861,11 @@ class ClockManager {
      * @param usart device pointer
      * @return
      */
-    static uint32_t USARTFrequency(const USART_TypeDef &usart) {
-        if (&usart == USART1)
+    static uint32_t USARTFrequency(uint8_t number) {
+        if (number == 1 || number == 6) {
             return APB2::frequency();
-        else if (&usart == USART2)
-            return APB1::frequency();
-#if defined(USART3)
-        else if (&usart == USART3)
-            return APB1::frequency();
-#endif
-#if defined(UART4)
-        else if (&usart == UART4)
-            return APB1::frequency();
-#endif
-#if defined(UART5)
-        else if (&usart == UART5)
-            return APB1::frequency();
-#endif
-#if defined(USART6)
-        else if (&usart == USART6)
-            return APB2::frequency();
-#endif
-#if defined(UART7)
-        else if (&usart == UART7)
-            return APB1::frequency();
-#endif
-#if defined(UART8)
-        else if (&usart == UART8)
-            return APB1::frequency();
-#endif
-        std::terminate();  // Error should newer go there
+        }
+        return APB1::frequency();
     }
     /**
      * @brief This function return SPI clock

@@ -41,58 +41,62 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 #ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
 static char txBufferData_1[MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE];
 static char rxBufferData_1[MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial1(*USART1, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1), sizeof(txBufferData_1));
+SerialPort_interrupt SerialPort_interrupt::Serial1(*registers::usart1, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1),
+                                                   sizeof(txBufferData_1));
 SerialPort &SerialPort::Serial1 = SerialPort_interrupt::Serial1;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
 static char txBufferData_2[MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE];
 static char rxBufferData_2[MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial2(*USART2, rxBufferData_2, txBufferData_2, sizeof(rxBufferData_2), sizeof(txBufferData_2));
+SerialPort_interrupt SerialPort_interrupt::Serial2(*registers::usart2, rxBufferData_2, txBufferData_2, sizeof(rxBufferData_2),
+                                                   sizeof(txBufferData_2));
 SerialPort &SerialPort::Serial2 = SerialPort_interrupt::Serial2;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
 static char txBufferData_3[MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE];
 static char rxBufferData_3[MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial3(*USART3, rxBufferData_3, txBufferData_3, sizeof(rxBufferData_3), sizeof(txBufferData_3));
+SerialPort_interrupt SerialPort_interrupt::Serial3(*registers::usart3, rxBufferData_3, txBufferData_3, sizeof(rxBufferData_3),
+                                                   sizeof(txBufferData_3));
 SerialPort &SerialPort::Serial3 = SerialPort_interrupt::Serial3;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT4_INTERRUPT
 static char txBufferData_4[MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE];
 static char rxBufferData_4[MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial4(*UART4, rxBufferData_4, txBufferData_4, sizeof(rxBufferData_4), sizeof(txBufferData_4));
+SerialPort_interrupt SerialPort_interrupt::Serial4(*registers::uart4, rxBufferData_4, txBufferData_4, sizeof(rxBufferData_4), sizeof(txBufferData_4));
 SerialPort &SerialPort::Serial4 = SerialPort_interrupt::Serial4;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT5_INTERRUPT
 static char txBufferData_5[MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE];
 static char rxBufferData_5[MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial5(*UART5, rxBufferData_5, txBufferData_5, sizeof(rxBufferData_5), sizeof(txBufferData_5));
+SerialPort_interrupt SerialPort_interrupt::Serial5(*registers::uart5, rxBufferData_5, txBufferData_5, sizeof(rxBufferData_5), sizeof(txBufferData_5));
 SerialPort &SerialPort::Serial5 = SerialPort_interrupt::Serial5;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
 static char txBufferData_6[MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE];
 static char rxBufferData_6[MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial6(*USART6, rxBufferData_6, txBufferData_6, sizeof(rxBufferData_6), sizeof(txBufferData_6));
+SerialPort_interrupt SerialPort_interrupt::Serial6(*registers::usart6, rxBufferData_6, txBufferData_6, sizeof(rxBufferData_6),
+                                                   sizeof(txBufferData_6));
 SerialPort &SerialPort::Serial6 = SerialPort_interrupt::Serial6;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT
 static char txBufferData_7[MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE];
 static char rxBufferData_7[MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial7(*UART7, rxBufferData_7, txBufferData_7, sizeof(rxBufferData_7), sizeof(txBufferData_7));
+SerialPort_interrupt SerialPort_interrupt::Serial7(*registers::uart7, rxBufferData_7, txBufferData_7, sizeof(rxBufferData_7), sizeof(txBufferData_7));
 SerialPort &SerialPort::Serial7 = SerialPort_interrupt::Serial7;
 #endif
 #ifdef MICROHAL_USE_SERIAL_PORT8_INTERRUPT
 static char txBufferData_8[MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE];
 static char rxBufferData_8[MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE];
-SerialPort_interrupt SerialPort_interrupt::Serial8(*UART8, rxBufferData_8, txBufferData_8, sizeof(rxBufferData_8), sizeof(txBufferData_8));
+SerialPort_interrupt SerialPort_interrupt::Serial8(*registers::uart8, rxBufferData_8, txBufferData_8, sizeof(rxBufferData_8), sizeof(txBufferData_8));
 SerialPort &SerialPort::Serial8 = SerialPort_interrupt::Serial8;
 #endif
 
-SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
+SerialPort_interrupt::SerialPort_interrupt(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enable(usart, ClockManager::PowerMode::Normal);
+    ClockManager::enableUSART(number(), ClockManager::PowerMode::Normal);
 #else
-    ClockManager::enable(usart);
+    ClockManager::enableUSART(number());
 #endif
 
 #ifndef HAL_RTOS_FreeRTOS
@@ -105,7 +109,11 @@ SerialPort_interrupt::SerialPort_interrupt(USART_TypeDef &usart, char *const rxD
 
 bool SerialPort_interrupt::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
-    usart.CR1 |= (mode << 2) | USART_CR1_UE | USART_CR1_RXNEIE;
+    auto cr1 = usart.cr1.volatileLoad();
+    cr1 |= mode << 2;
+    cr1.UE.set();
+    cr1.RXNEIE.set();
+    usart.cr1.volatileStore(cr1);
     return true;
 }
 
@@ -114,12 +122,14 @@ bool SerialPort_interrupt::open(OpenMode mode) noexcept {
 //***********************************************************************************************//
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
 void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
-    uint32_t sr = usart.ISR;
-    if (sr & USART_ISR_ORE) {
-        usart.ICR = USART_ICR_ORECF;
+    auto isr = usart.isr.volatileLoad();
+    if (isr.ORE) {
+        registers::USART::ICR icr = {};
+        icr.ORECF.set();
+        usart.icr.volatileStore(icr);
     }
-    if (sr & USART_ISR_RXNE) {
-        char tmp = usart.RDR;
+    if (isr.RXNE) {
+        char tmp = (uint32_t)usart.rdr.volatileLoad();
         rxBuffer.append(tmp);
         if (waitForBytes != 0 && rxBuffer.getLength() == waitForBytes) {
             waitForBytes = 0;
@@ -131,18 +141,18 @@ void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
 #endif
         }
     }
-
-    if ((sr & USART_ISR_TXE) && (usart.CR1 & USART_CR1_TXEIE)) {
+    auto cr1 = usart.cr1.volatileLoad();
+    if (isr.TXE && cr1.TXEIE) {
         if (txBuffer.isEmpty()) {
-            usart.CR1 &= ~USART_CR1_TXEIE;
+            cr1.TXEIE.clear();
             if (txWait) {
-                usart.CR1 |= USART_CR1_TCIE;
+                cr1.TCIE.set();
             }
         } else {
-            usart.TDR = txBuffer.get_unsafe();
+            usart.tdr.volatileStore(txBuffer.get_unsafe());
         }
-    } else if ((sr & USART_ISR_TC) && (usart.CR1 & USART_CR1_TCIE)) {
-        usart.CR1 &= ~USART_CR1_TCIE;
+    } else if (isr.TC && cr1.TCIE) {
+        cr1.TCIE.clear();
         if (txWait) {
             txWait = false;
             auto shouldYeld = txFinish.giveFromISR();
@@ -153,13 +163,14 @@ void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
 #endif
         }
     }
+    usart.cr1.volatileStore(cr1);
 }
 #else
 void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
-    uint16_t sr = usart.SR;
+    auto sr = usart.sr.volatileLoad();
 
-    if (sr & USART_SR_RXNE) {
-        char tmp = usart.DR;
+    if (sr.RXNE) {
+        char tmp = usart.dr.volatileLoad().get();
         rxBuffer.append(tmp);
         if (waitForBytes != 0 && rxBuffer.getLength() == waitForBytes) {
             waitForBytes = 0;
@@ -171,11 +182,12 @@ void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
 #endif
         }
     }
-    if ((sr & USART_SR_TXE) && (usart.CR1 & USART_CR1_TXEIE)) {
+    auto cr1 = usart.cr1.volatileLoad();
+    if (sr.TXE && cr1.TXEIE) {
         if (txBuffer.isEmpty()) {
-            usart.CR1 &= ~USART_CR1_TXEIE;
+            cr1.TXEIE.clear();
             if (txWait) {
-                usart.CR1 |= USART_CR1_TCIE;
+                cr1.TCIE.set();
                 //    			auto shouldYeld = serial.txFinish.giveFromISR();
                 //#if defined (HAL_RTOS_FreeRTOS)
                 //    			portYIELD_FROM_ISR(shouldYeld);
@@ -184,10 +196,10 @@ void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
                 //#endif
             }
         } else {
-            usart.DR = txBuffer.get_unsafe();
+            usart.dr.volatileStore(txBuffer.get_unsafe());
         }
-    } else if ((sr & USART_SR_TC) && (usart.CR1 & USART_CR1_TCIE)) {
-        usart.CR1 &= ~USART_CR1_TCIE;
+    } else if (sr.TC && cr1.TCIE) {
+        cr1.TCIE.clear();
         if (txWait) {
             txWait = false;
             auto shouldYeld = txFinish.giveFromISR();
@@ -198,6 +210,7 @@ void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
 #endif
         }
     }
+    usart.cr1.volatileStore(cr1);
 }
 #endif
 
