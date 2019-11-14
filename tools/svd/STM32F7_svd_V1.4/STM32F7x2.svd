@@ -36693,7 +36693,7 @@
                      <bitWidth>1</bitWidth>
                   </field>
                   <field>
-                     <name>TAINV</name>
+                     <name>DATAINV</name>
                      <description>Binary data inversion</description>
                      <bitOffset>18</bitOffset>
                      <bitWidth>1</bitWidth>
