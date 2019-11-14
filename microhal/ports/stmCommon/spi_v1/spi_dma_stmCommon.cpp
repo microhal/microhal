@@ -7,10 +7,10 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "spi_dma_stm32f4xx.h"
+#include "spi_dma_stmCommon.h"
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 //***********************************************************************************************//
 //                                         SPI objects //
 //***********************************************************************************************//
@@ -76,7 +76,9 @@ inline SPI::Error SPI_dma::write(const void *data, size_t len, bool /*last*/) {
     txStream.setMemoryBank0(data);
     txStream.enable();
 
-    spi.CR2 |= SPI_CR2_TXDMAEN;
+    auto cr2 = spi.cr2.volatileLoad();
+    cr2.TXDMAEN.set();
+    spi.cr2.volatileStore(cr2);
 
     if (semaphore.wait(std::chrono::milliseconds::max())) {
         //  if (last) {
@@ -109,12 +111,15 @@ SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeL
     rxStream.setMemoryBank0(readPtr);
 
     //    busyWait();
-    volatile uint8_t tmp __attribute__((unused)) = spi.DR;
+    spi.dr.volatileLoad();
 
     rxStream.enable();
     txStream.enable();
 
-    spi.CR2 |= SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN;
+    auto cr2 = spi.cr2.volatileLoad();
+    cr2.RXDMAEN.set();
+    cr2.TXDMAEN.set();
+    spi.cr2.volatileStore(cr2);
 
     // spi.CR2 |= SPI_CR2_TXDMAEN;
     txStream.enableInterrupt(DMA::Stream::Interrupt::TransferComplete);
@@ -122,7 +127,9 @@ SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeL
     if (semaphore.wait(std::chrono::milliseconds::max())) {
         busyWait();
         rxStream.disable();
-        spi.CR2 &= ~SPI_CR2_RXDMAEN;
+        auto cr2 = spi.cr2.volatileLoad();
+        cr2.RXDMAEN.clear();
+        spi.cr2.volatileStore(cr2);
         // workaround, I don't know why but (tested on stm32f407) BSY flag is cleared in the middle of last bit. This may cause some error when other
         // function will
         // deassert CS pin
@@ -161,8 +168,8 @@ void SPI_dma::init() {
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
-void SPI_dma::IRQfunction(SPI_dma &object, SPI_TypeDef *spi) {
-    const SPI::Error error = SPI::errorCheck(spi->SR);
+void SPI_dma::IRQfunction(SPI_dma &object, registers::SPI *spi) {
+    const SPI::Error error = SPI::errorCheck(spi->sr.volatileLoad());
 
     if (error != SPI::Error::None) {
         bool shouldYeld = object.semaphore.giveFromISR();
@@ -343,33 +350,33 @@ void DMA1_Stream7_IRQHandler(void) {
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_SPI1_DMA
 extern "C" void SPI1_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi1, SPI1);
+    SPI_dma::IRQfunction(SPI_dma::spi1, registers::spi1);
 }
 #endif
 #ifdef MICROHAL_USE_SPI2_DMA
 void SPI2_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi2, SPI2);
+    SPI_dma::IRQfunction(SPI_dma::spi2, registers::spi2);
 }
 #endif
 #ifdef MICROHAL_USE_SPI3_DMA
 void SPI3_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi3, SPI3);
+    SPI_dma::IRQfunction(SPI_dma::spi3, registers::spi3);
 }
 #endif
 #ifdef MICROHAL_USE_SPI4_DMA
 void SPI4_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi4, SPI4);
+    SPI_dma::IRQfunction(SPI_dma::spi4, registers::spi4);
 }
 #endif
 #ifdef MICROHAL_USE_SPI5_DMA
 void SPI5_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi5, SPI5);
+    SPI_dma::IRQfunction(SPI_dma::spi5, registers::spi5);
 }
 #endif
 #ifdef MICROHAL_USE_SPI6_DMA
 void SPI6_IRQHandler(void) {
-    SPI_dma::IRQfunction(SPI_dma::spi6, SPI6);
+    SPI_dma::IRQfunction(SPI_dma::spi6, registers::spi6);
 }
 #endif
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

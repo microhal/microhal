@@ -7,40 +7,28 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "spi_interrupt_stm32f4xx.h"
+#include "spi_interrupt_stmCommon.h"
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
-#ifdef MICROHAL_USE_SPI1_INTERRUPT
-IOPin spi1MisoPin(IOPin::PortB, 4);
-SPI_interrupt SPI_interrupt::spi1(*SPI1, spi1MisoPin);
-SPI &SPI::spi1 = SPI_interrupt::spi1;
+#if defined(MICROHAL_USE_SPI1_INTERRUPT) && MICROHAL_USE_SPI1_INTERRUPT == 1
+SPI_interrupt *SPI_interrupt::spi1;
 #endif
-#ifdef MICROHAL_USE_SPI2_INTERRUPT
-IOPin spi2MisoPin(IOPin::PortB, 14);
-SPI_interrupt SPI_interrupt::spi2(*SPI2, spi2MisoPin);
-SPI &SPI::spi2 = SPI_interrupt::spi2;
+#if defined(MICROHAL_USE_SPI2_INTERRUPT) && MICROHAL_USE_SPI2_INTERRUPT == 1
+SPI_interrupt *SPI_interrupt::spi2;
 #endif
-#ifdef MICROHAL_USE_SPI3_INTERRUPT
-IOPin spi3MisoPin(IOPin::PortC, 11);
-SPI_interrupt SPI_interrupt::spi3(*SPI3, spi3MisoPin);
-SPI &SPI::spi3 = SPI_interrupt::spi3;
+#if defined(MICROHAL_USE_SPI3_INTERRUPT) && MICROHAL_USE_SPI3_INTERRUPT == 1
+SPI_interrupt *SPI_interrupt::spi3;
 #endif
-#ifdef MICROHAL_USE_SPI4_INTERRUPT
-IOPin spi4MisoPin(IOPin::PortC, 11);
-SPI_interrupt SPI_interrupt::spi4(*SPI4, spi4MisoPin);
-SPI &SPI::spi4 = SPI_interrupt::spi4;
+#if defined(MICROHAL_USE_SPI4_INTERRUPT) && MICROHAL_USE_SPI4_INTERRUPT == 1
+SPI_interrupt *SPI_interrupt::spi4;
 #endif
-#ifdef MICROHAL_USE_SPI5_INTERRUPT
-IOPin spi5MisoPin(IOPin::PortC, 11);
-SPI_interrupt SPI_interrupt::spi5(*SPI5, spi5MisoPin);
-SPI &SPI::spi5 = SPI_interrupt::spi5;
+#if defined(MICROHAL_USE_SPI5_INTERRUPT) && MICROHAL_USE_SPI5_INTERRUPT == 1
+SPI_interrupt *SPI_interrupt::spi5;
 #endif
-#ifdef MICROHAL_USE_SPI6_INTERRUPT
-IOPin spi6MisoPin(IOPin::PortC, 11);
-SPI_interrupt SPI_interrupt::spi6(*SPI6, spi6MisoPin);
-SPI &SPI::spi6 = SPI_interrupt::spi6;
+#if defined(MICROHAL_USE_SPI6_INTERRUPT) && MICROHAL_USE_SPI6_INTERRUPT == 1
+SPI_interrupt *SPI_interrupt::spi6;
 #endif
 
 SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
@@ -73,11 +61,11 @@ SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
     writeData = write;
 
     busyWait();
-    volatile uint16_t tmp __attribute__((unused)) = spi.DR;
+    spi.dr.volatileLoad();
 
     enableReceiverNotEmptyInterrupt();
 
-    spi.DR = write;
+    spi.dr.volatileStore(write);
     if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
 }
@@ -89,10 +77,9 @@ SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_
     writeEnd = static_cast<const uint8_t *>(dataWrite) + readWriteLength;
 
     busyWait();
-    volatile uint16_t tmp __attribute__((unused)) = spi.DR;
+    spi.dr.volatileLoad();
 
-    enableTransmitterEmptyInterrupt();
-    enableReceiverNotEmptyInterrupt();
+    enableInterrupt(Interrupt::TransmitterEmpty | Interrupt::ReceiverNotEmpty);
 
     if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
@@ -100,76 +87,88 @@ SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
-inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) {
-    uint32_t sr = spi->SR;
+void SPI_interrupt::IRQfunction() {
+    auto sr = spi.sr.volatileLoad();
+    auto cr2 = spi.cr2.volatileLoad();
 
-    if ((object.readPtr != nullptr) && (sr & SPI_SR_RXNE)) {
-        *object.readPtr++ = spi->DR;
-        if (object.readPtr == object.readEnd) {
-            object.readPtr = nullptr;
-            spi->CR2 &= ~(SPI_CR2_RXNEIE);  // fixme maybe bitband
-            bool shouldYeld = object.semaphore.giveFromISR();
+    if ((readPtr != nullptr) && (sr.RXNE)) {
+        sr.RXNE.clear();
+        *readPtr++ = (uint32_t)spi.dr.volatileLoad();
+        if (readPtr == readEnd) {
+            readPtr = nullptr;
+            auto cr2 = spi.cr2.volatileLoad();
+            cr2.RXNEIE.clear();  // fixme maybe bitband
+            spi.cr2.volatileStore(cr2);
+            bool shouldYeld = semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
             portYIELD_FROM_ISR(shouldYeld);
 #else
             (void)shouldYeld;
 #endif
-        } else if (object.writePtr == nullptr) {
-            spi->DR = object.writeData;
+        } else if (writePtr == nullptr) {
+            spi.dr.volatileStore(writeData);
         }
     }
-    if ((object.writePtr != nullptr) && (sr & SPI_SR_TXE)) {
-        spi->DR = *object.writePtr++;
-        if (object.writePtr == object.writeEnd) {
-            object.writePtr = nullptr;
-            spi->CR2 &= ~(SPI_CR2_TXEIE);  // fixme maybe bitband
-            if (object.readPtr == nullptr) {
-                bool shouldYeld = object.semaphore.giveFromISR();
+    if (cr2.TXEIE) {
+        if ((writePtr != nullptr) && (sr.TXE)) {
+            sr.TXE.clear();
+            spi.dr.volatileStore(*writePtr++);
+            if (writePtr == writeEnd) {
+                writePtr = nullptr;
+                auto cr2 = spi.cr2.volatileLoad();
+                cr2.TXEIE.clear();  // fixme maybe bitband
+                spi.cr2.volatileStore(cr2);
+                if (readPtr == nullptr) {
+                    bool shouldYeld = semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
-                portYIELD_FROM_ISR(shouldYeld);
+                    portYIELD_FROM_ISR(shouldYeld);
 #else
-                (void)shouldYeld;
+                    (void)shouldYeld;
 #endif
+                }
             }
+        } else {
+            auto cr2 = spi.cr2.volatileLoad();
+            cr2.TXEIE.clear();  // fixme maybe bitband
+            spi.cr2.volatileStore(cr2);
         }
     }
 
-    sr = ~sr;
-    spi->SR = sr;
+    spi.sr.volatileStore(sr);
 }
 //***********************************************************************************************//
 //                                          IRQHandlers //
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_SPI1_INTERRUPT
-void SPI1_IRQHandler(void) {
-    IRQfunction(SPI_interrupt::spi1, SPI1);
+#if defined(MICROHAL_USE_SPI1_INTERRUPT) && MICROHAL_USE_SPI1_INTERRUPT == 1
+extern "C" void SPI1_IRQHandler(void) {
+    SPI_interrupt::spi1->IRQfunction();
 }
 #endif
-#ifdef MICROHAL_USE_SPI2_INTERRUPT
-void SPI2_IRQHandler(void) {
-    IRQfunction(SPI_interrupt::spi2, SPI2);
+#if defined(MICROHAL_USE_SPI2_INTERRUPT) && MICROHAL_USE_SPI2_INTERRUPT == 1
+extern "C" void SPI2_IRQHandler(void) {
+    SPI_interrupt::spi2->IRQfunction();
 }
 #endif
-#ifdef MICROHAL_USE_SPI3_INTERRUPT
-void SPI3_IRQHandler(void) {
-    IRQfunction(SPI_interrupt::spi3, SPI3);
+#if defined(MICROHAL_USE_SPI3_INTERRUPT) && MICROHAL_USE_SPI3_INTERRUPT == 1
+extern "C" void SPI3_IRQHandler(void) {
+    SPI_interrupt::spi3->IRQfunction();
 }
 #endif
-#ifdef MICROHAL_USE_SPI4_INTERRUPT
-void SPI4_IRQHandler(void) {
-    IRQfunction(SPI_interrupt::spi4, SPI4);
+#if defined(MICROHAL_USE_SPI4_INTERRUPT) && MICROHAL_USE_SPI4_INTERRUPT == 1
+extern "C" void SPI4_IRQHandler(void) {
+    SPI_interrupt::spi4->IRQfunction();
 }
 #endif
-#ifdef MICROHAL_USE_SPI5_INTERRUPT
-void SPI5_IRQHandler(void) {
-    IRQfunction(SPI_interrupt::spi5, SPI5);
+#if defined(MICROHAL_USE_SPI5_INTERRUPT) && MICROHAL_USE_SPI5_INTERRUPT == 1
+extern "C" void SPI5_IRQHandler(void) {
+    SPI_interrupt::spi5->IRQfunction();
 }
 #endif
-#ifdef MICROHAL_USE_SPI6_INTERRUPT
-void SPI6_IRQHandler(void) {
-    IRQfunction(SPI_interrupt::spi6, SPI6);
+#if defined(MICROHAL_USE_SPI6_INTERRUPT) && MICROHAL_USE_SPI6_INTERRUPT == 1
+extern "C" void SPI6_IRQHandler(void) {
+    SPI_interrupt::spi6->IRQfunction();
 }
 #endif
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

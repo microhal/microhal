@@ -5,18 +5,20 @@
  *      Author: pawel
  */
 
-#ifndef SPI_DMA_STM32F4XX_H_
-#define SPI_DMA_STM32F4XX_H_
+#ifndef _MICROHAL_SPI_DMA_STMCOMMON_H_
+#define _MICROHAL_SPI_DMA_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "../clockManager.h"
-#include "../dma_stm32f4xx.h"
-#include "../spi_stm32f4xx.h"
 #include "microhal_semaphore.h"
+#include "spi_stmCommon.h"
+
+#include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_DMA
+#include _MICROHAL_INCLUDE_PORT_CONFIG
 
 namespace microhal {
-namespace stm32f4xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 extern "C" {
 void DMA1_Stream0_IRQHandler(void);
 void DMA1_Stream2_IRQHandler(void);
@@ -32,7 +34,7 @@ void DMA2_Stream5_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class SPI_dma : public stm32f4xx::SPI {
+class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
  public:
 //---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_SPI1_DMA
@@ -73,13 +75,17 @@ class SPI_dma : public stm32f4xx::SPI {
     DMA::Stream &txStream;
 
     //--------------------------------------- constructors --------------------------------------//
-    SPI_dma(SPI_TypeDef &spi, DMA::DMA &dma, DMA::Stream &rxStream, DMA::Stream &txStream, stm32f4xx::IOPin misoPin)
+    SPI_dma(registers::SPI &spi, DMA::DMA &dma, DMA::Stream &rxStream, DMA::Stream &txStream, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin)
         : SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
-        ClockManager::enable(spi, ClockManager::PowerMode::Normal);
-#if defined(HAL_RTOS_FreeRTOS)
-        enableInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+        ClockManager::enableSPI(getNumber, ClockManager::PowerMode::Normal);
 #else
-        enableInterrupt(0);
+        ClockManager::enableSPI(getNumber());
+#endif
+#if defined(HAL_RTOS_FreeRTOS)
+        enableGlobalInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+#else
+        enableGlobalInterrupt(0);
 #endif
         init();
     }
@@ -89,7 +95,7 @@ class SPI_dma : public stm32f4xx::SPI {
     //---------------------------------------- functions ----------------------------------------//
     void init();
 
-    static inline void IRQfunction(SPI_dma &object, SPI_TypeDef *spi);
+    static inline void IRQfunction(SPI_dma &object, registers::SPI *spi);
     //----------------------------------------- friends -----------------------------------------//
     friend void DMA1_Stream0_IRQHandler(void);
     friend void DMA1_Stream2_IRQHandler(void);
@@ -110,7 +116,7 @@ class SPI_dma : public stm32f4xx::SPI {
     friend void SPI6_IRQHandler(void);
 };
 
-}  // namespace stm32f4xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif /* SPI_DMA_STM32F4XX_H_ */
+#endif /* _MICROHAL_SPI_DMA_STMCOMMON_H_ */
