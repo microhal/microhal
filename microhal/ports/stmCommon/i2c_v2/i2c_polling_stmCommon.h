@@ -27,22 +27,22 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_I2C_POLLING_STM32F3XX_H_
-#define _MICROHAL_I2C_POLLING_STM32F3XX_H_
+#ifndef _MICROHAL_I2C_POLLING_STMCOMMON_H_
+#define _MICROHAL_I2C_POLLING_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
 #include <cstdint>
-#include "../clockManager.h"
-#include "../device/stm32f3xx.h"
+#include "i2c_stmCommon.h"
+
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************
  * CLASS
  */
-class I2C_polling : public stm32f3xx::I2C {
+class I2C_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
  public:
 //---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_I2C1_POLLING
@@ -54,10 +54,7 @@ class I2C_polling : public stm32f3xx::I2C {
 #ifdef MICROHAL_USE_I2C3_POLLING
     static I2C_polling i2c3;
 #endif
- private:
-    //---------------------------------------- constructors ---------------------------------------
-    I2C_polling(I2C_TypeDef &i2c) : I2C(i2c) { ClockManager::enable(i2c); }
-    //---------------------------------------- functions ----------------------------------------//
+
     Error writeRead(DeviceAddress address, const uint8_t *write, size_t write_size, uint8_t *read, size_t read_size) noexcept final;
 
     Error write(DeviceAddress deviceAddress, const uint8_t *write, size_t write_size) noexcept final;
@@ -65,19 +62,29 @@ class I2C_polling : public stm32f3xx::I2C {
                 size_t write_data_sizeB) noexcept final;
 
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength) noexcept final {
-    	return read_implementation(deviceAddress, nullptr, 0, data, dataLength);
+        Error error = read_implementation(deviceAddress, data, dataLength, nullptr, 0);
+        waitForStopSend();
+        return error;
     }
     Error read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept final {
-    	return read_implementation(deviceAddress, data, dataLength, dataB, dataBLength);
+        Error error = read_implementation(deviceAddress, data, dataLength, dataB, dataBLength);
+        waitForStopSend();
+        return error;
     }
 
-    inline Error write(uint8_t data);
-    Error write_implementation(DeviceAddress deviceAddress, const void *write_data, size_t write_data_size, const void *write_dataB,
+ private:
+    //---------------------------------------- constructors ---------------------------------------
+    I2C_polling(registers::I2C &i2c) : I2C(i2c) { ClockManager::enableI2C(getNumber()); }
+    //---------------------------------------- functions ----------------------------------------//
+    Error write(const uint8_t *data, size_t length, size_t &toRead);
+    Error readInto(uint8_t *data, size_t length, size_t &toRead);
+    Error write_implementation(DeviceAddress deviceAddress, const uint8_t *write_data, size_t write_data_size, const uint8_t *write_dataB,
                                size_t write_data_sizeB);
     Error read_implementation(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept;
+    void waitForStopSend();
 };
 
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif  // _MICROHAL_I2C_POLLING_STM32F3XX_H_
+#endif  // _MICROHAL_I2C_POLLING_STMCOMMON_H_

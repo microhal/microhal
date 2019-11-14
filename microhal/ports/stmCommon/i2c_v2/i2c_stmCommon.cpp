@@ -5,14 +5,15 @@
  *      Author: Pawel
  */
 
-#include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
-#include "clockManager.h"
+#include "i2c_stmCommon.h"
 #include "diagnostic/diagnostic.h"
+
+#include _MICROHAL_INCLUDE_PORT_clockManager
 
 using namespace microhal::diagnostic;
 
 namespace microhal {
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 /**
  * @brief This function reset and initialize I2C peripheral. Notice: This function doesn't enable peripheral. After calling
@@ -26,8 +27,13 @@ bool I2C::init() {
 
     //	if(freqMHz >= 2 && freqMHz <= 42) {//
     // reset device
-    i2c.CR1 = I2C_CR1_SWRST;
-    i2c.CR1 = 0;
+    registers::I2C::CR1 cr1 = {};
+    cr1.SWRST.set();
+    i2c.cr1.volatileStore(cr1);
+    cr1 = 0;
+    i2c.cr1.volatileStore(cr1);
+    // i2c.CR1 = I2C_CR1_SWRST;
+    // i2c.CR1 = 0;
     // enable interrupts
     // i2c.CR1 = /*I2C_CR1_RXIE/* | I2C_CR2_ITBUFEN|*/ I2C_CR1_ERRIE;// | freqMHz;
 
@@ -55,54 +61,54 @@ bool I2C::configure(uint32_t speed, uint32_t /*riseTime*/, bool /*fastMode*/, bo
         return false;
     }
     //
-    const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c);  // in Hz
-                                                                   //	const uint8_t clockFreqMHz = clockFreqHz / 1000000; //frequency in MHz
-                                                                   //
-                                                                   //	if(clockFreqMHz >= 2 && clockFreqMHz <= 42) {
-                                                                   //		uint32_t ccrFlags = 0;
-                                                                   //		//calculate clock period in ns
-                                                                   //		const uint32_t Tpclk = 1000000000 / clockFreqHz;
-                                                                   //
-                                                                   //		//calculate ccr register value
-                                                                   //		uint32_t trTime; //< transmission time
-                                                                   //
-                                                                   //		if(fastMode == false){
-                                                                   //			//in this mode Thigh = Tlow
-                                                                   //			//calculate Thigh in ns
-                                                                   //			trTime = (1000000000 / 2) / speed;
-                                                                   //		} else {
-                                                                   //			if(duty == false){
-                                                                   //				//in this mode Thigh = Tlow / 2
-                                                                   //				//calculate transmission time
-                                                                   //				trTime = (1000000000 / 3) / speed;
-                                                                   //				ccrFlags = I2C_CCR_FS;
-                                                                   //			} else {
-                                                                   //				//in this mode 1/9 Thigh = 1/16 Tlow
-                                                                   //				trTime = (1000000000 / 25) / speed;
-                                                                   //				ccrFlags = I2C_CCR_FS | I2C_CCR_DUTY;
-                                                                   //			}
-                                                                   //		}
-                                                                   //
-                                                                   //		uint8_t ccr = trTime / Tpclk;
-                                                                   //		if(fastMode && duty){
-                                                                   //			if(ccr < 0x01) ccr = 0x01;
-                                                                   //		} else {
-                                                                   //			if(ccr < 0x04) ccr = 0x04;
-                                                                   //		}
-                                                                   //
-                                                                   //
-                                                                   //		//calculate rise time
-                                                                   //		uint8_t trise = (riseTime / Tpclk) + 1;
-                                                                   //		if(trise > 31) trise = 31;
-                                                                   //
-                                                                   //		//set I2C peripheral clock frequency
-                                                                   //		i2c.CR2 = (i2c.CR2 & ~I2C_CR2_FREQ) | clockFreqMHz;
-                                                                   //		i2c.CCR = ccr | ccrFlags;
-                                                                   //		//set max rise time
-                                                                   //		i2c.TRISE = trise;
-                                                                   //
-                                                                   //		return true;
-                                                                   //	}
+    const uint32_t clockFreqHz = ClockManager::I2CFrequency(getNumber());  // in Hz
+                                                                           //	const uint8_t clockFreqMHz = clockFreqHz / 1000000; //frequency in MHz
+                                                                           //
+                                                                           //	if(clockFreqMHz >= 2 && clockFreqMHz <= 42) {
+                                                                           //		uint32_t ccrFlags = 0;
+                                                                           //		//calculate clock period in ns
+                                                                           //		const uint32_t Tpclk = 1000000000 / clockFreqHz;
+                                                                           //
+                                                                           //		//calculate ccr register value
+                                                                           //		uint32_t trTime; //< transmission time
+                                                                           //
+                                                                           //		if(fastMode == false){
+                                                                           //			//in this mode Thigh = Tlow
+                                                                           //			//calculate Thigh in ns
+                                                                           //			trTime = (1000000000 / 2) / speed;
+                                                                           //		} else {
+                                                                           //			if(duty == false){
+                                                                           //				//in this mode Thigh = Tlow / 2
+                                                                           //				//calculate transmission time
+                                                                           //				trTime = (1000000000 / 3) / speed;
+                                                                           //				ccrFlags = I2C_CCR_FS;
+                                                                           //			} else {
+                                                                           //				//in this mode 1/9 Thigh = 1/16 Tlow
+                                                                           //				trTime = (1000000000 / 25) / speed;
+                                                                           //				ccrFlags = I2C_CCR_FS | I2C_CCR_DUTY;
+                                                                           //			}
+                                                                           //		}
+                                                                           //
+                                                                           //		uint8_t ccr = trTime / Tpclk;
+                                                                           //		if(fastMode && duty){
+                                                                           //			if(ccr < 0x01) ccr = 0x01;
+                                                                           //		} else {
+                                                                           //			if(ccr < 0x04) ccr = 0x04;
+                                                                           //		}
+                                                                           //
+                                                                           //
+                                                                           //		//calculate rise time
+                                                                           //		uint8_t trise = (riseTime / Tpclk) + 1;
+                                                                           //		if(trise > 31) trise = 31;
+                                                                           //
+                                                                           //		//set I2C peripheral clock frequency
+                                                                           //		i2c.CR2 = (i2c.CR2 & ~I2C_CR2_FREQ) | clockFreqMHz;
+                                                                           //		i2c.CCR = ccr | ccrFlags;
+                                                                           //		//set max rise time
+                                                                           //		i2c.TRISE = trise;
+                                                                           //
+                                                                           //		return true;
+                                                                           //	}
     diagChannel << diagnostic::lock << MICROHAL_NOTICE << "Setting I2C speed: " << speed << diagnostic::unlock;
     // 1/i2cFreq * 1000 000 000
     const uint32_t Ti2cclk = 1000'000'000 / clockFreqHz;  // in ns
@@ -120,7 +126,10 @@ bool I2C::configure(uint32_t speed, uint32_t /*riseTime*/, bool /*fastMode*/, bo
     diagChannel << diagnostic::lock << MICROHAL_DEBUG << "SCL low prescaler: " << scllDivider << "SCL high prescaler: " << sclhDivider
                 << diagnostic::unlock;
 
-    i2c.TIMINGR |= 15 << I2C_TIMINGR_PRESC_Pos;
+    auto timingr = i2c.timingr.volatileLoad();
+    timingr.PRESC = 15;
+    i2c.timingr.volatileStore(timingr);
+
     // SCLL = Tscll / ((PRESC + 1) * Ti2cclk);
 
     // SCLL / Ti2cclk = Tscll / (PRESC + 1)
@@ -133,19 +142,26 @@ bool I2C::configure(uint32_t speed, uint32_t /*riseTime*/, bool /*fastMode*/, bo
 }
 
 I2C::Speed I2C::speed() noexcept {
-    const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c);  // in Hz
-    const uint32_t timingr = i2c.TIMINGR;
-    const uint32_t SCLL = (timingr & I2C_TIMINGR_SCLL_Msk) >> I2C_TIMINGR_SCLL_Pos;
-    const uint32_t SCLH = (timingr & I2C_TIMINGR_SCLH_Msk) >> I2C_TIMINGR_SCLH_Pos;
-    const uint32_t PRESC = (timingr & I2C_TIMINGR_PRESC_Msk) >> I2C_TIMINGR_PRESC_Pos;
+    const uint32_t clockFreqHz = ClockManager::I2CFrequency(getNumber());  // in Hz
+    auto timingr = i2c.timingr.volatileLoad();
+    const uint32_t SCLL = timingr.SCLL;
+    const uint32_t SCLH = timingr.SCLH;
+    const uint32_t PRESC = timingr.PRESC;
     return clockFreqHz / ((SCLL + SCLH + 2) * (PRESC + 1));
 }
 
 bool I2C::addSlave(I2CSlave &i2cSlave) {
     if (slave[0] == nullptr) {
         slave[0] = &i2cSlave;
-        i2c.CR1 |= I2C_CR1_ADDRIE | I2C_CR1_SBC;
-        i2c.OAR1 = I2C_OAR1_OA1EN | i2cSlave.getAddress();
+        auto cr1 = i2c.cr1.volatileLoad();
+        cr1.ADDRIE.set();
+        cr1.SBC.set();
+        i2c.cr1.volatileStore(cr1);
+
+        registers::I2C::OAR1 oar1;
+        oar1.OA1EN.set();
+        oar1.OA1 = i2cSlave.getAddress();
+        i2c.oar1.volatileStore(oar1);
         return true;
     } else if (slave[1] == nullptr) {
         slave[1] = &i2cSlave;
@@ -157,7 +173,8 @@ bool I2C::addSlave(I2CSlave &i2cSlave) {
 
 bool I2C::removeSlave(I2CSlave &i2cSlave) {
     if (slave[0] == &i2cSlave) {
-        i2c.OAR1 = 0;
+        i2c.oar1.volatileStore(0);
+        // i2c.OAR1 = 0;
         slave[0] = nullptr;
         return true;
     } else if (slave[1] == &i2cSlave) {
@@ -168,5 +185,5 @@ bool I2C::removeSlave(I2CSlave &i2cSlave) {
     }
 }
 
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

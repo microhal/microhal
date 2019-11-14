@@ -26,20 +26,20 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef I2C_DMA_STM32F3XX_H_
-#define I2C_DMA_STM32F3XX_H_
+#ifndef _MICROHAL_I2C_DMA_STMCOMMON_H_
+#define _MICROHAL_I2C_DMA_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
 #include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
 #include <cstdint>
-#include "../clockManager.h"
-#include "../device/stm32f3xx.h"
-#include "../dma_stm32f3xx.h"
 #include "microhal_semaphore.h"
 
+#include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_DMA
+
 namespace microhal {
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 extern "C" {
 void I2C1_EV_IRQHandler(void);
@@ -61,7 +61,7 @@ void DMA1_Channel7_IRQHandler(void);
 /* ************************************************************************************************
  * CLASS
  */
-class I2C_dma : public stm32f3xx::I2C {
+class I2C_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
  public:
 //---------------------------------------- variables ----------------------------------------//
 #ifdef MICROHAL_USE_I2C1_DMA
@@ -101,9 +101,9 @@ class I2C_dma : public stm32f3xx::I2C {
         Buffer bufferB;
     } transfer;
     //---------------------------------- constructors -------------------------------
-    I2C_dma(I2C_TypeDef &i2c, DMA::Channel &rxStream, DMA::Channel &txStream)
+    I2C_dma(registers::I2C &i2c, DMA::Channel &rxStream, DMA::Channel &txStream)
         : I2C(i2c), error(), rxStream(rxStream), txStream(txStream), semaphore{}, transfer() {
-        ClockManager::enable(i2c);
+        ClockManager::enableI2C(getNumber());
         init();
         switch (reinterpret_cast<uint32_t>(&i2c)) {
             case reinterpret_cast<uint32_t>(I2C1_BASE):
@@ -129,8 +129,8 @@ class I2C_dma : public stm32f3xx::I2C {
 
     //---------------------------------- functions ----------------------------------
     void init(void);
-    static void IRQFunction(I2C_dma &obj, I2C_TypeDef *i2c);
-    static void IRQErrorFunction(I2C_dma &obj, I2C_TypeDef *i2c);
+    static void IRQFunction(I2C_dma &obj, registers::I2C *i2c);
+    void IRQErrorFunction();
     //---------------------------------- friends ------------------------------------
 
     friend void I2C1_EV_IRQHandler(void);
@@ -150,7 +150,7 @@ class I2C_dma : public stm32f3xx::I2C {
     friend void DMA1_Stream7_IRQHandler(void);
 };
 
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif  // I2C_DMA_STM32F3XX_H_
+#endif  // _MICROHAL_I2C_DMA_STMCOMMON_H_

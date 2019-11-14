@@ -27,22 +27,22 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_I2C_STM32F4XX_H_
-#define _MICROHAL_I2C_STM32F4XX_H_
+#ifndef _MICROHAL_I2C_STMCOMMON_H_
+#define _MICROHAL_I2C_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
 #include <cstdint>
-
-#include "core_stm32f3xx.h"
-#include "device/stm32f3xx.h"
+#include "../registers/i2cRegisters_v2.h"
+#include "../stmCommonDefines.h"
 #include "interfaces/i2cSlave.h"
 #include "interfaces/i2c_interface.h"
-#include "microhalPortConfig_stm32f3xx.h"
+
+#include _MICROHAL_INCLUDE_PORT_CONFIG
 
 namespace microhal {
 class I2CDevice;
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 extern "C" {
 void I2C1_ER_IRQHandler(void);
 void I2C1_EV_IRQHandler(void);
@@ -55,11 +55,7 @@ void I2C3_EV_IRQHandler(void);
  * CLASS
  */
 /**
- * @addtogroup stm32f4xx_port
- * @{
- * @class I2C
- * @}
- * \brief   This class implements I2C functions.
+ * @brief   This class implements I2C functions.
  */
 class I2C : public microhal::I2C {
  public:
@@ -90,7 +86,11 @@ class I2C : public microhal::I2C {
         return configure(speed, getMaxRiseTime(mode), fastMode, dutyCycle);
     }
     Speed speed() noexcept final;
-    void busReset() noexcept final { i2c.CR2 |= I2C_CR2_STOP; }
+    void busReset() noexcept final {
+        auto cr2 = i2c.cr2.volatileLoad();
+        cr2.STOP.set();
+        i2c.cr2.volatileStore(cr2);
+    }
     /**
      * @brief This function enable analog filter. Changing filter state is only
      * possible when I2C peripheral is inactive.
@@ -102,7 +102,9 @@ class I2C : public microhal::I2C {
      */
     bool analogFilterEnable() {
         if (isEnable() == false) {
-            i2c.CR1 &= ~I2C_CR1_ANFOFF;
+            auto cr1 = i2c.cr1.volatileLoad();
+            cr1.ANFOFF.clear();
+            i2c.cr1.volatileStore(cr1);
             return true;
         }
         return false;
@@ -118,7 +120,9 @@ class I2C : public microhal::I2C {
      */
     bool analogFilterDisable() {
         if (isEnable() == false) {
-            i2c.CR1 |= I2C_CR1_ANFOFF;
+            auto cr1 = i2c.cr1.volatileLoad();
+            cr1.ANFOFF.set();
+            i2c.cr1.volatileStore(cr1);
             return true;
         }
         return false;
@@ -126,15 +130,18 @@ class I2C : public microhal::I2C {
 
     bool digitalFilterEnable(uint8_t spikeLengthInMultipleTpclk) {
         if (spikeLengthInMultipleTpclk <= 15 && isEnable() == false) {
-            i2c.CR1 = (i2c.CR1 & ~I2C_CR1_DNF_Msk) | (I2C_CR1_DNF_Msk & (spikeLengthInMultipleTpclk << I2C_CR1_DNF_Pos));
-            return true;
+            auto cr1 = i2c.cr1.volatileLoad();
+            cr1.DNF = spikeLengthInMultipleTpclk;
+            i2c.cr1.volatileStore(cr1);
         }
         return false;
     }
 
     bool digitalFilterDisable() {
         if (isEnable() == false) {
-            i2c.CR1 &= ~I2C_CR1_DNF_Msk;
+            auto cr1 = i2c.cr1.volatileLoad();
+            cr1.DNF.clear();
+            i2c.cr1.volatileStore(cr1);
             return true;
         }
         return false;
@@ -144,18 +151,38 @@ class I2C : public microhal::I2C {
      *
      * @return true if peripheral is enabled, false otherwise.
      */
-    bool isEnable() { return i2c.CR1 & I2C_CR1_PE; }
+    bool isEnable() { return i2c.cr1.volatileLoad().PE; }
 
     /**
      * @brief This function enable I2C peripheral.
      */
-    void enable() { i2c.CR1 |= I2C_CR1_PE; }
+    void enable() {
+        auto cr1 = i2c.cr1.volatileLoad();
+        cr1.PE.set();
+        i2c.cr1.volatileStore(cr1);
+    }
     /**
      * @brief This function disable I2C peripheral.
      */
-    void disable() { i2c.CR1 &= ~I2C_CR1_PE; }
+    void disable() {
+        auto cr1 = i2c.cr1.volatileLoad();
+        cr1.PE.clear();
+        i2c.cr1.volatileStore(cr1);
+    }
 
-    void stop() { i2c.CR2 |= I2C_CR2_STOP; }
+    void stop() {
+        auto cr2 = i2c.cr2.volatileLoad();
+        cr2.STOP.set();
+        i2c.cr2.volatileStore(cr2);
+    }
+
+    void softwareReset() {
+        auto cr1 = i2c.cr1.volatileLoad();
+        cr1.PE.clear();
+        i2c.cr1.volatileStore(cr1);
+        while (i2c.cr1.volatileLoad().PE != 0) {
+        }
+    }
 
     bool configure(uint32_t speed, uint32_t riseTime, bool fastMode, bool duty);
 
@@ -164,20 +191,37 @@ class I2C : public microhal::I2C {
     bool removeSlave(I2CSlave &i2cSlave);
 
  protected:
-    I2C_TypeDef &i2c;
+    registers::I2C &i2c;
     I2CSlave *slave[2] = {nullptr, nullptr};
     I2CSlave *activeSlave = nullptr;
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
-        explicit I2C(I2C_TypeDef &i2c)
+        explicit I2C(registers::I2C &i2c)
         : i2c(i2c) {
+    }
+
+    uint16_t getNumber() {
+        if ((int)&i2c == _MICROHAL_I2C1_BASE_ADDRESS) {
+            return 1;
+        }
+        if ((int)&i2c == _MICROHAL_I2C2_BASE_ADDRESS) {
+            return 2;
+        }
+        if ((int)&i2c == _MICROHAL_I2C3_BASE_ADDRESS) {
+            return 3;
+        }
+        std::terminate();
     }
 
     I2C(I2C &i2c) = delete;
     I2C &operator=(const I2C &) = delete;
 
-    void start() { i2c.CR2 |= I2C_CR2_START; }
+    void start() {
+        auto cr2 = i2c.cr2.volatileLoad();
+        cr2.START.set();
+        i2c.cr2.volatileStore(cr2);
+    }
 
     void setActiveSlave(uint8_t address) {
         for (int i = 0; i < 2; i++) {
@@ -190,28 +234,30 @@ class I2C : public microhal::I2C {
     }
 
  public:
-    static I2C::Error errorCheckAndClear(I2C_TypeDef *i2c, uint16_t isr) {
+    static I2C::Error errorCheckAndClear(registers::I2C *const i2c, registers::I2C::ISR isr) {
         auto errors = I2C::Error::None;
 
-        if (isr & I2C_ISR_TIMEOUT) {
+        registers::I2C::ICR icr = {};
+        if (isr.TIMEOUT) {
             errors |= I2C::Error::Timeout;
-            i2c->ICR |= I2C_ICR_TIMOUTCF;
+            icr.TIMOUTCF.set();
         }
-        if (isr & I2C_ISR_PECERR) {
-            i2c->ICR |= I2C_ICR_PECCF;
+        if (isr.PECERR) {
+            icr.PECCF.set();
         }
-        if (isr & I2C_ISR_OVR) {
+        if (isr.OVR) {
             errors |= I2C::Error::Overrun;
-            i2c->ICR |= I2C_ICR_OVRCF;
+            icr.OVRCF.set();
         }
-        if (isr & I2C_ISR_ARLO) {
+        if (isr.ARLO) {
             errors |= I2C::Error::ArbitrationLost;
-            i2c->ICR |= I2C_ICR_ARLOCF;
+            icr.ARLOCF.set();
         }
-        if (isr & I2C_ISR_BERR) {
+        if (isr.BERR) {
             errors |= I2C::Error::Bus;
-            i2c->ICR |= I2C_ICR_BERRCF;
+            icr.BERRCF.set();
         }
+        i2c->icr.volatileStore(icr);
 
         return errors;
     }
@@ -219,6 +265,6 @@ class I2C : public microhal::I2C {
     friend microhal::I2CDevice;
 };
 
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-#endif  // _MICROHAL_I2C_STM32F3XX_H_
+#endif  // _MICROHAL_I2C_STMCOMMON_H_
