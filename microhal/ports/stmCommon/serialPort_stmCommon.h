@@ -124,23 +124,23 @@ class SerialPort : public microhal::SerialPort {
     uint32_t number() const {
         if (&usart == registers::usart1) return 1;
         if (&usart == registers::usart2) return 2;
-#if defined(USART3)
+#if defined(_MICROHAL_USART3_BASE_ADDRESS)
         if (&usart == registers::usart3) return 3;
 #endif
-#if defined(UART4)
+#if defined(_MICROHAL_USART4_BASE_ADDRESS)
         if (&usart == registers::uart4) return 4;
 #endif
-#if defined(UART5)
+#if defined(_MICROHAL_UART5_BASE_ADDRESS)
         if (&usart == registers::uart5) return 5;
 #endif
-#if defined(USART6)
+#if defined(_MICROHAL_USART6_BASE_ADDRESS)
         if (&usart == registers::usart6) return 6;
 #endif
-#if defined(UART7)
-        if (&usart == UART7) return 7;
+#if defined(_MICROHAL_UART7_BASE_ADDRESS)
+        if (&usart == registers::uart7) return 7;
 #endif
-#if defined(UART8)
-        if (&usart == UART8) return 8;
+#if defined(_MICROHAL_UART8_BASE_ADDRESS)
+        if (&usart == registers::uart8) return 8;
 #endif
         std::terminate();
     }
@@ -148,13 +148,13 @@ class SerialPort : public microhal::SerialPort {
     IRQn_Type getIrq() {
         if (&usart == registers::usart1) return USART1_IRQn;
         if (&usart == registers::usart2) return USART2_IRQn;
-#if defined(USART3)
+#if defined(_MICROHAL_USART3_BASE_ADDRESS)
         if (&usart == registers::usart3) return USART3_IRQn;
 #endif
-#if defined(UART4)
+#if defined(_MICROHAL_UART4_BASE_ADDRESS)
         if (&usart == registers::uart4) return UART4_IRQn;
 #endif
-#if defined(UART5)
+#if defined(_MICROHAL_UART5_BASE_ADDRESS)
         if (&usart == registers::uart5) return UART5_IRQn;
 #endif
 #if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
