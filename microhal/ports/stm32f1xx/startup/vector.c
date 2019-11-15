@@ -84,9 +84,9 @@ void CAN_RX0_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_H
 void CAN_RX1_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void CAN_SCE_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void EXTI9_5_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void TIM15_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void TIM16_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void TIM17_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void TIM1_BRK_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void TIM1_UP_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void TIM1_TRG_COM_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM1_CC_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM2_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void TIM3_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
@@ -176,9 +176,9 @@ void (*const vectors[])(void) __attribute__((section(".vectors"), used)) = {
     CAN_RX1_IRQHandler,                   // CAN1 RX1
     CAN_SCE_IRQHandler,                   // CAN1 SCE
     EXTI9_5_IRQHandler,                   // External Line[9:5]s
-    TIM15_IRQHandler,                     // TIM1 Break and TIM9
-    TIM16_IRQHandler,                     // TIM1 Update and TIM10
-    TIM17_IRQHandler,                     // TIM1 Trigger and Commutation and TIM11
+    TIM1_BRK_IRQHandler,                  // TIM1 Break
+    TIM1_UP_IRQHandler,                   // TIM1 Update
+    TIM1_TRG_COM_IRQHandler,              // TIM1 Trigger and Commutation
     TIM1_CC_IRQHandler,                   // TIM1 Capture Compare
     TIM2_IRQHandler,                      // TIM2
     TIM3_IRQHandler,                      // TIM3
