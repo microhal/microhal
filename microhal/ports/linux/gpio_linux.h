@@ -92,7 +92,7 @@ class GPIO : public microhal::GPIO {
      * @param port - port name
      * @param pin - pin number
      */
-    void set() {
+    bool set() final {
         char buf[100];
         sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
         auto fd = ::open(buf, O_WRONLY);
@@ -105,17 +105,14 @@ class GPIO : public microhal::GPIO {
                                               << microhal::diagnostic::unlock;
             std::terminate();
         }
+        return true;
     }
-    // using microhal::GPIO::reset;
-    // using microhal::GPIO::set;
-    /** This function set pin to high state. */
-    // void set() { set(pin); }
     /** This function set pin to low state.
      *
      * @param port - port name
      * @param pin - pin number
      */
-    void reset() {
+    bool reset() final {
         char buf[100];
         sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
         auto fd = open(buf, O_WRONLY);
@@ -128,6 +125,7 @@ class GPIO : public microhal::GPIO {
                                               << microhal::diagnostic::unlock;
             std::terminate();
         }
+        return true;
     }
     /** This function set pin to low state.*/
     // void reset() { reset(pin); }
@@ -157,34 +155,6 @@ class GPIO : public microhal::GPIO {
             std::terminate();
         }
     }
-    /** This function read pin state*/
-    // bool get() const final { return get(pin); }
-    /** This function check for pin set.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    // static inline bool isSet(IOPin pin) { return get(pin); }
-    /** This function check for pin set.*/
-    // inline bool isSet() const { return isSet(pin); }
-    /** This function check for pin reset.
-     *
-     * @param port - port name
-     * @param pin - pin number
-     * @return
-     */
-    //  static inline bool isReset(IOPin pin) { return !get(pin); }
-    /** This function check for pin reset.*/
-    //  inline bool isReset() const { return isReset(pin); }
-    /** Sets pin to opposite state
-     *
-     * @param port - port name
-     * @param pin - pin number
-     */
-    // static inline void toggle(IOPin pin) { (isSet(pin)) ? (reset(pin)) : (set(pin)); }
-    /** Sets pin to opposite state*/
-    // inline void toggle() { toggle(pin); }
     /** This function set pin direction.
      *
      * @param port - port name
@@ -210,36 +180,16 @@ class GPIO : public microhal::GPIO {
                                               << "GPIO error, unable to open gpio file, GPIO number: " << pin.pin << microhal::diagnostic::unlock;
         }
     }
-    /** This function set pin direction.
-     *
-     * @param direction - pin direction
-     */
-    // inline void setDirection(const Direction direction) { setDirection(pin, direction); }
     /** This function set pin pull type
      *
      * @param port
      * @param pin
      * @param pullType
      */
-    void setPullType(PullType pullType) {
-        //  reinterpret_cast<volatile GPIO_TypeDef *>(port)->PUPDR |= pullType << (pin * 2);
-    }
-    /** This function set pin pull type
-     *
-     * @param pullType
-     */
-    // void setPullType(PullType pullType) { setPullType(pin, pullType); }
+    void setPullType(PullType pullType) {}
 
  protected:
     const IOPin pin;
-
-    bool setState(bool state) final {
-        if (state)
-            set();
-        else
-            reset();
-        return true;
-    }
 
     bool configure(Direction direction, OutputType outputType, PullType pullType) final {
         setDirection(direction);
