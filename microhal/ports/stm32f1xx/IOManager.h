@@ -52,7 +52,7 @@ class IOManager {
                 static_assert((port == IOPin::PortB && pinNr == 9) || (port == IOPin::PortB && pinNr == 10) || (port == IOPin::PortC && pinNr == 10),
                               "Serial3 Txd can be connected only to: PortB.9, PortB.10, PortC.10.");
             if constexpr (serialType == Rxd)
-                static_assert((port == IOPin::PortB && pinNr == 8) || (port == IOPin::PortB && pinNr == 9) || (port == IOPin::PortC && pinNr == 11),
+                static_assert((port == IOPin::PortB && pinNr == 8) || (port == IOPin::PortB && pinNr == 11) || (port == IOPin::PortC && pinNr == 11),
                               "Serial3 Rxd can be connected only to: PortB.8, PortB.11, PortC.11.");
         }
         if constexpr (serialType == Txd) {
