@@ -25,6 +25,7 @@ namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 extern "C" {
+void TIM1_UP_IRQHandler(void);
 void TIM1_CC_IRQHandler(void);
 void TIM3_IRQHandler(void);
 }
@@ -137,14 +138,18 @@ class Timer {
 
     Timer(registers::TIM *addr)
         : timer(*addr), compare1(*addr, 1), compare2(*addr, 2), compare3(*addr, 3), compare4(*addr, 4), capture1(*addr, 1), capture2(*addr, 2) {
-        if (addr == registers::tim3) {
+        if (addr == registers::tim1) {
+            tim1 = this;
+        } else if (addr == registers::tim3) {
             tim3 = this;
         }
         ClockManager::enableTimer(getNumber());
     }
     ~Timer() {
         disableInterrupt();
-        if (&timer == registers::tim3) {
+        if (&timer == registers::tim1) {
+            tim1 = nullptr;
+        } else if (&timer == registers::tim3) {
             tim3 = nullptr;
         }
     }
@@ -812,12 +817,14 @@ class Timer {
     registers::TIM &timer;
     Signal<void> signal = {};
 
+    static Timer *tim1;
     static Timer *tim3;
 
     uint8_t getNumber() const;
     IRQn_Type getIRQn() const;
 
     friend void TIM3_IRQHandler(void);
+    friend void TIM1_UP_IRQHandler(void);
 };  // namespace stm32f3xx
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
