@@ -53,8 +53,8 @@
 #error "Microcontroler vendor undefined."
 #endif
 
-namespace microhal {
-typedef activePort::Core Core;
-}
+// namespace microhal {
+// typedef activePort::Core Core;
+//}
 
 #endif  // _MICROHAL_CORE_PORT_H_

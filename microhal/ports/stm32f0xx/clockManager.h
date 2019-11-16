@@ -35,9 +35,9 @@
 #include <cstdint>
 #include <exception>
 #include <type_traits>
-#include "microhalPortConfig_stm32f0xx.h"
-
 #include "device/stm32f0xx.h"
+#include "gpio_stm32f0xx.h"
+#include "microhalPortConfig_stm32f0xx.h"
 
 namespace microhal {
 namespace stm32f0xx {
@@ -56,36 +56,36 @@ class ClockManager {
     enum UsbClockSource { HSI48 = 0, PLL = 1 };
 
  public:
-    static void enable(const USART_TypeDef &usart) {
+    static void enableUSART(uint8_t number) {
         uint32_t rccEnableFlag;
 
-        if (&usart == USART1)
+        if (number == 1)
             rccEnableFlag = RCC_APB2ENR_USART1EN;
-        else if (&usart == USART2)
+        else if (number == 2)
             rccEnableFlag = RCC_APB1ENR_USART2EN;
 #if defined(USART3)
-        else if (&usart == USART3)
+        else if (number == 3)
             rccEnableFlag = RCC_APB1ENR_USART3EN;
 #endif
 #if defined(UART4)
-        else if (&usart == UART4)
+        else if (number == 4)
             rccEnableFlag = RCC_APB1ENR_UART4EN;
 #endif
 #if defined(UART5)
-        else if (&usart == UART5)
+        else if (number == 5)
             rccEnableFlag = RCC_APB1ENR_UART5EN;
 #endif
 #if defined(USART6)
-        else if (&usart == USART6)
+        else if (number == 6)
             rccEnableFlag = RCC_APB2ENR_USART6EN;
 #endif
         else {
             std::terminate();
         }
 #if defined(USART6)
-        if (&usart == USART1 || &usart == USART6) {
+        if (number == 1 || number == 6) {
 #else
-        if (&usart == USART1) {
+        if (number == 1) {
 #endif
             RCC->APB2ENR |= rccEnableFlag;
         } else {
@@ -93,43 +93,43 @@ class ClockManager {
         }
     }
 
-    static void enable(const GPIO_TypeDef &gpio) {
-        if (&gpio == GPIOA) {
+    static void enableGPIO(const registers::GPIO &gpio) {
+        if ((int)&gpio == IOPin::PortA) {
             RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-        } else if (&gpio == GPIOB) {
+        } else if ((int)&gpio == IOPin::PortB) {
             RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-        } else if (&gpio == GPIOC) {
+        } else if ((int)&gpio == IOPin::PortC) {
             RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
 #if defined(GPIOD_BASE)
-        } else if (&gpio == GPIOD) {
+        } else if ((int)&gpio == IOPin::PortD) {
             RCC->AHBENR |= RCC_AHBENR_GPIODEN;
 #endif
 #if defined(GPIOE_BASE)
-        } else if (&gpio == GPIOE) {
+        } else if ((int)&gpio == IOPin::PortE) {
             RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
 #endif
 #if defined(GPIOF_BASE)
-        } else if (&gpio == GPIOF) {
+        } else if ((int)&gpio == IOPin::PortF) {
             RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
 #endif
 #if defined(GPIOG_BASE)
-        } else if (&gpio == GPIOG) {
+        } else if ((int)&gpio == IOPin::PortG) {
             RCC->AHBENR |= RCC_AHBENR_GPIOGEN;
 #endif
 #if defined(GPIOH_BASE)
-        } else if (&gpio == GPIOH) {
+        } else if ((int)&gpio == IOPin::PortH) {
             RCC->AHBENR |= RCC_AHBENR_GPIOHEN;
 #endif
 #if defined(GPIOI_BASE)
-        } else if (&gpio == GPIOI) {
+        } else if ((int)&gpio == IOPin::PortI) {
             RCC->AHBENR |= RCC_AHBENR_GPIOIEN;
 #endif
 #if defined(GPIOJ_BASE)
-        } else if (&gpio == GPIOJ) {
+        } else if ((int)&gpio == IOPin::PortJ) {
             RCC->AHBENR |= RCC_AHBENR_GPIOJEN;
 #endif
 #if defined(GPIOK_BASE)
-        } else if (&gpio == GPIOK) {
+        } else if ((int)&gpio == IOPin::PortK) {
             RCC->AHBENR |= RCC_AHBENR_GPIOKEN;
 #endif
         } else {
@@ -269,9 +269,9 @@ class ClockManager {
     }
 #endif
 
-    static uint32_t USARTFrequency(const USART_TypeDef &usart);
+    static uint32_t USARTFrequency(uint8_t number);
 
-    static UsartClockSource USARTClockSource(const USART_TypeDef &usart);
+    static UsartClockSource USARTClockSource(uint8_t number);
 
     static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
         if (&i2c == I2C1) {

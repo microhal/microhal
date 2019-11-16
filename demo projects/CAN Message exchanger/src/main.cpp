@@ -38,7 +38,7 @@ void canInit() {
     can1.setBaudrate(30000);
     can1.setMode(CAN::Mode::Normal);
     can1.sleepMode(CAN::Sleep::AutoWakeup);
-    can1.addFilter(can::Message::StandardID{20}, 20, false);
+    can1.addFilter({can::Message::StandardID{10}, can::Filter::Match::DataFrame});
 }
 
 void receiveCANMessage() {

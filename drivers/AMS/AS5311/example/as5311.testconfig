@@ -1,0 +1,22 @@
+import re
+
+testType = 'deviceTest'
+targets = ['NUCLEO-F103RB']
+executionTime = 1
+requireHardware = False
+	
+def projectName():
+	return 'AS5311'	
+	
+def binaryName(configuration):
+	return 'AS5311.elf'
+	
+def passed(data):				
+	correctOutput =("\n\r------------------- AS5311 Demo -------------------------\n\r")
+															
+	if (correctOutput not in data):		
+		print 'length of received data =' + str(len(data))
+		print 'length of correct data =' + str(len(correctOutput))
+		print data		
+		
+	return correctOutput in data

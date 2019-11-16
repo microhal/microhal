@@ -10,27 +10,27 @@
 namespace microhal {
 namespace stm32f3xx {
 
-void ClockManager::enable(const USART_TypeDef &usart) {
+void ClockManager::enableUSART(uint8_t number) {
     uint32_t rccEnableFlag;
 
-    if (&usart == USART1)
+    if (number == 1)
         rccEnableFlag = RCC_APB2ENR_USART1EN;
-    else if (&usart == USART2)
+    else if (number == 2)
         rccEnableFlag = RCC_APB1ENR_USART2EN;
 #if defined(USART3)
-    else if (&usart == USART3)
+    else if (number == 3)
         rccEnableFlag = RCC_APB1ENR_USART3EN;
 #endif
 #if defined(UART4)
-    else if (&usart == UART4)
+    else if (number == 4)
         rccEnableFlag = RCC_APB1ENR_UART4EN;
 #endif
 #if defined(UART5)
-    else if (&usart == UART5)
+    else if (number == 5)
         rccEnableFlag = RCC_APB1ENR_UART5EN;
 #endif
 #if defined(USART6)
-    else if (&usart == USART6)
+    else if (number == 6)
         rccEnableFlag = RCC_APB2ENR_USART6EN;
 #endif
     else {
@@ -38,9 +38,9 @@ void ClockManager::enable(const USART_TypeDef &usart) {
             ;  // Error should newer go there
     }
 #if defined(USART6)
-    if (&usart == USART1 || &usart == USART6) {
+    if (number == 1 || number == 6) {
 #else
-    if (&usart == USART1) {
+    if (number == 1) {
 #endif
         RCC->APB2ENR |= rccEnableFlag;
     } else {
@@ -62,21 +62,21 @@ void ClockManager::enable(const DAC_TypeDef &dac) {
     std::terminate();  // critical error, should never go here
 }
 
-void ClockManager::enable(const GPIO_TypeDef &gpio) {
-    if (&gpio == GPIOA)
+void ClockManager::enableGPIO(const microhal::registers::GPIO &gpio) {
+    if ((int)&gpio == IOPin::PortA)
         RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
-    else if (&gpio == GPIOB)
+    else if ((int)&gpio == IOPin::PortB)
         RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
-    else if (&gpio == GPIOC)
+    else if ((int)&gpio == IOPin::PortC)
         RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-    else if (&gpio == GPIOD)
+    else if ((int)&gpio == IOPin::PortD)
         RCC->AHBENR |= RCC_AHBENR_GPIODEN;
 #if defined(GPIOE_BASE)
-    else if (&gpio == GPIOE)
+    else if ((int)&gpio == IOPin::PortE)
         RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
 #endif
 #if defined(GPIOF_BASE)
-    else if (&gpio == GPIOF)
+    else if ((int)&gpio == IOPin::PortF)
         RCC->AHBENR |= RCC_AHBENR_GPIOFEN;
 #endif
     else {
@@ -85,14 +85,14 @@ void ClockManager::enable(const GPIO_TypeDef &gpio) {
     }
 }
 
-ClockManager::UsartClockSource ClockManager::USARTClockSource(const USART_TypeDef &usart) {
+ClockManager::UsartClockSource ClockManager::USARTClockSource(uint8_t number) {
     uint32_t pos;
-    if (&usart == USART1)
+    if (number == 1)
         pos = RCC_CFGR3_USART1SW_Pos;
-    else if (&usart == USART2)
+    else if (number == 2)
         // pos = RCC_CFGR3_USART2SW_Pos;
         return UsartClockSource::PCLK;
-    else if (&usart == USART3)
+    else if (number == 3)
         // pos = RCC_CFGR3_USART3SW_Pos;
         return UsartClockSource::PCLK;
     else {
@@ -121,8 +121,8 @@ void ClockManager::USARTClockSource(const USART_TypeDef &usart, UsartClockSource
     RCC->CFGR3 = (RCC->CFGR3 & ~(0b11 << pos)) | (source << pos);
 }
 
-uint32_t ClockManager::USARTFrequency(const USART_TypeDef &usart) {
-    UsartClockSource usartClockSource = USARTClockSource(usart);
+uint32_t ClockManager::USARTFrequency(uint8_t number) {
+    UsartClockSource usartClockSource = USARTClockSource(number);
 
     switch (usartClockSource) {
         case PCLK:

@@ -83,6 +83,11 @@ class SPI {
     friend class SPIDevice;
 };
 
+constexpr SPI::Error operator&(SPI::Error a, SPI::Error b) {
+    auto tmp = static_cast<uint32_t>(a) & static_cast<uint32_t>(b);
+    return static_cast<SPI::Error>(tmp);
+}
+
 }  // namespace microhal
 
 #endif  // _MICROHAL_SPI_INTERFACE_H_

@@ -34,6 +34,8 @@
  */
 #ifdef MCU_TYPE_STM32F0XX
 #include "ports/stm32f0xx/hardware_stm32f0xx.h"
+#elif defined(MCU_TYPE_STM32F1XX)
+#include "ports/stm32f1xx/hardware_stm32f1xx.h"
 #elif defined(MCU_TYPE_STM32F4XX)
 #include "ports/stm32f4xx/hardware_stm32f4xx.h"
 namespace microhal {

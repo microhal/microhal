@@ -37,13 +37,12 @@
 #include "stmCommonDefines.h"
 
 #include _MICROHAL_INCLUDE_PORT_DEVICE
+#include _MICROHAL_INCLUDE_PORT_CONFIG
 
-#if defined(MCU_TYPE_STM32F0XX)
-#include "microhalPortConfig_stm32f0xx.h"
-#elif defined(MCU_TYPE_STM32F3XX)
-#include "microhalPortConfig_stm32f3xx.h"
-#elif defined(MCU_TYPE_STM32F4XX)
-#include "microhalPortConfig_stm32f4xx.h"
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#include "registers/usartRegisters_v2.h"
+#else
+#include "registers/usartRegisters_v1.h"
 #endif
 
 namespace microhal {
@@ -93,8 +92,8 @@ class SerialPort : public microhal::SerialPort {
 #endif
 
     bool open(OpenMode mode) noexcept override = 0;
-    bool isOpen(void) const noexcept final { return ((usart.CR1 & USART_CR1_UE) == USART_CR1_UE); }
-    void close() noexcept final { usart.CR1 = 0; }
+    bool isOpen(void) const noexcept final { return usart.cr1.volatileLoad().UE; }
+    void close() noexcept final { usart.cr1.volatileStore(0); }
 
     bool setBaudRate(uint32_t baudRate) noexcept final;
     uint32_t getBaudRate() const noexcept final;
@@ -106,12 +105,12 @@ class SerialPort : public microhal::SerialPort {
 
  protected:
     //------------------------------------------- variables -----------------------------------------//
-    USART_TypeDef &usart;
+    registers::USART &usart;
 //------------------------------------------- constructors --------------------------------------//
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr
 #endif
-        SerialPort(USART_TypeDef &usart) noexcept
+        SerialPort(registers::USART &usart) noexcept
         : usart(usart) {
     }
 
@@ -122,44 +121,44 @@ class SerialPort : public microhal::SerialPort {
         NVIC_EnableIRQ(irq);
     }
 
-    uint32_t number() {
-        if (&usart == USART1) return 1;
-        if (&usart == USART2) return 2;
-#if defined(USART3)
-        if (&usart == USART3) return 3;
+    uint32_t number() const {
+        if (&usart == registers::usart1) return 1;
+        if (&usart == registers::usart2) return 2;
+#if defined(_MICROHAL_USART3_BASE_ADDRESS)
+        if (&usart == registers::usart3) return 3;
 #endif
-#if defined(UART4)
-        if (&usart == UART4) return 4;
+#if defined(_MICROHAL_USART4_BASE_ADDRESS)
+        if (&usart == registers::uart4) return 4;
 #endif
-#if defined(UART5)
-        if (&usart == UART5) return 5;
+#if defined(_MICROHAL_UART5_BASE_ADDRESS)
+        if (&usart == registers::uart5) return 5;
 #endif
-#if defined(USART6)
-        if (&usart == USART6) return 6;
+#if defined(_MICROHAL_USART6_BASE_ADDRESS)
+        if (&usart == registers::usart6) return 6;
 #endif
-#if defined(UART7)
-        if (&usart == UART7) return 7;
+#if defined(_MICROHAL_UART7_BASE_ADDRESS)
+        if (&usart == registers::uart7) return 7;
 #endif
-#if defined(UART8)
-        if (&usart == UART8) return 8;
+#if defined(_MICROHAL_UART8_BASE_ADDRESS)
+        if (&usart == registers::uart8) return 8;
 #endif
         std::terminate();
     }
 
     IRQn_Type getIrq() {
-        if (&usart == USART1) return USART1_IRQn;
-        if (&usart == USART2) return USART2_IRQn;
-#if defined(USART3)
-        if (&usart == USART3) return USART3_IRQn;
+        if (&usart == registers::usart1) return USART1_IRQn;
+        if (&usart == registers::usart2) return USART2_IRQn;
+#if defined(_MICROHAL_USART3_BASE_ADDRESS)
+        if (&usart == registers::usart3) return USART3_IRQn;
 #endif
-#if defined(UART4)
-        if (&usart == UART4) return UART4_IRQn;
+#if defined(_MICROHAL_UART4_BASE_ADDRESS)
+        if (&usart == registers::uart4) return UART4_IRQn;
 #endif
-#if defined(UART5)
-        if (&usart == UART5) return UART5_IRQn;
+#if defined(_MICROHAL_UART5_BASE_ADDRESS)
+        if (&usart == registers::uart5) return UART5_IRQn;
 #endif
 #if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
-        if (&usart == USART6) return USART6_IRQn;
+        if (&usart == registers::usart6) return USART6_IRQn;
 #endif
 #if defined(UART7)
         if (&usart == UART7) return UART7_IRQn;

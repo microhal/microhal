@@ -102,7 +102,7 @@ class SerialPort_RxInterruptTxDma : public common::SerialPort_BufferedBase<Seria
     DMA::DMA &dma;
     DMA::Stream &txStream;
     //------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_RxInterruptTxDma(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize,
+    inline SerialPort_RxInterruptTxDma(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize,
                                        DMA::DMA &dma, DMA::Stream &txStream);
     //--------------------------------------------- functions ---------------------------------------//
     size_t prepareDmaTransfer();

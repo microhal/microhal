@@ -89,12 +89,16 @@ class SerialPort_interrupt : public common::SerialPort_BufferedBase<SerialPort_i
     //------------------------------------------- variables -----------------------------------------//
 
     //------------------------------------------- constructors --------------------------------------//
-    inline SerialPort_interrupt(USART_TypeDef &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize);
+    inline SerialPort_interrupt(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize);
 
     // virtual ~SerialPort_interrupt(){
     //}
     //--------------------------------------------- functions ---------------------------------------//
-    void startTransmission_impl() { usart.CR1 |= USART_CR1_TXEIE; }
+    void startTransmission_impl() {
+        auto cr1 = usart.cr1.volatileLoad();
+        cr1.TXEIE.set();
+        usart.cr1.volatileStore(cr1);
+    }
 
     void updateRxBuffer_impl() {}
 

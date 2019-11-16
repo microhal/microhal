@@ -37,6 +37,8 @@
 #include "ports/manager/externalInterrupt_port.h"
 #include "signalSlot/signalSlot.h"
 
+#if defined(_MICROHAL_PORT_HAS_EXTERNAL_INTERRUPT)
+
 namespace microhal {
 /**
  * @addtogroup microHAL Interfaces
@@ -149,5 +151,5 @@ class ExternalInterrupt {
 };
 
 }  // namespace microhal
-
+#endif
 #endif  // _MICROHAL_EXTERNALINTERRUPT_H_

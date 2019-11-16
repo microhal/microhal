@@ -33,8 +33,8 @@ class CAN final : public can::CAN_Interface {
 
     bool waitForMessage(std::chrono::milliseconds timeout) const noexcept final;
 
-    bool addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;
-    bool removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) final;
+    bool addFilter(const can::Filter &filter) final;
+    bool removeFilter(const can::Filter &filter) final;
     uint32_t receiveErrorCount() const final { return receiveErrors; };
     uint32_t transmitErrorCount() const final { return transmitErrors; };
 

@@ -1,8 +1,8 @@
 #ifndef _MICROHAL_PERIPHERAL_REGISTER_GPIO
 #define _MICROHAL_PERIPHERAL_REGISTER_GPIO
 
-#include "bitfield.h"
-#include "volatileRegister.h"
+#include "utils/bitfield.h"
+#include "utils/volatileRegister.h"
 
 // Supported MCU version 1: STM32L4x3, STM32L4x1, STM32L4x2, STM32L4x5, STM32F7x3, STM32F7x2, STM32F730, STM32F407, STM32F429, STM32F469, STM32F411,
 // STM32F413, STM32F412, STM32F401, STM32F427, STM32F405, STM32F446, STM32F410, STM32F217, STM32F215
@@ -438,6 +438,8 @@ struct GPIO {
                                                          returns the value 0x0000. Note: If both BSx and BRx are set, BSx has priority. */
             microhal::Bitfield<uint32_t, 31, 1> BR15; /*!< Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits
                                                          returns the value 0x0000. Note: If both BSx and BRx are set, BSx has priority. */
+            microhal::Bitfield<uint32_t, 0, 16> BS;   /*!< Set bits */
+            microhal::Bitfield<uint32_t, 16, 16> BR;  /*!< Reset bits */
         };
 
         operator uint32_t() const { return raw; }

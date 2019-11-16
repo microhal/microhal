@@ -58,7 +58,7 @@ microhal::GPIO& button = detail::button;
 
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+    stm32f4xx::Core::fpu_enable();
 
     SysTick_Config(16000000 / 1000);
 }

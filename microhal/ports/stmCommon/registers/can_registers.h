@@ -1,10 +1,10 @@
 #ifndef _MICROHAL_PERIPHERAL_REGISTER_CAN
 #define _MICROHAL_PERIPHERAL_REGISTER_CAN
 
+#include <utils/bitfield.h>
+#include <utils/volatileRegister.h>
 #include <array>
-#include "bitfield.h"
 #include "registersBaseAddressDefinitions.h"
-#include "volatileRegister.h"
 
 #undef CAN
 
@@ -1514,16 +1514,16 @@ constexpr CAN::IER::Interrupt operator|(CAN::IER::Interrupt a, CAN::IER::Interru
     return static_cast<CAN::IER::Interrupt>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
 }
 
-#if defined(_MICROHAL_CAN_BASE)
-[[maybe_unused]] static CAN *const can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN_BASE);
+#if defined(_MICROHAL_CAN_BASE_ADDRESS)
+[[maybe_unused]] static CAN *const can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN_BASE_ADDRESS);
 #endif
 
-#if defined(_MICROHAL_CAN1_BASE)
-[[maybe_unused]] static CAN *const can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN1_BASE);
+#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
+[[maybe_unused]] static CAN *const can1 = reinterpret_cast<CAN *>(_MICROHAL_CAN1_BASE_ADDRESS);
 #endif
 
-#if defined(_MICROHAL_CAN2_BASE)
-[[maybe_unused]] static CAN *const can2 = reinterpret_cast<CAN *>(_MICROHAL_CAN2_BASE);
+#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
+[[maybe_unused]] static CAN *const can2 = reinterpret_cast<CAN *>(_MICROHAL_CAN2_BASE_ADDRESS);
 #endif
 
 }  // namespace registers

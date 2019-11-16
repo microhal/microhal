@@ -61,7 +61,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5  // Serial port 1 RX stream can be connected only to DMA1 Channel 5.
 
 // =================== Serial port 2 ===================
-#define MICROHAL_USE_SERIAL_PORT2_DMA
+#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT2_DMA_TX_STREAM 7  // Serial port 2 TX stream can be connected only to DMA1 Channel 7.

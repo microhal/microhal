@@ -13,6 +13,12 @@
 namespace microhal {
 namespace activePort = stm32f0xx;
 }
+#elif defined(MCU_TYPE_STM32F1XX)
+#include "ports/stm32f1xx/gpio_stm32f1xx.h"
+#include "ports/stmCommon/IOPin.h"
+namespace microhal {
+namespace activePort = stm32f1xx;
+}
 #elif defined(MCU_TYPE_STM32F3XX)
 #include "ports/stm32f3xx/gpio_stm32f3xx.h"
 #include "ports/stmCommon/IOPin.h"

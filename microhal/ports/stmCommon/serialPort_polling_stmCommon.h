@@ -70,7 +70,10 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
 
     bool open(OpenMode mode) noexcept {
         if (isOpen() || (mode > 0x03)) return false;
-        usart.CR1 |= (mode << 2) | USART_CR1_UE;
+        auto cr1 = usart.cr1.volatileLoad();
+        cr1 |= (mode << 2);
+        cr1.UE.set();
+        usart.cr1.volatileStore(cr1);
         return true;
     }
 
@@ -81,13 +84,13 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      */
     bool putChar(char c) noexcept final {
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
-        while (!(usart.ISR & USART_ISR_TXE)) {
+        while (!(usart.isr.volatileLoad().TXE)) {
         }
-        usart.TDR = c;
+        usart.tdr.volatileStore(c);
 #else
-        while (!(usart.SR & USART_SR_TXE)) {
+        while (!(usart.sr.volatileLoad().TXE)) {
         }
-        usart.DR = c;
+        usart.dr.volatileStore((uint32_t)c);
 #endif
         return true;
     }
@@ -98,13 +101,13 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      */
     bool getChar(char &c) noexcept final {
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
-        while (!(usart.ISR & USART_ISR_RXNE)) {
+        while (!(usart.isr.volatileLoad().RXNE)) {
         }
-        c = usart.RDR;
+        c = (uint32_t)usart.rdr.volatileLoad();
 #else
-        while (!(usart.SR & USART_SR_RXNE)) {
+        while (!(usart.sr.volatileLoad().RXNE)) {
         }
-        c = usart.DR;
+        c = usart.dr.volatileLoad().get();
 #endif
         return true;
     }
@@ -164,9 +167,9 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
 
     size_t availableBytes() const noexcept final {
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
-        if ((usart.ISR & USART_ISR_RXNE)) {
+        if ((usart.isr.volatileLoad().RXNE)) {
 #else
-        if (!(usart.SR & USART_SR_RXNE)) {
+        if (!(usart.sr.volatileLoad().RXNE)) {
 #endif
             return 1;
         }
@@ -179,7 +182,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
     }
 
  private:
-    SerialPort_polling(USART_TypeDef &usart);
+    SerialPort_polling(registers::USART &usart);
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

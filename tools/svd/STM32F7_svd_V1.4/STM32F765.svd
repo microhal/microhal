@@ -15936,7 +15936,7 @@
                <resetValue>0x0002</resetValue>
                <fields>
                   <field>
-                     <name>_FRE</name>
+                     <name>FRE</name>
                      <description>Frame format error</description>
                      <bitOffset>8</bitOffset>
                      <bitWidth>1</bitWidth>

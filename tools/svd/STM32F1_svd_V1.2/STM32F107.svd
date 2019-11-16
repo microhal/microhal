@@ -38948,7 +38948,7 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
             <field>
               <name>IC2F</name>
               <description>Input capture 2 filter</description>
-              <bitOffset>15</bitOffset>
+              <bitOffset>12</bitOffset>
               <bitWidth>4</bitWidth>
             </field>
             <field>

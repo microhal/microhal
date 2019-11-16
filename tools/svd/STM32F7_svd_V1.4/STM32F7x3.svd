@@ -35911,7 +35911,7 @@
                <fields>
                   <field>
                      <name>FRE</name>
-                     <description>frame format error</description>
+                     <description>Frame format error</description>
                      <bitOffset>8</bitOffset>
                      <bitWidth>1</bitWidth>
                      <access>read-only</access>
@@ -36693,7 +36693,7 @@
                      <bitWidth>1</bitWidth>
                   </field>
                   <field>
-                     <name>TAINV</name>
+                     <name>DATAINV</name>
                      <description>Binary data inversion</description>
                      <bitOffset>18</bitOffset>
                      <bitWidth>1</bitWidth>

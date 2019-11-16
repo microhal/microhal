@@ -42,7 +42,7 @@
  * INCLUDES
  */
 #include <cstdint>
-#include "ports/stmCommon/gpio_stm_common.h"
+#include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
 /* **************************************************************************************************************************************************
  * CLASS
  */

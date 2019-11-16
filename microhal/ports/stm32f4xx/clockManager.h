@@ -30,11 +30,11 @@
 #ifndef MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 #define MICROHAL_PORTS_STM32F4XX_CLOCKMANAGER_H_
 
+#include <microhalPortConfig_stm32f4xx.h>
 #include <exception>
 #include <type_traits>
-#include "microhalPortConfig_stm32f4xx.h"
-
 #include "device/stm32f4xx.h"
+#include "gpio_stm32f4xx.h"
 #include "ports/stmCommon/registers/can_registers.h"
 
 #define _MICROHAL_CLOCKMANAGER_HAS_POWERMODE 1
@@ -127,42 +127,42 @@ class ClockManager {
             std::terminate();
         }
     }
-    static void enable(const USART_TypeDef &usart, PowerMode mode) {
+    static void enableUSART(uint8_t number, PowerMode mode) {
         uint32_t rccEnableFlag, rccLpEnableFlag;
 
-        if (&usart == USART1) {
+        if (number == 1) {
             rccEnableFlag = RCC_APB2ENR_USART1EN;
             rccLpEnableFlag = RCC_APB2LPENR_USART1LPEN;
-        } else if (&usart == USART2) {
+        } else if (number == 2) {
             rccEnableFlag = RCC_APB1ENR_USART2EN;
             rccLpEnableFlag = RCC_APB1LPENR_USART2LPEN;
 #if defined(USART3)
-        } else if (&usart == USART3) {
+        } else if (number == 3) {
             rccEnableFlag = RCC_APB1ENR_USART3EN;
             rccLpEnableFlag = RCC_APB1LPENR_USART3LPEN;
 #endif
 #if defined(UART4)
-        } else if (&usart == UART4) {
+        } else if (number == 4) {
             rccEnableFlag = RCC_APB1ENR_UART4EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART4LPEN;
 #endif
 #if defined(UART5)
-        } else if (&usart == UART5) {
+        } else if (number == 5) {
             rccEnableFlag = RCC_APB1ENR_UART5EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART5LPEN;
 #endif
 #if defined(USART6) && defined(RCC_APB2ENR_USART6EN)
-        } else if (&usart == USART6) {
+        } else if (number == 6) {
             rccEnableFlag = RCC_APB2ENR_USART6EN;
             rccLpEnableFlag = RCC_APB2LPENR_USART6LPEN;
 #endif
 #if defined(UART7)
-        } else if (&usart == UART7) {
+        } else if (number == 7) {
             rccEnableFlag = RCC_APB1ENR_UART7EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART7LPEN;
 #endif
 #if defined(UART8)
-        } else if (&usart == UART8) {
+        } else if (number == 8) {
             rccEnableFlag = RCC_APB1ENR_UART8EN;
             rccLpEnableFlag = RCC_APB1LPENR_UART8LPEN;
 #endif
@@ -170,7 +170,7 @@ class ClockManager {
             std::terminate();  // Error should newer go there
         }
 
-        if (&usart == USART1 || &usart == USART6) {
+        if (number == 1 || number == 6) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= rccEnableFlag;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= rccLpEnableFlag;
         } else {
@@ -229,15 +229,15 @@ class ClockManager {
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR &= rccLpEnableFlag;
         }
     }
-    static void enable(const I2C_TypeDef &i2c, PowerMode mode) {
-        if (&i2c == I2C1) {
+    static void enableI2C(uint32_t number, PowerMode mode) {
+        if (number == 1) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_I2C1LPEN;
-        } else if (&i2c == I2C2) {
+        } else if (number == 2) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_I2C2LPEN;
 #if defined(I2C3)
-        } else if (&i2c == I2C3) {
+        } else if (number == 3) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_I2C3EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_I2C3LPEN;
 #endif
@@ -261,32 +261,32 @@ class ClockManager {
             std::terminate();  // Error should newer go there
         }
     }
-    static void enable(const SPI_TypeDef &spi, PowerMode mode) {
-        if (&spi == SPI1) {
+    static void enableSPI(uint8_t number, PowerMode mode) {
+        if (number == 1) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI1LPEN;
 #if defined(SPI2)
-        } else if (&spi == SPI2) {
+        } else if (number == 2) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_SPI2LPEN;
 #endif
 #if defined(SPI3)
-        } else if (&spi == SPI3) {
+        } else if (number == 3) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB1LPENR |= RCC_APB1LPENR_SPI3LPEN;
 #endif
 #if defined(SPI4)
-        } else if (&spi == SPI4) {
+        } else if (number == 4) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI4EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI4LPEN;
 #endif
 #if defined(SPI5)
-        } else if (&spi == SPI5) {
+        } else if (number == 5) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI5EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI5LPEN;
 #endif
 #if defined(SPI6)
-        } else if (&spi == SPI6) {
+        } else if (number == 6) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->APB2ENR |= RCC_APB2ENR_SPI6EN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->APB2LPENR |= RCC_APB2LPENR_SPI6LPEN;
 #endif
@@ -461,53 +461,53 @@ class ClockManager {
             std::terminate();  // Error should newer go there
         }
     }
-    static void enable(const GPIO_TypeDef &gpio, PowerMode mode) {
-        if (&gpio == GPIOA) {
+    static void enableGPIO(const registers::GPIO &gpio, PowerMode mode) {
+        if ((int)&gpio == IOPin::PortA) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOALPEN;
-        } else if (&gpio == GPIOB) {
+        } else if ((int)&gpio == IOPin::PortB) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOBLPEN;
-        } else if (&gpio == GPIOC) {
+        } else if ((int)&gpio == IOPin::PortC) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOCLPEN;
 #if defined(GPIOD)
-        } else if (&gpio == GPIOD) {
+        } else if ((int)&gpio == IOPin::PortD) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIODLPEN;
 #endif
 #if defined(GPIOE)
-        } else if (&gpio == GPIOE) {
+        } else if ((int)&gpio == IOPin::PortE) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOELPEN;
 #endif
 #if defined(GPIOF_BASE)
-        } else if (&gpio == GPIOF) {
+        } else if ((int)&gpio == IOPin::PortF) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOFLPEN;
 #endif
 #if defined(GPIOG_BASE)
-        } else if (&gpio == GPIOG) {
+        } else if ((int)&gpio == IOPin::PortG) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOGLPEN;
 #endif
 #if defined(GPIOH_BASE)
-        } else if (&gpio == GPIOH) {
+        } else if ((int)&gpio == IOPin::PortH) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOHLPEN;
 #endif
 #if defined(GPIOI_BASE)
-        } else if (&gpio == GPIOI) {
+        } else if ((int)&gpio == IOPin::PortI) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOIEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOILPEN;
 #endif
 #if defined(GPIOJ_BASE)
-        } else if (&gpio == GPIOJ) {
+        } else if ((int)&gpio == IOPin::PortJ) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOJEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOJLPEN;
 #endif
 #if defined(GPIOK_BASE)
-        } else if (&gpio == GPIOK) {
+        } else if ((int)&gpio == IOPin::PortK) {
             if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_GPIOKEN;
             if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_GPIOKLPEN;
 #endif
@@ -861,36 +861,11 @@ class ClockManager {
      * @param usart device pointer
      * @return
      */
-    static uint32_t USARTFrequency(const USART_TypeDef &usart) {
-        if (&usart == USART1)
+    static uint32_t USARTFrequency(uint8_t number) {
+        if (number == 1 || number == 6) {
             return APB2::frequency();
-        else if (&usart == USART2)
-            return APB1::frequency();
-#if defined(USART3)
-        else if (&usart == USART3)
-            return APB1::frequency();
-#endif
-#if defined(UART4)
-        else if (&usart == UART4)
-            return APB1::frequency();
-#endif
-#if defined(UART5)
-        else if (&usart == UART5)
-            return APB1::frequency();
-#endif
-#if defined(USART6)
-        else if (&usart == USART6)
-            return APB2::frequency();
-#endif
-#if defined(UART7)
-        else if (&usart == UART7)
-            return APB1::frequency();
-#endif
-#if defined(UART8)
-        else if (&usart == UART8)
-            return APB1::frequency();
-#endif
-        std::terminate();  // Error should newer go there
+        }
+        return APB1::frequency();
     }
     /**
      * @brief This function return SPI clock
@@ -898,26 +873,26 @@ class ClockManager {
      * @param spi device pointer
      * @return
      */
-    static uint32_t SPIFrequency(const SPI_TypeDef &spi) {
-        if (&spi == SPI1) return APB2::frequency();
+    static uint32_t SPIFrequency(uint8_t number) {
+        if (number == 1) return APB2::frequency();
 #if defined(SPI2)
-        else if (&spi == SPI2)
+        else if (number == 2)
             return APB1::frequency();
 #endif
 #if defined(SPI3)
-        else if (&spi == SPI3)
+        else if (number == 3)
             return APB1::frequency();
 #endif
 #if defined(SPI4)
-        else if (&spi == SPI4)
+        else if (number == 4)
             return APB2::frequency();
 #endif
 #if defined(SPI5)
-        else if (&spi == SPI5)
+        else if (number == 5)
             return APB2::frequency();
 #endif
 #if defined(SPI6)
-        else if (&spi == SPI6)
+        else if (number == 6)
             return APB2::frequency();
 #endif
         std::terminate();  // Error should newer go there
@@ -928,13 +903,13 @@ class ClockManager {
      * @param i2c device pointer
      * @return
      */
-    static uint32_t I2CFrequency(const I2C_TypeDef &i2c) {
-        if (&i2c == I2C1)
+    static uint32_t I2CFrequency(uint_fast8_t i2cNumber) {
+        if (i2cNumber == 1)
             return APB1::frequency();
-        else if (&i2c == I2C2)
+        else if (i2cNumber == 2)
             return APB1::frequency();
 #if defined(I2C3)
-        else if (&i2c == I2C3)
+        else if (i2cNumber == 3)
             return APB1::frequency();
 #endif
         std::terminate();  // Error should newer go there
