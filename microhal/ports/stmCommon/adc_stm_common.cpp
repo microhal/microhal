@@ -13,6 +13,36 @@ namespace stm32f3xx {
 Adc *Adc::adc1 = nullptr;
 Adc *Adc::adc2 = nullptr;
 
+Adc::~Adc() {
+    disableInterrupt();
+    stopConversion();
+    disable();
+    RCC->AHBENR &= ~RCC_AHBENR_ADC12EN;
+    RCC->CFGR2 &= (~RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3 | RCC_CFGR2_ADCPRE12_2 | RCC_CFGR2_ADCPRE12_1 | RCC_CFGR2_ADCPRE12_0);
+}
+
+bool Adc::enable() {
+    // Software is allowed to set ADEN only when all bits of ADC_CR registers are 0 (ADCAL=0, ADSTP=0, ADSTART=0, ADDIS=0 and ADEN=0)
+    auto cr = adc.cr.volatileLoad();
+    if (cr.ADCAL == 0 && cr.JADSTART == 0 && cr.ADSTP == 0 && cr.ADSTART == 0 && cr.ADDIS == 0 && cr.ADEN == 0) {
+        cr.ADEN = 1;
+        adc.cr.volatileStore(cr);
+        return true;
+    }
+    return false;
+}
+
+bool Adc::disable() {
+    // Setting ADDIS to �1� is only effective when ADEN=1 and ADSTART=0 (which ensures that no conversion is ongoing)
+    auto cr = adc.cr.volatileLoad();
+    if (cr.ADEN == 1 && cr.ADSTART == 0 && cr.JADSTART == 0) {
+        cr.ADDIS = 1;
+        adc.cr.volatileStore(cr);
+        return true;
+    }
+    return false;
+}
+
 bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
     if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
     if (adc.cr.volatileLoad().ADSTART) return false;
@@ -171,7 +201,7 @@ void Adc::enableVoltageRegulator() {
         adc.cr.volatileStore(cr);
 
         // wait for ADC voltage regulator enable
-        while (adc.cr.volatileLoad().ADVREGEN == 0) {
+        while (adc.cr.volatileLoad().ADVREGEN != 0b01) {
         }
     }
 }
