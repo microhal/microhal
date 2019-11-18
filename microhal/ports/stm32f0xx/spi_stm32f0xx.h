@@ -32,12 +32,8 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-namespace microhal {
-namespace stm32f0xx {
-/* **************************************************************************************************************************************************
- * CLASS
- */
-}
-}  // namespace microhal
+#include "ports/stmCommon/spi_v1/spi_dma_stmCommon.h"
+#include "ports/stmCommon/spi_v1/spi_interrupt_stmCommon.h"
+#include "ports/stmCommon/spi_v1/spi_polling_stmCommon.h"
 
 #endif  // _MICROHAL_SPI_STM32F0XX_H_
