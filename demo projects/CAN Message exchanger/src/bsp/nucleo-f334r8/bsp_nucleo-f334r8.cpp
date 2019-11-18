@@ -63,7 +63,7 @@ static void run_main(void*) {
 }
 
 void hardwareConfig(void) {
-    Core::fpu_enable();
+    stm32f3xx::Core::fpu_enable();
     stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
     stm32f3xx::ClockManager::PLL::frequency(72000000);
     stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
