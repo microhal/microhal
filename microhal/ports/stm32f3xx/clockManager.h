@@ -37,9 +37,6 @@
 #include "gpio_stm32f3xx.h"
 #include "microhalPortConfig_stm32f3xx.h"
 
-#undef CAN
-#include "ports/stmCommon/registers/can_registers.h"
-
 namespace microhal {
 namespace stm32f3xx {
 
@@ -169,36 +166,11 @@ class ClockManager {
     static void enableGPIO(const registers::GPIO &gpio);
     static void enable(const DAC_TypeDef &dac);
 
-#if defined(CAN_BASE)
-    static void enable(const registers::CAN &can) {
-        if ((int)&can == CAN_BASE) {
-            RCC->APB1ENR |= RCC_APB1ENR_CANEN;
-        } else {
-            std::terminate();
-        }
-    }
-    static void disable(const registers::CAN &can) {
-        if ((int)&can == CAN_BASE) {
-            RCC->APB1ENR &= ~RCC_APB1ENR_CANEN;
-        } else {
-            std::terminate();
-        }
-    }
-#endif
     //--------------------------------------------------------------------------------------------------------------
     static UsartClockSource USARTClockSource(uint8_t number);
 
     static void USARTClockSource(const USART_TypeDef &usart, UsartClockSource source);
-    /**
-     * @brief This function return CAN clock
-     *
-     * @param CAN device pointer
-     * @return
-     */
-    static uint32_t CANFrequency(const registers::CAN &can) {
-        (void)can;
-        return APB1Frequency();
-    }
+
     /**
      * @brief This function return usart clock
      *

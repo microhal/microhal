@@ -32,7 +32,7 @@
  * INCLUDES
  */
 #include "serialPort_RxInterruptTxDma_stm32f4xx.h"
-#include "../clockManager.h"
+#include "ports/stmCommon/clockManager/usartClock.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -97,40 +97,6 @@ SerialPort_RxInterruptTxDma SerialPort_RxInterruptTxDma::Serial8(*UART8, rxBuffe
                                                                  sizeof(txBufferData_8), *DMA::dma1, DMA::dma1->stream[0]);
 SerialPort &SerialPort::Serial8 = SerialPort_RxInterruptTxDma::Serial8;
 #endif
-//
-// static DMA::Stream::Channel getTxChannalNumber(USART_TypeDef &usart) {
-//  switch (reinterpret_cast<uint32_t>(&usart)) {
-//    //case reinterpret_cast<uint32_t>(USART1):
-//      //return DMA::Stream::Channel::Channel3;
-//    case reinterpret_cast<uint32_t>(USART2):
-//    // intentionally lack of break
-//    case reinterpret_cast<uint32_t>(USART3):
-//#if MICROHAL_SERIAL_PORT3_DMA_TX_STREAM == 3
-//      return DMA::Stream::Channel::Channel4;
-//#elif MICROHAL_SERIAL_PORT3_DMA_TX_STREAM == 4
-//    return DMA::Stream::Channel::Channel7;
-//#endif
-//    break;
-////#ifdef USART4_IRQn
-////    case reinterpret_cast<uint32_t>(USART4):
-////      return DMA::Stream::Channel::Channel4;
-////      return DMA::Stream::Channel::Channel5;
-////      break;
-////#endif
-////#ifdef USART5_IRQn
-////    case reinterpret_cast<uint32_t>(USART5):
-////      return DMA::Stream::Channel::Channel2;
-////      return DMA::Stream::Channel::Channel7;
-////#endif
-////#ifdef USART6_IRQn
-////    case reinterpret_cast<uint32_t>(USART6):
-////      return DMA::Stream::Channel::Channel1;
-////#endif
-//  }
-//  while (1)
-//    ;
-//  return DMA::Stream::Channel::Channel0;
-//}
 
 SerialPort_RxInterruptTxDma::SerialPort_RxInterruptTxDma(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize,
                                                          size_t txDataSize, DMA::DMA &dma, DMA::Stream &txStream)

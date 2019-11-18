@@ -12,7 +12,9 @@
  */
 #include "microhal_semaphore.h"
 #include "spi_stmCommon.h"
-#include _MICROHAL_INCLUDE_PORT_clockManager
+
+#ifdef _MICROHAL_INCLUDE_PORT_DMA
+
 #include _MICROHAL_INCLUDE_PORT_DMA
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 #include _MICROHAL_INCLUDE_PORT_IOMANAGER
@@ -205,5 +207,6 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif
 
 #endif /* _MICROHAL_SPI_DMA_STMCOMMON_H_ */

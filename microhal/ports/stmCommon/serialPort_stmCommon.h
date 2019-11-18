@@ -33,6 +33,7 @@
  * INCLUDES
  */
 #include <cstdint>
+#include "clockManager/usartClock.h"
 #include "interfaces/serialPort_interface.h"
 #include "stmCommonDefines.h"
 
@@ -128,6 +129,9 @@ class SerialPort : public microhal::SerialPort {
         if (&usart == registers::usart3) return 3;
 #endif
 #if defined(_MICROHAL_USART4_BASE_ADDRESS)
+        if (&usart == registers::usart4) return 4;
+#endif
+#if defined(_MICROHAL_UART4_BASE_ADDRESS)
         if (&usart == registers::uart4) return 4;
 #endif
 #if defined(_MICROHAL_UART5_BASE_ADDRESS)
@@ -149,7 +153,11 @@ class SerialPort : public microhal::SerialPort {
         if (&usart == registers::usart1) return USART1_IRQn;
         if (&usart == registers::usart2) return USART2_IRQn;
 #if defined(_MICROHAL_USART3_BASE_ADDRESS)
+#if defined(_MICROHAL_USART3_IRQ_COMBINED)
+        if (&usart == registers::usart3) return USART3_4_5_6_7_8_IRQn;
+#else
         if (&usart == registers::usart3) return USART3_IRQn;
+#endif
 #endif
 #if defined(_MICROHAL_UART4_BASE_ADDRESS)
         if (&usart == registers::uart4) return UART4_IRQn;

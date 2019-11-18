@@ -71,16 +71,16 @@ CAN::~CAN() {
     if (objectPtr[0] == this) objectPtr[0] = nullptr;
     if (objectPtr[1] == this) objectPtr[1] = nullptr;
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::disable(can, ClockManager::PowerMode::Normal);
+    ClockManager::disableCan(getNumber(), ClockManager::PowerMode::Normal);
 #else
-    ClockManager::disable(can);
+    ClockManager::disableCan(getNumber());
 #endif
 }
 
 uint32_t CAN::setBaudrate(uint32_t baudrate) {
     initializationRequest();
     if (baudrate > bitRateMax) baudrate = bitRateMax;
-    uint32_t frequency = ClockManager::CANFrequency(can);
+    uint32_t frequency = ClockManager::CANFrequency(getNumber());
     auto btr = can.btr.volatileLoad();
     uint32_t brp = frequency / (baudrate * ((btr.TS1 + 1) + (btr.TS2 + 1)));
     if (brp > 0) {
@@ -94,7 +94,7 @@ uint32_t CAN::setBaudrate(uint32_t baudrate) {
 }
 
 uint32_t CAN::getBaudrate() {
-    uint32_t frequency = ClockManager::CANFrequency(can);
+    uint32_t frequency = ClockManager::CANFrequency(getNumber());
     auto btr = can.btr.volatileLoad();
     uint32_t brp = btr.BRP + 1;
     uint32_t ts1 = btr.TS1 + 1;

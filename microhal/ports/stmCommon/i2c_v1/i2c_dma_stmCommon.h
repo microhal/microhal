@@ -16,10 +16,10 @@
  * INCLUDES
  */
 #include <cstdint>
+#include "../clockManager/i2cClock.h"
 #include "i2c_stmCommon.h"
 #include "microhal_semaphore.h"
 
-#include _MICROHAL_INCLUDE_PORT_clockManager
 #include _MICROHAL_INCLUDE_PORT_DMA
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 

@@ -31,7 +31,7 @@
  * INCLUDES
  */
 #include "serialPort_dma_stmCommon.h"
-#include _MICROHAL_INCLUDE_PORT_clockManager
+#include "clockManager/usartClock.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

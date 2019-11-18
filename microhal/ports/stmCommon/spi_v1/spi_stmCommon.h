@@ -13,11 +13,11 @@
 #include <cmath>
 #include <limits>
 #include "../IOPin.h"
+#include "../clockManager/spiClock.h"
 #include "../registers/spiRegisters_v1.h"
 #include "../stmCommonDefines.h"
 #include "interfaces/spi_interface.h"
-
-#include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_GPIO
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 #include _MICROHAL_INCLUDE_PORT_DEVICE
 
@@ -175,7 +175,9 @@ class SPI : public microhal::SPI {
     uint8_t getNumber() const {
         if (&spi == registers::spi1) return 1;
         if (&spi == registers::spi2) return 2;
+#ifdef _MICROHAL_SPI3_BASE_ADDRESS
         if (&spi == registers::spi3) return 3;
+#endif
         std::terminate();
     }
 

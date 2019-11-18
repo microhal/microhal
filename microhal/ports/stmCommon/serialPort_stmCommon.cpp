@@ -34,8 +34,6 @@
 #include "ports/stm32f3xx/serialPort_stm32f3xx.h"
 #include "stmCommonDefines.h"
 
-#include _MICROHAL_INCLUDE_PORT_clockManager
-
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 

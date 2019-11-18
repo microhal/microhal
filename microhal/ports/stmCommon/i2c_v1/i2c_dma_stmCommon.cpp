@@ -14,8 +14,6 @@
  */
 #include "i2c_dma_stmCommon.h"
 
-#include _MICROHAL_INCLUDE_PORT_clockManager
-
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************

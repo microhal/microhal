@@ -12,9 +12,9 @@
 #include "../registers/timerRegisters_v1.h"
 #include "../stmCommonDefines.h"
 #include "gsl/span"
+#include "ports/stmCommon/clockManager/timerClock.h"
 #include "signalSlot/signalSlot.h"
 
-#include _MICROHAL_INCLUDE_PORT_clockManager
 #include _MICROHAL_INCLUDE_PORT_DEVICE
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
@@ -143,7 +143,11 @@ class Timer {
         } else if (addr == registers::tim3) {
             tim3 = this;
         }
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+        ClockManager::enableTimer(getNumber(), ClockManager::PowerMode::Normal);
+#else
         ClockManager::enableTimer(getNumber());
+#endif
     }
     ~Timer() {
         disableInterrupt();
