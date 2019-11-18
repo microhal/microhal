@@ -140,15 +140,15 @@ class DMA {
 
     void clockEnable() {
         if (this == reinterpret_cast<DMA *>(DMA1))
-            ClockManager::enableDMA(1);
+            ClockManager::enableDMA(1, ClockManager::PowerMode::Normal);
         else
-            ClockManager::enableDMA(2);
+            ClockManager::enableDMA(2, ClockManager::PowerMode::Normal);
     }
     void clockDisable() {
         if (this == reinterpret_cast<DMA *>(DMA1))
-            ClockManager::disableDMA(1);
+            ClockManager::disableDMA(1, ClockManager::PowerMode::Normal);
         else
-            ClockManager::disableDMA(2);
+            ClockManager::disableDMA(2, ClockManager::PowerMode::Normal);
     }
 
     Stream::Channel channel(const Stream &stream, const void *devicePtr) const {
