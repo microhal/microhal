@@ -105,28 +105,6 @@ class ClockManager {
             std::terminate();
         }
     }
-    static void enable(const DMA_TypeDef &dma, PowerMode mode) {
-        if (&dma == DMA1) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_DMA1LPEN;
-        } else if (&dma == DMA2) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_DMA2LPEN;
-        } else {
-            std::terminate();
-        }
-    }
-    static void disable(const DMA_TypeDef &dma, PowerMode mode) {
-        if (&dma == DMA1) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR &= ~RCC_AHB1ENR_DMA1EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_DMA2LPEN;
-        } else if (&dma == DMA2) {
-            if (isEnabled(mode, PowerMode::Normal)) RCC->AHB1ENR &= ~RCC_AHB1ENR_DMA2EN;
-            if (isEnabled(mode, PowerMode::Sleep)) RCC->AHB1LPENR |= RCC_AHB1LPENR_DMA2LPEN;
-        } else {
-            std::terminate();
-        }
-    }
 
     static void enableGPIO(const registers::GPIO &gpio, PowerMode mode) {
         if ((int)&gpio == IOPin::PortA) {
