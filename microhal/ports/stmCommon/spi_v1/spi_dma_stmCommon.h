@@ -176,13 +176,13 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 #else
         enableGlobalInterrupt(0);
 #endif
-        init();
+        initialize();
     }
 
     SPI::Error writeRead(const void *writePtr, void *readPtr, size_t writeLen, size_t readLen);
 
     //---------------------------------------- functions ----------------------------------------//
-    void init();
+    void initialize();
 
     static inline void IRQfunction(SPI_dma &object, registers::SPI *spi);
     //----------------------------------------- friends -----------------------------------------//
