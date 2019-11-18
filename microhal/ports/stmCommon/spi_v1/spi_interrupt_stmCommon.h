@@ -12,7 +12,6 @@
  */
 #include "microhal_semaphore.h"
 #include "spi_stmCommon.h"
-#include _MICROHAL_INCLUDE_PORT_clockManager
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 #include _MICROHAL_INCLUDE_PORT_IOMANAGER
 
@@ -146,7 +145,7 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
         ClockManager::enableSPI(getNumber());
 #endif
 #if defined(HAL_RTOS_FreeRTOS)
-        enableInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+        enableGlobalInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #else
         enableGlobalInterrupt(0);
 #endif

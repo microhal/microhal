@@ -6,9 +6,8 @@
  */
 
 #include "i2c_stmCommon.h"
+#include "../clockManager/i2cClock.h"
 #include "interfaces/i2cSlave.h"
-
-#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

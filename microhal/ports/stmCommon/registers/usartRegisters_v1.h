@@ -416,6 +416,10 @@ struct USART {
 [[maybe_unused]] static USART *const usart3 = reinterpret_cast<USART *>(_MICROHAL_USART3_BASE_ADDRESS);
 #endif
 
+#if defined(_MICROHAL_USART4_BASE_ADDRESS)
+[[maybe_unused]] static USART *const usart4 = reinterpret_cast<USART *>(_MICROHAL_USART4_BASE_ADDRESS);
+#endif
+
 #if defined(_MICROHAL_UART4_BASE_ADDRESS)
 [[maybe_unused]] static USART *const uart4 = reinterpret_cast<USART *>(_MICROHAL_UART4_BASE_ADDRESS);
 #endif
@@ -426,6 +430,14 @@ struct USART {
 
 #if defined(_MICROHAL_USART6_BASE_ADDRESS)
 [[maybe_unused]] static USART *const usart6 = reinterpret_cast<USART *>(_MICROHAL_USART6_BASE_ADDRESS);
+#endif
+
+#if defined(_MICROHAL_UART7_BASE_ADDRESS)
+[[maybe_unused]] static USART *const uart7 = reinterpret_cast<USART *>(_MICROHAL_UART7_BASE_ADDRESS);
+#endif
+
+#if defined(_MICROHAL_UART8_BASE_ADDRESS)
+[[maybe_unused]] static USART *const uart8 = reinterpret_cast<USART *>(_MICROHAL_UART8_BASE_ADDRESS);
 #endif
 
 }  // namespace registers

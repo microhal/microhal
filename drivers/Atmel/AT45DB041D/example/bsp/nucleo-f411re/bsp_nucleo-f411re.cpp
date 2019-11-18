@@ -35,6 +35,8 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+SPI_interrupt &spi1 = SPI_interrupt::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
+
 namespace bsp {
 namespace detail {
 stm32f4xx::GPIO ce(con1::a::ss, stm32f4xx::GPIO::Direction::Output);
@@ -44,7 +46,7 @@ stm32f4xx::GPIO wp(con1::a::io2, stm32f4xx::GPIO::Direction::Output);
 
 namespace at45db {
 
-microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+microhal::SPI &spi = spi1;
 microhal::GPIO &ce = detail::ce;
 microhal::GPIO &reset = detail::reset;
 microhal::GPIO &wp = detail::wp;
@@ -61,12 +63,8 @@ void hardwareConfig(void) {
     IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
 
-    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
-    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
-
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler8);
-    stm32f4xx::SPI::spi1.enable();
+    spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler8);
+    spi1.enable();
 
     SysTick_Config(84000000 / 1000);
 }

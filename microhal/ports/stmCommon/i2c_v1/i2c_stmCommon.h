@@ -36,10 +36,10 @@
 #include <utility>
 
 #include <ports/stmCommon/registers/i2cRegisters_v1.h>
+#include "../clockManager/i2cClock.h"
 #include "../stmCommonDefines.h"
 #include "interfaces/i2c_interface.h"
-
-#include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_DEVICE
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
@@ -69,8 +69,7 @@ void I2C3_EV_IRQHandler(void);
  */
 class I2C : public microhal::I2C {
  public:
-//---------------------------------- variables
-//----------------------------------
+//---------------------------------- variables ----------------------------------
 #if (defined MICROHAL_USE_I2C1_INTERRUPT) || (defined MICROHAL_USE_I2C1_POLLING) || (defined MICROHAL_USE_I2C1_DMA)
     static I2C &i2c1;
 #endif

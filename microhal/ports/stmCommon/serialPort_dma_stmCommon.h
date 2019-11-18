@@ -37,6 +37,8 @@
 #include "ports/common/serialPort_bufferedBase.h"
 #include "stmCommonDefines.h"
 
+#ifdef _MICROHAL_INCLUDE_PORT_DMA
+
 #include _MICROHAL_INCLUDE_PORT_DMA
 
 namespace microhal {
@@ -153,5 +155,6 @@ class SerialPort_Dma : public common::SerialPort_BufferedBase<SerialPort_Dma> {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif
 
 #endif  // _MICROHAL_SERIALPORT_DMA_STMCOMMON_H_

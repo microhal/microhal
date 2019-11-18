@@ -11,7 +11,6 @@
  * INCLUDES
  */
 #include "spi_stmCommon.h"
-#include _MICROHAL_INCLUDE_PORT_clockManager
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 #include _MICROHAL_INCLUDE_PORT_IOMANAGER
 
@@ -39,10 +38,12 @@ class SPI_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             static SPI_polling spi2(*microhal::registers::spi2, miso);
             return spi2;
         }
+#if defined(_MICROHAL_SPI3_BASE_ADDRESS)
         if constexpr (number == 3) {
             static SPI_polling spi3(*microhal::registers::spi3, miso);
             return spi3;
         }
+#endif
     }
     //---------------------------------------- functions ----------------------------------------//
     SPI::Error write(const void *data, const size_t len, bool last) final;

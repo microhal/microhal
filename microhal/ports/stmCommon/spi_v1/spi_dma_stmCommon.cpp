@@ -106,7 +106,7 @@ SPI::Error SPI_dma::writeRead(const void *writePtr, void *readPtr, size_t writeL
     return Error::Timeout;
 }
 
-void SPI_dma::init() {
+void SPI_dma::initialize() {
     dma.clockEnable();
     // rx
     rxStream.deinit();

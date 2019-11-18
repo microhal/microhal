@@ -12,7 +12,9 @@
  */
 #include "microhal_semaphore.h"
 #include "spi_stmCommon.h"
-#include _MICROHAL_INCLUDE_PORT_clockManager
+
+#ifdef _MICROHAL_INCLUDE_PORT_DMA
+
 #include _MICROHAL_INCLUDE_PORT_DMA
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 #include _MICROHAL_INCLUDE_PORT_IOMANAGER
@@ -174,13 +176,13 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 #else
         enableGlobalInterrupt(0);
 #endif
-        init();
+        initialize();
     }
 
     SPI::Error writeRead(const void *writePtr, void *readPtr, size_t writeLen, size_t readLen);
 
     //---------------------------------------- functions ----------------------------------------//
-    void init();
+    void initialize();
 
     static inline void IRQfunction(SPI_dma &object, registers::SPI *spi);
     //----------------------------------------- friends -----------------------------------------//
@@ -205,5 +207,6 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif
 
 #endif /* _MICROHAL_SPI_DMA_STMCOMMON_H_ */

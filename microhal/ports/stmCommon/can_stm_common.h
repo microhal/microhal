@@ -36,10 +36,10 @@
 #include "can/canMessage.h"
 #include "gsl/span"
 #include "microhal_semaphore.h"
+#include "ports/stmCommon/clockManager/canClock.h"
 #include "registers/can_registers.h"
 #include "stmCommonDefines.h"
-
-#include _MICROHAL_INCLUDE_PORT_clockManager
+#include _MICROHAL_INCLUDE_PORT_DEVICE
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -83,9 +83,9 @@ class CAN final : public can::CAN_Interface {
 #if defined(CAN_BASE) || defined(CAN1_BASE) || defined(CAN2_BASE)
     CAN(registers::CAN *canDevice) : can(*canDevice) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enable(can, ClockManager::PowerMode::Normal);
+        ClockManager::enableCan(getNumber(), ClockManager::PowerMode::Normal);
 #else
-        ClockManager::enable(can);
+        microhal::ClockManager::enableCan(getNumber());
 #endif
         if (canDevice == registers::can1) {
             objectPtr[0] = this;
@@ -200,6 +200,15 @@ class CAN final : public can::CAN_Interface {
         return count;
     }
 
+    uint8_t getNumber() {
+        if (&can == registers::can1) {
+            return 1;
+#ifdef _MICROHAL_CAN2_BASE
+        } else if (&can == registers::can2) {
+            return 2;
+#endif
+        }
+    }
     void dumpFilterConfig();
 
  private:

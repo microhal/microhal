@@ -28,57 +28,51 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bsp.h"
 #include "microhal.h"
-#include "ports/stm32f3xx/IOManager_stm32f3xx.h"
+
+#include "bsp.h"
+
+#include "ports/stmCommon/spi_v1/spi_interrupt_stmCommon.h"
+#include "ports/stmCommon/spi_v1/spi_polling_stmCommon.h"
 
 using namespace microhal;
+using namespace stm32f1xx;
 
-CAN can1(registers::can1);
+// microhal::stm32f1xx::SPI_polling &spi1 = microhal::stm32f1xx::SPI_polling::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
+microhal::stm32f1xx::SPI_interrupt &spi1 = microhal::stm32f1xx::SPI_interrupt::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
 
 namespace bsp {
-bool init() {
-    bsp::debugPort.clear();
+namespace detail {
+stm32f1xx::GPIO ce(con2::a::ss, stm32f1xx::GPIO::Direction::Output);
+stm32f1xx::GPIO reset(con2::a::io1, stm32f1xx::GPIO::Direction::Output);
+stm32f1xx::GPIO wp(con2::a::io2, stm32f1xx::GPIO::Direction::Output);
+}  // namespace detail
 
-    bsp::debugPort.setDataBits(microhal::SerialPort::Data8);
-    bsp::debugPort.setStopBits(microhal::SerialPort::OneStop);
-    bsp::debugPort.setParity(microhal::SerialPort::NoParity);
-    bsp::debugPort.open(microhal::SerialPort::ReadWrite);
-    bsp::debugPort.setBaudRate(microhal::SerialPort::Baud115200);
-    return true;
-}
+namespace at45db {
+microhal::SPI &spi = spi1;
+microhal::GPIO &ce = detail::ce;
+microhal::GPIO &reset = detail::reset;
+microhal::GPIO &wp = detail::wp;
 
-void deinit() {}
-
+}  // namespace at45db
 }  // namespace bsp
 
-extern "C" int main(int, char**);
-
-static void run_main(void*) {
-    char* params[5];
-    params[0] = "CAN";
-    main(1, params);
-    while (1)
-        ;
-}
-
 void hardwareConfig(void) {
-    stm32f3xx::Core::fpu_enable();
-    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
-    stm32f3xx::ClockManager::PLL::frequency(72000000);
-    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
+    (void)bsp::at45db::spi;
+    (void)bsp::debugPort;
+    // Core::pll_start(8000000, 168000000);
+    // Core::fpu_enable();
 
-    stm32f3xx::IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
-    stm32f3xx::IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f1xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f1xx::IOPin::PortA, 3>();
 
-    // stm32f3xx::IOManager::routeCAN<RX, stm32f3xx::IOPin::PortA, 11>();
-    // stm32f3xx::IOManager::routeCAN<TX, stm32f3xx::IOPin::PortA, 12>();
-    stm32f3xx::IOManager::routeCAN<RX, stm32f3xx::IOPin::PortB, 8>();
-    stm32f3xx::IOManager::routeCAN<TX, stm32f3xx::IOPin::PortB, 9>();
+    spi1.init(stm32f1xx::SPI::Mode0, stm32f1xx::SPI::Prescaler8);
+    spi1.enable();
 
-    TaskHandle_t xHandle = NULL;
+    // SysTick_Config(84000000 / 1000);
+}
+uint64_t SysTick_time = 0;
 
-    xTaskCreate(run_main, "main", 500, NULL, tskIDLE_PRIORITY, &xHandle);
-
-    vTaskStartScheduler();
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }

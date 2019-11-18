@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <exception>
 #include "device/stm32f4xx.h"
+#include "ports/stmCommon/clockManager/dmaClock.h"
 
 namespace microhal {
 namespace stm32f4xx {
@@ -139,15 +140,15 @@ class DMA {
 
     void clockEnable() {
         if (this == reinterpret_cast<DMA *>(DMA1))
-            RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
+            ClockManager::enableDMA(1, ClockManager::PowerMode::Normal);
         else
-            RCC->AHB1ENR |= RCC_AHB1ENR_DMA2EN;
+            ClockManager::enableDMA(2, ClockManager::PowerMode::Normal);
     }
     void clockDisable() {
         if (this == reinterpret_cast<DMA *>(DMA1))
-            RCC->AHB1ENR &= ~RCC_AHB1ENR_DMA1EN;
+            ClockManager::disableDMA(1, ClockManager::PowerMode::Normal);
         else
-            RCC->AHB1ENR &= ~RCC_AHB1ENR_DMA2EN;
+            ClockManager::disableDMA(2, ClockManager::PowerMode::Normal);
     }
 
     Stream::Channel channel(const Stream &stream, const void *devicePtr) const {
