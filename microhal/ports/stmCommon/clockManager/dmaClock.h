@@ -34,7 +34,7 @@ CREATE_SET_CLEAR_FUNCTION(DMA2LPEN)
 }  // namespace ClockManagerDetail
 
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-[[maybe_unused]] static void enable(uint8_t dmaNumber, PowerMode mode) {
+[[maybe_unused]] static void enableDMA(uint8_t dmaNumber, PowerMode mode) {
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
     auto ahb1lpenr = registers::rcc->ahb1lpenr.volatileLoad();
     if (dmaNumber == 1) {
@@ -49,7 +49,7 @@ CREATE_SET_CLEAR_FUNCTION(DMA2LPEN)
     registers::rcc->ahb1lpenr.volatileStore(ahb1lpenr);
     registers::rcc->ahb1enr.volatileStore(ahb1enr);
 }
-[[maybe_unused]] static void disable(uint8_t dmaNumber, PowerMode mode) {
+[[maybe_unused]] static void disableDMA(uint8_t dmaNumber, PowerMode mode) {
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
     auto ahb1lpenr = registers::rcc->ahb1lpenr.volatileLoad();
     if (dmaNumber == 1) {
