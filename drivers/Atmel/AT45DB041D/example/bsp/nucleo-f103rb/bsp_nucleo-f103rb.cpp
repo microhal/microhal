@@ -32,20 +32,23 @@
 
 #include "bsp.h"
 
-using namespace microhal;
-using namespace stm32f4xx;
+#include "ports/stmCommon/spi_v1/spi_interrupt_stmCommon.h"
+#include "ports/stmCommon/spi_v1/spi_polling_stmCommon.h"
 
-SPI_interrupt &spi1 = SPI_interrupt::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
+using namespace microhal;
+using namespace stm32f1xx;
+
+// microhal::stm32f1xx::SPI_polling &spi1 = microhal::stm32f1xx::SPI_polling::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
+microhal::stm32f1xx::SPI_interrupt &spi1 = microhal::stm32f1xx::SPI_interrupt::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
 
 namespace bsp {
 namespace detail {
-stm32f4xx::GPIO ce(con1::a::ss, stm32f4xx::GPIO::Direction::Output);
-stm32f4xx::GPIO reset(con1::a::io1, stm32f4xx::GPIO::Direction::Output);
-stm32f4xx::GPIO wp(con1::a::io2, stm32f4xx::GPIO::Direction::Output);
+stm32f1xx::GPIO ce(con2::a::ss, stm32f1xx::GPIO::Direction::Output);
+stm32f1xx::GPIO reset(con2::a::io1, stm32f1xx::GPIO::Direction::Output);
+stm32f1xx::GPIO wp(con2::a::io2, stm32f1xx::GPIO::Direction::Output);
 }  // namespace detail
 
 namespace at45db {
-
 microhal::SPI &spi = spi1;
 microhal::GPIO &ce = detail::ce;
 microhal::GPIO &reset = detail::reset;
@@ -58,15 +61,15 @@ void hardwareConfig(void) {
     (void)bsp::at45db::spi;
     (void)bsp::debugPort;
     // Core::pll_start(8000000, 168000000);
-    Core::fpu_enable();
+    // Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
+    IOManager::routeSerial<2, Txd, stm32f1xx::IOPin::PortA, 2>();
+    IOManager::routeSerial<2, Rxd, stm32f1xx::IOPin::PortA, 3>();
 
-    spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler8);
+    spi1.init(stm32f1xx::SPI::Mode0, stm32f1xx::SPI::Prescaler8);
     spi1.enable();
 
-    SysTick_Config(84000000 / 1000);
+    // SysTick_Config(84000000 / 1000);
 }
 uint64_t SysTick_time = 0;
 

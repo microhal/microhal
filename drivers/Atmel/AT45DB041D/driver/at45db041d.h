@@ -86,7 +86,7 @@ class AT45DB041D : private microhal::SPIDevice {
     }
 
     bool manufacturerID(uint16_t &id) {
-        uint8_t addr = 0xd7;
+        uint8_t addr = 0x9f;
         return SPIDevice::readRegister(addr, id, microhal::Endianness::Big);  //, microhal::Endianness::BigEndian);
     }
 
