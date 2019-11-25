@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_SERIALPORT_STMCOMMON_H_
-#define _MICROHAL_SERIALPORT_STMCOMMON_H_
+#ifndef _MICROHAL_PORTS_SERIALPORT_STMCOMMON_H_
+#define _MICROHAL_PORTS_SERIALPORT_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
@@ -181,4 +181,4 @@ class SerialPort : public microhal::SerialPort {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif  // _MICROHAL_SERIALPORT_STMCOMMON_H_
+#endif  // _MICROHAL_PORTS_SERIALPORT_STMCOMMON_H_

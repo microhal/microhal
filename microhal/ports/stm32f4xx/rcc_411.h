@@ -8,6 +8,9 @@
 #undef RCC
 #define _MICROHAL_CLOCKMANAGER_HAS_POWERMODE 1
 
+#define _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
+#define _MICROHAL_REGISTERS_RCC_CFGR_HAS_PPRE2
+
 // Supported MCU: STM32F411
 namespace microhal {
 namespace registers {
@@ -75,28 +78,11 @@ struct RCC {
     // PLL configuration register
     union PLLCFGR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> PLLM0;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 1, 1> PLLM1;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 2, 1> PLLM2;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 3, 1> PLLM3;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 4, 1> PLLM4;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 5, 1> PLLM5;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 6, 1> PLLN0;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 7, 1> PLLN1;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 8, 1> PLLN2;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 9, 1> PLLN3;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 10, 1> PLLN4;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 11, 1> PLLN5;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 12, 1> PLLN6;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 13, 1> PLLN7;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 14, 1> PLLN8;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 16, 1> PLLP0;  /*!< Main PLL (PLL) division factor for main system clock */
-            microhal::Bitfield<uint32_t, 17, 1> PLLP1;  /*!< Main PLL (PLL) division factor for main system clock */
+            microhal::Bitfield<uint32_t, 0, 6> PLLM;    /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
+            microhal::Bitfield<uint32_t, 6, 9> PLLN;    /*!< Main PLL (PLL) multiplication factor for VCO */
+            microhal::Bitfield<uint32_t, 16, 2> PLLP;   /*!< Main PLL (PLL) division factor for main system clock */
             microhal::Bitfield<uint32_t, 22, 1> PLLSRC; /*!< Main PLL(PLL) and audio PLL (PLLI2S) entry clock source */
-            microhal::Bitfield<uint32_t, 24, 1> PLLQ0;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
-            microhal::Bitfield<uint32_t, 25, 1> PLLQ1;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
-            microhal::Bitfield<uint32_t, 26, 1> PLLQ2;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
-            microhal::Bitfield<uint32_t, 27, 1> PLLQ3;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
+            microhal::Bitfield<uint32_t, 24, 4> PLLQ;   /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
         };
 
         operator uint32_t() const { return raw; }
@@ -142,10 +128,8 @@ struct RCC {
     // clock configuration register
     union CFGR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> SW0;      /*!< System clock switch */
-            microhal::Bitfield<uint32_t, 1, 1> SW1;      /*!< System clock switch */
-            microhal::Bitfield<uint32_t, 2, 1> SWS0;     /*!< System clock switch status */
-            microhal::Bitfield<uint32_t, 3, 1> SWS1;     /*!< System clock switch status */
+            microhal::Bitfield<uint32_t, 0, 2> SW;       /*!< System clock switch */
+            microhal::Bitfield<uint32_t, 2, 2> SWS;      /*!< System clock switch status */
             microhal::Bitfield<uint32_t, 4, 4> HPRE;     /*!< AHB prescaler */
             microhal::Bitfield<uint32_t, 10, 3> PPRE1;   /*!< APB Low speed prescaler (APB1) */
             microhal::Bitfield<uint32_t, 13, 3> PPRE2;   /*!< APB high-speed prescaler (APB2) */

@@ -27,11 +27,16 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_SPI_STM32F3XX_H_
-#define _MICROHAL_SPI_STM32F3XX_H_
+#ifndef _MICROHAL_PORTS_SPI_STM32F3XX_H_
+#define _MICROHAL_PORTS_SPI_STM32F3XX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include "ports/stmCommon/spi_v1/spi_dma_stmCommon.h"
+#include "ports/stmCommon/spi_v1/spi_interrupt_stmCommon.h"
+#include "ports/stmCommon/spi_v1/spi_polling_stmCommon.h"
+
+#ifdef ADFASDF
 #include "clockManager.h"
 #include "device/stm32f3xx.h"
 #include "gpio_stm32f3xx.h"
@@ -206,4 +211,5 @@ class SPI : public microhal::SPI {
 
 }  // namespace stm32f3xx
 }  // namespace microhal
-#endif  // _MICROHAL_SPI_STM32F3XX_H_
+#endif
+#endif  // _MICROHAL_PORTS_SPI_STM32F3XX_H_

@@ -260,8 +260,9 @@ struct RCC {
             microhal::Bitfield<uint32_t, 22, 1> I2C2RST;   /*!< I2C2 reset */
             microhal::Bitfield<uint32_t, 23, 1> USBRST;    /*!< USB reset */
             microhal::Bitfield<uint32_t, 25, 1> CANRST;    /*!< CAN reset */
+            microhal::Bitfield<uint32_t, 26, 1> DAC2RST;   /*!< DAC 2 interface reset */
             microhal::Bitfield<uint32_t, 28, 1> PWRRST;    /*!< Power interface reset */
-            microhal::Bitfield<uint32_t, 29, 1> DACRST;    /*!< DAC interface reset */
+            microhal::Bitfield<uint32_t, 29, 1> DAC1RST;   /*!< DAC 1 interface reset */
         };
 
         operator uint32_t() const { return raw; }
@@ -307,7 +308,7 @@ struct RCC {
     // AHB Peripheral Clock enable register (RCC_AHBENR)
     union AHBENR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> DMAEN;    /*!< DMA1 clock enable */
+            microhal::Bitfield<uint32_t, 0, 1> DMA1EN;   /*!< DMA1 clock enable */
             microhal::Bitfield<uint32_t, 1, 1> DMA2EN;   /*!< DMA2 clock enable */
             microhal::Bitfield<uint32_t, 2, 1> SRAMEN;   /*!< SRAM interface clock enable */
             microhal::Bitfield<uint32_t, 4, 1> FLITFEN;  /*!< FLITF clock enable */
@@ -432,8 +433,9 @@ struct RCC {
             microhal::Bitfield<uint32_t, 22, 1> I2C2EN;   /*!< I2C 2 clock enable */
             microhal::Bitfield<uint32_t, 23, 1> USBEN;    /*!< USB clock enable */
             microhal::Bitfield<uint32_t, 25, 1> CANEN;    /*!< CAN clock enable */
+            microhal::Bitfield<uint32_t, 26, 1> DAC2EN;   /*!< DAC 2 interface clock enable */
             microhal::Bitfield<uint32_t, 28, 1> PWREN;    /*!< Power interface clock enable */
-            microhal::Bitfield<uint32_t, 29, 1> DACEN;    /*!< DAC interface clock enable */
+            microhal::Bitfield<uint32_t, 29, 1> DAC1EN;   /*!< DAC 1 interface clock enable */
         };
 
         operator uint32_t() const { return raw; }
@@ -688,15 +690,22 @@ struct RCC {
     // Clock configuration register 3
     union CFGR3 {
         union {
-            microhal::Bitfield<uint32_t, 0, 2> USART1SW;  /*!< USART1 clock source selection */
-            microhal::Bitfield<uint32_t, 4, 1> I2C1SW;    /*!< I2C1 clock source selection */
-            microhal::Bitfield<uint32_t, 5, 1> I2C2SW;    /*!< I2C2 clock source selection */
-            microhal::Bitfield<uint32_t, 8, 1> TIM1SW;    /*!< Timer1 clock source selection */
-            microhal::Bitfield<uint32_t, 9, 1> TIM8SW;    /*!< Timer8 clock source selection */
+            microhal::Bitfield<uint32_t, 0, 2> USART1SW; /*!< USART1 clock source selection */
+            microhal::Bitfield<uint32_t, 4, 1> I2C1SW;   /*!< I2C1 clock source selection */
+#ifndef STM32F334x8
+            microhal::Bitfield<uint32_t, 5, 1> I2C2SW; /*!< I2C2 clock source selection */
+#endif
+            microhal::Bitfield<uint32_t, 8, 1> TIM1SW; /*!< Timer1 clock source selection */
+#ifndef STM32F334x8
+            microhal::Bitfield<uint32_t, 9, 1> TIM8SW; /*!< Timer8 clock source selection */
+#endif
+            microhal::Bitfield<uint32_t, 12, 1> HRTIM1SW; /*!< High Resolution Timer1 clock source selection */
+#ifndef STM32F334x8
             microhal::Bitfield<uint32_t, 16, 2> USART2SW; /*!< USART2 clock source selection */
             microhal::Bitfield<uint32_t, 18, 2> USART3SW; /*!< USART3 clock source selection */
             microhal::Bitfield<uint32_t, 20, 2> UART4SW;  /*!< UART4 clock source selection */
             microhal::Bitfield<uint32_t, 22, 2> UART5SW;  /*!< UART5 clock source selection */
+#endif
         };
 
         operator uint32_t() const { return raw; }
@@ -744,7 +753,7 @@ struct RCC {
     VolatileRegister<CIR, AccessType::ReadWrite> cir;           /*!< Clock interrupt register (RCC_CIR)	Address offset: 0x8 */
     VolatileRegister<APB2RSTR, AccessType::ReadWrite> apb2rstr; /*!< APB2 peripheral reset register (RCC_APB2RSTR)	Address offset: 0xC */
     VolatileRegister<APB1RSTR, AccessType::ReadWrite> apb1rstr; /*!< APB1 peripheral reset register (RCC_APB1RSTR)	Address offset: 0x10 */
-    VolatileRegister<AHBENR, AccessType::ReadWrite> ahbenr;     /*!< AHB Peripheral Clock enable register (RCC_AHBENR)	Address offset: 0x14 */
+    VolatileRegister<AHBENR, AccessType::ReadWrite> ahb1enr;    /*!< AHB Peripheral Clock enable register (RCC_AHBENR)	Address offset: 0x14 */
     VolatileRegister<APB2ENR, AccessType::ReadWrite> apb2enr;   /*!< APB2 peripheral clock enable register (RCC_APB2ENR)	Address offset: 0x18 */
     VolatileRegister<APB1ENR, AccessType::ReadWrite> apb1enr;   /*!< APB1 peripheral clock enable register (RCC_APB1ENR)	Address offset: 0x1C */
     VolatileRegister<BDCR, AccessType::ReadWrite> bdcr;         /*!< Backup domain control register (RCC_BDCR)	Address offset: 0x20 */

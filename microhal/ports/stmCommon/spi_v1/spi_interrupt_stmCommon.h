@@ -155,17 +155,6 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 
     SPI_interrupt(const SPI_interrupt &);
     //---------------------------------------- functions ----------------------------------------//
-    void enableTransmitterEmptyInterrupt() {
-        auto cr2 = spi.cr2.volatileLoad();
-        cr2.TXEIE.set();  // fixme maybe bitband
-        spi.cr2.volatileStore(cr2);
-    }
-    void enableReceiverNotEmptyInterrupt() {
-        auto cr2 = spi.cr2.volatileLoad();
-        cr2.RXNEIE.set();  // fixme maybe bitband
-        spi.cr2.volatileStore(cr2);
-    }
-
     void enableInterrupt(Interrupt interrupt) {
         auto cr2 = spi.cr2.volatileLoad();
         if ((interrupt & Interrupt::TransmitterEmpty) == Interrupt::TransmitterEmpty) {

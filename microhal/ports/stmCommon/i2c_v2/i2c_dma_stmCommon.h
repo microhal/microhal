@@ -34,8 +34,8 @@
 #include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
 #include <cstdint>
 #include "microhal_semaphore.h"
+#include "ports/stmCommon/clockManager/i2cClock.h"
 
-#include _MICROHAL_INCLUDE_PORT_clockManager
 #include _MICROHAL_INCLUDE_PORT_DMA
 
 namespace microhal {

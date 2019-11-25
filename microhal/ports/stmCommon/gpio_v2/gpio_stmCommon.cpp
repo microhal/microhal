@@ -28,7 +28,8 @@
  */
 
 #include "ports/stmCommon/gpio_v2/gpio_stmCommon.h"
-#include _MICROHAL_INCLUDE_PORT_clockManager
+#include "../clockManager/gpioClock.h"
+//#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

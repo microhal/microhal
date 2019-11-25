@@ -21,27 +21,29 @@
 #if defined(STM32F7x9) || defined(STM32F765) || defined(STM32F765) || defined(STM32F7x8) || defined(STM32F745) || defined(STM32F745) || \
     defined(STM32F750) || defined(STM32F750) || defined(STM32F7x7) || defined(STM32F7x6) || defined(STM32F7x6) || defined(STM32F765) || \
     defined(STM32F745) || defined(STM32F7x3) || defined(STM32F7x2) || defined(STM32F730)  // version 1
-_MICROHAL_REGISTERS_SPI_CR1_HAS_CRCL
-_MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
-_MICROHAL_REGISTERS_SPI_I2SCFGR_HAS_ASTRTEN
-_MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
-_MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
-_MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-_MICROHAL_REGISTERS_SPI_HAS_I2S
+#define _MICROHAL_REGISTERS_SPI_CR1_HAS_CRCL
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
+#define _MICROHAL_REGISTERS_SPI_I2SCFGR_HAS_ASTRTEN
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+#define _MICROHAL_REGISTERS_SPI_HAS_I2S
 #endif
 
 #if defined(STM32G474xx) || defined(STM32G474xx) || defined(STM32G484xx) || defined(STM32G484xx) || defined(STM32G471xx) || defined(STM32G471xx) || \
     defined(STM32G431xx) || defined(STM32G473xx) || defined(STM32G473xx) || defined(STM32G441xx) || defined(STM32GBK1CBT6) ||                       \
     defined(STM32G483xx) || defined(STM32G483xx)  // version 2
-_MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
-_MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
-_MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
-_MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-_MICROHAL_REGISTERS_SPI_HAS_I2S
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+#define _MICROHAL_REGISTERS_SPI_HAS_I2S
 #endif
 
 #if defined(STM32L100)  // version 3
-_MICROHAL_REGISTERS_SPI_HAS_I2S
+#define _MICROHAL_REGISTERS_SPI_HAS_I2S
 #endif
 
 #if defined(STM32L162) || defined(STM32L151) || defined(STM32L0x3) || defined(STM32L0x2) || defined(STM32L0x1) || defined(STM32F407) || \
@@ -58,28 +60,31 @@ _MICROHAL_REGISTERS_SPI_HAS_I2S
 #endif
 
 #if defined(STM32F0x2) || defined(STM32F0x8) || defined(STM32F0x1) || defined(STM32F0x0) || defined(STM32F3x4)  // version 6
-_MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
-_MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
-_MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
-_MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
-_MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-_MICROHAL_REGISTERS_SPI_HAS_I2S
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+#define _MICROHAL_REGISTERS_SPI_HAS_I2S
 #endif
 
 #if defined(STM32F302) || defined(STM32F303) || defined(STM32F301) || defined(STM32F3x8) || defined(STM32F373) || defined(STM32F3x4)  // version 7
-_MICROHAL_REGISTERS_SPI_CR1_HAS_CRCL
-_MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
-_MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
-_MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
-_MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
-_MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-_MICROHAL_REGISTERS_SPI_HAS_I2S
+#define _MICROHAL_REGISTERS_SPI_CR1_HAS_CRCL
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
+#define _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+#define _MICROHAL_REGISTERS_SPI_HAS_I2S
 #endif
 
 #if defined(STM32L4x6) || defined(STM32L4x3) || defined(STM32L4x1) || defined(STM32L4x2) || defined(STM32L4x5) || defined(STM32L4R7) || \
     defined(STM32L4S9) || defined(STM32L4R9) || defined(STM32L4S5) || defined(STM32L4S7) || defined(STM32L4R5)  // version 8
 #define _MICROHAL_REGISTERS_SPI_CR2_HAS_NSSP
-#define _MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+#define _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
 #define _MICROHAL_REGISTERS_SPI_SR_HAS_TIFRFE
 #define _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
 #endif
@@ -171,13 +176,30 @@ struct SPI {
             microhal::Bitfield<uint32_t, 5, 1> ERRIE;  /*!< Error interrupt enable */
             microhal::Bitfield<uint32_t, 6, 1> RXNEIE; /*!< RX buffer not empty interrupt enable */
             microhal::Bitfield<uint32_t, 7, 1> TXEIE;  /*!< Tx buffer empty interrupt enable */
-#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_DS_FRXTH
-            microhal::Bitfield<uint32_t, 8, 4> DS;       /*!< Data size */
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+            microhal::Bitfield<uint32_t, 8, 4> DS; /*!< Data size */
+#endif
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
             microhal::Bitfield<uint32_t, 12, 1> FRXTH;   /*!< FIFO reception threshold */
             microhal::Bitfield<uint32_t, 13, 1> LDMA_RX; /*!< Last DMA transfer for reception */
             microhal::Bitfield<uint32_t, 14, 1> LDMA_TX; /*!< Last DMA transfer for transmission */
 #endif
         };
+
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+        void setDataSize(uint16_t dataSize)
+        //[[expects axiom: dataSize >= 4 && dataSize <= 16]]
+        {
+            DS = dataSize - 1;
+        }
+
+        uint16_t getDataSize() { return DS + 1; }
+#endif
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
+        enum class RxFIFOThreshold : uint32_t { Half = 0, Quater = 1 };
+        void setFIFOThreshold(RxFIFOThreshold threshold) { FRXTH = static_cast<uint32_t>(threshold); }
+        RxFIFOThreshold getFIFOThreshold() { return static_cast<RxFIFOThreshold>(FRXTH.get()); }
+#endif
 
         operator uint32_t() const { return raw; }
         operator bool() const { return raw; }

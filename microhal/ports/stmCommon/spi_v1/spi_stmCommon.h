@@ -103,6 +103,16 @@ class SPI : public microhal::SPI {
         cr1.mode = modeFlags[mode];
         cr1.BR = prescaler;
         spi.cr1.volatileStore(cr1);
+#if defined(_MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH) || defined(_MICROHAL_REGISTERS_SPI_CR2_HAS_DS)
+        auto cr2 = spi.cr2.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+        cr2.setDataSize(8);
+#endif
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_FRXTH
+        cr2.setFIFOThreshold(registers::SPI::CR2::RxFIFOThreshold::Quater);
+#endif
+        spi.cr2.volatileStore(cr2);
+#endif
     }
 
     void prescaler(Prescaler prescaler) {
@@ -126,6 +136,30 @@ class SPI : public microhal::SPI {
         auto cr1 = spi.cr1.volatileLoad();
         cr1.SPE.clear();
         spi.cr1.volatileStore(cr1);
+    }
+
+    uint32_t dataSize([[maybe_unused]] uint32_t size) {
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+        if (size < 4 || size > 16) return dataSize();
+        auto cr2 = spi.cr2.volatileLoad();
+        cr2.setDataSize(size);
+        spi.cr2.volatileStore(cr2);
+        return size;
+#else
+        if (size != 8 && size != 16) return dataSize();
+        auto cr1 = spi.cr1.volatileLoad();
+        cr1.DFF = size == 8 ? 0 : 1;
+        spi.cr1.volatileStore(cr1);
+        return size;
+#endif
+    }
+
+    uint32_t dataSize() const {
+#ifdef _MICROHAL_REGISTERS_SPI_CR2_HAS_DS
+        return spi.cr2.volatileLoad().getDataSize();
+#else
+        return spi.cr1.volatileLoad().DFF == 0 ? 8 : 16;
+#endif
     }
     /**@brief Set SPI CLK frequency.
      *

@@ -9,9 +9,9 @@
 #define _MICROHAL_TIMER_STM32F3XX_H_
 
 #include <cstdint>
-#include "clockManager.h"
 #include "device/stm32f3xx.h"
 #include "gsl/span"
+#include "ports/stmCommon/clockManager/timerClock.h"
 #include "signalSlot/signalSlot.h"
 
 namespace microhal {
@@ -586,7 +586,7 @@ class Timer {
         if (addr == TIM3) {
             tim3 = this;
         }
-        ClockManager::enable(*static_cast<TIM_TypeDef *>(addr));
+        ClockManager::enableTimer(getNumber());
     }
     ~Timer() {
         disableInterrupt();
@@ -702,11 +702,11 @@ class Timer {
 
     uint32_t maxCounterValue() const { return 0xFFFF; }
 
-    uint32_t getTimerClockSourceFrequency() const { return ClockManager::TimerFrequency(*(TIM_TypeDef *)&timer); }
-    uint32_t getTimerCounterFrequency() const { return ClockManager::TimerFrequency(*(TIM_TypeDef *)&timer) / getPrescaler(); }
+    uint32_t getTimerClockSourceFrequency() const { return ClockManager::TimerFrequency(getNumber()); }
+    uint32_t getTimerCounterFrequency() const { return ClockManager::TimerFrequency(getNumber()) / getPrescaler(); }
     // one tick duration in [ns]
     uint32_t getTickPeriod() const {
-        uint32_t timerFrequency = ClockManager::TimerFrequency(*(TIM_TypeDef *)&timer);
+        uint32_t timerFrequency = ClockManager::TimerFrequency(getNumber());
         return (uint64_t{1000'000'000} * getPrescaler()) / timerFrequency;
     }
 
@@ -1111,6 +1111,84 @@ class Timer {
         if ((TIM_TypeDef *)&timer == TIM1) return TIM1_CC_IRQn;
         if ((TIM_TypeDef *)&timer == TIM3) return TIM3_IRQn;
         std::terminate();
+    }
+
+    uint8_t getNumber() const {
+#ifdef _MICROHAL_TIM1_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM1_BASE_ADDRESS) {
+            return 1;
+        }
+#endif
+#ifdef _MICROHAL_TIM2_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM2_BASE_ADDRESS) {
+            return 2;
+        }
+#endif
+#ifdef _MICROHAL_TIM3_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM3_BASE_ADDRESS) {
+            return 3;
+        }
+#endif
+#ifdef _MICROHAL_TIM4_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM4_BASE_ADDRESS) {
+            return 4;
+        }
+#endif
+#ifdef _MICROHAL_TIM5_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM5_BASE_ADDRESS) {
+            return 5;
+        }
+#endif
+#ifdef _MICROHAL_TIM6_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM6_BASE_ADDRESS) {
+            return 6;
+        }
+#endif
+#ifdef _MICROHAL_TIM7_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM7_BASE_ADDRESS) {
+            return 7;
+        }
+#endif
+#ifdef _MICROHAL_TIM8_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM8_BASE_ADDRESS) {
+            return 8;
+        }
+#endif
+#ifdef _MICROHAL_TIM9_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM9_BASE_ADDRESS) {
+            return 9;
+        }
+#endif
+#ifdef _MICROHAL_TIM10_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM10_BASE_ADDRESS) {
+            return 10;
+        }
+#endif
+#ifdef _MICROHAL_TIM11_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM11_BASE_ADDRESS) {
+            return 11;
+        }
+#endif
+#ifdef _MICROHAL_TIM12_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM12_BASE_ADDRESS) {
+            return 12;
+        }
+#endif
+#ifdef _MICROHAL_TIM13_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM13_BASE_ADDRESS) {
+            return 13;
+        }
+#endif
+#ifdef _MICROHAL_TIM14_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM14_BASE_ADDRESS) {
+            return 13;
+        }
+#endif
+#ifdef _MICROHAL_TIM15_BASE_ADDRESS
+        if ((int)&timer == _MICROHAL_TIM15_BASE_ADDRESS) {
+            return 14;
+        }
+#endif
     }
 
     friend void TIM3_IRQHandler(void);

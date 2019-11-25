@@ -1,14 +1,14 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief
  *
- * @authors    pawel
- * created on: 12-02-2017
- * last modification: 12-02-2017
+ * @authors    Pawel Okas
+ * created on: 02-10-2018
+ * last modification: dd-mm-yyyy
  *
- * @copyright Copyright (c) 2017, microHAL
+ * @copyright Copyright (c) 2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,18 +27,32 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _MICROHAL_PORTS_WATCHDOG_STMCOMMON_H_
+#define _MICROHAL_PORTS_WATCHDOG_STMCOMMON_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "hardware_stm32f4xx.h"
-#include "ports/stmCommon/clockManager/ahbClock.h"
+#include <cstdint>
+#include "registers/wwdg_v1.h"
+#include "stmCommonDefines.h"
 
 namespace microhal {
-namespace hardware {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
-uint32_t Device::coreFrequency() {
-    return ClockManager::AHB::frequency();
-}
+/* **************************************************************************************************************************************************
+ * CLASS
+ */
+class Watchdog {
+ public:
+    static void enable() {
+        auto cr = registers::wwdg->cr.volatileLoad();
+        cr.WDGA.set();
+        registers::wwdg->cr.volatileStore(cr);
+    }
+    static bool isEnabled() { return registers::wwdg->cr.volatileLoad().WDGA; }
+    static uint_fast8_t getValue() { return registers::wwdg->cr.volatileLoad().T; }
+};
 
-}  // namespace hardware
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif  // _MICROHAL_PORTS_WATCHDOG_STMCOMMON_H_

@@ -36,11 +36,15 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
     writePtr = (uint8_t *)data;
     writeEnd = ((uint8_t *)data) + len;
 
-    enableTransmitterEmptyInterrupt();
+    enableInterrupt(Interrupt::TransmitterEmpty);
     if (semaphore.wait(std::chrono::milliseconds::max())) {
         // this is last transaction on SPI bus, so we need to wait until last byte will be send before we exit from function because someone could
         // change CS signal to high when we will sending last byte
         if (last) {
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+            while (spi.sr.volatileLoad().FTLVL) {
+            }
+#endif
             busyWait();
             // workaround, I don't know why but BSY flag is cleared in the middle of last bit. This may cause some error when other function will
             // deassert
@@ -60,10 +64,20 @@ SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
     readEnd = static_cast<uint8_t *>(data) + len;
     writeData = write;
 
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+    while (spi.sr.volatileLoad().FTLVL) {
+    }
+#endif
     busyWait();
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+    for (size_t i = spi.sr.volatileLoad().FRLVL; i > 0; i--) {
+        spi.dr.volatileLoad();
+    }
+#else
     spi.dr.volatileLoad();
+#endif
 
-    enableReceiverNotEmptyInterrupt();
+    enableInterrupt(Interrupt::ReceiverNotEmpty);
 
     spi.dr.volatileStore(write);
     if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
@@ -76,8 +90,18 @@ SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_
     writePtr = static_cast<const uint8_t *>(dataWrite);
     writeEnd = static_cast<const uint8_t *>(dataWrite) + readWriteLength;
 
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+    while (spi.sr.volatileLoad().FTLVL) {
+    }
+#endif
     busyWait();
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+    for (size_t i = spi.sr.volatileLoad().FRLVL; i > 0; i--) {
+        spi.dr.volatileLoad();
+    }
+#else
     spi.dr.volatileLoad();
+#endif
 
     enableInterrupt(Interrupt::TransmitterEmpty | Interrupt::ReceiverNotEmpty);
 

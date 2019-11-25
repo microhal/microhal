@@ -132,13 +132,24 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final {
         return writeRead(dataWrite, dataRead, readWriteLength, readWriteLength);
     }
-
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+    void setDMAStreamPriority(DMA::Channel::Priority rxPriority, DMA::Channel::Priority txPriority) {
+#else
     void setDMAStreamPriority(DMA::Stream::Priority rxPriority, DMA::Stream::Priority txPriority) {
+#endif
         rxStream.setPriority(rxPriority);
         txStream.setPriority(txPriority);
     }
 
  private:
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+    using DMAInterrupt = DMA::Channel::Interrupt;
+    using DMAMemoryIncrementMode = DMA::Channel::MemoryIncrementMode;
+#else
+    using DMAInterrupt = DMA::Stream::Interrupt;
+    using DMAMemoryIncrementMode = DMA::Stream::MemoryIncrementMode;
+#endif
+
 #if defined(MICROHAL_USE_SPI1_DMA) && MICROHAL_USE_SPI1_DMA == 1
     static SPI_dma *spi1;
 #endif
@@ -160,11 +171,19 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     //---------------------------------------- variables ----------------------------------------//
     os::Semaphore semaphore;
     DMA::DMA &dma;
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+    DMA::Channel &rxStream;
+    DMA::Channel &txStream;
+#else
     DMA::Stream &rxStream;
     DMA::Stream &txStream;
-
+#endif
     //--------------------------------------- constructors --------------------------------------//
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+    SPI_dma(registers::SPI &spi, DMA::DMA &dma, DMA::Channel &rxStream, DMA::Channel &txStream, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin)
+#else
     SPI_dma(registers::SPI &spi, DMA::DMA &dma, DMA::Stream &rxStream, DMA::Stream &txStream, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin)
+#endif
         : SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
         ClockManager::enableSPI(getNumber(), ClockManager::PowerMode::Normal);
@@ -203,6 +222,9 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     friend void SPI4_IRQHandler(void);
     friend void SPI5_IRQHandler(void);
     friend void SPI6_IRQHandler(void);
+
+    static void DMA_rxFunction(SPI_dma &object);
+    static void DMA_txFunction(SPI_dma &object);
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

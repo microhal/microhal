@@ -202,15 +202,21 @@ class I2C : public microhal::I2C {
     }
 
     uint16_t getNumber() {
+#if defined(_MICROHAL_I2C1_BASE_ADDRESS)
         if ((int)&i2c == _MICROHAL_I2C1_BASE_ADDRESS) {
             return 1;
         }
+#endif
+#if defined(_MICROHAL_I2C2_BASE_ADDRESS)
         if ((int)&i2c == _MICROHAL_I2C2_BASE_ADDRESS) {
             return 2;
         }
+#endif
+#if defined(_MICROHAL_I2C3_BASE_ADDRESS)
         if ((int)&i2c == _MICROHAL_I2C3_BASE_ADDRESS) {
             return 3;
         }
+#endif
         std::terminate();
     }
 

@@ -1,6 +1,7 @@
 #ifndef _MICROHAL_PERIPHERAL_REGISTER_GPIO
 #define _MICROHAL_PERIPHERAL_REGISTER_GPIO
 
+#include "registersBaseAddressDefinitions.h"
 #include "utils/bitfield.h"
 #include "utils/volatileRegister.h"
 
@@ -14,7 +15,7 @@
 // Supported MCU version 2: STM32F7x9, STM32F765, STM32F7x8, STM32F745, STM32F750, STM32F7x7, STM32F7x6
 // Supported MCU version 3: STM32L4x6, STM32L4R7, STM32L4S9, STM32L4R9, STM32L4S5, STM32L4S7, STM32L4R5
 #if defined(STM32F411xE)
-#define STM32L4x1
+#define STM32F411
 #endif
 
 #if defined(STM32F334x8)

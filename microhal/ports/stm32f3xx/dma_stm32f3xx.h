@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include "device/stm32f3xx.h"
+#include "ports/stmCommon/clockManager/dmaClock.h"
 
 namespace microhal {
 namespace stm32f3xx {
@@ -43,14 +44,14 @@ class Channel {
 
     void deinit() { channel.CCR = 0; }
 
-    void memoryIncrement(MemoryIncrementMode memoryInc) {
+    void setMemoryIncrement(MemoryIncrementMode memoryInc) {
         channel.CCR = (channel.CCR & ~static_cast<uint32_t>(MemoryIncrementMode::PointerIncremented)) | static_cast<uint32_t>(memoryInc);
     }
 
     void enableCircularMode() { channel.CCR |= DMA_CCR_CIRC; }
     void disableCircularMode() { channel.CCR &= ~DMA_CCR_CIRC; }
 
-    void priority(Priority priority) { channel.CCR = (channel.CCR & ~DMA_CCR_PL) | static_cast<uint32_t>(priority); }
+    void setPriority(Priority priority) { channel.CCR = (channel.CCR & ~DMA_CCR_PL) | static_cast<uint32_t>(priority); }
 
     void setPeripheralAddress(volatile void *addr) { channel.CPAR = reinterpret_cast<uint32_t>(addr); }
     void setMemoryAddress(void *memoryAddr) { channel.CMAR = reinterpret_cast<uint32_t>(memoryAddr); }
@@ -96,8 +97,8 @@ class DMA {
         NVIC_DisableIRQ(interruptNumber);
     }
 
-    void clockEnable() { RCC->AHBENR |= RCC_AHBENR_DMA1EN; }
-    void clockDisable() { RCC->AHBENR &= ~RCC_AHBENR_DMA1EN; }
+    void clockEnable() { microhal::ClockManager::enableDMA(1); }
+    void clockDisable() { microhal::ClockManager::disableDMA(1); }
 
  private:
     uint32_t calculateStreamNumber(const Channel &stream) const noexcept { return &stream - &this->stream[0]; }

@@ -27,28 +27,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_INDEPENDENTWATCHDOG_STM32F0XX_H_
-#define _MICROHAL_INDEPENDENTWATCHDOG_STM32F0XX_H_
+#ifndef _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STM32F0XX_H_
+#define _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STM32F0XX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include <cstdint>
-#include "device/stm32f0xx.h"
+#include "ports/stmCommon/independentWatchdog_stmCommon_v1.h"
 
-namespace microhal {
-namespace stm32f0xx {
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-class IndependentWatchdog {
- public:
-    static void enable() { IWDG->KR = 0x0000'CCCC; }
-    static void kick() { IWDG->KR = 0x0000'AAAA; }
-    static bool isEnabled() { return WWDG->CR & WWDG_CR_WDGA; }
-    static uint_fast8_t getValue() { return WWDG->CR & 0b0111'1111; }
-};
-
-}  // namespace stm32f0xx
-}  // namespace microhal
-#endif  // _MICROHAL_INDEPENDENTWATCHDOG_STM32F0XX_H_
+#endif  // _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STM32F0XX_H_

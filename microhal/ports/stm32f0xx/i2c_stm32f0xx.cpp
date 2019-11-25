@@ -31,8 +31,8 @@
  * INCLUDES
  */
 #include "i2c_stm32f0xx.h"
-#include "clockManager.h"
 #include "diagnostic/diagnostic.h"
+#include "ports/stmCommon/clockManager/i2cClock.h"
 
 using namespace microhal::diagnostic;
 
@@ -74,7 +74,7 @@ bool I2C::configure(uint32_t speed, uint32_t /*riseTime*/, bool /*fastMode*/, bo
         return false;
     }
     //
-    const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c);  // in Hz
+    const uint32_t clockFreqHz = ClockManager::I2CFrequency(getNumber());  // in Hz
 
     diagChannel << diagnostic::lock << MICROHAL_NOTICE << "Setting I2C speed: " << speed << diagnostic::unlock;
     // 1/i2cFreq * 1000 000 000
@@ -106,7 +106,7 @@ bool I2C::configure(uint32_t speed, uint32_t /*riseTime*/, bool /*fastMode*/, bo
 }
 
 I2C::Speed I2C::speed() noexcept {
-    const uint32_t clockFreqHz = ClockManager::I2CFrequency(i2c);  // in Hz
+    const uint32_t clockFreqHz = ClockManager::I2CFrequency(getNumber());  // in Hz
     const uint32_t timingr = i2c.TIMINGR;
     const uint32_t SCLL = (timingr & I2C_TIMINGR_SCLL_Msk) >> I2C_TIMINGR_SCLL_Pos;
     const uint32_t SCLH = (timingr & I2C_TIMINGR_SCLH_Msk) >> I2C_TIMINGR_SCLH_Pos;

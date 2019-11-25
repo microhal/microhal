@@ -15,9 +15,78 @@ Timer *Timer::tim1 = nullptr;
 Timer *Timer::tim3 = nullptr;
 
 uint8_t Timer::getNumber() const {
-    std::array<registers::TIM *, 14> timers = {registers::tim1,  registers::tim2,  registers::tim3,  registers::tim4, registers::tim5,
-                                               registers::tim6,  registers::tim7,  registers::tim8,  registers::tim9, registers::tim10,
-                                               registers::tim11, registers::tim12, registers::tim13, registers::tim14};
+    std::array<registers::TIM *, 14> timers = {
+#ifdef _MICROHAL_TIM1_BASE_ADDRESS
+        registers::tim1,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM2_BASE_ADDRESS
+        registers::tim2,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM3_BASE_ADDRESS
+        registers::tim3,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM4_BASE_ADDRESS
+        registers::tim4,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM5_BASE_ADDRESS
+        registers::tim5,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM6_BASE_ADDRESS
+        registers::tim6,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM7_BASE_ADDRESS
+        registers::tim7,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM8_BASE_ADDRESS
+        registers::tim8,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM9_BASE_ADDRESS
+        registers::tim9,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM10_BASE_ADDRESS
+        registers::tim10,
+#else
+        nullptr
+#endif
+#ifdef _MICROHAL_TIM11_BASE_ADDRESS
+        registers::tim11,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM12_BASE_ADDRESS
+        registers::tim12,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM13_BASE_ADDRESS
+        registers::tim13,
+#else
+        nullptr,
+#endif
+#ifdef _MICROHAL_TIM14_BASE_ADDRESS
+        registers::tim14
+#else
+        nullptr
+#endif
+    };
 
     for (size_t i = 0; i < timers.size(); i++) {
         if (timers[i] == &timer) return i + 1;

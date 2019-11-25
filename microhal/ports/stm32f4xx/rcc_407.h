@@ -5,6 +5,11 @@
 #include "utils/bitfield.h"
 #include "utils/volatileRegister.h"
 
+#undef RCC
+#define _MICROHAL_CLOCKMANAGER_HAS_POWERMODE 1
+#define _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
+#define _MICROHAL_REGISTERS_RCC_CFGR_HAS_PPRE2
+
 // Supported MCU: STM32F407, STM32F405
 namespace microhal {
 namespace registers {
@@ -72,28 +77,11 @@ struct RCC {
     // PLL configuration register
     union PLLCFGR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> PLLM0;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 1, 1> PLLM1;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 2, 1> PLLM2;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 3, 1> PLLM3;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 4, 1> PLLM4;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 5, 1> PLLM5;   /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
-            microhal::Bitfield<uint32_t, 6, 1> PLLN0;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 7, 1> PLLN1;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 8, 1> PLLN2;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 9, 1> PLLN3;   /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 10, 1> PLLN4;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 11, 1> PLLN5;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 12, 1> PLLN6;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 13, 1> PLLN7;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 14, 1> PLLN8;  /*!< Main PLL (PLL) multiplication factor for VCO */
-            microhal::Bitfield<uint32_t, 16, 1> PLLP0;  /*!< Main PLL (PLL) division factor for main system clock */
-            microhal::Bitfield<uint32_t, 17, 1> PLLP1;  /*!< Main PLL (PLL) division factor for main system clock */
+            microhal::Bitfield<uint32_t, 0, 6> PLLM;    /*!< Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock */
+            microhal::Bitfield<uint32_t, 6, 9> PLLN;    /*!< Main PLL (PLL) multiplication factor for VCO */
+            microhal::Bitfield<uint32_t, 16, 2> PLLP;   /*!< Main PLL (PLL) division factor for main system clock */
             microhal::Bitfield<uint32_t, 22, 1> PLLSRC; /*!< Main PLL(PLL) and audio PLL (PLLI2S) entry clock source */
-            microhal::Bitfield<uint32_t, 24, 1> PLLQ0;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
-            microhal::Bitfield<uint32_t, 25, 1> PLLQ1;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
-            microhal::Bitfield<uint32_t, 26, 1> PLLQ2;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
-            microhal::Bitfield<uint32_t, 27, 1> PLLQ3;  /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
+            microhal::Bitfield<uint32_t, 24, 4> PLLQ;   /*!< Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks */
         };
 
         operator uint32_t() const { return raw; }
@@ -139,10 +127,8 @@ struct RCC {
     // clock configuration register
     union CFGR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> SW0;      /*!< System clock switch */
-            microhal::Bitfield<uint32_t, 1, 1> SW1;      /*!< System clock switch */
-            microhal::Bitfield<uint32_t, 2, 1> SWS0;     /*!< System clock switch status */
-            microhal::Bitfield<uint32_t, 3, 1> SWS1;     /*!< System clock switch status */
+            microhal::Bitfield<uint32_t, 0, 2> SW;       /*!< System clock switch */
+            microhal::Bitfield<uint32_t, 2, 2> SWS;      /*!< System clock switch status */
             microhal::Bitfield<uint32_t, 4, 4> HPRE;     /*!< AHB prescaler */
             microhal::Bitfield<uint32_t, 10, 3> PPRE1;   /*!< APB Low speed prescaler (APB1) */
             microhal::Bitfield<uint32_t, 13, 3> PPRE2;   /*!< APB high-speed prescaler (APB2) */
@@ -271,6 +257,8 @@ struct RCC {
             microhal::Bitfield<uint32_t, 6, 1> GPIOGRST;   /*!< IO port G reset */
             microhal::Bitfield<uint32_t, 7, 1> GPIOHRST;   /*!< IO port H reset */
             microhal::Bitfield<uint32_t, 8, 1> GPIOIRST;   /*!< IO port I reset */
+            microhal::Bitfield<uint32_t, 9, 1> GPIOJRST;   /*!< IO port J reset */
+            microhal::Bitfield<uint32_t, 10, 1> GPIOKRST;  /*!< IO port K reset */
             microhal::Bitfield<uint32_t, 12, 1> CRCRST;    /*!< CRC reset */
             microhal::Bitfield<uint32_t, 21, 1> DMA1RST;   /*!< DMA2 reset */
             microhal::Bitfield<uint32_t, 22, 1> DMA2RST;   /*!< DMA2 reset */
@@ -548,6 +536,8 @@ struct RCC {
             microhal::Bitfield<uint32_t, 6, 1> GPIOGEN;      /*!< IO port G clock enable */
             microhal::Bitfield<uint32_t, 7, 1> GPIOHEN;      /*!< IO port H clock enable */
             microhal::Bitfield<uint32_t, 8, 1> GPIOIEN;      /*!< IO port I clock enable */
+            microhal::Bitfield<uint32_t, 9, 1> GPIOJEN;      /*!< IO port J clock enable */
+            microhal::Bitfield<uint32_t, 10, 1> GPIOKEN;     /*!< IO port K clock enable */
             microhal::Bitfield<uint32_t, 12, 1> CRCEN;       /*!< CRC clock enable */
             microhal::Bitfield<uint32_t, 18, 1> BKPSRAMEN;   /*!< Backup SRAM interface clock enable */
             microhal::Bitfield<uint32_t, 21, 1> DMA1EN;      /*!< DMA1 clock enable */
@@ -832,6 +822,8 @@ struct RCC {
             microhal::Bitfield<uint32_t, 6, 1> GPIOGLPEN;      /*!< IO port G clock enable during Sleep mode */
             microhal::Bitfield<uint32_t, 7, 1> GPIOHLPEN;      /*!< IO port H clock enable during Sleep mode */
             microhal::Bitfield<uint32_t, 8, 1> GPIOILPEN;      /*!< IO port I clock enable during Sleep mode */
+            microhal::Bitfield<uint32_t, 9, 1> GPIOJLPEN;      /*!< IO port J clock enable during Sleep mode */
+            microhal::Bitfield<uint32_t, 10, 1> GPIOKLPEN;     /*!< IO port K clock enable during Sleep mode */
             microhal::Bitfield<uint32_t, 12, 1> CRCLPEN;       /*!< CRC clock enable during Sleep mode */
             microhal::Bitfield<uint32_t, 15, 1> FLITFLPEN;     /*!< Flash interface clock enable during Sleep mode */
             microhal::Bitfield<uint32_t, 16, 1> SRAM1LPEN;     /*!< SRAM 1interface clock enable during Sleep mode */
@@ -1310,42 +1302,44 @@ struct RCC {
         friend class VolatileRegister<PLLI2SCFGR, AccessType::ReadWrite>;
     };
 
-    VolatileRegister<CR, AccessType::ReadWrite> cr;                         /*!< clock control register	Address offset: 0x0 */
-    VolatileRegister<PLLCFGR, AccessType::ReadWrite> pllcfgr;               /*!< PLL configuration register	Address offset: 0x4 */
-    VolatileRegister<CFGR, AccessType::ReadWrite> cfgr;                     /*!< clock configuration register	Address offset: 0x8 */
-    VolatileRegister<CIR, AccessType::ReadWrite> cir;                       /*!< clock interrupt register	Address offset: 0xC */
-    VolatileRegister<AHB1RSTR, AccessType::ReadWrite> ahb1rstr;             /*!< AHB1 peripheral reset register	Address offset: 0x10 */
-    VolatileRegister<AHB2RSTR, AccessType::ReadWrite> ahb2rstr;             /*!< AHB2 peripheral reset register	Address offset: 0x14 */
-    VolatileRegister<AHB3RSTR, AccessType::ReadWrite> ahb3rstr;             /*!< AHB3 peripheral reset register	Address offset: 0x18 */
-    VolatileRegister<reserved0[1.0], AccessType::ReadWrite> reserved0[1.0]; /*!< Reserved register	Address offset: 0x1c */
-    VolatileRegister<APB1RSTR, AccessType::ReadWrite> apb1rstr;             /*!< APB1 peripheral reset register	Address offset: 0x20 */
-    VolatileRegister<APB2RSTR, AccessType::ReadWrite> apb2rstr;             /*!< APB2 peripheral reset register	Address offset: 0x24 */
-    VolatileRegister<reserved1[2.0], AccessType::ReadWrite> reserved1[2.0]; /*!< Reserved register	Address offset: 0x28 */
-    VolatileRegister<AHB1ENR, AccessType::ReadWrite> ahb1enr;               /*!< AHB1 peripheral clock register	Address offset: 0x30 */
-    VolatileRegister<AHB2ENR, AccessType::ReadWrite> ahb2enr;               /*!< AHB2 peripheral clock enable register	Address offset: 0x34 */
-    VolatileRegister<AHB3ENR, AccessType::ReadWrite> ahb3enr;               /*!< AHB3 peripheral clock enable register	Address offset: 0x38 */
-    VolatileRegister<reserved2[1.0], AccessType::ReadWrite> reserved2[1.0]; /*!< Reserved register	Address offset: 0x3c */
-    VolatileRegister<APB1ENR, AccessType::ReadWrite> apb1enr;               /*!< APB1 peripheral clock enable register	Address offset: 0x40 */
-    VolatileRegister<APB2ENR, AccessType::ReadWrite> apb2enr;               /*!< APB2 peripheral clock enable register	Address offset: 0x44 */
-    VolatileRegister<reserved3[2.0], AccessType::ReadWrite> reserved3[2.0]; /*!< Reserved register	Address offset: 0x48 */
-    VolatileRegister<AHB1LPENR, AccessType::ReadWrite>
-        ahb1lpenr; /*!< AHB1 peripheral clock enable in low power mode register	Address offset: 0x50 */
-    VolatileRegister<AHB2LPENR, AccessType::ReadWrite>
-        ahb2lpenr; /*!< AHB2 peripheral clock enable in low power mode register	Address offset: 0x54 */
-    VolatileRegister<AHB3LPENR, AccessType::ReadWrite>
-        ahb3lpenr; /*!< AHB3 peripheral clock enable in low power mode register	Address offset: 0x58 */
-    VolatileRegister<reserved4[1.0], AccessType::ReadWrite> reserved4[1.0]; /*!< Reserved register	Address offset: 0x5c */
-    VolatileRegister<APB1LPENR, AccessType::ReadWrite>
-        apb1lpenr; /*!< APB1 peripheral clock enable in low power mode register	Address offset: 0x60 */
+    VolatileRegister<CR, AccessType::ReadWrite> cr;               /*!< clock control register	Address offset: 0x0 */
+    VolatileRegister<PLLCFGR, AccessType::ReadWrite> pllcfgr;     /*!< PLL configuration register	Address offset: 0x4 */
+    VolatileRegister<CFGR, AccessType::ReadWrite> cfgr;           /*!< clock configuration register	Address offset: 0x8 */
+    VolatileRegister<CIR, AccessType::ReadWrite> cir;             /*!< clock interrupt register	Address offset: 0xC */
+    VolatileRegister<AHB1RSTR, AccessType::ReadWrite> ahb1rstr;   /*!< AHB1 peripheral reset register	Address offset: 0x10 */
+    VolatileRegister<AHB2RSTR, AccessType::ReadWrite> ahb2rstr;   /*!< AHB2 peripheral reset register	Address offset: 0x14 */
+    VolatileRegister<AHB3RSTR, AccessType::ReadWrite> ahb3rstr;   /*!< AHB3 peripheral reset register	Address offset: 0x18 */
+    uint32_t reserved0[1];                                        /*!< Reserved register	Address offset: 0x1c */
+    VolatileRegister<APB1RSTR, AccessType::ReadWrite> apb1rstr;   /*!< APB1 peripheral reset register	Address offset: 0x20 */
+    VolatileRegister<APB2RSTR, AccessType::ReadWrite> apb2rstr;   /*!< APB2 peripheral reset register	Address offset: 0x24 */
+    uint32_t reserved1[2];                                        /*!< Reserved register	Address offset: 0x28 */
+    VolatileRegister<AHB1ENR, AccessType::ReadWrite> ahb1enr;     /*!< AHB1 peripheral clock register	Address offset: 0x30 */
+    VolatileRegister<AHB2ENR, AccessType::ReadWrite> ahb2enr;     /*!< AHB2 peripheral clock enable register	Address offset: 0x34 */
+    VolatileRegister<AHB3ENR, AccessType::ReadWrite> ahb3enr;     /*!< AHB3 peripheral clock enable register	Address offset: 0x38 */
+    uint32_t reserved2[1];                                        /*!< Reserved register	Address offset: 0x3c */
+    VolatileRegister<APB1ENR, AccessType::ReadWrite> apb1enr;     /*!< APB1 peripheral clock enable register	Address offset: 0x40 */
+    VolatileRegister<APB2ENR, AccessType::ReadWrite> apb2enr;     /*!< APB2 peripheral clock enable register	Address offset: 0x44 */
+    uint32_t reserved3[2];                                        /*!< Reserved register	Address offset: 0x48 */
+    VolatileRegister<AHB1LPENR, AccessType::ReadWrite> ahb1lpenr; /*!< AHB1 peripheral clock enable in low power mode register	Address offset: 0x50
+                                                                   */
+    VolatileRegister<AHB2LPENR, AccessType::ReadWrite> ahb2lpenr; /*!< AHB2 peripheral clock enable in low power mode register	Address offset: 0x54
+                                                                   */
+    VolatileRegister<AHB3LPENR, AccessType::ReadWrite> ahb3lpenr; /*!< AHB3 peripheral clock enable in low power mode register	Address offset: 0x58
+                                                                   */
+    uint32_t reserved4[1];                                        /*!< Reserved register	Address offset: 0x5c */
+    VolatileRegister<APB1LPENR, AccessType::ReadWrite> apb1lpenr; /*!< APB1 peripheral clock enable in low power mode register	Address offset: 0x60
+                                                                   */
     VolatileRegister<APB2LPENR, AccessType::ReadWrite>
-        apb2lpenr; /*!< APB2 peripheral clock enabled in low power mode register	Address offset: 0x64 */
-    VolatileRegister<reserved5[2.0], AccessType::ReadWrite> reserved5[2.0]; /*!< Reserved register	Address offset: 0x68 */
-    VolatileRegister<BDCR, AccessType::ReadWrite> bdcr;                     /*!< Backup domain control register	Address offset: 0x70 */
-    VolatileRegister<CSR, AccessType::ReadWrite> csr;                       /*!< clock control & status register	Address offset: 0x74 */
-    VolatileRegister<reserved6[2.0], AccessType::ReadWrite> reserved6[2.0]; /*!< Reserved register	Address offset: 0x78 */
-    VolatileRegister<SSCGR, AccessType::ReadWrite> sscgr;                   /*!< spread spectrum clock generation register	Address offset: 0x80 */
-    VolatileRegister<PLLI2SCFGR, AccessType::ReadWrite> plli2scfgr;         /*!< PLLI2S configuration register	Address offset: 0x84 */
+        apb2lpenr;                                        /*!< APB2 peripheral clock enabled in low power mode register	Address offset: 0x64 */
+    uint32_t reserved5[2];                                /*!< Reserved register	Address offset: 0x68 */
+    VolatileRegister<BDCR, AccessType::ReadWrite> bdcr;   /*!< Backup domain control register	Address offset: 0x70 */
+    VolatileRegister<CSR, AccessType::ReadWrite> csr;     /*!< clock control & status register	Address offset: 0x74 */
+    uint32_t reserved6[2];                                /*!< Reserved register	Address offset: 0x78 */
+    VolatileRegister<SSCGR, AccessType::ReadWrite> sscgr; /*!< spread spectrum clock generation register	Address offset: 0x80 */
+    VolatileRegister<PLLI2SCFGR, AccessType::ReadWrite> plli2scfgr; /*!< PLLI2S configuration register	Address offset: 0x84 */
 };
+
+[[maybe_unused]] static RCC *const rcc = reinterpret_cast<RCC *>(_MICROHAL_RCC_BASE_ADDRESS);
 }  // namespace registers
 }  // namespace microhal
 #endif  // _MICROHAL_PERIPHERAL_REGISTER_RCC

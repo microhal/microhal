@@ -43,6 +43,8 @@ _MICROHAL_HAS_PORT(PortF)
 _MICROHAL_HAS_PORT(PortG)
 _MICROHAL_HAS_PORT(PortH)
 _MICROHAL_HAS_PORT(PortI)
+_MICROHAL_HAS_PORT(PortJ)
+_MICROHAL_HAS_PORT(PortK)
 }  // namespace ioPinDetail
 
 struct IOPin {
@@ -77,6 +79,12 @@ struct IOPin {
 #if defined(_MICROHAL_GPIOI_BASE_ADDRESS)
         PortI = _MICROHAL_GPIOI_BASE_ADDRESS,  //!< PortI
 #endif
+#if defined(_MICROHAL_GPIOJ_BASE_ADDRESS)
+        PortJ = _MICROHAL_GPIOJ_BASE_ADDRESS,  //!< PortJ
+#endif
+#if defined(_MICROHAL_GPIOK_BASE_ADDRESS)
+        PortK = _MICROHAL_GPIOK_BASE_ADDRESS,  //!< PortK
+#endif
     } Port;
     /**
      *
@@ -104,6 +112,8 @@ struct IOPin {
     constexpr static bool isPortGPresent() { return ioPinDetail::has_PortG<Port>::value; }
     constexpr static bool isPortHPresent() { return ioPinDetail::has_PortH<Port>::value; }
     constexpr static bool isPortIPresent() { return ioPinDetail::has_PortI<Port>::value; }
+    constexpr static bool isPortJPresent() { return ioPinDetail::has_PortJ<Port>::value; }
+    constexpr static bool isPortKPresent() { return ioPinDetail::has_PortK<Port>::value; }
 };
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
