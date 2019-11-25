@@ -35,7 +35,8 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
-SPI_interrupt &spi1 = SPI_interrupt::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
+SPI_polling &spi1 = SPI_polling::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
+// SPI_interrupt &spi1 = SPI_interrupt::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
 
 namespace bsp {
 namespace detail {
