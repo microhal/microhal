@@ -2,7 +2,7 @@
  * @license    BSD 3-Clause
  * @copyright  microHAL
  * @version    $Id$
- * @brief      
+ * @brief
  *
  * @authors    pawel
  * created on: 18-02-2017
@@ -31,43 +31,43 @@
  * INCLUDES
  */
 
-#include "pcf8563.h"
 #include "bsp.h"
+#include "pcf8563.h"
 
 using namespace microhal;
 using namespace diagnostic;
 using namespace std::literals::chrono_literals;
 
 int main() {
-	serialPort.setDataBits(SerialPort::Data8);
-	serialPort.setStopBits(SerialPort::OneStop);
-	serialPort.setParity(SerialPort::NoParity);
-	serialPort.open(SerialPort::ReadWrite);
-	serialPort.setBaudRate(SerialPort::Baud115200);
+    serialPort.setDataBits(SerialPort::Data8);
+    serialPort.setStopBits(SerialPort::OneStop);
+    serialPort.setParity(SerialPort::NoParity);
+    serialPort.open(SerialPort::ReadWrite);
+    serialPort.setBaudRate(SerialPort::Baud115200);
 
-	serialPort.write("\n\r------------------- PCF8563 Demo -------------------------\n\r");
+    serialPort.write("\n\r------------------- PCF8563 Demo -------------------------\n\r");
 
-	diagChannel.setOutputDevice(serialPort);
+    diagChannel.setOutputDevice(serialPort);
 
-	PCF8563 pcf(i2c);
+    PCF8563 pcf(i2c);
 
-	PCF8563::Time time;
-	time.hour = 17;
-	time.min = 13;
-	time.sec = 10;
-	time.year = 16;
-	time.month = 2;
-	time.day = 22;
-	pcf.setTime(time);
+    PCF8563::Time time;
+    time.hour = 17;
+    time.min = 13;
+    time.sec = 10;
+    time.year = 16;
+    time.month = 2;
+    time.day = 22;
+    pcf.setTime(time);
 
-	while(1) {
-		PCF8563::Time time;
-		pcf.getTime(time);
+    while (1) {
+        PCF8563::Time time;
+        if (pcf.getTime(time) == PCF8563::Result::SUCCESS) {
+            diagChannel << Debug << "time: " << time.hour << ":" << time.min << ":" << time.sec << endl
+                        << "day: " << time.day << endl
+                        << "month: " << time.month << endl;
+        }
 
-		diagChannel << Debug <<  "time: " << time.hour << ":" << time.min << ":" << time.sec << endl
-					<< "day: " << time.day << endl
-					<< "month: " << time.month << endl;
-
-		std::this_thread::sleep_for(1s);
-	}
+        std::this_thread::sleep_for(1s);
+    }
 }
