@@ -13,15 +13,24 @@
 #include <type_traits>
 #include "apbClock.h"
 #include "clockTypes.h"
+#include "pll.h"
 
+#ifdef MCU_TYPE_STM32F0XX
+#include "ports/stm32f0xx/RCC_2.h"
+#endif
 #ifdef MCU_TYPE_STM32F1XX
 #include "ports/stm32f1xx/rcc_stm32f103.h"
 #endif
 #ifdef MCU_TYPE_STM32F3XX
 #include "ports/stm32f3xx/rcc_3x4.h"
+#define _MICROHAL_REGISTERS_RCC_HAS_TIMCLOCKSOURCE
 #endif
 #ifdef MCU_TYPE_STM32F4XX
+#ifdef STM32F411xE
 #include "ports/stm32f4xx/rcc_411.h"
+#else
+#include "ports/stm32f4xx/rcc_407.h"
+#endif
 #endif
 
 namespace microhal {
@@ -63,8 +72,45 @@ constexpr uint8_t getTimerApb(int8_t timerNumber) {
     return 1;
 }
 
+enum class TimerClockSource {
+    APB2 = 0,
+#if defined(_MICROHAL_REGISTERS_RCC_HAS_TIMCLOCKSOURCE)
+    PLL = 1,
+#endif
+    APB1,
+};
+
+[[maybe_unused]] static TimerClockSource getTimerClockSource(uint8_t timerNumber) {
+    if (timerNumber == 1) {
+#if defined(_MICROHAL_REGISTERS_RCC_HAS_TIMCLOCKSOURCE)
+        auto cfgr3 = registers::rcc->cfgr3.volatileLoad();
+        return static_cast<TimerClockSource>(cfgr3.TIM1SW.get());
+#else
+        return TimerClockSource::APB2;
+#endif
+    } else if (timerNumber >= 8 && timerNumber <= 11) {
+        return TimerClockSource::APB2;
+    } else {
+        return TimerClockSource::APB1;
+    }
+}
+
+[[maybe_unused]] static uint32_t TimerFrequency(uint8_t number) {
+    TimerClockSource clockSource = getTimerClockSource(number);
+    switch (clockSource) {
+        case TimerClockSource::APB1:
+            return APB1::prescaler() == 1 ? APB1::frequency() : APB1::frequency() * 2;
+        case TimerClockSource::APB2:
+            return APB2::prescaler() == 1 ? APB2::frequency() : APB2::frequency() * 2;
+#if defined(_MICROHAL_REGISTERS_RCC_HAS_TIMCLOCKSOURCE)
+        case TimerClockSource::PLL:
+            return PLL::VCOOutputFrequency();
+#endif
+    }
+}
+
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-static void enableTimer(uint8_t timerNumber, PowerMode mode) {
+[[maybe_unused]] static void enableTimer(uint8_t timerNumber, PowerMode mode) {
     if (timerNumber == 1 || (timerNumber >= 8 && timerNumber <= 11)) {
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
         auto apb2lpenr = registers::rcc->apb2lpenr.volatileLoad();
@@ -124,7 +170,7 @@ static void enableTimer(uint8_t timerNumber, PowerMode mode) {
     }
 }
 
-static void disableTimer(uint8_t timerNumber, PowerMode mode) {
+[[maybe_unused]] static void disableTimer(uint8_t timerNumber, PowerMode mode) {
     if (timerNumber == 1 || (timerNumber >= 8 && timerNumber <= 11)) {
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
         auto apb2lpenr = registers::rcc->apb2lpenr.volatileLoad();
@@ -184,6 +230,7 @@ static void disableTimer(uint8_t timerNumber, PowerMode mode) {
     }
 }
 #else
+
 [[maybe_unused]] static void enableTimer(uint8_t number) {
     if (getTimerApb(number) == 2) {
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
@@ -296,13 +343,6 @@ static void disableTimer(uint8_t timerNumber, PowerMode mode) {
     }
 }
 #endif
-
-[[maybe_unused]] static uint32_t TimerFrequency(uint8_t number) {
-    if (number == 1 || (number >= 8 && number <= 11)) {
-        return apb2Frequency();
-    }
-    return apb1Frequency();
-}
 
 }  // namespace ClockManager
 }  // namespace microhal
