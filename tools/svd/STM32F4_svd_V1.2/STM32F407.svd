@@ -5620,6 +5620,18 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <bitWidth>1</bitWidth>
             </field>
             <field>
+              <name>GPIOKRST</name>
+              <description>IO port K reset</description>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>
+            <field>
+              <name>GPIOJRST</name>
+              <description>IO port J reset</description>
+              <bitOffset>9</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>
+            <field>
               <name>GPIOIRST</name>
               <description>IO port I reset</description>
               <bitOffset>8</bitOffset>
@@ -6022,6 +6034,18 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <name>CRCEN</name>
               <description>CRC clock enable</description>
               <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>
+            <field>
+              <name>GPIOKEN</name>
+              <description>IO port K clock enable</description>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>
+            <field>
+              <name>GPIOJEN</name>
+              <description>IO port J clock enable</description>
+              <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
             </field>
             <field>
@@ -6472,6 +6496,20 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <description>CRC clock enable during Sleep
               mode</description>
               <bitOffset>12</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>
+            <field>
+              <name>GPIOKLPEN</name>
+              <description>IO port K clock enable during Sleep
+              mode</description>
+              <bitOffset>10</bitOffset>
+              <bitWidth>1</bitWidth>
+            </field>
+            <field>
+              <name>GPIOJLPEN</name>
+              <description>IO port J clock enable during Sleep
+              mode</description>
+              <bitOffset>9</bitOffset>
               <bitWidth>1</bitWidth>
             </field>
             <field>
