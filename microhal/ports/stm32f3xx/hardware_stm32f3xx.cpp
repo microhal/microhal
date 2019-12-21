@@ -31,17 +31,17 @@
  * INCLUDES
  */
 #include "hardware_stm32f3xx.h"
-#include "clockManager.h"
+#include "ports/stmCommon/clockManager/sysclk.h"
 
 namespace microhal {
 namespace hardware {
 
 uint32_t Device::coreFrequency() {
-    return stm32f3xx::ClockManager::SYSCLK::frequency();
+    return ClockManager::SYSCLK::frequency();
 }
 
 uint64_t Device::getUniqueID() {
-    const uint32_t *id = reinterpret_cast<uint32_t *>(UID_BASE);
+    const uint32_t *id = reinterpret_cast<uint32_t *>(_MICROHAL_UID_BASE_ADDRESS);
 
     const uint32_t idA = id[0] + id[2];
     const uint32_t idB = id[1];
@@ -50,7 +50,7 @@ uint64_t Device::getUniqueID() {
 }
 
 std::array<uint32_t, 3> Device::getNativeUniqueID() {
-    const uint32_t *id = reinterpret_cast<uint32_t *>(UID_BASE);
+    const uint32_t *id = reinterpret_cast<uint32_t *>(_MICROHAL_UID_BASE_ADDRESS);
     return {id[0], id[1], id[2]};
 }
 

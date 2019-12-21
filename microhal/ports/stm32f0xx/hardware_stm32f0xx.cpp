@@ -32,15 +32,15 @@
  */
 #include <cstdint>
 
-#include "clockManager.h"
 #include "device/stm32f0xx.h"
 #include "hardware_stm32f0xx.h"
+#include "ports/stmCommon/clockManager/sysclk.h"
 
 namespace microhal {
 namespace hardware {
 
 uint32_t Device::coreFrequency() {
-    return stm32f0xx::ClockManager::SYSCLK::frequency();
+    return ClockManager::SYSCLK::frequency();
 }
 
 uint64_t Device::getUniqueID() {

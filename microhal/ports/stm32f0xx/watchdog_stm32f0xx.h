@@ -32,23 +32,6 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include <cstdint>
-#include "device/stm32f0xx.h"
+#include "ports/stmCommon/watchdog_stmCommon_v1.h"
 
-namespace microhal {
-namespace stm32f0xx {
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-class Watchdog {
- public:
-    static void enable() { WWDG->CR |= WWDG_CR_WDGA; }
-    static bool isEnabled() { return WWDG->CR & WWDG_CR_WDGA; }
-    static uint_fast8_t getValue() { return WWDG->CR & 0b0111'1111; }
-}
-};  // namespace stm32f0xx
-
-}  // namespace microhal
-}  // namespace microhal
 #endif  // _MICROHAL_WATCHDOG_STM32F0XX_H_

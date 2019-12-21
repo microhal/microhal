@@ -28,8 +28,8 @@
  */
 
 #include "i2c_interrupt_stmCommon.h"
-
-#include _MICROHAL_INCLUDE_PORT_clockManager
+#include "ports/stmCommon/clockManager/i2cClock.h"
+#include _MICROHAL_INCLUDE_PORT_DEVICE
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

@@ -9,6 +9,7 @@
 #define SRC_MICROHAL_PORTS_STMCOMMON_REGISTERS_REGISTERSBASEADDRESSDEFINITIONS_H_
 
 #if defined(STM32F051x8)
+#define STM32F0x1
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f0x1.h"
 #endif
 

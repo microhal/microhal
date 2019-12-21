@@ -13,6 +13,9 @@
 #include "apbClock.h"
 #include "clockTypes.h"
 
+#ifdef MCU_TYPE_STM32F0XX
+#include "ports/stm32f0xx/RCC_2.h"
+#endif
 #ifdef MCU_TYPE_STM32F1XX
 #include "ports/stm32f1xx/rcc_stm32f103.h"
 #endif
@@ -20,7 +23,11 @@
 #include "ports/stm32f3xx/rcc_3x4.h"
 #endif
 #ifdef MCU_TYPE_STM32F4XX
+#ifdef STM32F411xE
 #include "ports/stm32f4xx/rcc_411.h"
+#else
+#include "ports/stm32f4xx/rcc_407.h"
+#endif
 #endif
 
 namespace microhal {
@@ -80,7 +87,7 @@ CREATE_SET_CLEAR_FUNCTION(SPI6LPEN)
     }
 }
 
-[[maybe_unused]] static void disable(uint8_t number, PowerMode mode) {
+[[maybe_unused]] static void disableSPI(uint8_t number, PowerMode mode) {
     if (number == 2 || number == 3) {
         auto apb1enr = registers::rcc->apb1enr.volatileLoad();
         auto apb1lpenr = registers::rcc->apb1lpenr.volatileLoad();
@@ -153,9 +160,9 @@ CREATE_SET_CLEAR_FUNCTION(SPI6LPEN)
 
 static uint32_t SPIFrequency(uint8_t number) {
     if (number == 2 || number == 3) {
-        return apb1Frequency();
+        return APB1::frequency();
     }
-    return apb2Frequency();
+    return APB2::frequency();
 }
 }  // namespace ClockManager
 }  // namespace microhal

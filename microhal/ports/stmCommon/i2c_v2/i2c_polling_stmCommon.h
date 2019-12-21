@@ -34,8 +34,7 @@
  */
 #include <cstdint>
 #include "i2c_stmCommon.h"
-
-#include _MICROHAL_INCLUDE_PORT_clockManager
+#include "ports/stmCommon/clockManager/i2cClock.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

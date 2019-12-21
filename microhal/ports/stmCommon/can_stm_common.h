@@ -25,8 +25,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_CAN_STMCOMMON_H_
-#define _MICROHAL_CAN_STMCOMMON_H_
+#ifndef _MICROHAL_PORTS_CAN_STMCOMMON_H_
+#define _MICROHAL_PORTS_CAN_STMCOMMON_H_
 
 #include <algorithm>
 #include <array>
@@ -307,4 +307,4 @@ class CAN final : public can::CAN_Interface {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif  // _MICROHAL_CAN_STMCOMMON_H_
+#endif  // _MICROHAL_PORTS_CAN_STMCOMMON_H_

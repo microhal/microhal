@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_I2C_STM32F0XX_H_
-#define _MICROHAL_I2C_STM32F0XX_H_
+#ifndef _MICROHAL_PORTS_I2C_STM32F0XX_H_
+#define _MICROHAL_PORTS_I2C_STM32F0XX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
@@ -188,6 +188,24 @@ class I2C : public microhal::I2C {
         std::terminate();  // critical error
     }
 
+    uint8_t getNumber() {
+#ifdef _MICROHAL_I2C1_BASE_ADDRESS
+        if ((int)&i2c == _MICROHAL_I2C1_BASE_ADDRESS) {
+            return 1;
+        }
+#endif
+#ifdef _MICROHAL_I2C2_BASE_ADDRESS
+        if ((int)&i2c == _MICROHAL_I2C2_BASE_ADDRESS) {
+            return 1;
+        }
+#endif
+#ifdef _MICROHAL_I2C3_BASE_ADDRESS
+        if ((int)&i2c == _MICROHAL_I2C3_BASE_ADDRESS) {
+            return 1;
+        }
+#endif
+    }
+
  public:
     static I2C::Error errorCheckAndClear(I2C_TypeDef *i2c, uint16_t isr) {
         auto errors = I2C::Error::None;
@@ -221,4 +239,4 @@ class I2C : public microhal::I2C {
 }  // namespace stm32f0xx
 }  // namespace microhal
 
-#endif  // _MICROHAL_I2C_STM32F0XX_H_
+#endif  // _MICROHAL_PORTS_I2C_STM32F0XX_H_

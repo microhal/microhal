@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_EXTERNALINTERRUPT_STMCOMMON_H_
-#define _MICROHAL_EXTERNALINTERRUPT_STMCOMMON_H_
+#ifndef _MICROHAL_PORTS_EXTERNALINTERRUPT_STMCOMMON_H_
+#define _MICROHAL_PORTS_EXTERNALINTERRUPT_STMCOMMON_H_
 /* ************************************************************************************************
  * INCLUDES
  */
@@ -181,11 +181,11 @@ class ExternalInterrupt {
                 return IOPin::PortB;
             case 2:
                 return IOPin::PortC;
-#if defined(GPIOD_BASE)
+#if defined(_MICROHAL_GPIOD_BASE_ADDRESS)
             case 3:
                 return IOPin::PortD;
 #endif
-#if defined(GPIOE_BASE)
+#if defined(_MICROHAL_GPIOE_BASE_ADDRESS)
             case 4:
                 return IOPin::PortE;
 #endif
@@ -197,4 +197,4 @@ class ExternalInterrupt {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif  // _MICROHAL_EXTERNALINTERRUPT_STMCOMMON_H_
+#endif  // _MICROHAL_PORTS_EXTERNALINTERRUPT_STMCOMMON_H_

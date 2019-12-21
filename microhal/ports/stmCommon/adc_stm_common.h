@@ -27,13 +27,14 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_ADC_STMCOMMON_H_
-#define _MICROHAL_ADC_STMCOMMON_H_
+#ifndef _MICROHAL_PORTS_ADC_STMCOMMON_H_
+#define _MICROHAL_PORTS_ADC_STMCOMMON_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
 #include "gsl/gsl"
 #include "microhal_semaphore.h"
+#include "ports/stmCommon/clockManager/adcClock.h"
 #include "registers/adc_common_registers_v1.h"
 #include "registers/adc_registers_v1.h"
 #include "signalSlot/signalSlot.h"
@@ -41,7 +42,6 @@
 
 #include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
 #include _MICROHAL_INCLUDE_PORT_CONFIG
-#include _MICROHAL_INCLUDE_PORT_clockManager
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -369,4 +369,4 @@ class Adc final {
 };
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-#endif  // _MICROHAL_ADC_STMCOMMON_H_
+#endif  // _MICROHAL_PORTS_ADC_STMCOMMON_H_

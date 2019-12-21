@@ -40,10 +40,13 @@
 
 #include "bsp.h"
 #include "microhal.h"
+#include "ports/stmCommon/clockManager/pll.h"
 
 using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
+
+SPI_interrupt &spi1 = SPI_interrupt::create<1, IOPin::PortA, 6, IOPin::PortA, 7, IOPin::PortA, 5>();
 
 namespace bsp {
 namespace detail {
@@ -52,7 +55,7 @@ stm32f3xx::GPIO reset(con1::a::io1, stm32f3xx::GPIO::Direction::Output);
 stm32f3xx::GPIO wp(con1::a::io2, stm32f3xx::GPIO::Direction::Output);
 }  // namespace detail
 namespace at45db {
-microhal::SPI &spi = microhal::stm32f3xx::SPI::spi1;
+microhal::SPI &spi = spi1;
 microhal::GPIO &ce = detail::ce;
 microhal::GPIO &reset = detail::reset;
 microhal::GPIO &wp = detail::wp;
@@ -63,10 +66,10 @@ void hardwareConfig(void) {
     (void)bsp::at45db::spi;
     (void)bsp::debugPort;
     Core::fpu_enable();
-    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
-    stm32f3xx::ClockManager::PLL::frequency(51200000);
-    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
-    while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL) {
+    ClockManager::PLL::clockSource(ClockManager::PLL::ClockSource::HSIDiv2);
+    ClockManager::PLL::frequency(51200000);
+    ClockManager::SYSCLK::source(ClockManager::SYSCLK::Source::PLL);
+    while (ClockManager::SYSCLK::source() != ClockManager::SYSCLK::Source::PLL) {
     }
 
     IOManager::routeSerial<2, Txd, IOPin::PortA, 2>();
@@ -79,14 +82,10 @@ void hardwareConfig(void) {
     bsp::debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);
     diagChannel.setOutputDevice(bsp::debugPort);
 
-    stm32f3xx::IOManager::routeSPI<1, SCK, IOPin::PortA, 5>();
-    stm32f3xx::IOManager::routeSPI<1, MISO, IOPin::PortA, 6>();
-    stm32f3xx::IOManager::routeSPI<1, MOSI, IOPin::PortA, 7>();
+    spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
+    spi1.enable();
 
-    stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
-    stm32f3xx::SPI::spi1.enable();
-
-    diagChannel << Notice << "SPI frequency: " << stm32f3xx::SPI::spi1.speed() << endl;
+    diagChannel << Notice << "SPI frequency: " << spi1.speed() << endl;
 
     SysTick_Config(512000000 / 1000);
 }

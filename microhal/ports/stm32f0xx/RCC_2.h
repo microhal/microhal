@@ -322,6 +322,7 @@ struct RCC {
             microhal::Bitfield<uint32_t, 18, 1> IOPBEN; /*!< I/O port B clock enable */
             microhal::Bitfield<uint32_t, 19, 1> IOPCEN; /*!< I/O port C clock enable */
             microhal::Bitfield<uint32_t, 20, 1> IOPDEN; /*!< I/O port D clock enable */
+            microhal::Bitfield<uint32_t, 21, 1> IOPEEN; /*!< I/O port E clock enable */
             microhal::Bitfield<uint32_t, 22, 1> IOPFEN; /*!< I/O port F clock enable */
             microhal::Bitfield<uint32_t, 24, 1> TSCEN;  /*!< Touch sensing controller clock enable */
         };
@@ -601,6 +602,7 @@ struct RCC {
             microhal::Bitfield<uint32_t, 18, 1> IOPBRST; /*!< I/O port B reset */
             microhal::Bitfield<uint32_t, 19, 1> IOPCRST; /*!< I/O port C reset */
             microhal::Bitfield<uint32_t, 20, 1> IOPDRST; /*!< I/O port D reset */
+            microhal::Bitfield<uint32_t, 21, 1> IOPERST; /*!< I/O port E reset */
             microhal::Bitfield<uint32_t, 22, 1> IOPFRST; /*!< I/O port F reset */
             microhal::Bitfield<uint32_t, 24, 1> TSCRST;  /*!< Touch sensing controller reset */
         };
@@ -800,7 +802,7 @@ struct RCC {
     VolatileRegister<CIR, AccessType::ReadWrite> cir;           /*!< Clock interrupt register (RCC_CIR)	Address offset: 0x8 */
     VolatileRegister<APB2RSTR, AccessType::ReadWrite> apb2rstr; /*!< APB2 peripheral reset register (RCC_APB2RSTR)	Address offset: 0xC */
     VolatileRegister<APB1RSTR, AccessType::ReadWrite> apb1rstr; /*!< APB1 peripheral reset register (RCC_APB1RSTR)	Address offset: 0x10 */
-    VolatileRegister<AHBENR, AccessType::ReadWrite> ahbenr;     /*!< AHB Peripheral Clock enable register (RCC_AHBENR)	Address offset: 0x14 */
+    VolatileRegister<AHBENR, AccessType::ReadWrite> ahb1enr;    /*!< AHB Peripheral Clock enable register (RCC_AHBENR)	Address offset: 0x14 */
     VolatileRegister<APB2ENR, AccessType::ReadWrite> apb2enr;   /*!< APB2 peripheral clock enable register (RCC_APB2ENR)	Address offset: 0x18 */
     VolatileRegister<APB1ENR, AccessType::ReadWrite> apb1enr;   /*!< APB1 peripheral clock enable register (RCC_APB1ENR)	Address offset: 0x1C */
     VolatileRegister<BDCR, AccessType::ReadWrite> bdcr;         /*!< Backup domain control register (RCC_BDCR)	Address offset: 0x20 */

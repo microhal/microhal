@@ -95,10 +95,10 @@ class SHT21 : public microhal::I2CDevice {
     Error startTemperatureConversion() noexcept { return write(TRIGGER_T_MEASURE_HOLD.getAddress()); }
 
     Error readTemperature(float &temperature) noexcept {
-        uint8_t temp;
+        uint8_t temp[1];
 
-        auto status = read(&temp);
-        temperature = (float)temp * 0.002681274;
+        auto status = read(temp);
+        temperature = (float)temp[0] * 0.002681274;
         temperature -= 46.85;
 
         return status;

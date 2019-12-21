@@ -85,6 +85,31 @@ class IOManager {
         gpio.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, pull, type);
     }
 
+    static constexpr bool spiPinAssert(int number, IOPin miso, IOPin mosi, IOPin sck) {
+        if (number == 1) {
+            if (!(sck == IOPin{IOPin::PortA, 5} || sck == IOPin{IOPin::PortC, 7} || sck == IOPin{IOPin::PortA, 12} || sck == IOPin{IOPin::PortB, 3}))
+                return false;
+
+            if (!(miso == IOPin{IOPin::PortA, 6} || miso == IOPin{IOPin::PortC, 8} || miso == IOPin{IOPin::PortA, 13} ||
+                  miso == IOPin{IOPin::PortB, 5}))
+                return false;
+
+            if (!(mosi == IOPin{IOPin::PortA, 7} || mosi == IOPin{IOPin::PortB, 0} || mosi == IOPin{IOPin::PortB, 4} ||
+                  mosi == IOPin{IOPin::PortC, 9} || mosi == IOPin{IOPin::PortF, 6}))
+                return false;
+        }
+        return true;
+    }
+
+    template <int number>
+    static void routeSpi(IOPin miso, IOPin mosi, IOPin sck, stm32f0xx::GPIO::OutputType mosiType, stm32f0xx::GPIO::OutputType sckType) {
+        (void)miso;
+        GPIO gpioMosi(mosi);
+        GPIO gpioSck(sck);
+        gpioMosi.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, GPIO::NoPull, mosiType);
+        gpioSck.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, GPIO::NoPull, sckType);
+    }
+
  private:
 };
 }  // namespace stm32f0xx

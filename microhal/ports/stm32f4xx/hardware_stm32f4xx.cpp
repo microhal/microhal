@@ -31,13 +31,13 @@
  * INCLUDES
  */
 #include "hardware_stm32f4xx.h"
-#include "clockManager.h"
+#include "ports/stmCommon/clockManager/ahbClock.h"
 
 namespace microhal {
 namespace hardware {
 
 uint32_t Device::coreFrequency() {
-    return stm32f4xx::ClockManager::AHB::frequency();
+    return ClockManager::AHB::frequency();
 }
 
 }  // namespace hardware

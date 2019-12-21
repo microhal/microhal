@@ -31,13 +31,13 @@
  * INCLUDES
  */
 #include <ports/stm32f1xx/hardware_stm32f1xx.h>
-#include "clockManager.h"
+#include "ports/stmCommon/clockManager/sysclk.h"
 
 namespace microhal {
 namespace hardware {
 
 uint32_t Device::coreFrequency() {
-    return 8000000;  // stm32f3xx::ClockManager::SYSCLK::frequency();
+    return ClockManager::SYSCLK::frequency();
 }
 
 uint64_t Device::getUniqueID() {

@@ -8,12 +8,14 @@
 #ifndef SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_CLOCKTYPES_H_
 #define SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_CLOCKTYPES_H_
 
+#include <cstdint>
 #include <exception>
 #include <type_traits>
 
 namespace microhal {
 namespace ClockManager {
 
+using Frequency = uint32_t;
 enum class PowerMode { Normal = 0b1, Sleep = 0b10 };
 
 static constexpr bool isEnabled(PowerMode mode, PowerMode flag) {

@@ -7,9 +7,9 @@
 
 #include <algorithm>
 #include <cstdint>
-#include "clockManager.h"
 #include "device/stm32f3xx.h"
 #include "gsl/span"
+#include "ports/stmCommon/clockManager/dacClock.h"
 
 #undef DAC  // undefine DAC from device/stm32f3xx.h
 
@@ -95,7 +95,7 @@ class DAC {
     };
     enum class SampleSource { NoiseGenerator, TriangleGenerator, Samples };
 
-    DAC(void *addr) : dac(*static_cast<DACRegisterMap *>(addr)) { ClockManager::enable(*static_cast<DAC_TypeDef *>(addr)); }
+    DAC(void *addr) : dac(*static_cast<DACRegisterMap *>(addr)) { ClockManager::enable(1); }
 
     /**
      * Enable DAC channel specified by channel parameter. Channels are enumerated from 0 to 1;

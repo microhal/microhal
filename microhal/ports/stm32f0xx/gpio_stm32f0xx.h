@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_GPIO_STM32F0XX_H_
-#define _MICROHAL_GPIO_STM32F0XX_H_
+#ifndef _MICROHAL_PORTS_GPIO_STM32F0XX_H_
+#define _MICROHAL_PORTS_GPIO_STM32F0XX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
@@ -56,4 +56,4 @@ using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
 }  // namespace stm32f0xx
 }  // namespace microhal
 
-#endif  // _MICROHAL_GPIO_STM32F0XX_H_
+#endif  // _MICROHAL_PORTS_GPIO_STM32F0XX_H_

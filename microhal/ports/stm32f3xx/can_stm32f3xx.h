@@ -25,11 +25,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_CAN_STM32F3XX_H_
-#define _MICROHAL_CAN_STM32F3XX_H_
+#ifndef _MICROHAL_PORTS_CAN_STM32F3XX_H_
+#define _MICROHAL_PORTS_CAN_STM32F3XX_H_
 /* ************************************************************************************************
  * INCLUDES
  */
 #include "ports/stmCommon/can_stm_common.h"
 
-#endif  // _MICROHAL_CAN_STM32F3XX_H_
+#endif  // _MICROHAL_PORTS_CAN_STM32F3XX_H_

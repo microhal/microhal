@@ -27,11 +27,13 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_SERIALPORT_STM32F0XX_H_
-#define _MICROHAL_SERIALPORT_STM32F0XX_H_
+#ifndef _MICROHAL_PORTS_SERIALPORT_STM32F0XX_H_
+#define _MICROHAL_PORTS_SERIALPORT_STM32F0XX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include "ports/stmCommon/serialPort_interrupt_stmCommon.h"
+#include "ports/stmCommon/serialPort_polling_stmCommon.h"
 #include "ports/stmCommon/serialPort_stmCommon.h"
 
-#endif  // _MICROHAL_SERIALPORT_STM32F0XX_H_
+#endif  // _MICROHAL_PORTS_SERIALPORT_STM32F0XX_H_
