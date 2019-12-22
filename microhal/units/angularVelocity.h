@@ -31,49 +31,50 @@
 #include <cstdint>
 
 namespace microhal {
+namespace units {
 
 class AngularVelocity {
  public:
-    explicit AngularVelocity(const float vel = 0.0) : velocity(vel) { }
-    explicit AngularVelocity(const int32_t vel): velocity(static_cast <float>(vel)) { }
-    ~AngularVelocity() { }
+    explicit AngularVelocity(const float vel = 0.0) : velocity(vel) {}
+    explicit AngularVelocity(const int32_t vel) : velocity(static_cast<float>(vel)) {}
+    ~AngularVelocity() {}
 
-    float getMAngularVelocity(void) const {
-        return velocity;
+    template <typename T>
+    T get(void) const {
+        if constexpr (std::is_same_v<T, float>) {
+            return velocity;
+        } else {
+            static_assert(std::is_same_v<T, float>, "Unsupported type");
+        }
     }
 
-    AngularVelocity operator+(const AngularVelocity& vel) const {
-        return AngularVelocity(velocity + vel.velocity);
+    AngularVelocity operator+(const AngularVelocity& vel) const { return AngularVelocity(velocity + vel.velocity); }
+
+    friend AngularVelocity operator-(AngularVelocity lhs, const AngularVelocity& rhs) {
+        lhs -= rhs;
+        return lhs;
     }
 
-    AngularVelocity operator-(const AngularVelocity& vel) const {
-        return AngularVelocity(velocity - vel.velocity);
-    }
+    AngularVelocity operator*(float mul) const { return AngularVelocity(velocity * mul); }
 
-    AngularVelocity operator*(const float mul) const {
-        return AngularVelocity(velocity * mul);
-    }
+    AngularVelocity operator/(float div) const { return AngularVelocity(velocity / div); }
 
-    AngularVelocity operator/(const float div) const {
-        return AngularVelocity(velocity / div);
-    }
-
-    AngularVelocity& operator+=(const AngularVelocity &vel) {
+    AngularVelocity& operator+=(const AngularVelocity& vel) {
         velocity += vel.velocity;
         return *this;
     }
 
-    AngularVelocity& operator-=(const AngularVelocity &vel) {
+    AngularVelocity& operator-=(const AngularVelocity& vel) {
         velocity -= vel.velocity;
         return *this;
     }
 
-    AngularVelocity& operator*=(const float mul) {
+    AngularVelocity& operator*=(float mul) {
         velocity *= mul;
         return *this;
     }
 
-    AngularVelocity& operator/=(const float div) {
+    AngularVelocity& operator/=(float div) {
         velocity /= div;
         return *this;
     }
@@ -82,6 +83,7 @@ class AngularVelocity {
     float velocity;
 };
 
+}  // namespace units
 }  // namespace microhal
 
 #endif  // _MICROHAL_ANGULARVELOCITY_H_
