@@ -33,7 +33,8 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
     writePtr = (uint8_t *)data;
     writeEnd = ((uint8_t *)data) + len;
 
-    enableTransmitterEmptyInterrupt();
+    enableInterrupt(Interrupt::TransmitterBufferEmpty);
+
     semaphore.wait(std::chrono::milliseconds::max());
 
     // this is last transaction on SPI bus, so we need to wait until last byte will be send before we exit from function because someone could
@@ -66,7 +67,7 @@ SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
     while (spi.SR & SPI_SR_FRLVL_Msk) {
         volatile uint16_t tmp __attribute__((unused)) = spi.DR;
     }
-    enableReceiverNotEmptyInterrupt();
+    enableInterrupt(Interrupt::ReceiverBufferNotEmpty);
 
     spi.DR = write;
     semaphore.wait(std::chrono::milliseconds::max());
@@ -88,8 +89,7 @@ SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_
         volatile uint16_t tmp __attribute__((unused)) = spi.DR;
     }
 
-    enableTransmitterEmptyInterrupt();
-    enableReceiverNotEmptyInterrupt();
+    enableInterrupt(Interrupt::TransmitterBufferEmpty | Interrupt::ReceiverBufferNotEmpty);
 
     semaphore.wait(std::chrono::milliseconds::max());
     return SPI::Error::None;
@@ -99,6 +99,7 @@ SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_
 //***********************************************************************************************//
 inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) {
     uint32_t sr = spi->SR;
+    uint32_t cr2 = spi->CR2;
 
     if ((object.readPtr != nullptr) && (sr & SPI_SR_RXNE)) {
         *object.readPtr++ = object.readDR();
