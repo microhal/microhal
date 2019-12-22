@@ -7,8 +7,10 @@
 
 #include "adc_stm_common.h"
 
+#include _MICROHAL_INCLUDE_PORT_DMA
+
 namespace microhal {
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 Adc *Adc::adc1 = nullptr;
 Adc *Adc::adc2 = nullptr;
@@ -244,5 +246,5 @@ void DMA1_Channel1_IRQHandler(void) {
     Adc::adc1->signal.emit();
 }
 #endif
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
