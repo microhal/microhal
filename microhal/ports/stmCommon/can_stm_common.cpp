@@ -33,7 +33,7 @@ diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelC
     if (!id.ide)
         logChannel << "CAN Standard ID: " << id.stid;
     else
-        logChannel << "CAN Extended ID: " << uint32_t{(id.stid << 3) | id.exid_15_17};
+        logChannel << "CAN Extended ID: " << id.getExtendedId();
 
     logChannel << diagnostic::endl << "\tisRemoteFrame: " << id.rtr << diagnostic::endl;
     return logChannel;
@@ -386,6 +386,14 @@ bool CAN::removeFilter(const can::Filter &filter) {
         }
     }
     return false;
+}
+
+void CAN::removeAllFilters() {
+    activateFilterInitMode();
+    microhal::registers::CAN::FA1R fa1r;
+    fa1r = 0;
+    can.fa1r.volatileStore(fa1r);
+    deactivateFilterInitMode();
 }
 
 bool CAN::addIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask) {
@@ -817,7 +825,7 @@ void CAN::interruptFunction() {
 void CAN::rxInterruptFunction() {
     auto rf0r = can.rf0r.volatileLoad();
     auto rf1r = can.rf1r.volatileLoad();
-    if (rf0r.FMPx || rf1r.FMPx) {
+    if (rf0r.mesagesCount() || rf1r.mesagesCount()) {
         auto ier = can.ier.volatileLoad();
         ier.disableInterrupt(Interrupt::FIFO0_MessagePending | Interrupt::FIFO1_MessagePending);
         can.ier.volatileStore(ier);
