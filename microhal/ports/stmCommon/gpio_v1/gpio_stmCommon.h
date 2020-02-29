@@ -1,14 +1,11 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      GPIO port driver
+ * @brief      GPIO port driver for:
  *
  * @authors    Pawel Okas
- * created on: 17-04-2014
- * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2019, Pawel Okas
+ * @copyright Copyright (c) 2014-2020, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
