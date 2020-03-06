@@ -39,7 +39,7 @@ namespace math {
 AlphaBeta clarkieTransform(float a, float b, float c);
 
 inline AlphaBeta clarkieTransform(float a, float b) {
-    AlphaBeta ab = {a, oneOverSqrt3 * (a + 2 * b)};
+    AlphaBeta ab = {a, oneOverSqrt3 * (a + 2.0f * b)};
     return ab;
 }
 }  // namespace math
