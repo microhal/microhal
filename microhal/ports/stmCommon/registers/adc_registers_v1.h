@@ -1218,12 +1218,12 @@ struct ADC {
 #endif
 };
 
-#if defined(_MICROHAL_ADC1_BASE)
-[[maybe_unused]] static ADC *const adc1 = reinterpret_cast<ADC *>(_MICROHAL_ADC1_BASE);
+#if defined(_MICROHAL_ADC1_BASE_ADDRESS)
+[[maybe_unused]] static ADC *const adc1 = reinterpret_cast<ADC *>(_MICROHAL_ADC1_BASE_ADDRESS);
 #endif
 
-#if defined(_MICROHAL_ADC2_BASE)
-[[maybe_unused]] static ADC *const adc2 = reinterpret_cast<ADC *>(_MICROHAL_ADC2_BASE);
+#if defined(_MICROHAL_ADC2_BASE_ADDRESS)
+[[maybe_unused]] static ADC *const adc2 = reinterpret_cast<ADC *>(_MICROHAL_ADC2_BASE_ADDRESS);
 #endif
 
 }  // namespace registers
