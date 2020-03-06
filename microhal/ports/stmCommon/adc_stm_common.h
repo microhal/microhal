@@ -32,6 +32,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <thread>
 #include "gsl/gsl"
 #include "microhal_semaphore.h"
 #include "ports/stmCommon/clockManager/adcClock.h"
@@ -262,11 +263,12 @@ class Adc final {
         return false;
     }
 
-    bool waitForADCready(uint32_t ms = 10000) {
+    bool waitForADCready(uint32_t ms = 1000) {
         while (ms--) {
             if (adc.isr.volatileLoad().ADRDY) {
                 return true;
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds{1});
         }
         return false;
     }
@@ -332,8 +334,13 @@ class Adc final {
 
  public:
     Adc(registers::ADC *adc) : adc(*adc) {
-        RCC->AHBENR |= RCC_AHBENR_ADC12EN;
-        RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3;
+        ClockManager::enableADC(1);
+        // RCC->AHBENR |= RCC_AHBENR_ADC12EN;
+        // RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3;
+        auto cfgr2 = registers::rcc->cfgr2.volatileLoad();
+        cfgr2.ADC12PRES = 0b11000;
+        registers::rcc->cfgr2.volatileStore(cfgr2);
+
         enableVoltageRegulator();
 
         auto ccr = registers::adc12Common->ccr.volatileLoad();

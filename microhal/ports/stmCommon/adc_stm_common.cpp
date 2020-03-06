@@ -153,7 +153,7 @@ void Adc::initDMA(uint16_t *data, size_t len) {
     auto &stream = DMA::dma1->stream[0];
     stream.setPeripheralAddress(&adc.dr);
     stream.setMemoryAddress(data);
-    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+    stream.setMemoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     stream.setNumberOfItemsToTransfer(len);
     stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
                 DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
@@ -179,7 +179,7 @@ void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSiz
     auto &stream = DMA::dma1->stream[0];
     stream.setPeripheralAddress(&ADC12_COMMON->CDR);
     stream.setMemoryAddress(data);
-    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+    stream.setMemoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     stream.setNumberOfItemsToTransfer(dataSize);
     stream.init(DMA::Channel::MemoryDataSize::Word, DMA::Channel::PeripheralDataSize::Word, DMA::Channel::MemoryIncrementMode::PointerIncremented,
                 DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
