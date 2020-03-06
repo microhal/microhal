@@ -16,6 +16,7 @@
 
 namespace microhal {
 namespace stm32f3xx {
+
 /* ************************************************************************************************
  * CLASS
  */
@@ -59,12 +60,7 @@ class SPI_interrupt : public stm32f3xx::SPI {
 
     SPI_interrupt(const SPI_interrupt &);
     //---------------------------------------- functions ----------------------------------------//
-    void enableTransmitterEmptyInterrupt() {
-        spi.CR2 |= SPI_CR2_TXEIE;  // fixme maybe bitband
-    }
-    void enableReceiverNotEmptyInterrupt() {
-        spi.CR2 |= SPI_CR2_RXNEIE;  // fixme maybe bitband
-    }
+
     //----------------------------------------- friends -----------------------------------------//
     friend inline void IRQfunction(SPI_interrupt &object, SPI_TypeDef *spi) __attribute__((always_inline));
     friend void SPI1_IRQHandler(void);

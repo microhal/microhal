@@ -128,7 +128,7 @@ class FixedPoint : private fixedPointDetail::FixedPointBase {
 
     std::string_view toString(std::array<char, 30>& buffer) const {
         using UnsignedData = std::make_unsigned_t<dataType>;
-        UnsignedData unsignedData = std::is_signed_v<dataType> ? std::abs(data) : data;
+        UnsignedData unsignedData = std::is_signed_v<dataType> ? data < 0 ? -data : data : data;
         auto begin = buffer.begin();
         if constexpr (std::is_signed_v<dataType>) {
             if (data < 0) {

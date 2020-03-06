@@ -32,6 +32,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <thread>
 #include "gsl/gsl"
 #include "microhal_semaphore.h"
 #include "ports/stmCommon/clockManager/adcClock.h"
@@ -225,27 +226,8 @@ class Adc final {
         return false;
     }
 
-    bool enable() {
-        // Software is allowed to set ADEN only when all bits of ADC_CR registers are 0 (ADCAL=0, ADSTP=0, ADSTART=0, ADDIS=0 and ADEN=0)
-        auto cr = adc.cr.volatileLoad();
-        if (cr.ADCAL == 0 && cr.JADSTART == 0 && cr.ADSTP == 0 && cr.ADSTART == 0 && cr.ADDIS == 0 && cr.ADEN == 0) {
-            cr.ADEN = 1;
-            adc.cr.volatileStore(cr);
-            return true;
-        }
-        return false;
-    }
-
-    bool disable() {
-        // Setting ADDIS to �1� is only effective when ADEN=1 and ADSTART=0 (which ensures that no conversion is ongoing)
-        auto cr = adc.cr.volatileLoad();
-        if (cr.ADEN == 1 && cr.ADSTART == 0 && cr.JADSTART == 0) {
-            cr.ADDIS = 1;
-            adc.cr.volatileStore(cr);
-            return true;
-        }
-        return false;
-    }
+    bool enable();
+    bool disable();
 
     bool isEnabled() { return adc.cr.volatileLoad().ADEN; }
 
@@ -281,11 +263,12 @@ class Adc final {
         return false;
     }
 
-    bool waitForADCready(uint32_t ms = 10000) {
+    bool waitForADCready(uint32_t ms = 1000) {
         while (ms--) {
             if (adc.isr.volatileLoad().ADRDY) {
                 return true;
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds{1});
         }
         return false;
     }
@@ -351,8 +334,13 @@ class Adc final {
 
  public:
     Adc(registers::ADC *adc) : adc(*adc) {
-        RCC->AHBENR |= RCC_AHBENR_ADC12EN;
-        RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3;
+        ClockManager::enableADC(1);
+        // RCC->AHBENR |= RCC_AHBENR_ADC12EN;
+        // RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3;
+        auto cfgr2 = registers::rcc->cfgr2.volatileLoad();
+        cfgr2.ADC12PRES = 0b11000;
+        registers::rcc->cfgr2.volatileStore(cfgr2);
+
         enableVoltageRegulator();
 
         auto ccr = registers::adc12Common->ccr.volatileLoad();
@@ -362,13 +350,7 @@ class Adc final {
         if ((int)adc == _MICROHAL_ADC1_BASE_ADDRESS) adc1 = this;
         if ((int)adc == _MICROHAL_ADC2_BASE_ADDRESS) adc2 = this;
     }
-    ~Adc() {
-        disableInterrupt();
-        stopConversion();
-        disable();
-        RCC->AHBENR &= ~RCC_AHBENR_ADC12EN;
-        RCC->CFGR2 &= (~RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3 | RCC_CFGR2_ADCPRE12_2 | RCC_CFGR2_ADCPRE12_1 | RCC_CFGR2_ADCPRE12_0);
-    }
+    ~Adc();
 
  private:
     static Adc *adc1;

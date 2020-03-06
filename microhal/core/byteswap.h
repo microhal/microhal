@@ -19,7 +19,7 @@ static inline uint32_t byteswap(uint32_t __bsx) __attribute__((always_inline));
 /* Swap bytes in 16 bit value. */
 static inline uint16_t byteswap(uint16_t data) {
     // return ((((__bsx) >> 8) & 0xffu) | (((__bsx) & 0xffu) << 8));
-    return (data << 8) | (data >> 8);
+    return ((data << 8) & 0xff00) | ((data >> 8) & 0x00ff);
 }
 
 /* Swap bytes in 32 bit value. */

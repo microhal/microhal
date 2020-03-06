@@ -70,10 +70,10 @@ class CAN final : public can::CAN_Interface {
 
  public:
     using Message = can::Message;
-    using Interrupt = registers::CAN::IER::Interrupt;
-    using TxMailbox = registers::CAN::TxMailBox;
-    using Filter = registers::CAN::FilterRegister;
-    using RxMailbox = registers::CAN::FIFOMailBox;
+    using Interrupt = microhal::registers::CAN::IER::Interrupt;
+    using TxMailbox = microhal::registers::CAN::TxMailBox;
+    using Filter = microhal::registers::CAN::FilterRegister;
+    using RxMailbox = microhal::registers::CAN::FIFOMailBox;
     enum Error { None = 0, Stuff, Form, Acknowledgment, BitRecessive, BitDominant, Crc, SoftwareSet };
     enum class Mode { Normal, Loopback, Silent, LoopbackAndSilent };
     enum class Sleep { Sleep, Wakeup, AutoWakeup };
@@ -81,16 +81,16 @@ class CAN final : public can::CAN_Interface {
     static constexpr const Protocol supportedProtocols[] = {Protocol::v2_0A, Protocol::V2_0B};
     static constexpr const uint32_t bitRateMax = 1000000;
 #if defined(CAN_BASE) || defined(CAN1_BASE) || defined(CAN2_BASE)
-    CAN(registers::CAN *canDevice) : can(*canDevice) {
+    CAN(microhal::registers::CAN *canDevice) : can(*canDevice) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
         ClockManager::enableCan(getNumber(), ClockManager::PowerMode::Normal);
 #else
         microhal::ClockManager::enableCan(getNumber());
 #endif
-        if (canDevice == registers::can1) {
+        if (canDevice == microhal::registers::can1) {
             objectPtr[0] = this;
 #ifdef _MICROHAL_CAN2_BASE
-        } else if (canDevice == registers::can2) {
+        } else if (canDevice == microhal::registers::can2) {
             objectPtr[1] = this;
 #endif
         } else {
@@ -106,6 +106,9 @@ class CAN final : public can::CAN_Interface {
 #endif
         enableInterrupt(priority);
     };
+
+    CAN(const CAN &) = delete;             // disable copying
+    CAN &operator=(const CAN &) = delete;  // disable copying
 
     ~CAN();
 #endif
@@ -183,13 +186,7 @@ class CAN final : public can::CAN_Interface {
 
     bool addFilter(const can::Filter &filter) final;
     bool removeFilter(const can::Filter &filter) final;
-    void removeAllFilters() {
-        activateFilterInitMode();
-        registers::CAN::FA1R fa1r;
-        fa1r = 0;
-        can.fa1r.volatileStore(fa1r);
-        deactivateFilterInitMode();
-    }
+    void removeAllFilters();
 
     uint_fast8_t emptyTxMailboxCount() const {
         auto tsr = can.tsr.volatileLoad();
@@ -212,7 +209,7 @@ class CAN final : public can::CAN_Interface {
     void dumpFilterConfig();
 
  private:
-    registers::CAN &can;
+    microhal::registers::CAN &can;
     static CAN *objectPtr[2];
     mutable microhal::os::Semaphore txFinish = {};
     mutable bool txWait = false;
@@ -254,7 +251,7 @@ class CAN final : public can::CAN_Interface {
     bool removeIdentifierList32(CAN::Filter::ID32 id);
     bool removeIdentifierList16(CAN::Filter::ID16 id);
     FilterMode getFilterMode(uint_fast8_t filterNumber) const;
-    static FilterMode getFilterMode(registers::CAN::FS1R fs1r, registers::CAN::FM1R fm1r, uint_fast8_t filterNumber);
+    static FilterMode getFilterMode(microhal::registers::CAN::FS1R fs1r, microhal::registers::CAN::FM1R fm1r, uint_fast8_t filterNumber);
 
     void activateFilterInitMode() {
         auto fmr = can.fmr.volatileLoad();
@@ -280,7 +277,7 @@ class CAN final : public can::CAN_Interface {
         auto fa1r = can.fa1r.volatileLoad();
         return isFilterActive(fa1r, filterNumber);
     }
-    static bool isFilterActive(registers::CAN::FA1R fa1r, uint_fast8_t filterNumber) { return fa1r.isFilterActive(filterNumber); }
+    static bool isFilterActive(microhal::registers::CAN::FA1R fa1r, uint_fast8_t filterNumber) { return fa1r.isFilterActive(filterNumber); }
     void setFilterMode(uint_fast8_t filterNumber, FilterMode filterMode);
 
     // ISR related functions

@@ -58,26 +58,7 @@ class SPI_polling : public stm32f3xx::SPI {
         }
         return error;
     }
-    SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final {
-        uint32_t sr;
-        SPI::Error error;
-        while (spi.SR & SPI_SR_FTLVL_Msk) {
-        }
-        do {
-            sr = spi.SR;
-            error = errorCheck(sr);
-            if (error != Error::None) return error;
-        } while (sr & SPI_SR_BSY);
-        while (spi.SR & SPI_SR_FRLVL_Msk) {
-            volatile uint16_t tmp __attribute__((unused)) = spi.DR;
-        }
-
-        for (size_t i = 0; i < readWriteLength; i++) {
-            error = writeRead(static_cast<const uint8_t *>(dataWrite)[i], static_cast<uint8_t *>(dataRead)[i]);
-            if (error != Error::None) break;
-        }
-        return error;
-    }
+    SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final;
 
  private:
     //---------------------------------------- constructors ---------------------------------------
@@ -103,7 +84,7 @@ class SPI_polling : public stm32f3xx::SPI {
         do {
             sr = spi.SR;
             error = errorCheck(sr);
-            if (error != Error::None) return error;
+            if (error != Error::None && error != Error::Overrun) return error;
         } while (!(sr & SPI_SR_TXE));
 
         writeDR(data);

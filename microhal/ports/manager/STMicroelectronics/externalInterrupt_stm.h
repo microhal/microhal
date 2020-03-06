@@ -20,6 +20,7 @@ namespace activePort = stm32f0xx;
 // namespace activePort = stm32f1xx;
 //}
 #elif defined(MCU_TYPE_STM32F3XX)
+#define _MICROHAL_PORT_HAS_EXTERNAL_INTERRUPT
 #include "ports/stmCommon/externalInterrupt_stmCommon.h"
 namespace microhal {
 namespace activePort = stm32f3xx;

@@ -83,8 +83,47 @@ static void disableADC(uint16_t adcNumber, PowerMode mode) {
 
 #else
 
+static void enableADC(uint16_t adcNumber) {
+    auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
+
+    if (adcNumber == 1) {
+        ahb1enr.ADC12EN.set();
+#if defined(ADC2)
+    } else if (adcNumber == 2) {
+        ahb1enr.ADC12EN.set();
+#endif
+#if defined(ADC3)
+    } else if (adcNumber == 3) {
+        ahb1enr.ADC34EN.set();
+#endif
+    } else {
+        std::terminate();
+    }
+
+    registers::rcc->ahb1enr.volatileStore(ahb1enr);
+}
+static void disableADC(uint16_t adcNumber) {
+    auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
+
+    if (adcNumber == 1) {
+        ahb1enr.ADC12EN.clear();
+#if defined(ADC2)
+    } else if (adcNumber == 2) {
+        ahb1enr.ADC12EN.clear();
+#endif
+#if defined(ADC3)
+    } else if (adcNumber == 3) {
+        ahb1enr.ADC34EN.clear();
+#endif
+    } else {
+        std::terminate();
+    }
+
+    registers::rcc->ahb1enr.volatileStore(ahb1enr);
+}
+
 #endif  // defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-#endif defined(_MICROHAL_ADC1_BASE_ADDRESS) || defined(_MICROHAL_ADC2_BASE_ADDRESS) || defined(_MICROHAL_ADC3_BASE_ADDRESS)
+#endif  // defined(_MICROHAL_ADC1_BASE_ADDRESS) || defined(_MICROHAL_ADC2_BASE_ADDRESS) || defined(_MICROHAL_ADC3_BASE_ADDRESS)
 
 }  // namespace ClockManager
 }  // namespace microhal

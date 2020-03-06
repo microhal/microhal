@@ -101,7 +101,7 @@ CREATE_SET_CLEAR_FUNCTION(CAN2LPEN)
  * @return
  */
 [[maybe_unused]] static uint32_t CANFrequency([[maybe_unused]] uint8_t canNumber) {
-    return apb1Frequency();
+    return APB1::frequency();
 }
 
 }  // namespace ClockManager

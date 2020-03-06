@@ -7,11 +7,43 @@
 
 #include "adc_stm_common.h"
 
+#include _MICROHAL_INCLUDE_PORT_DMA
+
 namespace microhal {
-namespace stm32f3xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 Adc *Adc::adc1 = nullptr;
 Adc *Adc::adc2 = nullptr;
+
+Adc::~Adc() {
+    disableInterrupt();
+    stopConversion();
+    disable();
+    RCC->AHBENR &= ~RCC_AHBENR_ADC12EN;
+    RCC->CFGR2 &= (~RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3 | RCC_CFGR2_ADCPRE12_2 | RCC_CFGR2_ADCPRE12_1 | RCC_CFGR2_ADCPRE12_0);
+}
+
+bool Adc::enable() {
+    // Software is allowed to set ADEN only when all bits of ADC_CR registers are 0 (ADCAL=0, ADSTP=0, ADSTART=0, ADDIS=0 and ADEN=0)
+    auto cr = adc.cr.volatileLoad();
+    if (cr.ADCAL == 0 && cr.JADSTART == 0 && cr.ADSTP == 0 && cr.ADSTART == 0 && cr.ADDIS == 0 && cr.ADEN == 0) {
+        cr.ADEN = 1;
+        adc.cr.volatileStore(cr);
+        return true;
+    }
+    return false;
+}
+
+bool Adc::disable() {
+    // Setting ADDIS to �1� is only effective when ADEN=1 and ADSTART=0 (which ensures that no conversion is ongoing)
+    auto cr = adc.cr.volatileLoad();
+    if (cr.ADEN == 1 && cr.ADSTART == 0 && cr.JADSTART == 0) {
+        cr.ADDIS = 1;
+        adc.cr.volatileStore(cr);
+        return true;
+    }
+    return false;
+}
 
 bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
     if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
@@ -121,7 +153,7 @@ void Adc::initDMA(uint16_t *data, size_t len) {
     auto &stream = DMA::dma1->stream[0];
     stream.setPeripheralAddress(&adc.dr);
     stream.setMemoryAddress(data);
-    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+    stream.setMemoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     stream.setNumberOfItemsToTransfer(len);
     stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
                 DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
@@ -147,7 +179,7 @@ void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSiz
     auto &stream = DMA::dma1->stream[0];
     stream.setPeripheralAddress(&ADC12_COMMON->CDR);
     stream.setMemoryAddress(data);
-    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+    stream.setMemoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     stream.setNumberOfItemsToTransfer(dataSize);
     stream.init(DMA::Channel::MemoryDataSize::Word, DMA::Channel::PeripheralDataSize::Word, DMA::Channel::MemoryIncrementMode::PointerIncremented,
                 DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
@@ -171,7 +203,7 @@ void Adc::enableVoltageRegulator() {
         adc.cr.volatileStore(cr);
 
         // wait for ADC voltage regulator enable
-        while (adc.cr.volatileLoad().ADVREGEN == 0) {
+        while (adc.cr.volatileLoad().ADVREGEN != 0b01) {
         }
     }
 }
@@ -214,5 +246,5 @@ void DMA1_Channel1_IRQHandler(void) {
     Adc::adc1->signal.emit();
 }
 #endif
-}  // namespace stm32f3xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal

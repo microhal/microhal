@@ -216,12 +216,12 @@ enum UsartClockSource {
         switch (number) {
 #ifdef _MICROHAL_USART2_BASE_ADDRESS
             case 2:
-                ClockManagerDetail::set_USART2EN_ifExist(apb1enr);
+                apb1enr.USART2EN.set();
                 break;
 #endif
 #ifdef _MICROHAL_USART3_BASE_ADDRESS
             case 3:
-                ClockManagerDetail::set_USART3EN_ifExist(apb1enr);
+                apb1enr.USART3EN.set();
                 break;
 #endif
 #ifdef _MICROHAL_USART4_BASE_ADDRESS

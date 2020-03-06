@@ -6,7 +6,7 @@
 #include "utils/volatileRegister.h"
 
 // Supported MCU version 1: STM32G474xx, STM32G474xx, STM32G484xx, STM32G484xx, STM32G471xx, STM32G471xx, STM32G431xx, STM32G473xx, STM32G473xx,
-// STM32G441xx, STM32GBK1CBT6, STM32G483xx, STM32G483xx
+//                          STM32G441xx, STM32GBK1CBT6, STM32G483xx, STM32G483xx
 // Supported MCU version 2: STM32L4x6
 // Supported MCU version 3: STM32L4x3, STM32L4x1, STM32L4x2, STM32L4x5
 // Supported MCU version 4: STM32L4R7, STM32L4S9, STM32L4R9, STM32L4S5, STM32L4S7, STM32L4R5
@@ -187,8 +187,8 @@ struct ADC {
             microhal::Bitfield<uint32_t, 3, 1> JADSTART;  /*!< ADC start of injected conversion */
             microhal::Bitfield<uint32_t, 4, 1> ADSTP;     /*!< ADC stop of regular conversion command */
             microhal::Bitfield<uint32_t, 5, 1> JADSTP;    /*!< ADC stop of regular conversion command */
-            microhal::Bitfield<uint32_t, 28, 1> ADVREGEN; /*!< ADC voltage regulator enable */
-            microhal::Bitfield<uint32_t, 29, 1> DEEPPWD;  /*!< DEEPPWD */
+            microhal::Bitfield<uint32_t, 28, 2> ADVREGEN; /*!< ADC voltage regulator enable */
+            // microhal::Bitfield<uint32_t, 29, 1> DEEPPWD;  /*!< DEEPPWD */
             microhal::Bitfield<uint32_t, 30, 1> ADCALDIF; /*!< Differential mode for calibration */
             microhal::Bitfield<uint32_t, 31, 1> ADCAL;    /*!< ADC calibration */
         };
@@ -1218,12 +1218,12 @@ struct ADC {
 #endif
 };
 
-#if defined(_MICROHAL_ADC1_BASE)
-[[maybe_unused]] static ADC *const adc1 = reinterpret_cast<ADC *>(_MICROHAL_ADC1_BASE);
+#if defined(_MICROHAL_ADC1_BASE_ADDRESS)
+[[maybe_unused]] static ADC *const adc1 = reinterpret_cast<ADC *>(_MICROHAL_ADC1_BASE_ADDRESS);
 #endif
 
-#if defined(_MICROHAL_ADC2_BASE)
-[[maybe_unused]] static ADC *const adc2 = reinterpret_cast<ADC *>(_MICROHAL_ADC2_BASE);
+#if defined(_MICROHAL_ADC2_BASE_ADDRESS)
+[[maybe_unused]] static ADC *const adc2 = reinterpret_cast<ADC *>(_MICROHAL_ADC2_BASE_ADDRESS);
 #endif
 
 }  // namespace registers

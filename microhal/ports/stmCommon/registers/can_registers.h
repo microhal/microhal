@@ -251,15 +251,22 @@ struct CAN {
     // receive FIFO x register
     union RFxR {
         union {
-            microhal::Bitfield<uint32_t, 0, 2> FMPx;  /*!< FMP0 */
-            microhal::Bitfield<uint32_t, 3, 1> FULLx; /*!< FULL0 */
-            microhal::Bitfield<uint32_t, 4, 1> FOVRx; /*!< FOVR0 */
-            microhal::Bitfield<uint32_t, 5, 1> RFOMx; /*!< RFOM0 */
+            microhal::Bitfield<uint32_t, 0, 2> FMP; /*!< FIFO message pending. These bits indicate how many messages are pending in the receive FIFO.
+                                                       FMP is increased each time the hardware stores a new message in to the FIF. FMP is decreased
+                                                       each time the software releases the output mailbox by setting the RFOM bit */
+            microhal::Bitfield<uint32_t, 3, 1>
+                FULL; /*!< FIFO full. Set by hardware when three messages are stored in the FIF. This bit is cleared by software. */
+            microhal::Bitfield<uint32_t, 4, 1> FOVR; /*!< FIFO overrun. This bit is set by hardware when a new message has been received and passed
+                                                        the filter while the FIF was full. This bit is cleared by software.   */
+            microhal::Bitfield<uint32_t, 5, 1> RFOM; /*!< Release FIFO output mailbox. Set by software to release the output mailbox of the FIFO. The
+                         output mailbox can only be released when at least one message is pending in the FIFO. Setting this bit when the FIFO is empty
+                         has no effect. If at least two messages are pending in the FIFO, the software has to release the output mailbox to access the
+                         next message.Cleared by hardware when the output mailbox has been released. */
         };
 
-        uint32_t mesagesCount() const { return FMPx; }
-        void releaseMessage() { RFOMx = 1; }
-        bool isFull() const { return FULLx; }
+        uint32_t mesagesCount() const { return FMP; }
+        void releaseMessage() { RFOM = 1; }
+        bool isFull() const { return FULL; }
 
         operator uint32_t() const { return raw; }
         operator bool() const { return raw; }

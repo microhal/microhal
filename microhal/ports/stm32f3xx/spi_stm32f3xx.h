@@ -50,6 +50,15 @@ namespace microhal {
 
 class SPIDevice;
 namespace stm32f3xx {
+
+namespace spi_detail {
+enum class Interrupt : uint32_t { TransmitterBufferEmpty = SPI_CR2_TXEIE, ReceiverBufferNotEmpty = SPI_CR2_RXNEIE, Error = SPI_CR2_ERRIE };
+
+constexpr Interrupt operator|(Interrupt lhs, Interrupt rhs) {
+    return static_cast<Interrupt>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+}  // namespace spi_detail
+
 extern "C" {
 void SPI1_IRQHandler(void);
 void SPI2_IRQHandler(void);
@@ -106,6 +115,7 @@ class SPI : public microhal::SPI {
     }
 
     void init(Mode mode, Prescaler prescaler) {
+        misoPin.setDirectionInput(GPIO::PullType::NoPull);
         const uint32_t modeFlags[] = {0x00, SPI_CR1_CPHA, SPI_CR1_CPOL, SPI_CR1_CPHA | SPI_CR1_CPOL};
         spi.CR1 = SPI_CR1_MSTR | SPI_CR1_SSM | SPI_CR1_SSI | modeFlags[mode] | prescaler;
         dataSize(8);
@@ -142,6 +152,7 @@ class SPI : public microhal::SPI {
     }
 
  protected:
+    using Interrupt = spi_detail::Interrupt;
     //---------------------------------------- variables ----------------------------------------//
     SPI_TypeDef &spi;
     microhal::stm32f3xx::GPIO misoPin;
@@ -154,7 +165,8 @@ class SPI : public microhal::SPI {
     }
     // virtual ~SPI() {
     //}
-
+    void enableInterrupt(Interrupt interrupt) { spi.CR2 |= static_cast<uint32_t>(interrupt); }
+    void disableInterrupt(Interrupt interrupt) { spi.CR2 &= ~static_cast<uint32_t>(interrupt); }
     static SPI::Error errorCheck(uint32_t SRregisterValue) {
         SPI::Error error = Error::None;
 
