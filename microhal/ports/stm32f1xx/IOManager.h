@@ -154,6 +154,17 @@ class IOManager {
             }
         }
     }
+
+    template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeTimer(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull,
+                           stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OutputType::PushPull) {
+        constexpr IOPin pin(port, pinNr);
+
+        GPIO::AlternateFunction alternateFunction = GPIO::AlternateFunction::AF2;
+
+        stm32f1xx::GPIO gpio(pin);
+        gpio.setAlternateFunctionOutput(alternateFunction, pull, type);
+    }
 };
 }  // namespace stm32f1xx
 }  // namespace microhal

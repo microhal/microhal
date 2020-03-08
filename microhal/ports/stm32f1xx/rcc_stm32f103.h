@@ -371,6 +371,9 @@ struct RCC {
 
     // APB2 peripheral clock enable register (RCC_APB2ENR)
     union APB2ENR {
+#define _MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC1EN
+#define _MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC2EN
+#define _MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC3EN
         union {
             microhal::Bitfield<uint32_t, 0, 1> AFIOEN;    /*!< Alternate function I/O clock enable */
             microhal::Bitfield<uint32_t, 2, 1> IOPAEN;    /*!< I/O port A clock enable */

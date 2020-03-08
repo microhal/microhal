@@ -33,7 +33,7 @@ typedef enum {
     DMA1_Channel1_IRQn = 9,        /*!< DMA1 Channel 1 Interrupt                                        */
     DMA1_Channel2_3_IRQn = 10,     /*!< DMA1 Channel 2 and Channel 3 Interrupt                          */
     DMA1_Channel4_5_IRQn = 11,     /*!< DMA1 Channel 4 and Channel 5 Interrupt                          */
-    ADC1_IRQn = 12,                /*!< ADC1 Interrupt                                                  */
+    ADC1_2_IRQn = 18,              /*!< ADC1 Interrupt                                                  */
     TIM1_BRK_UP_TRG_COM_IRQn = 13, /*!< TIM1 Break, Update, Trigger and Commutation Interrupt           */
     TIM1_BRK_IRQn = 24,
     TIM1_UP_IRQn = 25,

@@ -37,6 +37,12 @@ uint32_t PLL::frequency(uint32_t frequency_Hz) {
         while (HSI::isReady() == false)
             ;
     } else {
+        uint32_t mul = round(frequency_Hz / inputFrequency());
+        if (mul > 16) mul = 16;
+        if (mul < 2) mul = 2;
+        PLLMUL(mul);
+        while (HSE::isReady() == false) {
+        }
     }
 
     enable();
@@ -44,7 +50,7 @@ uint32_t PLL::frequency(uint32_t frequency_Hz) {
         ;
 #endif
     return VCOOutputFrequency();
-}
+}  // namespace ClockManager
 
 float PLL::VCOOutputFrequency() noexcept {
     return inputFrequency() * PLLMUL();
