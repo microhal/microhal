@@ -185,7 +185,7 @@ namespace std _GLIBCXX_VISIBILITY(default) {
     void thread::_M_start_thread(_State_ptr state, void (*)()) {
         // const int err = __gthread_create(&_M_id._M_thread, &execute_native_thread_routine, state.get());
         this->state = state.get();
-        BaseType_t err = xTaskCreate(&execute_native_thread_routine, NULL, defaultStackSize, state.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
+        BaseType_t err = xTaskCreate(&execute_native_thread_routine, "Cpp", defaultStackSize, state.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
         if (err != pdPASS) __throw_system_error(err);
         state.release();
     }

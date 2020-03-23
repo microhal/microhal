@@ -1,12 +1,12 @@
 #include "FreeRTOS.h"
-#include "task.h"
-
 #include "diagnostic/diagnostic.h"
+#include "microhalConfig.h"
+#include "task.h"
 
 using namespace microhal::diagnostic;
 
 extern "C" __attribute__((weak)) void vApplicationStackOverflowHook(xTaskHandle pxTask, signed char* pcTaskName) {
-    (void)pxTask;
+    [[maybe_unused]] volatile xTaskHandle task = pxTask;
 
     diagChannel << MICROHAL_EMERGENCY << "Stack overflow detected.";
     if (pcTaskName) {
