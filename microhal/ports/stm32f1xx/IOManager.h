@@ -19,6 +19,8 @@ typedef enum {
 
 typedef enum { MISO, MOSI, SCK } SpiPinType;
 
+typedef enum { DP, DM } USBPinType;
+
 namespace stm32f1xx {
 
 class IOManager {
@@ -164,6 +166,17 @@ class IOManager {
 
         stm32f1xx::GPIO gpio(pin);
         gpio.setAlternateFunctionOutput(alternateFunction, pull, type);
+    }
+
+    template <USBPinType usbType, stm32f1xx::IOPin::Port port, stm32f1xx::IOPin::Pin pinNr>
+    static void routeUSB() {
+        constexpr IOPin pin(port, pinNr);
+
+        if constexpr (usbType == DM) static_assert(pin == IOPin{IOPin::PortA, 11}, "USB1 DM can be connected only to: PortA.11.");
+        if constexpr (usbType == DP) static_assert(pin == IOPin{IOPin::PortA, 12}, "USB1 DP can be connected only to: PortA.12.");
+
+        stm32f1xx::GPIO gpio(pin);
+        gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
     }
 };
 }  // namespace stm32f1xx
