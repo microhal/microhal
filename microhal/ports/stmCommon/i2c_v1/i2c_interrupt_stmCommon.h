@@ -69,8 +69,12 @@ class I2C_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
     os::Semaphore semaphore;
     //---------------------------------------- constructors ---------------------------------------
     I2C_interrupt(registers::I2C *i2c) : I2C(i2c), transfer(), error(), semaphore() {
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
         ClockManager::enableI2C(getI2CNumber(), ClockManager::PowerMode::Normal);
-#ifndef HAL_RTOS_FreeRTOS
+#else
+        ClockManager::enableI2C(getI2CNumber());
+#endif
+#ifndef MICROHAL_RTOS_FreeRTOS
         const uint32_t priority = 0;
 #else
         const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;

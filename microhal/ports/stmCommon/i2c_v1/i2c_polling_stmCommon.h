@@ -33,7 +33,13 @@ class I2C_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
 #endif
  private:
     //---------------------------------------- constructors ---------------------------------------
-    I2C_polling(registers::I2C *i2c) : I2C(i2c) { ClockManager::enableI2C(getI2CNumber(), ClockManager::PowerMode::Normal); }
+    I2C_polling(registers::I2C *i2c) : I2C(i2c) {
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+        ClockManager::enableI2C(getI2CNumber(), ClockManager::PowerMode::Normal);
+#else
+        ClockManager::enableI2C(getI2CNumber());
+#endif
+    }
     //---------------------------------------- functions ----------------------------------------//
     Error writeRead(DeviceAddress address, const uint8_t *write, size_t write_size, uint8_t *read, size_t read_size) noexcept final;
 
