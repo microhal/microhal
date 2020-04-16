@@ -5,8 +5,8 @@
  *      Author: pokas
  */
 
-#ifndef SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSICLOCK_H_
-#define SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSICLOCK_H_
+#ifndef SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSI_H_
+#define SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSI_H_
 
 #include <cstdint>
 #include "../stmCommonDefines.h"
@@ -57,4 +57,4 @@ struct LSI {
 }  // namespace ClockManager
 }  // namespace microhal
 
-#endif /* SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSICLOCK_H_ */
+#endif /* SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSI_H_ */

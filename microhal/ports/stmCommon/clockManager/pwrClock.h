@@ -54,7 +54,16 @@ static void disablePWR(PowerMode mode) {
 }
 
 #else
-
+static void enablePWR() {
+    auto apb1enr = registers::rcc->apb1enr.volatileLoad();
+    apb1enr.PWREN.set();
+    registers::rcc->apb1enr.volatileStore(apb1enr);
+}
+static void disablePWR() {
+    auto apb1enr = registers::rcc->apb1enr.volatileLoad();
+    apb1enr.PWREN.clear();
+    registers::rcc->apb1enr.volatileStore(apb1enr);
+}
 #endif  // defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
 #endif  // defined(_MICROHAL_PWR_BASE_ADDRESS)
 
