@@ -24,6 +24,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1
 #ifndef _MICROHAL_GPIO_STM_COMMON_H_
 #define _MICROHAL_GPIO_STM_COMMON_H_
 /* **************************************************************************************************************************************************
@@ -214,7 +216,9 @@ class GPIOCommon : public GPIOCommonBase {
     friend class IOManager;
     friend class DataBus;
 };
+
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
 #endif  // _MICROHAL_GPIO_STM_COMMON_H_
+#endif  // _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1

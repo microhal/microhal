@@ -5,10 +5,8 @@
  * @brief      GPIO port driver
  *
  * @authors    Pawel Okas
- * created on: 17-04-2014
- * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2019, Pawel Okas
+ * @copyright Copyright (c) 2014-2020, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,8 +26,8 @@
  */
 
 #include <ports/stmCommon/gpio_v1/gpio_stmCommon.h>
+#if _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1
 #include "../clockManager/gpioClock.h"
-//#include _MICROHAL_INCLUDE_PORT_clockManager
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -60,3 +58,4 @@ void GPIOCommonBase::pinInitialize(PinConfiguration config) {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif  // _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1
