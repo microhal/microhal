@@ -14,7 +14,7 @@ namespace microhal {
 namespace activePort = stm32f0xx;
 }
 #elif defined(MCU_TYPE_STM32F1XX)
-//#include "ports/stm32f1xx/i2c_stm32f1xx.h"
+#include "ports/stm32f1xx/i2c_stm32f1xx.h"
 // namespace microhal {
 // namespace activePort = stm32f1xx;
 //}
