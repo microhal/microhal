@@ -8,13 +8,15 @@
 #ifndef MICROHAL_SEMAPHORE_H_
 #define MICROHAL_SEMAPHORE_H_
 
-#if defined(HAL_RTOS_FreeRTOS)
+#include "microhalConfig.h"
+
+#if defined(MICROHAL_RTOS_FreeRTOS)
 #include "freeRTOS/semaphore.h"
-#elif defined(HAL_RTOS_None)
+#elif defined(MICROHAL_RTOS_NoRTOS)
 #include "noRTOS/semaphore_noRTOS.h"
-#elif defined(LINUX_PORT)
+#elif defined(MICROHAL_RTOS_Linux)
 #include "linux/semaphore_linux.h"
-#elif defined(WINDOWS_PORT)
+#elif defined(MICROHAL_RTOS_Windows)
 #include "windows/semaphore_windows.h"
 #else
 #error Operating system have to be defined
