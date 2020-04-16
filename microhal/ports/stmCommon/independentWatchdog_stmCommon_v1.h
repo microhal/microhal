@@ -44,10 +44,34 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
  */
 class IndependentWatchdog {
  public:
+    enum class Prescaler {
+        Div4 = 0,
+        Div8,
+        Div16,
+        Div32,
+        Div64,
+        Div128,
+        Div256,
+    };
+
     static void enable() { registers::iwdg->kr.volatileStore(0x0000'CCCC); }
     static void kick() { registers::iwdg->kr.volatileStore(0x0000'AAAA); }
-    static bool isEnabled() { return registers::iwdg->cr.volatileLoad().WDGA; }
-    static uint_fast8_t getValue() { return registers::iwdg->cr.volatileLoad().T; }
+    static bool setPrescaler(Prescaler prescaler) {
+        if (registers::iwdg->sr.volatileLoad().PVU == 0) {
+            registers::iwdg->kr.volatileStore(0x0000'5555);
+            registers::iwdg->pr.volatileStore(static_cast<uint32_t>(prescaler));
+            return true;
+        }
+        return false;
+    }
+    static bool setReloadValue(uint32_t reload) {
+        if (reload <= 0xFFF && registers::iwdg->sr.volatileLoad().RVU == 0) {
+            registers::iwdg->kr.volatileStore(0x0000'5555);
+            registers::iwdg->rlr.volatileStore(reload);
+            return true;
+        }
+        return false;
+    }
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
