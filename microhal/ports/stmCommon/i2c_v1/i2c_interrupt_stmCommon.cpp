@@ -172,6 +172,9 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, registers::I2C *i2c) {
 
     auto sr1 = i2c->sr1.volatileLoad();
 
+    registers::I2C::SR1 sr1_txe;
+    sr1_txe.TxE.set();
+
     if (sr1.SB && !sr1.TxE && !sr1.RxNE && !sr1.ADDR) {
         // start sequence was sent, now we need to send device address
         i2c->dr.volatileStore(obj.transfer.deviceAddress |
@@ -234,7 +237,10 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, registers::I2C *i2c) {
             }
         }
     } else {
-        if ((uint32_t)sr1 == (I2C_SR1_RXNE | I2C_SR1_BTF)) {
+        registers::I2C::SR1 sr = {};
+        sr.RxNE.set();
+        sr.BTF.set();
+        if (sr1 == sr) {
             // here we are receiving last two bytes
             auto cr1 = i2c->cr1.volatileLoad();
             cr1.STOP.set();
@@ -300,7 +306,7 @@ void I2C_interrupt::IRQFunction(I2C_interrupt &obj, registers::I2C *i2c) {
                 (void)shouldYeld;
 #endif
             }
-        } else if ((uint32_t)sr1 == I2C_SR1_TXE) {
+        } else if (sr1 == sr1_txe) {
             if (obj.transfer.bufferA.length) {
                 // registers::I2C::DR dr;
                 // dr = ;
@@ -380,7 +386,9 @@ void I2C3_EV_IRQHandler(void) {
 //***********************************************************************************************//
 #ifdef MICROHAL_USE_I2C1_INTERRUPT
 void I2C1_ER_IRQHandler(void) {
-    I2C1->CR1 |= I2C_CR1_STOP;
+    auto cr1 = registers::i2c1->cr1.volatileLoad();
+    cr1.STOP.set();
+    registers::i2c1->cr1.volatileStore(cr1);
     I2C_interrupt::i2c1.error = I2C::errorCheckAndClear(registers::i2c1, registers::i2c1->sr1.volatileLoad());
     auto shouldYeld = I2C_interrupt::i2c1.semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
