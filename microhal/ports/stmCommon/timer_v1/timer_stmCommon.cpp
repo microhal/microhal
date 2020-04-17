@@ -64,7 +64,7 @@ uint8_t Timer::getNumber() const {
 #ifdef _MICROHAL_TIM10_BASE_ADDRESS
         registers::tim10,
 #else
-        nullptr
+        nullptr,
 #endif
 #ifdef _MICROHAL_TIM11_BASE_ADDRESS
         registers::tim11,
