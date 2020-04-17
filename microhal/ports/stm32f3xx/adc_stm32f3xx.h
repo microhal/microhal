@@ -32,6 +32,6 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "ports/stmCommon/adc_stm_common.h"
+#include "ports/stmCommon/adc_v1/adc_stm_common.h"
 
 #endif  // _MICROHAL_ADC_STM32F3XX_H_

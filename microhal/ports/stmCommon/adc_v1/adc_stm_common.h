@@ -33,13 +33,13 @@
  * INCLUDES
  */
 #include <thread>
+#include "../registers/adc_common_registers_v1.h"
+#include "../registers/adc_registers_v1.h"
+#include "../stmCommonDefines.h"
 #include "gsl/gsl"
 #include "microhal_semaphore.h"
 #include "ports/stmCommon/clockManager/adcClock.h"
-#include "registers/adc_common_registers_v1.h"
-#include "registers/adc_registers_v1.h"
 #include "signalSlot/signalSlot.h"
-#include "stmCommonDefines.h"
 
 #include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
 #include _MICROHAL_INCLUDE_PORT_CONFIG
