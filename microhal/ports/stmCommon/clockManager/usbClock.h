@@ -14,6 +14,7 @@
 #include "apbClock.h"
 #include "clockTypes.h"
 #include "hsi.h"
+#include "pll.h"
 
 #ifdef MCU_TYPE_STM32F0XX
 #include "ports/stm32f0xx/RCC_2.h"
@@ -37,6 +38,8 @@ namespace ClockManager {
 
 enum UsbClockSource { HSI48 = 0, PLL = 1 };
 
+enum UsbPrescaler { Div1 = 1, Div1_5 = 0 };
+
 #if defined(_MICROHAL_USB_BASE_ADDRESS)
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
 #else
@@ -58,10 +61,30 @@ static void USBClockSource(UsbClockSource clockSource) {
     cfgr3.USBSW = clockSource;
     registers::rcc->cfgr3.volatileStore(cfgr3);
 }
-static UsbClockSource USBClockSource() {
-    return static_cast<UsbClockSource>(registers::rcc->cfgr3.volatileLoad().USBSW.get());
-}
 #endif
+
+static UsbClockSource USBClockSource() {
+#if defined(RCC_CFGR3_USBSW)
+    return static_cast<UsbClockSource>(registers::rcc->cfgr3.volatileLoad().USBSW.get());
+#endif
+    return UsbClockSource::PLL;
+}
+
+[[maybe_unused]] static UsbPrescaler USBPrescaler() {
+    auto cfgr = registers::rcc->cfgr.volatileLoad();
+    return cfgr.OTGFSPRE.get() ? Div1 : Div1_5;
+}
+
+[[maybe_unused]] static uint32_t USBFrequency() {
+    switch (USBPrescaler()) {
+        case Div1:
+            return PLL::VCOOutputFrequency();
+        case Div1_5:
+            return (PLL::VCOOutputFrequency() * 2) / 3;
+    }
+    std::terminate();
+}
+
 #endif
 #endif
 }  // namespace ClockManager

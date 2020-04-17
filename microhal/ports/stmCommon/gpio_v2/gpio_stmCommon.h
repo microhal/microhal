@@ -6,7 +6,7 @@
  *
  * @authors    Pawel Okas
  *
- * @copyright Copyright (c) 2019, Pawel Okas
+ * @copyright Copyright (c) 2019-2020, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 2
 #ifndef _MICROHAL_GPIO_STMCOMMON_H_
 #define _MICROHAL_GPIO_STMCOMMON_H_
 /* **************************************************************************************************************************************************
@@ -209,8 +211,10 @@ class GPIOCommon : public GPIOCommonBase {
     //----------------------------------------- friends -----------------------------------------//
     friend class IOManager;
     friend class DataBus;
-};  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+};
+
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
 #endif  // _MICROHAL_GPIO_STMCOMMON_H_
+#endif  //_MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1

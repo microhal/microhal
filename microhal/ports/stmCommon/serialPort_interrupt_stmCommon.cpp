@@ -99,7 +99,7 @@ SerialPort_interrupt::SerialPort_interrupt(registers::USART &usart, char *const 
     ClockManager::enableUSART(number());
 #endif
 
-#ifndef HAL_RTOS_FreeRTOS
+#ifndef MICROHAL_RTOS_FreeRTOS
     const uint32_t priority = 0;
 #else
     const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;

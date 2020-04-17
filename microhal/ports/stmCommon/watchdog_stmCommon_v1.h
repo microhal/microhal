@@ -44,6 +44,8 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
  */
 class Watchdog {
  public:
+    enum class Prescaler { Div1 = 0, Div2, Div4, Div8 };
+
     static void enable() {
         auto cr = registers::wwdg->cr.volatileLoad();
         cr.WDGA.set();
@@ -51,6 +53,20 @@ class Watchdog {
     }
     static bool isEnabled() { return registers::wwdg->cr.volatileLoad().WDGA; }
     static uint_fast8_t getValue() { return registers::wwdg->cr.volatileLoad().T; }
+    static bool setWindowValue(uint_fast8_t value) {
+        if (value <= 0b0111'1111) {
+            auto cfr = registers::wwdg->cfr.volatileLoad();
+            cfr.W = value;
+            regisers::wwdg->cfr.volatileStore();
+            return true;
+        }
+        return false;
+    }
+    static void setPrescaler(Prescaler prescaler) {
+        auto cfr = registers::wwdg->cfr.volatileLoad();
+        cfr.WDGTB = static_cast<uint32_t>(prescaler);
+        regisers::wwdg->cfr.volatileStore();
+    }
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

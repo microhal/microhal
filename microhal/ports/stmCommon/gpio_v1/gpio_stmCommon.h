@@ -1,14 +1,11 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      GPIO port driver
+ * @brief      GPIO port driver for:
  *
  * @authors    Pawel Okas
- * created on: 17-04-2014
- * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2019, Pawel Okas
+ * @copyright Copyright (c) 2014-2020, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,6 +24,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1
 #ifndef _MICROHAL_GPIO_STM_COMMON_H_
 #define _MICROHAL_GPIO_STM_COMMON_H_
 /* **************************************************************************************************************************************************
@@ -217,7 +216,9 @@ class GPIOCommon : public GPIOCommonBase {
     friend class IOManager;
     friend class DataBus;
 };
+
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
 #endif  // _MICROHAL_GPIO_STM_COMMON_H_
+#endif  // _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1

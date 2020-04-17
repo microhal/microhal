@@ -5,10 +5,8 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 02-10-2018
- * last modification: dd-mm-yyyy
  *
- * @copyright Copyright (c) 2018, Pawel Okas
+ * @copyright Copyright (c) 2020, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,53 +25,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STMCOMMON_H_
-#define _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STMCOMMON_H_
+#ifndef _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STM32F1XX_H_
+#define _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STM32F1XX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include <cstdint>
-#include "registers/iwdgRegisters_v1.h"
-#include "stmCommonDefines.h"
+#include <ports/stmCommon/independentWatchdog_stmCommon_v1.h>
 
-namespace microhal {
-namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-class IndependentWatchdog {
- public:
-    enum class Prescaler {
-        Div4 = 0,
-        Div8,
-        Div16,
-        Div32,
-        Div64,
-        Div128,
-        Div256,
-    };
-
-    static void enable() { registers::iwdg->kr.volatileStore(0x0000'CCCC); }
-    static void kick() { registers::iwdg->kr.volatileStore(0x0000'AAAA); }
-    static bool setPrescaler(Prescaler prescaler) {
-        if (registers::iwdg->sr.volatileLoad().PVU == 0) {
-            registers::iwdg->kr.volatileStore(0x0000'5555);
-            registers::iwdg->pr.volatileStore(static_cast<uint32_t>(prescaler));
-            return true;
-        }
-        return false;
-    }
-    static bool setReloadValue(uint32_t reload) {
-        if (reload <= 0xFFF && registers::iwdg->sr.volatileLoad().RVU == 0) {
-            registers::iwdg->kr.volatileStore(0x0000'5555);
-            registers::iwdg->rlr.volatileStore(reload);
-            return true;
-        }
-        return false;
-    }
-};
-
-}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
-}  // namespace microhal
-#endif  // _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STMCOMMON_H_
+#endif  // _MICROHAL_PORTS_INDEPENDENTWATCHDOG_STM32F1XX_H_

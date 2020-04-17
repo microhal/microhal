@@ -1,12 +1,12 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  Pawel Okas
  * @version    $Id$
- * @brief      GPIO port driver
+ * @brief
  *
  * @authors    Pawel Okas
+ * created on: 09-04-2019
  *
- * @copyright Copyright (c) 2014-2020, Pawel Okas
+ * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,37 +25,33 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ports/stmCommon/gpio_v1/gpio_stmCommon.h>
-#if _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1
-#include "../clockManager/gpioClock.h"
+#ifndef SRC_GRAPHICS_FONT_H_
+#define SRC_GRAPHICS_FONT_H_
+
+#include <cstdint>
+#include <string_view>
+#include "color.h"
+#include "display.h"
 
 namespace microhal {
-namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+namespace graphics {
 
-void GPIOCommonBase::pinInitialize(PinConfiguration config) {
-#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enableGPIO(port.getGpioHandle(), ClockManager::PowerMode::Normal);
-#else
-    ClockManager::enableGPIO(port.getGpioHandle());
-#endif
+class Font {
+ public:
+    virtual ~Font() {}
+    Color color = {255, 255, 255};
 
-    auto afr = port.getGpioHandle().afr[pinNo / 8].volatileLoad();
-    afr &= ~(0b1111 << ((pinNo % 8) * 4));                    // clear old configuration
-    afr |= ((0xF0 & config.mode) >> 4) << ((pinNo % 8) * 4);  // set new configuration
-    port.getGpioHandle().afr[pinNo / 8].volatileStore(afr);
+    uint_fast8_t getHeight() { return height; }
 
-    // set mode -> config.mode is split to 2 part 4MSB bit
-    //      contain alternate function and 4LSB bit contain mode
-    auto moder = port.getGpioHandle().moder.volatileLoad();
-    moder &= ~((0b11) << (pinNo * 2));             // clear old configuration
-    moder |= (0x03 & config.mode) << (pinNo * 2);  // set new configuration
-    port.getGpioHandle().moder.volatileStore(moder);
-    // set type
-    setDirection(static_cast<Direction>(config.type));
-    setPullType(static_cast<PullType>(config.pull));
-    setSpeed(config.speed);
-}
+    virtual void draw(Display &display, Point position, uint_fast8_t angle, std::string_view text) = 0;
 
-}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+ protected:
+    uint_fast8_t height;
+
+    constexpr Font(uint_fast8_t width, uint_fast8_t height) : height(height) {}
+};
+
+}  // namespace graphics
 }  // namespace microhal
-#endif  // _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1
+
+#endif /* SRC_GRAPHICS_FONT_H_ */

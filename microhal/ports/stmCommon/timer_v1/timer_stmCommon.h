@@ -137,7 +137,7 @@ class Timer {
     };
 
     Timer(registers::TIM *addr)
-        : timer(*addr), compare1(*addr, 1), compare2(*addr, 2), compare3(*addr, 3), compare4(*addr, 4), capture1(*addr, 1), capture2(*addr, 2) {
+        : timer(*addr), compare1(*addr, 0), compare2(*addr, 1), compare3(*addr, 2), compare4(*addr, 3), capture1(*addr, 0), capture2(*addr, 1) {
         if (addr == registers::tim1) {
             tim1 = this;
         } else if (addr == registers::tim3) {
@@ -349,13 +349,13 @@ class Timer {
         enum class IdleState { Low, High };
 
         void enable() {
-            if (compareChannelNumber < 3) {
+            if (compareChannelNumber < 2) {
                 auto ccmr1 = timer.ccmr1.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 1:
+                    case 0:
                         ccmr1.bitfieldOutput.CC1S.clear();
                         break;
-                    case 2:
+                    case 1:
                         ccmr1.bitfieldOutput.CC2S.clear();
                         break;
                 }
@@ -363,10 +363,10 @@ class Timer {
             } else {
                 auto ccmr2 = timer.ccmr2.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 3:
+                    case 2:
                         ccmr2.bitfieldOutput.CC3S.clear();
                         break;
-                    case 4:
+                    case 3:
                         ccmr2.bitfieldOutput.CC4S.clear();
                         break;
                 }
@@ -374,44 +374,16 @@ class Timer {
             }
         }
 
-        void setValue(uint32_t value) {
-            return timer.ccr[compareChannelNumber].volatileStore(value);
-            //            switch (compareChannelNumber) {
-            //                case 1:
-            //                    timer.CCR1 = value;
-            //                    break;
-            //                case 2:
-            //                    timer.CCR2 = value;
-            //                    break;
-            //                case 3:
-            //                    timer.CCR3 = value;
-            //                    break;
-            //                case 4:
-            //                    timer.CCR4 = value;
-            //                    break;
-            //            }
-        }
-        uint32_t getValue() {
-            return timer.ccr[compareChannelNumber].volatileLoad();
-            //            switch (compareChannelNumber) {
-            //                case 1:
-            //                    return timer.CCR1;
-            //                case 2:
-            //                    return timer.CCR2;
-            //                case 3:
-            //                    return timer.CCR3;
-            //                case 4:
-            //                    return timer.CCR4;
-            //            }
-        }
+        void setValue(uint32_t value) { return timer.ccr[compareChannelNumber].volatileStore(value); }
+        uint32_t getValue() { return timer.ccr[compareChannelNumber].volatileLoad(); }
         void enablePreload() {
-            if (compareChannelNumber < 3) {
+            if (compareChannelNumber < 2) {
                 auto ccmr1 = timer.ccmr1.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 1:
+                    case 0:
                         ccmr1.bitfieldOutput.OC1PE.set();
                         break;
-                    case 2:
+                    case 1:
                         ccmr1.bitfieldOutput.OC2PE.set();
                         break;
                 }
@@ -419,10 +391,10 @@ class Timer {
             } else {
                 auto ccmr2 = timer.ccmr2.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 3:
+                    case 2:
                         ccmr2.bitfieldOutput.OC3PE.set();
                         break;
-                    case 4:
+                    case 3:
                         ccmr2.bitfieldOutput.OC4PE.set();
                         break;
                 }
@@ -430,13 +402,13 @@ class Timer {
             }
         }
         void disablePreload() {
-            if (compareChannelNumber < 3) {
+            if (compareChannelNumber < 2) {
                 auto ccmr1 = timer.ccmr1.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 1:
+                    case 0:
                         ccmr1.bitfieldOutput.OC1PE.clear();
                         break;
-                    case 2:
+                    case 1:
                         ccmr1.bitfieldOutput.OC2PE.clear();
                         break;
                 }
@@ -444,10 +416,10 @@ class Timer {
             } else {
                 auto ccmr2 = timer.ccmr2.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 3:
+                    case 2:
                         ccmr2.bitfieldOutput.OC3PE.clear();
                         break;
-                    case 4:
+                    case 3:
                         ccmr2.bitfieldOutput.OC4PE.clear();
                         break;
                 }
@@ -455,13 +427,13 @@ class Timer {
             }
         }
         void setMode(Mode mode) {
-            if (compareChannelNumber < 3) {
+            if (compareChannelNumber < 2) {
                 auto ccmr1 = timer.ccmr1.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 1:
+                    case 0:
                         ccmr1.setOC1M(static_cast<uint32_t>(mode));
                         break;
-                    case 2:
+                    case 1:
                         ccmr1.setOC2M(static_cast<uint32_t>(mode));
                         break;
                 }
@@ -469,10 +441,10 @@ class Timer {
             } else {
                 auto ccmr2 = timer.ccmr2.volatileLoad();
                 switch (compareChannelNumber) {
-                    case 3:
+                    case 2:
                         ccmr2.setOC3M(static_cast<uint32_t>(mode));
                         break;
-                    case 4:
+                    case 3:
                         ccmr2.setOC4M(static_cast<uint32_t>(mode));
                         break;
                 }
@@ -483,19 +455,19 @@ class Timer {
             auto ccer = timer.ccer.volatileLoad();
             auto cr2 = timer.cr2.volatileLoad();
             switch (compareChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1P = static_cast<uint32_t>(polarity);
                     cr2.OIS1 = static_cast<uint32_t>(idleState);
                     break;
-                case 2:
+                case 1:
                     ccer.CC2P = static_cast<uint32_t>(polarity);
                     cr2.OIS2 = static_cast<uint32_t>(idleState);
                     break;
-                case 3:
+                case 2:
                     ccer.CC3P = static_cast<uint32_t>(polarity);
                     cr2.OIS3 = static_cast<uint32_t>(idleState);
                     break;
-                case 4:
+                case 3:
                     ccer.CC4P = static_cast<uint32_t>(polarity);
                     cr2.OIS4 = static_cast<uint32_t>(idleState);
                     break;
@@ -512,15 +484,15 @@ class Timer {
             auto ccer = timer.ccer.volatileLoad();
             auto cr2 = timer.cr2.volatileLoad();
             switch (compareChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1NP = static_cast<uint32_t>(polarity);
                     cr2.OIS1N = static_cast<uint32_t>(idleState);
                     break;
-                case 2:
+                case 1:
                     ccer.CC2NP = static_cast<uint32_t>(polarity);
                     cr2.OIS2N = static_cast<uint32_t>(idleState);
                     break;
-                case 3:
+                case 2:
                     ccer.CC3NP = static_cast<uint32_t>(polarity);
                     cr2.OIS3N = static_cast<uint32_t>(idleState);
                     break;
@@ -532,16 +504,16 @@ class Timer {
         void outputEnable() {
             auto ccer = timer.ccer.volatileLoad();
             switch (compareChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1E.set();
                     break;
-                case 2:
+                case 1:
                     ccer.CC2E.set();
                     break;
-                case 3:
+                case 2:
                     ccer.CC3E.set();
                     break;
-                case 4:
+                case 3:
                     ccer.CC4E.set();
                     break;
             }
@@ -551,13 +523,13 @@ class Timer {
         void complementaryOutputEnable() {
             auto ccer = timer.ccer.volatileLoad();
             switch (compareChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1NE.set();
                     break;
-                case 2:
+                case 1:
                     ccer.CC2NE.set();
                     break;
-                case 3:
+                case 2:
                     ccer.CC3NE.set();
                     break;
             }
@@ -567,16 +539,16 @@ class Timer {
         void outputDisable() {
             auto ccer = timer.ccer.volatileLoad();
             switch (compareChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1E.clear();
                     break;
-                case 2:
+                case 1:
                     ccer.CC2E.clear();
                     break;
-                case 3:
+                case 2:
                     ccer.CC3E.clear();
                     break;
-                case 4:
+                case 3:
                     ccer.CC4E.clear();
                     break;
             }
@@ -585,13 +557,13 @@ class Timer {
         void complementaryOutputDisable() {
             auto ccer = timer.ccer.volatileLoad();
             switch (compareChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1NE.clear();
                     break;
-                case 2:
+                case 1:
                     ccer.CC2NE.clear();
                     break;
-                case 3:
+                case 2:
                     ccer.CC3NE.clear();
                     break;
             }
@@ -616,16 +588,16 @@ class Timer {
         void enable() {
             auto ccer = timer.ccer.volatileLoad();
             switch (captureChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1E.set();
                     break;
-                case 2:
+                case 1:
                     ccer.CC2E.set();
                     break;
-                case 3:
+                case 2:
                     ccer.CC3E.set();
                     break;
-                case 4:
+                case 3:
                     ccer.CC4E.set();
                     break;
             }
@@ -635,16 +607,16 @@ class Timer {
         void disable() {
             auto ccer = timer.ccer.volatileLoad();
             switch (captureChannelNumber) {
-                case 1:
+                case 0:
                     ccer.CC1E.clear();
                     break;
-                case 2:
+                case 1:
                     ccer.CC2E.clear();
                     break;
-                case 3:
+                case 2:
                     ccer.CC3E.clear();
                     break;
-                case 4:
+                case 3:
                     ccer.CC4E.clear();
                     break;
             }
@@ -653,7 +625,7 @@ class Timer {
 
         bool setInputSource(InputSource inputSource, ActiveEdge activeEdge, InputFilter filter) {
             switch (captureChannelNumber) {
-                case 1: {
+                case 0: {
                     if (static_cast<uint32_t>(inputSource) & 0b100) return false;  // Selected TI3 or TI4 witch is forbidden on this channel
                     auto ccmr1 = timer.ccmr1.volatileLoad();
                     ccmr1.bitfieldInput.CC1S = static_cast<uint32_t>(inputSource);
@@ -668,7 +640,7 @@ class Timer {
                     timer.ccer.volatileStore(ccer);
                     return true;
                 }
-                case 2: {
+                case 1: {
                     if (static_cast<uint32_t>(inputSource) & 0b100) return false;  // Selected TI3 or TI4 witch is forbidden on this channel
                     static constexpr const uint8_t map[4] = {0b00, 0b10, 0b01, 0b11};
                     auto ccmr1 = timer.ccmr1.volatileLoad();
@@ -684,7 +656,7 @@ class Timer {
                     timer.ccer.volatileStore(ccer);
                     return true;
                 }
-                case 3: {
+                case 2: {
                     if (!(static_cast<uint32_t>(inputSource) & 0b100)) return false;  // Selected TI1 or TI2 witch is forbidden on this channel
                     auto ccmr2 = timer.ccmr2.volatileLoad();
                     ccmr2.bitfieldInput.CC3S =
@@ -700,7 +672,7 @@ class Timer {
                     timer.ccer.volatileStore(ccer);
                     return true;
                 }
-                case 4: {
+                case 3: {
                     if (!(static_cast<uint32_t>(inputSource) & 0b100)) return false;  // Selected TI1 or TI2 witch is forbidden on this channel
                     static constexpr const uint8_t map2[4] = {0b00, 0b10, 0b01, 0b11};
                     auto ccmr2 = timer.ccmr2.volatileLoad();
@@ -721,13 +693,13 @@ class Timer {
         }
 
         void setInputPrescaler(InputPrescaler inputPrescaler) {
-            if (captureChannelNumber < 3) {
+            if (captureChannelNumber < 2) {
                 auto ccmr1 = timer.ccmr1.volatileLoad();
                 switch (captureChannelNumber) {
-                    case 1:
+                    case 0:
                         ccmr1.bitfieldInput.IC1PSC = static_cast<uint32_t>(inputPrescaler);
                         break;
-                    case 2:
+                    case 1:
                         ccmr1.bitfieldInput.IC2PSC = static_cast<uint32_t>(inputPrescaler);
                         break;
                 }
@@ -735,10 +707,10 @@ class Timer {
             } else {
                 auto ccmr2 = timer.ccmr2.volatileLoad();
                 switch (captureChannelNumber) {
-                    case 3:
+                    case 2:
                         ccmr2.bitfieldInput.IC3PSC = static_cast<uint32_t>(inputPrescaler);
                         break;
-                    case 4:
+                    case 3:
                         ccmr2.bitfieldInput.IC4PSC = static_cast<uint32_t>(inputPrescaler);
                         break;
                 }
@@ -746,20 +718,7 @@ class Timer {
             }
         }
 
-        uint32_t getValue() {
-            return timer.ccr[captureChannelNumber].volatileLoad();
-            //            switch (captureChannelNumber) {
-            //                case 1:
-            //                    return timer.CCR1;
-            //                case 2:
-            //                    return timer.CCR2;
-            //                case 3:
-            //                    return timer.CCR3;
-            //                case 4:
-            //                    return timer.CCR4;
-            //            }
-            //            std::terminate();
-        }
+        uint32_t getValue() { return timer.ccr[captureChannelNumber].volatileLoad(); }
 
      private:
         registers::TIM &timer;

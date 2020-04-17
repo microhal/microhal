@@ -79,8 +79,8 @@ void DMA1_Channel5_IRQHandler(void) __attribute__((interrupt, weak, alias("__Def
 void DMA1_Channel6_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void DMA1_Channel7_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void ADC1_2_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void CAN_TX_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
-void CAN_RX0_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void USB_HP_CAN_TX_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void USB_LP_CAN_RX0_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void CAN_RX1_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void CAN_SCE_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
 void EXTI9_5_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
@@ -137,42 +137,42 @@ void Reset_Handler(void);  // import the address of Reset_Handler()
 
 void (*const vectors[])(void) __attribute__((section(".vectors"), used)) = {
     (void (*)(void)) & __main_stack_end,  // Main stack end address
-    Reset_Handler,                        // Reset
-    NMI_Handler,                          // Non-maskable interrupt (RCC clock security system)
-    HardFault_Handler,                    // All class of fault
-    MemManage_Handler,                    // Memory management
-    BusFault_Handler,                     // Pre-fetch fault, memory access fault
-    UsageFault_Handler,                   // Undefined instruction or illegal state
-    Reserved_Handler,                     // Reserved
-    Reserved_Handler,                     // Reserved
-    Reserved_Handler,                     // Reserved
-    Reserved_Handler,                     // Reserved
-    SVC_Handler,                          // 0x2C System service call via SWI instruction
-    DebugMon_Handler,                     // 0x30 Debug monitor
-    Reserved_Handler,                     // 0x34 Reserved
-    PendSV_Handler,                       // 0x38 Pendable request for system service
-    SysTick_Handler,                      // 0x3C System tick timer
-    WWDG_IRQHandler,                      // Window WatchDog
-    PVD_IRQHandler,                       // PVD through EXTI Line detection
-    TAMP_STAMP_IRQHandler,                // Tamper and TimeStamps through the EXTI line
-    RTC_WKUP_IRQHandler,                  // RTC Wakeup through the EXTI line
-    FLASH_IRQHandler,                     // FLASH
-    RCC_IRQHandler,                       // RCC
-    EXTI0_IRQHandler,                     // EXTI Line0
-    EXTI1_IRQHandler,                     // EXTI Line1
-    EXTI2_IRQHandler,                     // EXTI Line2
-    EXTI3_IRQHandler,                     // EXTI Line3
-    EXTI4_IRQHandler,                     // EXTI Line4
-    DMA1_Channel1_IRQHandler,             // DMA1 Channel 1
-    DMA1_Channel2_IRQHandler,             // DMA1 Channel 2
-    DMA1_Channel3_IRQHandler,             // DMA1 Channel 3
-    DMA1_Channel4_IRQHandler,             // DMA1 Channel 4
-    DMA1_Channel5_IRQHandler,             // DMA1 Channel 5
-    DMA1_Channel6_IRQHandler,             // DMA1 Channel 6
-    DMA1_Channel7_IRQHandler,             // DMA1 Channel 7
-    ADC1_2_IRQHandler,                    // ADC1, ADC2 and ADC3s
-    CAN_TX_IRQHandler,                    // CAN1 TX
-    CAN_RX0_IRQHandler,                   // CAN1 RX0
+    Reset_Handler,                        // 1 Reset
+    NMI_Handler,                          // 2 Non-maskable interrupt (RCC clock security system)
+    HardFault_Handler,                    // 3 All class of fault
+    MemManage_Handler,                    // 4 Memory management
+    BusFault_Handler,                     // 5 Pre-fetch fault, memory access fault
+    UsageFault_Handler,                   // 6 Undefined instruction or illegal state
+    Reserved_Handler,                     // 7 Reserved
+    Reserved_Handler,                     // 8 Reserved
+    Reserved_Handler,                     // 9 Reserved
+    Reserved_Handler,                     // 10 Reserved
+    SVC_Handler,                          // 11 0x2C System service call via SWI instruction
+    DebugMon_Handler,                     // 12 0x30 Debug monitor
+    Reserved_Handler,                     // 13 0x34 Reserved
+    PendSV_Handler,                       // 14 0x38 Pendable request for system service
+    SysTick_Handler,                      // 15 0x3C System tick timer
+    WWDG_IRQHandler,                      // 16 Window WatchDog
+    PVD_IRQHandler,                       // 17 PVD through EXTI Line detection
+    TAMP_STAMP_IRQHandler,                // 18 Tamper and TimeStamps through the EXTI line
+    RTC_WKUP_IRQHandler,                  // 19 RTC Wakeup through the EXTI line
+    FLASH_IRQHandler,                     // 20 FLASH
+    RCC_IRQHandler,                       // 21 RCC
+    EXTI0_IRQHandler,                     // 22 EXTI Line0
+    EXTI1_IRQHandler,                     // 23 EXTI Line1
+    EXTI2_IRQHandler,                     // 24 EXTI Line2
+    EXTI3_IRQHandler,                     // 25 EXTI Line3
+    EXTI4_IRQHandler,                     // 26 EXTI Line4
+    DMA1_Channel1_IRQHandler,             // 27 DMA1 Channel 1
+    DMA1_Channel2_IRQHandler,             // 28 DMA1 Channel 2
+    DMA1_Channel3_IRQHandler,             // 29 DMA1 Channel 3
+    DMA1_Channel4_IRQHandler,             // 30 DMA1 Channel 4
+    DMA1_Channel5_IRQHandler,             // 31 DMA1 Channel 5
+    DMA1_Channel6_IRQHandler,             // 32 DMA1 Channel 6
+    DMA1_Channel7_IRQHandler,             // 33 DMA1 Channel 7
+    ADC1_2_IRQHandler,                    // 34 ADC1, ADC2 and ADC3s
+    USB_HP_CAN_TX_IRQHandler,             // 35 CAN1 TX
+    USB_LP_CAN_RX0_IRQHandler,            // 36 CAN1 RX0
     CAN_RX1_IRQHandler,                   // CAN1 RX1
     CAN_SCE_IRQHandler,                   // CAN1 SCE
     EXTI9_5_IRQHandler,                   // External Line[9:5]s

@@ -8,10 +8,15 @@
 #ifndef GTHR_MICROHAL_H_
 #define GTHR_MICROHAL_H_
 
-#if defined(HAL_RTOS_FreeRTOS)
+#include "microhalConfig.h"
+
+#if defined(MICROHAL_RTOS_FreeRTOS)
+#define HAL_RTOS_FreeRTOS
 #include "freeRTOS/gthr-freeRTOS.h"
-#else
+#elif defined(MICROHAL_RTOS_NoRTOS)
 #include "noRTOS/empty_port.h"
+#else
+#error
 #endif
 
 #endif /* GTHR_MICROHAL_H_ */

@@ -19,6 +19,10 @@ typedef enum {
 
 typedef enum { MISO, MOSI, SCK } SpiPinType;
 
+typedef enum { DP, DM } USBPinType;
+
+typedef enum { SCL, SDA } i2cPinType;
+
 namespace stm32f1xx {
 
 class IOManager {
@@ -33,10 +37,10 @@ class IOManager {
 
         if constexpr (serial == 1) {
             if constexpr (serialType == Txd)
-                static_assert((port == IOPin::PortA && pinNr == 9) || (port == IOPin::PortB && pinNr == 6) || (port == IOPin::PortC && pinNr == 4),
+                static_assert(pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 6} || pin == IOPin{IOPin::PortC, 4},
                               "Serial1 Txd can be connected only to: PortA.9, PortB.6 or PortC.4.");
             if constexpr (serialType == Rxd)
-                static_assert((port == IOPin::PortA && pinNr == 10) || (port == IOPin::PortB && pinNr == 7) || (port == IOPin::PortC && pinNr == 5),
+                static_assert(pin == IOPin{IOPin::PortA, 10} || pin == IOPin{IOPin::PortB, 7} || pin == IOPin{IOPin::PortC, 5},
                               "Serial1 Rxd can be connected only to: PortA.10, PortB.7 or PortC.5.");
         }
         if constexpr (serial == 2) {
@@ -153,6 +157,52 @@ class IOManager {
                     break;
             }
         }
+    }
+
+    template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeTimer(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull,
+                           stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OutputType::PushPull) {
+        constexpr IOPin pin(port, pinNr);
+
+        GPIO::AlternateFunction alternateFunction = GPIO::AlternateFunction::AF2;
+
+        stm32f1xx::GPIO gpio(pin);
+        gpio.setAlternateFunctionOutput(alternateFunction, pull, type);
+    }
+
+    template <USBPinType usbType, stm32f1xx::IOPin::Port port, stm32f1xx::IOPin::Pin pinNr>
+    static void routeUSB() {
+        constexpr IOPin pin(port, pinNr);
+
+        if constexpr (usbType == DM) static_assert(pin == IOPin{IOPin::PortA, 11}, "USB1 DM can be connected only to: PortA.11.");
+        if constexpr (usbType == DP) static_assert(pin == IOPin{IOPin::PortA, 12}, "USB1 DP can be connected only to: PortA.12.");
+
+        stm32f1xx::GPIO gpio(pin);
+        gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+    }
+
+    template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
+    static void routeI2C(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OpenDrain) {
+        constexpr IOPin pin(port, pinNr);
+
+        static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
+        static_assert(i2cNumber <= 2, "STM32F1xx has only 1 I2C.");
+        // clang-format off
+		//assert for I2C1
+        if constexpr (i2cNumber == 1) {
+            if constexpr (i2cType == SDA) static_assert(pin == IOPin{IOPin::PortB, 7}, "I2C1 SDA can be connected only to: PortB.7.");
+            if constexpr (i2cType == SCL) static_assert(pin == IOPin{IOPin::PortB, 6}, "I2C1 SCL can be connected only to: PortB.6.");
+        }
+        //assert for I2C1
+        if constexpr (i2cNumber == 2) {
+            if constexpr (i2cType == SDA) static_assert(pin == IOPin{IOPin::PortB, 11}, "I2C1 SDA can be connected only to: PortB.11.");
+            if constexpr (i2cType == SCL) static_assert(pin == IOPin{IOPin::PortB, 10}, "I2C1 SCL can be connected only to: PortB.10.");
+        }
+        // clang-format on
+        // stm32f0xx::GPIO gpio(pin);
+        // gpio.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, pull, type);
+        stm32f1xx::GPIO gpio(pin);
+        gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, pull, type);
     }
 };
 }  // namespace stm32f1xx

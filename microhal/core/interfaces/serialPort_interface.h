@@ -77,7 +77,7 @@ class SerialPort : public microhal::IODevice {
      * This enum describes the number of data bits used.
      */
     enum DataBits {
-        Data5,           ///<	Five bits.
+        Data5 = 5,       ///<	Five bits.
         Data6,           ///< 	Six bits.
         Data7,           ///< 	Seven bits.
         Data8,           ///<	Eight bits.

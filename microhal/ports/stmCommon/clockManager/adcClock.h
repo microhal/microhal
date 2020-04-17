@@ -84,6 +84,7 @@ static void disableADC(uint16_t adcNumber, PowerMode mode) {
 #else
 
 static void enableADC(uint16_t adcNumber) {
+#if defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC12EN) || defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC34EN)
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
 
     if (adcNumber == 1) {
@@ -101,8 +102,25 @@ static void enableADC(uint16_t adcNumber) {
     }
 
     registers::rcc->ahb1enr.volatileStore(ahb1enr);
+#endif
+
+#if defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC1EN) || defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC2EN) || \
+    defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC3EN)
+    auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+    if (adcNumber == 1) {
+        apb2enr.ADC1EN.set();
+    } else if (adcNumber == 2) {
+        apb2enr.ADC2EN.set();
+    } else if (adcNumber == 3) {
+        apb2enr.ADC3EN.set();
+    } else {
+        std::terminate();
+    }
+    registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
 }
 static void disableADC(uint16_t adcNumber) {
+#if defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC12EN) || defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC34EN)
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
 
     if (adcNumber == 1) {
@@ -120,6 +138,22 @@ static void disableADC(uint16_t adcNumber) {
     }
 
     registers::rcc->ahb1enr.volatileStore(ahb1enr);
+#endif
+
+#if defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC1EN) || defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC2EN) || \
+    defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC3EN)
+    auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+    if (adcNumber == 1) {
+        apb2enr.ADC1EN.clear();
+    } else if (adcNumber == 2) {
+        apb2enr.ADC2EN.clear();
+    } else if (adcNumber == 3) {
+        apb2enr.ADC3EN.clear();
+    } else {
+        std::terminate();
+    }
+    registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
 }
 
 #endif  // defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
