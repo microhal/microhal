@@ -30,20 +30,27 @@
 #ifndef _MICROHAL_PORTS_SERIALPORT_STMCOMMON_H_
 #define _MICROHAL_PORTS_SERIALPORT_STMCOMMON_H_
 /* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#include "serialPort_preprocessor_macros.h"
+#if ENABLED_ANY_SERIAL_PORT(POLLING) || ENABLED_ANY_SERIAL_PORT(INTERRUPT) || \
+    ENABLED_ANY_SERIAL_PORT(DMA)  // Check if driver is enabled in microhal port config
+/* ************************************************************************************************
  * INCLUDES
  */
 #include <cstdint>
-#include "clockManager/usartClock.h"
+#include "../clockManager/usartClock.h"
+#include "../stmCommonDefines.h"
 #include "interfaces/serialPort_interface.h"
-#include "stmCommonDefines.h"
-
 #include _MICROHAL_INCLUDE_PORT_DEVICE
-#include _MICROHAL_INCLUDE_PORT_CONFIG
 
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
-#include "registers/usartRegisters_v2.h"
+#include "../registers/usartRegisters_v2.h"
 #else
-#include "registers/usartRegisters_v1.h"
+#include "../registers/usartRegisters_v1.h"
 #endif
 
 namespace microhal {
@@ -181,4 +188,6 @@ class SerialPort : public microhal::SerialPort {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
+#endif  // ENABLED_ANY_SERIAL_PORT(POLLING) || ENABLED_ANY_SERIAL_PORT(INTERRUPT) || ENABLED_ANY_SERIAL_PORT(DMA)
+#endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1
 #endif  // _MICROHAL_PORTS_SERIALPORT_STMCOMMON_H_

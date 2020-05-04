@@ -27,12 +27,18 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "serialPort_stmCommon.h"
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#if _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_SERIAL_PORT(POLLING) || ENABLED_ANY_SERIAL_PORT(INTERRUPT) || \
+    ENABLED_ANY_SERIAL_PORT(DMA)  // Check if driver is enabled in microhal port config
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-
-#include "ports/stm32f3xx/serialPort_stm32f3xx.h"
-#include "stmCommonDefines.h"
+#include "../stmCommonDefines.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -104,3 +110,6 @@ bool SerialPort::setDataBits(SerialPort::DataBits dataBits) noexcept {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
+#endif  // ENABLED_ANY_SPI(POLLING) || ENABLED_ANY_SPI(INTERRUPT) || ENABLED_ANY_SPI(DMA)
+#endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1

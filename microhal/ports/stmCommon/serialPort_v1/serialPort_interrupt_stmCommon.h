@@ -30,12 +30,19 @@
 #ifndef _MICROHAL_PORTS_SERIALPORT_INTERRUPT_STMCOMMON_H_
 #define _MICROHAL_PORTS_SERIALPORT_INTERRUPT_STMCOMMON_H_
 /* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#include "serialPort_preprocessor_macros.h"
+#if ENABLED_ANY_SERIAL_PORT(INTERRUPT)  // Check if driver is enabled in microhal port config
+/* ************************************************************************************************
  * INCLUDES
  */
 #include <thread>
 #include "buffers/cyclicBuffer.h"
 #include "ports/common/serialPort_bufferedBase.h"
-
 #include "stmCommonDefines.h"
 
 namespace microhal {
@@ -121,4 +128,6 @@ class SerialPort_interrupt : public common::SerialPort_BufferedBase<SerialPort_i
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
+#endif  // ENABLED_ANY_SERIAL_PORT(INTERRUPT)
+#endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1
 #endif  // _MICROHAL_PORTS_SERIALPORT_INTERRUPT_STMCOMMON_H_

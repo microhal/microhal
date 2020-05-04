@@ -28,10 +28,16 @@
  */
 
 /* ************************************************************************************************
- * INCLUDES
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
  */
 #include "serialPort_dma_stmCommon.h"
-#include "clockManager/usartClock.h"
+#if _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_SERIAL_PORT(DMA)                        // Check if driver is enabled in microhal port config
+/* ************************************************************************************************
+ * INCLUDES
+ */
+#include "../clockManager/usartClock.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -55,35 +61,35 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
     SerialPort &SerialPort::Serial##u = SerialPort_Dma::Serial##u;
 #endif
 
-#ifdef MICROHAL_USE_SERIAL_PORT1_DMA
+#if MICROHAL_USE_SERIAL_PORT1_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT1_DMA_TX_STREAM, MICROHAL_SERIAL_PORT1_DMA_RX_STREAM, 1, dma2)
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_DMA
+#if MICROHAL_USE_SERIAL_PORT2_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT2_DMA_TX_STREAM, MICROHAL_SERIAL_PORT2_DMA_RX_STREAM, 2, dma1)
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_DMA
+#if MICROHAL_USE_SERIAL_PORT3_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT3_DMA_TX_STREAM, MICROHAL_SERIAL_PORT3_DMA_RX_STREAM, 3, dma1)
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_DMA
+#if MICROHAL_USE_SERIAL_PORT4_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT4_DMA_TX_STREAM, MICROHAL_SERIAL_PORT4_DMA_RX_STREAM, 4, dma1)
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT5_DMA
+#if MICROHAL_USE_SERIAL_PORT5_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT5_DMA_TX_STREAM, MICROHAL_SERIAL_PORT5_DMA_RX_STREAM, 5, dma1)
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_DMA
+#if MICROHAL_USE_SERIAL_PORT6_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT6_DMA_TX_STREAM, MICROHAL_SERIAL_PORT6_DMA_RX_STREAM, 6, dma2)
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT7_DMA
+#if MICROHAL_USE_SERIAL_PORT7_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT7_DMA_TX_STREAM, MICROHAL_SERIAL_PORT7_DMA_RX_STREAM, 7, dma1)
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT8_DMA
+#if MICROHAL_USE_SERIAL_PORT8_DMA == 1
 _MICROHAL_SERIALPORT_DMA_OBJECT_CREATE(MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE, MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE,
                                        MICROHAL_SERIAL_PORT8_DMA_TX_STREAM, MICROHAL_SERIAL_PORT8_DMA_RX_STREAM, 8, dma1)
 #endif
@@ -339,7 +345,7 @@ void DMA_tx_function(SerialPort_Dma &serial) {
     }
 #endif
 // ---------------------------- serial port 1
-#ifdef MICROHAL_USE_SERIAL_PORT1_DMA
+#if MICROHAL_USE_SERIAL_PORT1_DMA == 1
 void USART1_IRQHandler(void) {
     serialPort_interruptFunction(registers::usart1, SerialPort_Dma::Serial1);
 }
@@ -347,7 +353,7 @@ DMA2_RX_STREAM_IRQHANDLER(Serial1, MICROHAL_SERIAL_PORT1_DMA_RX_STREAM)
 DMA2_TX_STREAM_IRQHANDLER(Serial1, MICROHAL_SERIAL_PORT1_DMA_TX_STREAM)
 #endif
 // ---------------------------- serial port 2
-#ifdef MICROHAL_USE_SERIAL_PORT2_DMA
+#if MICROHAL_USE_SERIAL_PORT2_DMA == 1
 void USART2_IRQHandler(void) {
     serialPort_interruptFunction(registers::usart2, SerialPort_Dma::Serial2);
 }
@@ -355,7 +361,7 @@ DMA1_RX_STREAM_IRQHANDLER(Serial2, MICROHAL_SERIAL_PORT2_DMA_RX_STREAM)
 DMA1_TX_STREAM_IRQHANDLER(Serial2, MICROHAL_SERIAL_PORT2_DMA_TX_STREAM)
 #endif
 // ---------------------------- serial port 3
-#ifdef MICROHAL_USE_SERIAL_PORT3_DMA
+#if MICROHAL_USE_SERIAL_PORT3_DMA == 1
 void USART3_IRQHandler(void) {
     serialPort_interruptFunction(registers::usart3, SerialPort_Dma::Serial3);
 }
@@ -363,7 +369,7 @@ DMA1_RX_STREAM_IRQHANDLER(Serial3, MICROHAL_SERIAL_PORT3_DMA_RX_STREAM)
 DMA1_TX_STREAM_IRQHANDLER(Serial3, MICROHAL_SERIAL_PORT3_DMA_TX_STREAM)
 #endif
 // ---------------------------- serial port 4
-#ifdef MICROHAL_USE_SERIAL_PORT4_DMA
+#if MICROHAL_USE_SERIAL_PORT4_DMA == 1
 void UART4_IRQHandler(void) {
     serialPort_interruptFunction(registers::uart4, SerialPort_Dma::Serial4);
 }
@@ -372,7 +378,7 @@ DMA1_TX_STREAM_IRQHANDLER(Serial4, MICROHAL_SERIAL_PORT4_DMA_TX_STREAM)
 }
 #endif
 // ---------------------------- serial port 5
-#ifdef MICROHAL_USE_SERIAL_PORT5_DMA
+#if MICROHAL_USE_SERIAL_PORT5_DMA == 1
 void UART5_IRQHandler(void) {
     serialPort_interruptFunction(registers::uart5, SerialPort_Dma::Serial5);
 }
@@ -380,7 +386,7 @@ DMA1_RX_STREAM_IRQHANDLER(Serial5, MICROHAL_SERIAL_PORT5_DMA_RX_STREAM)
 DMA1_TX_STREAM_IRQHANDLER(Serial5, MICROHAL_SERIAL_PORT5_DMA_TX_STREAM)
 #endif
 // ---------------------------- serial port 6
-#ifdef MICROHAL_USE_SERIAL_PORT6_DMA
+#if MICROHAL_USE_SERIAL_PORT6_DMA == 1
 void USART6_IRQHandler(void) {
     serialPort_interruptFunction(registers::usart6, SerialPort_Dma::Serial6);
 }
@@ -388,7 +394,7 @@ DMA2_RX_STREAM_IRQHANDLER(Serial6, MICROHAL_SERIAL_PORT6_DMA_RX_STREAM)
 DMA2_TX_STREAM_IRQHANDLER(Serial6, MICROHAL_SERIAL_PORT6_DMA_TX_STREAM)
 #endif
 // ---------------------------- serial port 7
-#ifdef MICROHAL_USE_SERIAL_PORT7_DMA
+#if MICROHAL_USE_SERIAL_PORT7_DMA == 1
 void UART7_IRQHandler(void) {
     serialPort_interruptFunction(registers::usart7, SerialPort_Dma::Serial7);
 }
@@ -396,7 +402,7 @@ DMA1_RX_STREAM_IRQHANDLER(Serial7, MICROHAL_SERIAL_PORT7_DMA_RX_STREAM)
 DMA1_TX_STREAM_IRQHANDLER(Serial7, MICROHAL_SERIAL_PORT7_DMA_TX_STREAM)
 #endif
 // ---------------------------- serial port 8
-#ifdef MICROHAL_USE_SERIAL_PORT8_DMA
+#if MICROHAL_USE_SERIAL_PORT8_DMA == 1
 void UART8_IRQHandler(void) {
     serialPort_interruptFunction(registers::uart8, SerialPort_Dma::Serial8);
 }
@@ -406,3 +412,6 @@ DMA1_TX_STREAM_IRQHANDLER(Serial8, MICROHAL_SERIAL_PORT8_DMA_TX_STREAM)
 
 }  // namespace microhal
 }  // namespace microhal
+
+#endif  // ENABLED_ANY_SERIAL_PORT(POLLING)
+#endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1

@@ -30,15 +30,20 @@
 #ifndef _MICROHAL_PORTS_SERIALPORT_DMA_STMCOMMON_H_
 #define _MICROHAL_PORTS_SERIALPORT_DMA_STMCOMMON_H_
 /* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#include "serialPort_preprocessor_macros.h"
+#if ENABLED_ANY_SERIAL_PORT(DMA)   // Check if driver is enabled in microhal port config
+#ifdef _MICROHAL_INCLUDE_PORT_DMA  // Check if port have DMA driver
+/* ************************************************************************************************
  * INCLUDES
  */
 #include "buffers/cyclicBuffer.h"
 #include "microhal_semaphore.h"
 #include "ports/common/serialPort_bufferedBase.h"
-#include "stmCommonDefines.h"
-
-#ifdef _MICROHAL_INCLUDE_PORT_DMA
-
 #include _MICROHAL_INCLUDE_PORT_DMA
 
 namespace microhal {
@@ -59,28 +64,28 @@ void USART6_IRQHandler(void);
  */
 class SerialPort_Dma : public common::SerialPort_BufferedBase<SerialPort_Dma> {
  public:
-#ifdef MICROHAL_USE_SERIAL_PORT1_DMA
+#if MICROHAL_USE_SERIAL_PORT1_DMA == 1
     static SerialPort_Dma Serial1;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_DMA
+#if MICROHAL_USE_SERIAL_PORT2_DMA == 1
     static SerialPort_Dma Serial2;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_DMA
+#if MICROHAL_USE_SERIAL_PORT3_DMA == 1
     static SerialPort_Dma Serial3;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_DMA
+#if MICROHAL_USE_SERIAL_PORT4_DMA == 1
     static SerialPort_Dma Serial4;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT5_DMA
+#if MICROHAL_USE_SERIAL_PORT5_DMA == 1
     static SerialPort_Dma Serial5;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_DMA
+#if MICROHAL_USE_SERIAL_PORT6_DMA == 1
     static SerialPort_Dma Serial6;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT7_DMA
+#if MICROHAL_USE_SERIAL_PORT7_DMA == 1
     static SerialPort_Dma Serial7;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT8_DMA
+#if MICROHAL_USE_SERIAL_PORT8_DMA == 1
     static SerialPort_Dma Serial8;
 #endif
     //--------------------------------------------- functions ---------------------------------------//
@@ -155,6 +160,7 @@ class SerialPort_Dma : public common::SerialPort_BufferedBase<SerialPort_Dma> {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-#endif
-
+#endif  // _MICROHAL_INCLUDE_PORT_DMA
+#endif  // ENABLED_ANY_SERIAL_PORT(DMA)
+#endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1
 #endif  // _MICROHAL_PORTS_SERIALPORT_DMA_STMCOMMON_H_

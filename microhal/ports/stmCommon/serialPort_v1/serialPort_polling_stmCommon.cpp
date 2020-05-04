@@ -27,11 +27,16 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include "serialPort_polling_stmCommon.h"
+#if _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_SERIAL_PORT(POLLING)                    // Check if driver is enabled in microhal port config
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-
-#include "serialPort_polling_stmCommon.h"
 #include "clockManager/usartClock.h"
 
 namespace microhal {
@@ -80,3 +85,6 @@ SerialPort_polling::SerialPort_polling(registers::USART &usart) : SerialPort(usa
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
+#endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1
+#endif  // _MICROHAL_PORTS_SERIALPORT_POLLING_STMCOMMON_H_
