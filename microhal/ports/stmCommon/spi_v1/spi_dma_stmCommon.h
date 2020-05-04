@@ -8,15 +8,18 @@
 #ifndef _MICROHAL_SPI_DMA_STMCOMMON_H_
 #define _MICROHAL_SPI_DMA_STMCOMMON_H_
 /* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include "spi_stmCommon.h"
+#if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_SPI(DMA)                        // Check if driver is enabled in microhal port config
+#ifdef _MICROHAL_INCLUDE_PORT_DMA               // Check if port have DMA driver
+/* ************************************************************************************************
  * INCLUDES
  */
 #include "microhal_semaphore.h"
-#include "spi_stmCommon.h"
-
-#ifdef _MICROHAL_INCLUDE_PORT_DMA
-
 #include _MICROHAL_INCLUDE_PORT_DMA
-#include _MICROHAL_INCLUDE_PORT_CONFIG
 #include _MICROHAL_INCLUDE_PORT_IOMANAGER
 
 #if !defined(MICROHAL_USE_SPI1_DMA)
@@ -229,6 +232,8 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-#endif
 
-#endif /* _MICROHAL_SPI_DMA_STMCOMMON_H_ */
+#endif  //_MICROHAL_INCLUDE_PORT_DMA
+#endif  // ENABLED_ANY_SPI(DMA)
+#endif  // _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1
+#endif  /* _MICROHAL_SPI_DMA_STMCOMMON_H_ */

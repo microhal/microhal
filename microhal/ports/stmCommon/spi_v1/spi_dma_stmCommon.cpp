@@ -8,6 +8,12 @@
  * INCLUDES
  */
 #include "spi_dma_stmCommon.h"
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_SPI(INTERRUPT)                  // Check if driver is enabled in microhal port config
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -309,3 +315,6 @@ DMA1_TX_STREAM_IRQHANDLER(spi6, MICROHAL_SPI6_DMA_TX_STREAM)
 #endif
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
+#endif  // ENABLED_ANY_SPI(INTERRUPT)
+#endif  // _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1

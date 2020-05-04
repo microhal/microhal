@@ -8,6 +8,14 @@
 #ifndef _MICROHAL_SPI_STMCOMMON_H_
 #define _MICROHAL_SPI_STMCOMMON_H_
 /* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#include "spi_preprocessor_macros.h"
+#if ENABLED_ANY_SPI(POLLING) || ENABLED_ANY_SPI(INTERRUPT) || ENABLED_ANY_SPI(DMA)  // Check if driver is enabled in microhal port config
+/* ************************************************************************************************
  * INCLUDES
  */
 #include <cmath>
@@ -18,7 +26,6 @@
 #include "../stmCommonDefines.h"
 #include "interfaces/spi_interface.h"
 #include _MICROHAL_INCLUDE_PORT_GPIO
-#include _MICROHAL_INCLUDE_PORT_CONFIG
 #include _MICROHAL_INCLUDE_PORT_DEVICE
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
@@ -280,4 +287,6 @@ class SPI : public microhal::SPI {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
+#endif  // ENABLED_ANY_SPI_POLLING || ENABLED_ANY_SPI_INTERRUPT || ENABLED_ANY_SPI_DMA
+#endif  //_MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1
 #endif  // _MICROHAL_SPI_STMCOMMON_H_

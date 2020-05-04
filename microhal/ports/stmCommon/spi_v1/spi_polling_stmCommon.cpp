@@ -8,6 +8,12 @@
  * INCLUDES
  */
 #include "spi_polling_stmCommon.h"
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_SPI(POLLING)                    // Check if driver is enabled in microhal port config
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -122,3 +128,6 @@ SPI::Error SPI_polling::writeRead(uint8_t data, uint8_t &receivedData) {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
+#endif  // ENABLED_ANY_SPI(POLLING)
+#endif  //_MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1

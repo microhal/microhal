@@ -6,6 +6,12 @@
  */
 
 #include "spi_stmCommon.h"
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1                                      // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_SPI(POLLING) || ENABLED_ANY_SPI(INTERRUPT) || ENABLED_ANY_SPI(DMA)  // Check if driver is enabled in microhal port config
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -26,3 +32,6 @@ SPI::Prescaler SPI::findClosestPrescaler(uint32_t prescaler) {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
+#endif  // ENABLED_ANY_SPI(POLLING) || ENABLED_ANY_SPI(INTERRUPT) || ENABLED_ANY_SPI(DMA)
+#endif  // _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1
