@@ -8,12 +8,12 @@
 #ifndef MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_HSE_H_
 #define MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_HSE_H_
 
+#include <microhalPortConfig_stm32f3xxold.h>
 #include <cstdint>
 #include <exception>
 #include "../stmCommonDefines.h"
 #include "apbClock.h"
 #include "clockTypes.h"
-#include _MICROHAL_INCLUDE_PORT_CONFIG
 
 #ifdef MCU_TYPE_STM32F0XX
 #include "ports/stm32f0xx/RCC_2.h"
