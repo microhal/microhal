@@ -10,7 +10,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "../clockManager.h"
+#include "ports/stmCommon/clockManager/spiClock.h"
 #include "../dma_stm32f3xx.h"
 #include "../spi_stm32f3xx.h"
 #include "microhal_semaphore.h"
