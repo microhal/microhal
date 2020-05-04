@@ -41,7 +41,7 @@
 #if defined(VENDOR_STMICROELECTRONICS)
 #include "ports/stmCommon/stmCommonDefines.h"
 
-#include "ports/stmCommon/serialPort_stmCommon.h"
+#include "ports/stmCommon/serialPort_v1/serialPort_stmCommon.h"
 
 #endif
 
