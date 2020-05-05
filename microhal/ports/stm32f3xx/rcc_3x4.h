@@ -7,6 +7,9 @@
 
 #undef RCC
 
+#define _MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC12EN
+#define _MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC34EN
+
 // Supported MCU: STM32F3x4
 namespace microhal {
 namespace registers {
@@ -429,6 +432,7 @@ struct RCC {
             microhal::Bitfield<uint32_t, 14, 1> SPI2EN;   /*!< SPI 2 clock enable */
             microhal::Bitfield<uint32_t, 15, 1> SPI3EN;   /*!< SPI 3 clock enable */
             microhal::Bitfield<uint32_t, 17, 1> USART2EN; /*!< USART 2 clock enable */
+            microhal::Bitfield<uint32_t, 18, 1> USART3EN; /*!< USART 3 clock enable */
             microhal::Bitfield<uint32_t, 21, 1> I2C1EN;   /*!< I2C 1 clock enable */
             microhal::Bitfield<uint32_t, 22, 1> I2C2EN;   /*!< I2C 2 clock enable */
             microhal::Bitfield<uint32_t, 23, 1> USBEN;    /*!< USB clock enable */
