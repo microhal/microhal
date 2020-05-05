@@ -6,6 +6,10 @@
  */
 
 #include "adc_stm_common.h"
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ */
+#if _MICROHAL_PORT_STM_ADC_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
 
 #include _MICROHAL_INCLUDE_PORT_DMA
 
@@ -248,3 +252,4 @@ void DMA1_Channel1_IRQHandler(void) {
 #endif
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif  // _MICROHAL_PORT_STM_ADC_DRIVER_VERSION

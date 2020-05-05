@@ -29,6 +29,11 @@
 
 #ifndef _MICROHAL_PORTS_ADC_STMCOMMON_H_
 #define _MICROHAL_PORTS_ADC_STMCOMMON_H_
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ */
+#include <ports/stmCommon/driverConfiguration_stmCommon.h>
+#if _MICROHAL_PORT_STM_ADC_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
@@ -376,4 +381,5 @@ class Adc final {
 };
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif  // _MICROHAL_PORT_STM_ADC_DRIVER_VERSION == 1
 #endif  // _MICROHAL_PORTS_ADC_STMCOMMON_H_
