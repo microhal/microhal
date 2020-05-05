@@ -32,8 +32,8 @@ OUTPUT_ARCH(arm);
 /* Handler mode (core exceptions / interrupts) can use only main stack */
 /* Thread mode can use main stack (default) or process stack - selected in CONTROL special register */
 
-__main_stack_size = 3024;
-__process_stack_size = 1024;
+__main_stack_size = DEFINED(__main_stack_size) ? __main_stack_size : 2048;
+__process_stack_size = DEFINED(__process_stack_size) ? __process_stack_size : 0;
 
 PROVIDE(__main_stack_size = __main_stack_size);
 PROVIDE(__process_stack_size = __process_stack_size);
@@ -52,6 +52,10 @@ __ram_start = ORIGIN(ram);
 __ram_size = LENGTH(ram);
 __ram_end = __ram_start + __ram_size;
 
+__ccm_ram_start = ORIGIN(ccm_ram);
+__ccm_ram_size = LENGTH(ccm_ram);
+__ccm_ram_end = __ccm_ram_start + __ccm_ram_size;
+
 PROVIDE(__rom_start = __rom_start);
 PROVIDE(__rom_size = __rom_size);
 PROVIDE(__rom_end = __rom_end);
@@ -59,6 +63,10 @@ PROVIDE(__rom_end = __rom_end);
 PROVIDE(__ram_start = __ram_start);
 PROVIDE(__ram_size = __ram_size);
 PROVIDE(__ram_end = __ram_end);
+
+PROVIDE(__ccm_ram_start = __ccm_ram_start);
+PROVIDE(__ccm_ram_size = __ccm_ram_size);
+PROVIDE(__ccm_ram_end = __ccm_ram_end);
 
 
 /*
@@ -204,14 +212,16 @@ SECTIONS
 		PROVIDE(__stack_end = __stack_end);
 	} > ccm_ram AT > ccm_ram
 
-	. = ALIGN(4);
-	__heap_start = .;
-	PROVIDE(__heap_start = __heap_start);
+	.heap : {
+		. = ALIGN(4);
+		__heap_start = .;
+		PROVIDE(__heap_start = __heap_start);
 
-	. = ALIGN(4);
-	__heap_end = __ram_end;
-	PROVIDE(__heap_end = __heap_end);
-
+		. = ALIGN(4);
+		__heap_end = __ccm_ram_end;
+		PROVIDE(__heap_end = __heap_end);
+	} > ccm_ram AT > ccm_ram
+	
 	.stab 				0 (NOLOAD) : { *(.stab) }
 	.stabstr 			0 (NOLOAD) : { *(.stabstr) }
 	/* DWARF debug sections.
