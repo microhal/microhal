@@ -92,17 +92,17 @@ static void enableADC(uint16_t adcNumber) {
 #if defined(ADC2)
     } else if (adcNumber == 2) {
         ahb1enr.ADC12EN.set();
-#endif
+#endif  // defined(ADC2)
 #if defined(ADC3)
     } else if (adcNumber == 3) {
         ahb1enr.ADC34EN.set();
-#endif
+#endif  // defined(ADC3)
     } else {
         std::terminate();
     }
 
     registers::rcc->ahb1enr.volatileStore(ahb1enr);
-#endif
+#endif  // defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC12EN) || defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC34EN)
 
 #if defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC1EN) || defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC2EN) || \
     defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC3EN)
