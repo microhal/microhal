@@ -32,7 +32,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "microhalPortConfig_stm32f3xx.h"
+#include <microhalPortConfig_stm32f3xx.h>
 
 /* **************************************************************************************************************************************************
  * CLASS
@@ -147,10 +147,10 @@ class IOManager {
         if (number == 1) {
             if (!(sck == IOPin{IOPin::PortA, 5} || sck == IOPin{IOPin::PortA, 12} || sck == IOPin{IOPin::PortB, 3} || sck == IOPin{IOPin::PortC, 7}))
                 return false;
-            if (!(miso == IOPin{IOPin::PortA, 6} || miso == IOPin{IOPin::PortA, 13} || miso == IOPin{IOPin::PortB, 5} ||
+            if (!(miso == IOPin{IOPin::PortA, 6} || miso == IOPin{IOPin::PortA, 13} || miso == IOPin{IOPin::PortB, 4} ||
                   miso == IOPin{IOPin::PortC, 8}))
                 return false;
-            if (!(mosi == IOPin{IOPin::PortA, 7} || mosi == IOPin{IOPin::PortB, 0} || mosi == IOPin{IOPin::PortB, 4} ||
+            if (!(mosi == IOPin{IOPin::PortA, 7} || mosi == IOPin{IOPin::PortB, 0} || mosi == IOPin{IOPin::PortB, 5} ||
                   mosi == IOPin{IOPin::PortC, 9} || mosi == IOPin{IOPin::PortF, 6}))
                 return false;
         } else if (number == 2) {
