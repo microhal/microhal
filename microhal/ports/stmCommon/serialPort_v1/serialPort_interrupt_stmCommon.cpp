@@ -37,60 +37,60 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "clockManager/usartClock.h"
+#include "../clockManager/usartClock.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 //***********************************************************************************************//
 //                                   STATIC VARIABLES
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT1_INTERRUPT == 1
 static char txBufferData_1[MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE];
 static char rxBufferData_1[MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial1(*registers::usart1, rxBufferData_1, txBufferData_1, sizeof(rxBufferData_1),
                                                    sizeof(txBufferData_1));
 SerialPort &SerialPort::Serial1 = SerialPort_interrupt::Serial1;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT2_INTERRUPT == 1
 static char txBufferData_2[MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE];
 static char rxBufferData_2[MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial2(*registers::usart2, rxBufferData_2, txBufferData_2, sizeof(rxBufferData_2),
                                                    sizeof(txBufferData_2));
 SerialPort &SerialPort::Serial2 = SerialPort_interrupt::Serial2;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT3_INTERRUPT == 1
 static char txBufferData_3[MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE];
 static char rxBufferData_3[MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial3(*registers::usart3, rxBufferData_3, txBufferData_3, sizeof(rxBufferData_3),
                                                    sizeof(txBufferData_3));
 SerialPort &SerialPort::Serial3 = SerialPort_interrupt::Serial3;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT4_INTERRUPT == 1
 static char txBufferData_4[MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE];
 static char rxBufferData_4[MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial4(*registers::uart4, rxBufferData_4, txBufferData_4, sizeof(rxBufferData_4), sizeof(txBufferData_4));
 SerialPort &SerialPort::Serial4 = SerialPort_interrupt::Serial4;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT5_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT5_INTERRUPT == 1
 static char txBufferData_5[MICROHAL_SERIAL_PORT5_TX_BUFFER_SIZE];
 static char rxBufferData_5[MICROHAL_SERIAL_PORT5_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial5(*registers::uart5, rxBufferData_5, txBufferData_5, sizeof(rxBufferData_5), sizeof(txBufferData_5));
 SerialPort &SerialPort::Serial5 = SerialPort_interrupt::Serial5;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT6_INTERRUPT == 1
 static char txBufferData_6[MICROHAL_SERIAL_PORT6_TX_BUFFER_SIZE];
 static char rxBufferData_6[MICROHAL_SERIAL_PORT6_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial6(*registers::usart6, rxBufferData_6, txBufferData_6, sizeof(rxBufferData_6),
                                                    sizeof(txBufferData_6));
 SerialPort &SerialPort::Serial6 = SerialPort_interrupt::Serial6;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT7_INTERRUPT == 1
 static char txBufferData_7[MICROHAL_SERIAL_PORT7_TX_BUFFER_SIZE];
 static char rxBufferData_7[MICROHAL_SERIAL_PORT7_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial7(*registers::uart7, rxBufferData_7, txBufferData_7, sizeof(rxBufferData_7), sizeof(txBufferData_7));
 SerialPort &SerialPort::Serial7 = SerialPort_interrupt::Serial7;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT8_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT8_INTERRUPT == 1
 static char txBufferData_8[MICROHAL_SERIAL_PORT8_TX_BUFFER_SIZE];
 static char rxBufferData_8[MICROHAL_SERIAL_PORT8_RX_BUFFER_SIZE];
 SerialPort_interrupt SerialPort_interrupt::Serial8(*registers::uart8, rxBufferData_8, txBufferData_8, sizeof(rxBufferData_8), sizeof(txBufferData_8));
@@ -223,42 +223,42 @@ void SerialPort_interrupt::__SerialPort_USART_interruptFunction() {
 //***********************************************************************************************//
 //                                          IRQHandlers                                          //
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT1_INTERRUPT == 1
 void USART1_IRQHandler(void) {
     SerialPort_interrupt::Serial1.__SerialPort_USART_interruptFunction();
 }
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT2_INTERRUPT == 1
 void USART2_IRQHandler(void) {
     SerialPort_interrupt::Serial2.__SerialPort_USART_interruptFunction();
 }
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT3_INTERRUPT == 1
 void USART3_IRQHandler(void) {
     SerialPort_interrupt::Serial3.__SerialPort_USART_interruptFunction();
 }
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT4_INTERRUPT == 1
 void UART4_IRQHandler(void) {
     SerialPort_interrupt::Serial4.__SerialPort_USART_interruptFunction();
 }
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT5_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT5_INTERRUPT == 1
 void UART5_IRQHandler(void) {
     SerialPort_interrupt::Serial5.__SerialPort_USART_interruptFunction();
 }
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT6_INTERRUPT == 1
 void USART6_IRQHandler(void) {
     SerialPort_interrupt::Serial6.__SerialPort_USART_interruptFunction();
 }
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT7_INTERRUPT == 1
 void UART7_IRQHandler(void) {
     SerialPort_interrupt::Serial7.__SerialPort_USART_interruptFunction();
 }
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT8_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT8_INTERRUPT == 1
 void UART8_IRQHandler(void) {
     SerialPort_interrupt::Serial8.__SerialPort_USART_interruptFunction();
 }

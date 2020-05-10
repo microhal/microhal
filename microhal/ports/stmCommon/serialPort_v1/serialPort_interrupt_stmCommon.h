@@ -41,9 +41,9 @@
  * INCLUDES
  */
 #include <thread>
+#include "../stmCommonDefines.h"
 #include "buffers/cyclicBuffer.h"
 #include "ports/common/serialPort_bufferedBase.h"
-#include "stmCommonDefines.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -65,28 +65,28 @@ void UART8_IRQHandler(void);
  */
 class SerialPort_interrupt : public common::SerialPort_BufferedBase<SerialPort_interrupt> {
  public:
-#ifdef MICROHAL_USE_SERIAL_PORT1_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT1_INTERRUPT == 1
     static SerialPort_interrupt Serial1;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT2_INTERRUPT == 1
     static SerialPort_interrupt Serial2;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT3_INTERRUPT == 1
     static SerialPort_interrupt Serial3;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT4_INTERRUPT == 1
     static SerialPort_interrupt Serial4;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT5_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT5_INTERRUPT == 1
     static SerialPort_interrupt Serial5;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT6_INTERRUPT == 1
     static SerialPort_interrupt Serial6;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT7_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT7_INTERRUPT == 1
     static SerialPort_interrupt Serial7;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT8_INTERRUPT
+#if MICROHAL_USE_SERIAL_PORT8_INTERRUPT == 1
     static SerialPort_interrupt Serial8;
 #endif
     //--------------------------------------------- functions ---------------------------------------//

@@ -39,7 +39,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "stmCommonDefines.h"
+#include "../stmCommonDefines.h"
 /* **************************************************************************************************************************************************
  * CLASS
  */
@@ -49,28 +49,28 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
  public:
-#ifdef MICROHAL_USE_SERIAL_PORT1_POLLING
+#if MICROHAL_USE_SERIAL_PORT1_POLLING == 1
     static SerialPort_polling Serial1;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT2_POLLING
+#if MICROHAL_USE_SERIAL_PORT2_POLLING == 1
     static SerialPort_polling Serial2;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT3_POLLING
+#if MICROHAL_USE_SERIAL_PORT3_POLLING == 1
     static SerialPort_polling Serial3;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_POLLING
+#if MICROHAL_USE_SERIAL_PORT4_POLLING == 1
     static SerialPort_polling Serial4;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT5_POLLING
+#if MICROHAL_USE_SERIAL_PORT5_POLLING == 1
     static SerialPort_polling Serial5;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT6_POLLING
+#if MICROHAL_USE_SERIAL_PORT6_POLLING == 1
     static SerialPort_polling Serial6;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT7_POLLING
+#if MICROHAL_USE_SERIAL_PORT7_POLLING == 1
     static SerialPort_polling Serial7;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT8_POLLING
+#if MICROHAL_USE_SERIAL_PORT8_POLLING == 1
     static SerialPort_polling Serial8;
 #endif
 

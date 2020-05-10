@@ -42,35 +42,35 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
-#if defined(MICROHAL_USE_SERIAL_PORT1_POLLING)
+#if MICROHAL_USE_SERIAL_PORT1_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial1(*registers::usart1);
 SerialPort &SerialPort::Serial1 = SerialPort_polling::Serial1;
 #endif
-#if defined(MICROHAL_USE_SERIAL_PORT2_POLLING)
+#if MICROHAL_USE_SERIAL_PORT2_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial2(*registers::usart2);
 SerialPort &SerialPort::Serial2 = SerialPort_polling::Serial2;
 #endif
-#if defined(MICROHAL_USE_SERIAL_PORT3_POLLING)
+#if MICROHAL_USE_SERIAL_PORT3_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial3(*registers::usart3);
 SerialPort &SerialPort::Serial3 = SerialPort_polling::Serial3;
 #endif
-#ifdef MICROHAL_USE_SERIAL_PORT4_POLLING
+#if MICROHAL_USE_SERIAL_PORT4_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial4(*registers::uart4);
 SerialPort &SerialPort::Serial4 = SerialPort_polling::Serial4;
 #endif
-#if defined(MICROHAL_USE_SERIAL_PORT5_POLLING)
+#if MICROHAL_USE_SERIAL_PORT5_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial5(*registers::uart5);
 SerialPort &SerialPort::Serial5 = SerialPort_polling::Serial5;
 #endif
-#if defined(MICROHAL_USE_SERIAL_PORT6_POLLING)
+#if MICROHAL_USE_SERIAL_PORT6_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial6(*registers::usart6);
 SerialPort &SerialPort::Serial6 = SerialPort_polling::Serial6;
 #endif
-#if defined(MICROHAL_USE_SERIAL_PORT7_POLLING)
+#if MICROHAL_USE_SERIAL_PORT7_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial7(*registers::uart7);
 SerialPort &SerialPort::Serial7 = SerialPort_polling::Serial7;
 #endif
-#if defined(MICROHAL_USE_SERIAL_PORT8_POLLING)
+#if MICROHAL_USE_SERIAL_PORT8_POLLING == 1
 SerialPort_polling SerialPort_polling::Serial8(*registers::uart8);
 SerialPort &SerialPort::Serial8 = SerialPort_polling::Serial8;
 #endif
