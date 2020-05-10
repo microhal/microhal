@@ -8,9 +8,10 @@
 #ifndef SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSE_H_
 #define SRC_MICROHAL_PORTS_STMCOMMON_CLOCKMANAGER_LSE_H_
 
-#include <microhalPortConfig_stm32f3xxold.h>
 #include <cstdint>
+
 #include "../stmCommonDefines.h"
+#include _MICROHAL_INCLUDE_PORT_CONFIG
 #include "clockTypes.h"
 
 #ifdef MCU_TYPE_STM32F0XX
