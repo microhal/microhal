@@ -29,6 +29,9 @@ void TIM3_IRQHandler(void) {
     if (sr & TIM_SR_UIF) {
         TIM3->SR &= ~TIM_SR_UIF;
     }
+    if (sr & TIM_SR_CC1IF) {
+        TIM3->SR &= ~TIM_SR_CC1IF;
+    }
     if (sr & TIM_SR_CC2IF) {
         TIM3->SR &= ~TIM_SR_CC2IF;
     }
