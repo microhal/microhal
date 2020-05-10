@@ -28,6 +28,13 @@
  */
 
 #include "i2c_interrupt_stmCommon.h"
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#if _MICROHAL_PORT_STM_I2C_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_I2C(INTERRUPT)                  // Check if driver is enabled in microhal port config
+
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 
 namespace microhal {
@@ -427,3 +434,5 @@ void I2C3_ER_IRQHandler(void) {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif
+#endif
