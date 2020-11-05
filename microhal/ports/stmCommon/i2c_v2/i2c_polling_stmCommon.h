@@ -30,6 +30,13 @@
 #ifndef _MICROHAL_I2C_POLLING_STMCOMMON_H_
 #define _MICROHAL_I2C_POLLING_STMCOMMON_H_
 /* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include "i2c_stmCommon.h"
+#if _MICROHAL_PORT_STM_I2C_DRIVER_VERSION == 2  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_I2C(POLLING)                    // Check if driver is enabled in microhal port config
+/* ************************************************************************************************
  * INCLUDES
  */
 #include <cstdint>
@@ -86,4 +93,6 @@ class I2C_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
+#endif
+#endif
 #endif  // _MICROHAL_I2C_POLLING_STMCOMMON_H_

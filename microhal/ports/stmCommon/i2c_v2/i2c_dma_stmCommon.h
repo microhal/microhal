@@ -29,6 +29,13 @@
 #ifndef _MICROHAL_I2C_DMA_STMCOMMON_H_
 #define _MICROHAL_I2C_DMA_STMCOMMON_H_
 /* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#include "i2c_stmCommon.h"
+#if _MICROHAL_PORT_I2C_I2C_DRIVER_VERSION == 2  // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_I2C(DMA)                        // Check if driver is enabled in microhal port config
+/* ************************************************************************************************
  * INCLUDES
  */
 #include <ports/stmCommon/i2c_v2/i2c_stmCommon.h>
@@ -152,5 +159,6 @@ class I2C_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-
+#endif  // ENABLED_ANY_I2C(DMA)
+#endif  // _MICROHAL_PORT_I2C_I2C_DRIVER_VERSION == 2
 #endif  // _MICROHAL_I2C_DMA_STMCOMMON_H_

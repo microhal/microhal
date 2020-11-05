@@ -6,6 +6,13 @@
  */
 
 #include "i2c_stmCommon.h"
+/* ************************************************************************************************
+ * 1.) Check if this driver should be used on selected MCU.
+ * 2.) Check if this driver is enabled in microhal port configuration file
+ */
+#if _MICROHAL_PORT_STM_I2C_DRIVER_VERSION == 2                                      // Check if driver is compatible with selected MCU
+#if ENABLED_ANY_I2C(POLLING) || ENABLED_ANY_I2C(INTERRUPT) || ENABLED_ANY_I2C(DMA)  // Check if driver is enabled in microhal port config
+
 #include "diagnostic/diagnostic.h"
 #include "ports/stmCommon/clockManager/i2cClock.h"
 
@@ -186,3 +193,6 @@ bool I2C::removeSlave(I2CSlave &i2cSlave) {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
+#endif
+#endif

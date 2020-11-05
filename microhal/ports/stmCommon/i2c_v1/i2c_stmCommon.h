@@ -35,7 +35,7 @@
  */
 #include <ports/stmCommon/driverConfiguration_stmCommon.h>
 #if _MICROHAL_PORT_STM_I2C_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
-#include "i2c_preprocessor_macros.h"
+#include <ports/stmCommon/preprocessor_macros/i2c_preprocessor_macros.h>
 #if ENABLED_ANY_I2C(POLLING) || ENABLED_ANY_I2C(INTERRUPT) || ENABLED_ANY_I2C(DMA)  // Check if driver is enabled in microhal port config
 
 /* ************************************************************************************************
