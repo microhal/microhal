@@ -253,8 +253,9 @@ class LogLevelChannel {
         return *this;
     }
 
+#if !defined LINUX_PORT && !defined WINDOWS_PORT
     LogLevelChannel &operator<<(int i) { return operator<<(static_cast<int32_t>(i)); }
-
+#endif
     LogLevelChannel &operator<<(uint8_t i) { return operator<<(static_cast<uint32_t>(i)); }
 
     LogLevelChannel &operator<<(uint16_t i) { return operator<<(static_cast<uint32_t>(i)); }
