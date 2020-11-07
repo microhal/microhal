@@ -35,6 +35,7 @@ namespace microhal {
 namespace ClockManager {
 namespace ClockManagerDetail {
 CREATE_SET_CLEAR_FUNCTION(CAN1EN)
+CREATE_SET_CLEAR_FUNCTION(CANEN)
 CREATE_SET_CLEAR_FUNCTION(CAN2EN)
 CREATE_SET_CLEAR_FUNCTION(CAN1LPEN)
 CREATE_SET_CLEAR_FUNCTION(CAN2LPEN)
@@ -76,6 +77,7 @@ CREATE_SET_CLEAR_FUNCTION(CAN2LPEN)
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     if (canNumber == 1) {
         ClockManagerDetail::set_CAN1EN_ifExist(apb1enr);
+        ClockManagerDetail::set_CANEN_ifExist(apb1enr);
     } else {
         ClockManagerDetail::set_CAN2EN_ifExist(apb1enr);
     }

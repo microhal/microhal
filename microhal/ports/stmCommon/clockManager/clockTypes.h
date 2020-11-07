@@ -48,14 +48,8 @@ namespace ClockManagerDetail {
         return a.x;                                                                         \
     }                                                                                       \
                                                                                             \
-    constexpr void set_##x##_ifExist(...) {                                                 \
-        while (1) {                                                                         \
-        }                                                                                   \
-    }                                                                                       \
-    constexpr void clear_##x##_ifExist(...) {                                               \
-        while (1) {                                                                         \
-        }                                                                                   \
-    }                                                                                       \
+    constexpr void set_##x##_ifExist(...) {}                                                \
+    constexpr void clear_##x##_ifExist(...) {}                                              \
     constexpr uint32_t get_##x##_ifExist(...) {                                             \
         while (1) {                                                                         \
         }                                                                                   \
