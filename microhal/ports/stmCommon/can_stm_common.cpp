@@ -709,53 +709,53 @@ void CAN::disableInterrupt() {
 }
 
 IRQn_Type CAN::txIrq() {
-#if defined(_MICROHAL_CAN_BASE)
-    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_TX_IRQn;
+#if defined(_MICROHAL_CAN_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_TX_IRQn;
 #endif
-#if defined(_MICROHAL_CAN1_BASE)
-    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_TX_IRQn;
+#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_TX_IRQn;
 #endif
-#if defined(_MICROHAL_CAN2_BASE)
-    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_TX_IRQn;
+#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_TX_IRQn;
 #endif
     std::terminate();
 }
 
 IRQn_Type CAN::rx0Irq() {
-#if defined(_MICROHAL_CAN_BASE)
-    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_RX0_IRQn;
+#if defined(_MICROHAL_CAN_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_RX0_IRQn;
 #endif
-#if defined(_MICROHAL_CAN1_BASE)
-    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_RX0_IRQn;
+#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_RX0_IRQn;
 #endif
-#if defined(_MICROHAL_CAN2_BASE)
-    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_RX0_IRQn;
+#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_RX0_IRQn;
 #endif
     std::terminate();
 }
 
 IRQn_Type CAN::rx1Irq() {
-#if defined(_MICROHAL_CAN_BASE)
-    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_RX1_IRQn;
+#if defined(_MICROHAL_CAN_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_RX1_IRQn;
 #endif
-#if defined(_MICROHAL_CAN1_BASE)
-    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_RX1_IRQn;
+#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_RX1_IRQn;
 #endif
-#if defined(_MICROHAL_CAN2_BASE)
-    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_RX1_IRQn;
+#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_RX1_IRQn;
 #endif
     std::terminate();
 }
 
 IRQn_Type CAN::sceIrq() {
-#if defined(_MICROHAL_CAN_BASE)
-    if ((int)&can == _MICROHAL_CAN_BASE) return CAN_SCE_IRQn;
+#if defined(_MICROHAL_CAN_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_SCE_IRQn;
 #endif
-#if defined(_MICROHAL_CAN1_BASE)
-    if ((int)&can == _MICROHAL_CAN1_BASE) return CAN1_SCE_IRQn;
+#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_SCE_IRQn;
 #endif
-#if defined(_MICROHAL_CAN2_BASE)
-    if ((int)&can == _MICROHAL_CAN2_BASE) return CAN2_SCE_IRQn;
+#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
+    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_SCE_IRQn;
 #endif
     std::terminate();
 }

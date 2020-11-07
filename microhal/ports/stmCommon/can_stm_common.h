@@ -80,7 +80,7 @@ class CAN final : public can::CAN_Interface {
 
     static constexpr const Protocol supportedProtocols[] = {Protocol::v2_0A, Protocol::V2_0B};
     static constexpr const uint32_t bitRateMax = 1000000;
-#if defined(CAN_BASE) || defined(CAN1_BASE) || defined(CAN2_BASE)
+#if defined(_MICROHAL_CAN_BASE_ADDRESS) || defined(_MICROHAL_CAN1_BASE_ADDRESS) || defined(_MICROHAL_CAN2_BASE_ADDRESS)
     CAN(microhal::registers::CAN *canDevice) : can(*canDevice) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
         ClockManager::enableCan(getNumber(), ClockManager::PowerMode::Normal);
@@ -89,7 +89,7 @@ class CAN final : public can::CAN_Interface {
 #endif
         if (canDevice == microhal::registers::can1) {
             objectPtr[0] = this;
-#ifdef _MICROHAL_CAN2_BASE
+#ifdef _MICROHAL_CAN2_BASE_ADDRESS
         } else if (canDevice == microhal::registers::can2) {
             objectPtr[1] = this;
 #endif
@@ -200,7 +200,7 @@ class CAN final : public can::CAN_Interface {
     uint8_t getNumber() {
         if (&can == registers::can1) {
             return 1;
-#ifdef _MICROHAL_CAN2_BASE
+#ifdef _MICROHAL_CAN2_BASE_ADDRESS
         } else if (&can == registers::can2) {
             return 2;
 #endif
