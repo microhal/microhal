@@ -63,7 +63,7 @@ CAN::~CAN() {
 
 bool CAN::transmit(const Message &message) {
     can_frame frame;
-    frame.can_id = message.getID();
+    frame.can_id = message.getID().getID();
     if (message.isExtendedID()) {
         frame.can_id &= CAN_EFF_MASK;
         frame.can_id |= CAN_EFF_FLAG;
@@ -113,7 +113,7 @@ bool CAN::waitForMessage(std::chrono::milliseconds timeout) const noexcept {
     return ret > 0;
 }
 
-canid_t convertCanId(CAN::Message::ID &id) {
+canid_t convertCanId(const CAN::Message::ID &id) {
     canid_t socketCanId = id.getID();
     if (id.isExtended()) {
         socketCanId |= CAN_EFF_FLAG;
@@ -123,31 +123,31 @@ canid_t convertCanId(CAN::Message::ID &id) {
     return socketCanId;
 }
 
-can_filter makeCanFilter(CAN::Message::ID id, uint32_t mask, bool isRemoteFrame) {
+can_filter makeCanFilter(const can::Filter &flt) {
     can_filter filter;
-    filter.can_id = convertCanId(id);
-    filter.can_mask = mask;
-    if (id.isExtended()) {
+    filter.can_id = convertCanId(flt.getID());
+    filter.can_mask = flt.getIDMask().getID();
+    if (flt.getID().isExtended()) {
         filter.can_mask |= CAN_EFF_FLAG;
     } else {
         filter.can_mask &= CAN_SFF_MASK;
     }
-    if (isRemoteFrame) {
+    if (flt.getMatchType() == can::Filter::Match::RemoteFrame) {
         filter.can_id |= CAN_RTR_FLAG;
         filter.can_mask |= CAN_RTR_FLAG;
     }
     return filter;
 }
 
-bool CAN::addFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) {
-    can_filter filter = makeCanFilter(id, mask, isRemoteFrame);
+bool CAN::addFilter(const can::Filter &flt) {
+    can_filter filter = makeCanFilter(flt);
     filters.push_back(filter);
     setsockopt(socketHandle, SOL_CAN_RAW, CAN_RAW_FILTER, filters.data(), sizeof(can_filter) * filters.size());
     return true;
 }
 
-bool CAN::removeFilter(Message::ID id, uint32_t mask, bool isRemoteFrame) {
-    can_filter filter = makeCanFilter(id, mask, isRemoteFrame);
+bool CAN::removeFilter(const can::Filter &flt) {
+    can_filter filter = makeCanFilter(flt);
     auto sizeBeforeRemove = filters.size();
     setsockopt(socketHandle, SOL_CAN_RAW, CAN_RAW_FILTER, NULL, 0);
     filters.erase(std::remove(filters.begin(), filters.end(), filter), filters.end());
