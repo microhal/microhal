@@ -63,6 +63,13 @@ class Filter {
     Message::ID getIDMask() const { return idMask; }
     Match getMatchType() const { return matchType; }
 
+    bool operator==(const Filter &b) const {
+        if (id != b.id) return false;
+        if (idMask != b.idMask) return false;
+        if (matchType != b.matchType) return false;
+        return true;
+    }
+
  private:
     Message::ID id;
     Message::ID idMask;
