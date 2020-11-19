@@ -58,6 +58,11 @@ class Message {
             return false;
         }
 
+        bool operator!=(const ID &rhs) const {
+            if (ide != rhs.ide || stid_exid != rhs.stid_exid) return true;
+            return false;
+        }
+
      protected:
         uint32_t ide : 2;
         uint32_t remote : 1;
