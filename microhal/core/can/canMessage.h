@@ -43,12 +43,13 @@ namespace can {
 
 class Message {
  public:
-    using span = gsl::span<uint8_t>;
+    using span = gsl::span<const uint8_t>;
 
     static constexpr size_t maxDataLength = 8;
 
     class ID {
      public:
+        bool isValid() const { return ide != 2; }
         bool isStandard() const { return ide == 0; }
         bool isExtended() const { return ide == 1; }
         uint32_t getID() const { return stid_exid; }
@@ -119,6 +120,7 @@ class Message {
         gsl::span<const uint8_t> d(data, size);
         return d;
     }
+    bool isValid() const { return id.isValid(); }
     bool isStandardID() const { return id.ide == 0; }
     bool isExtendedID() const { return id.ide == 1; }
     bool isRemoteFrame() const { return id.remote; }
@@ -126,10 +128,12 @@ class Message {
 
     bool operator==(const Message &b) const { return id.stid_exid == b.id.stid_exid && id.ide == b.id.ide && dataEqual(b); }
 
- private:
+ protected:
     ID id;
     uint_fast8_t size;
     uint8_t data[8];
+
+    void setRemoteValue(uint32_t remote) { id.remote = remote; }
 
     bool dataEqual(const Message &b) const {
         if (size != b.size) return false;
