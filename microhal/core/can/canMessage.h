@@ -130,8 +130,8 @@ class Message {
 
  protected:
     ID id;
-    uint_fast8_t size;
     uint8_t data[8];
+    uint8_t size;
 
     void setRemoteValue(uint32_t remote) { id.remote = remote; }
 
