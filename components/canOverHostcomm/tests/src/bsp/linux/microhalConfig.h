@@ -1,12 +1,14 @@
 /**
  * @license    BSD 3-Clause
+ * @copyright  Pawel Okas
  * @version    $Id$
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 7-10-2020
+ * created on: 01-01-2018
+ * last modification: 01-01-2018
  *
- * @copyright Copyright (c) 2020, Pawel Okas
+ * @copyright Copyright (c) 2018, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,31 +27,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MICROHAL_CANOVERHOSTCOMM_CAN_PACKET_H_
-#define MICROHAL_CANOVERHOSTCOMM_CAN_PACKET_H_
-
-#include "can/canMessage.h"
-#include "diagnostic/diagnostic.h"
-#include "hostCommPacket.h"
-
-#ifndef MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID
-#define MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID 0x21
-#endif
-
-namespace microhal {
-namespace communication {
-
-static_assert(sizeof(microhal::can::Message) == 16);
-
-class CANPacket : public microhal::HostCommDataPacket<microhal::can::Message, MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID> {
- public:
-    CANPacket() : microhal::HostCommDataPacket<microhal::can::Message, MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID>::HostCommDataPacket(false, false) {}
-    ~CANPacket() {}
-
-    enum { Request = MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID - 1 };
-};
-
-}  // namespace communication
-}  // namespace microhal
-
-#endif /* MICROHAL_CANOVERHOSTCOMM_CAN_PACKET_H_ */
+#ifndef _MICROHAL_MICROHALCONFIG_H_
+#define _MICROHAL_MICROHALCONFIG_H_
+/* **************************************************************************************************************************************************
+ * INCLUDES
+ */
+#define MICROHAL_RTOS_Linux
+// clang-format off
+//***********************************************************************************************//
+//                                    Diagnostic configuration                                   //
+//***********************************************************************************************//
+#define MICROHAL_DIAGNOSTIC_TEXT_VISIBLE		// when defined message text is printed in diagnostic channel messages
+#define MICROHAL_DIAGNOSTIC_LOG_LEVEL Debug		// Set compile time log level for embedded diagnostic channel (diagChannel)
+												// Emergency -> highest log priority
+												// Alert
+												// Critical
+												// Error
+												// Warning
+												// Notice
+												// Informational
+												// Debug  -> lowest log priority
+// clang_format on
+#endif  // _MICROHAL_MICROHALCONFIG_H_

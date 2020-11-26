@@ -29,8 +29,6 @@
 #include "canOverHostcomm.h"
 #include "doctest.h"
 
-#include "IODevice/virtualIODevice.h"
-
 using namespace microhal;
 using namespace std::literals;
 
@@ -38,57 +36,50 @@ namespace microhal {
 namespace communication {
 
 TEST_CASE("Testing CanOverHostcomm class") {
-    VirtualIODevice pcDevice;
-    VirtualIODevice rotorDevice;
-    CanOverHostcomm canOnPC(pcDevice, bsp::debugPort);
-    CanOverHostcomm canOnRotor(rotorDevice, bsp::debugPort);
+    CanOverHostcomm canOverHostcomm1(bsp::communicationPortA, bsp::debugPort);
+    CanOverHostcomm canOverHostcomm2(bsp::communicationPortB, bsp::debugPort);
 
-    REQUIRE(pcDevice.connect(rotorDevice));
-    REQUIRE(rotorDevice.connect(pcDevice));
-    REQUIRE(pcDevice.open(IODevice::ReadWrite));
-    REQUIRE(rotorDevice.open(IODevice::ReadWrite));
-
-    CANOver& can1 = canOnPC.getCan();
-    CANOver& rotorCan = canOnRotor.getCan();
+    HostcommCAN& canA1 = canOverHostcomm1.getCan();
+    HostcommCAN& canB = canOverHostcomm2.getCan();
     can::Filter filter(can::Message::StandardID(8),
                        can::Filter::Match::DataFrame | can::Filter::Match::RemoteFrame | can::Filter::Match::StandardIDAndExtendedID);
-    rotorCan.addFilter(filter);
+    canB.addFilter(filter);
 
     can::Message message(can::Message::StandardID(8));
-    CHECK(can1.transmit(message));
+    CHECK(canA1.transmit(message));
     std::this_thread::sleep_for(500ms);
     can::Message recMessage;
-    CHECK(rotorCan.receive(recMessage));
+    CHECK(canB.receive(recMessage));
     CHECK(message == recMessage);
-    CHECK_FALSE(rotorCan.receive(recMessage));
+    CHECK_FALSE(canB.receive(recMessage));
 
     message.setStandardID(9);
-    CHECK(can1.transmit(message));
+    CHECK(canA1.transmit(message));
     std::this_thread::sleep_for(500ms);
-    CHECK_FALSE(rotorCan.receive(recMessage));
+    CHECK_FALSE(canB.receive(recMessage));
 
     message.setExtendedID(8);
-    CHECK(can1.transmit(message));
+    CHECK(canA1.transmit(message));
     std::this_thread::sleep_for(500ms);
-    CHECK_FALSE(rotorCan.receive(recMessage));
+    CHECK_FALSE(canB.receive(recMessage));
 
     SUBCASE("") {
         can::Filter filter(can::Message::StandardID(8),
                            can::Filter::Match::DataFrame | can::Filter::Match::RemoteFrame | can::Filter::Match::StandardIDAndExtendedID);
         can::Filter filter2(can::Message::StandardID(9),
                             can::Filter::Match::DataFrame | can::Filter::Match::RemoteFrame | can::Filter::Match::StandardIDAndExtendedID);
-        rotorCan.addFilter(filter);
-        rotorCan.addFilter(filter2);
+        canB.addFilter(filter);
+        canB.addFilter(filter2);
 
         can::Message message(can::Message::StandardID(8));
-        CANOver& can2 = canOnPC.getCan();
-        CHECK(can1.transmit(message));
+        HostcommCAN& canA2 = canOverHostcomm1.getCan();
+        CHECK(canA1.transmit(message));
         message.setStandardID(9);
-        CHECK(can2.transmit(message));
+        CHECK(canA2.transmit(message));
         std::this_thread::sleep_for(500ms);
 
-        CHECK(rotorCan.receive(recMessage));
-        CHECK(rotorCan.receive(recMessage));
+        CHECK(canB.receive(recMessage));
+        CHECK(canB.receive(recMessage));
     }
 }
 

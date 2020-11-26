@@ -103,6 +103,8 @@ class CanOverHostcomm {
     CanOverHostcomm(microhal::IODevice &hostcommPort, microhal::IODevice &log, const char *logHeader = "CAN over Hostcomm");
     virtual ~CanOverHostcomm();
 
+    bool ping() { return hostComm.ping(true); }
+
     HostcommCAN &getCan() {
         canInterfaces.emplace_back(hostComm);
         return canInterfaces.back();

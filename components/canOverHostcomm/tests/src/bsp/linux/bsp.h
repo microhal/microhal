@@ -1,10 +1,12 @@
 /**
  * @license    BSD 3-Clause
+ * @copyright  microHAL
  * @version    $Id$
- * @brief
+ * @brief      board support package for Linux os
  *
  * @authors    Pawel Okas
- * created on: 7-10-2020
+ * created on: 25-11-2020
+ * last modification: <DD-MM-YYYY>
  *
  * @copyright Copyright (c) 2020, Pawel Okas
  * All rights reserved.
@@ -25,31 +27,19 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MICROHAL_CANOVERHOSTCOMM_CAN_PACKET_H_
-#define MICROHAL_CANOVERHOSTCOMM_CAN_PACKET_H_
+#ifndef _LINUX_BSP_H_
+#define _LINUX_BSP_H_
 
-#include "can/canMessage.h"
-#include "diagnostic/diagnostic.h"
-#include "hostCommPacket.h"
+#include "microhal.h"
 
-#ifndef MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID
-#define MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID 0x21
-#endif
+namespace bsp {
+extern microhal::IODevice &debugPort;
+extern microhal::IODevice &communicationPortA;
+extern microhal::IODevice &communicationPortB;
 
-namespace microhal {
-namespace communication {
+bool init(void);
+bool deinit(void);
 
-static_assert(sizeof(microhal::can::Message) == 16);
+}  // namespace bsp
 
-class CANPacket : public microhal::HostCommDataPacket<microhal::can::Message, MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID> {
- public:
-    CANPacket() : microhal::HostCommDataPacket<microhal::can::Message, MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID>::HostCommDataPacket(false, false) {}
-    ~CANPacket() {}
-
-    enum { Request = MICROHAL_CAN_OVER_HOSTCOMM_MESSAGE_ID - 1 };
-};
-
-}  // namespace communication
-}  // namespace microhal
-
-#endif /* MICROHAL_CANOVERHOSTCOMM_CAN_PACKET_H_ */
+#endif  // _LINUX_BSP_H_
