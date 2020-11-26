@@ -126,6 +126,12 @@ class FixedPoint : private fixedPointDetail::FixedPointBase {
         return data;
     }
 
+    double toDouble() const {
+        double data = this->data;
+        data /= 1 << fractionalBits;
+        return data;
+    }
+
     std::string_view toString(std::array<char, 30>& buffer) const {
         using UnsignedData = std::make_unsigned_t<dataType>;
         UnsignedData unsignedData = std::is_signed_v<dataType> ? data < 0 ? -data : data : data;
