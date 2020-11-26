@@ -68,7 +68,7 @@ class IODevice {
         //       Unbuffered = 0x20                   // Any buffer in the device is bypassed.
     } OpenMode;
 
-    std::timed_mutex mutex;
+    std::recursive_timed_mutex mutex;
 
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr IODevice() : mutex() {}
