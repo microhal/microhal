@@ -31,9 +31,14 @@
 			<locationURI>PARENT-2-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
-			<name>microhal</name>
+			<name>src/third-party/doctest</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/microhal</locationURI>
+			<location>/home/pokas/work/rotor repos/common/RotorControllApp/third-party/microhal/third-party/doctest/doctest</location>
+		</link>
+		<link>
+			<name>src/third-party/microhal</name>
+			<type>2</type>
+			<location>/home/pokas/work/rotor repos/common/RotorControllApp/third-party/microhal/microhal</location>
 		</link>
 	</linkedResources>
 </projectDescription>

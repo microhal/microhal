@@ -26,17 +26,19 @@
 
  *//* ========================================================================================================================== */
 
-#include "serialPort_linux.h"
-#include "microhal.h"
 #include "bsp.h"
+#include "microhal.h"
+#include "ports/linux/General/serialPort_linux.h"
 
 using namespace microhal;
 using namespace diagnostic;
 
-microhal::linux::SerialPort serialPortA("tty1");
+namespace bsp {
 
-microhal::SerialPort &serialPort = serialPortA;
+linux::SerialPort serialPortA("/dev/pts/6");  // socat -d -d pty,raw,echo=0 pty,raw,echo=0
+linux::SerialPort serialPortB("/dev/pts/7");
 
-void initialize(int argc, char *argv[]) {
+}  // namespace bsp
 
-}
+microhal::SerialPort &serialPort1 = bsp::serialPortA;
+microhal::SerialPort &serialPort2 = bsp::serialPortB;

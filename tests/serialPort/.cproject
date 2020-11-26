@@ -463,7 +463,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="microhal/ports/stmCommon/externalInterrupt_stmCommon.cpp|microhal/ports/stmCommon/can_stm_common.cpp|microhal/core/oneWire.cpp|microhal/core/utils|microhal/core/signalSlot|microhal/core/diagnostic|microhal/core/crc|microhal/core/can|microhal/ports/lpc43xx|microhal/ports/tms320F281x|microhal/ports/rm57x|microhal/ports/stm32f0xx|serialPort_ut_02.cpp|bsp/nucleo-f334r8|bsp/stm32f4-discovery|microhal/ports/stm32f3xx|serialPort_ut_01.cpp|microhal/math|microhal/core/SPIDevice|microhal/core/I2CDevice|microhal/core/button|microhal/ports/windows/General/tests|microhal/os/noRTOS|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx|microhal/ports/linux|gsl/tests|boards/nucleo-f411re|microhal/ports/stm32f4xx/i2c|microhal/ports/stm32f4xx/spi|microhal/ports/stm32f4xx/serialPort/serialPort_BufferedBase.cpp|microhal/core/buffers/tests|microhal/gsl/tests|boards/Linux|microHAL/ports/SiliconLabs|microHAL/ports/Windows/General/tests|microHAL/ports/Windows/tests|microHAL/ports/Raspberry_Pi|microHAL/buffers/tests|microHAL/os/thread.cc|microHAL/os/noRTOSport|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/common|microHAL/ports/Atmel|microHAL/usb|microHAL/units|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/I2CDevice|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost|boards/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="microhal/ports/stmCommon/externalInterrupt_stmCommon.cpp|microhal/ports/stmCommon/can_stm_common.cpp|microhal/core/oneWire.cpp|microhal/core/utils|microhal/core/signalSlot|microhal/core/diagnostic|microhal/core/crc|microhal/core/can|microhal/ports/lpc43xx|microhal/ports/tms320F281x|microhal/ports/rm57x|microhal/ports/stm32f0xx|serialPort_ut_02.cpp|bsp/nucleo-f334r8|bsp/stm32f4-discovery|microhal/ports/stm32f3xx|microhal/math|microhal/core/SPIDevice|microhal/core/I2CDevice|microhal/core/button|microhal/ports/windows/General/tests|microhal/os/noRTOS|microhal/os/linux|microhal/os/freeRTOS|microhal/ports/stm32f4xx|microhal/ports/linux|gsl/tests|boards/nucleo-f411re|microhal/ports/stm32f4xx/i2c|microhal/ports/stm32f4xx/spi|microhal/ports/stm32f4xx/serialPort/serialPort_BufferedBase.cpp|microhal/core/buffers/tests|microhal/gsl/tests|boards/Linux|microHAL/ports/SiliconLabs|microHAL/ports/Windows/General/tests|microHAL/ports/Windows/tests|microHAL/ports/Raspberry_Pi|microHAL/buffers/tests|microHAL/os/thread.cc|microHAL/os/noRTOSport|microHAL/os/FreeRTOS_port|microHAL/os/FreeRTOS|microHAL/ports/templatePort|microHAL/ports/STMicroelectronics|microHAL/ports/ SiliconLabs|microHAL/ports/Renesas|microHAL/ports/Linux|microHAL/ports/helpers|microHAL/ports/common|microHAL/ports/Atmel|microHAL/usb|microHAL/units|microHAL/SPIDevice|microHAL/nano|microHAL/math|microHAL/info|microHAL/I2CDevice|microHAL/hostComm|microHAL/DSP|microHAL/cli|microHAL/button|microHAL/boost|boards/stm32f4-discovery" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
@@ -1130,6 +1130,146 @@
             <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
             		
         </cconfiguration>
+        		
+        <cconfiguration id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297">
+            			
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297" moduleId="org.eclipse.cdt.core.settings" name="linux">
+                				
+                <externalSettings/>
+                				
+                <extensions>
+                    					
+                    <extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    				
+                </extensions>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+                				
+                <configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297" name="linux" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug">
+                    					
+                    <folderInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297." name="/" resourcePath="">
+                        						
+                        <toolChain id="cdt.managedbuild.toolchain.gnu.base.899671384" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
+                            							
+                            <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.1356169980" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+                            							
+                            <builder buildPath="${workspace_loc:/serialPort_test}/linux" id="cdt.managedbuild.target.gnu.builder.base.556833412" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.archiver.base.401707253" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+                            							
+                            <tool command="g++-8" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.578177641" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+                                								
+                                <option id="gnu.cpp.compiler.option.optimization.level.921756079" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.optimize" valueType="enumerated"/>
+                                								
+                                <option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.option.debugging.level.738125760" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.dialect.std.222272484" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.dialect.flags.2101244570" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++1z" valueType="string"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.pthread.1457528859" name="Support for pthread (-pthread)" superClass="gnu.cpp.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.warnings.pedantic.905966126" name="Pedantic (-pedantic)" superClass="gnu.cpp.compiler.option.warnings.pedantic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.177259710" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/serialPort_test/src/bsp/Linux}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/serialPort_test/src/third-party/doctest}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/serialPort_test/src/third-party/microhal}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/serialPort_test/src/third-party/microhal/core}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/serialPort_test/gsl}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/serialPort_test/src/third-party/microhal/ports}&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1797887633" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="LINUX_PORT"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.220872512" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool command="gcc-8" id="cdt.managedbuild.tool.gnu.c.compiler.base.1446282764" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+                                								
+                                <option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.809668291" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.optimize" valueType="enumerated"/>
+                                								
+                                <option defaultValue="gnu.c.debugging.level.max" id="gnu.c.compiler.option.debugging.level.200666927" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
+                                								
+                                <option id="gnu.c.compiler.option.dialect.std.148188813" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.c11" valueType="enumerated"/>
+                                								
+                                <option id="gnu.c.compiler.option.warnings.pedantic.1206637898" name="Pedantic (-pedantic)" superClass="gnu.c.compiler.option.warnings.pedantic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <option id="gnu.c.compiler.option.pthread.1438173866" name="Support for pthread (-pthread)" superClass="gnu.c.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.1992398678" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="LINUX_PORT"/>
+                                    								
+                                </option>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1101785436" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1838539199" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+                            							
+                            <tool command="g++-8" id="cdt.managedbuild.tool.gnu.cpp.linker.base.396980882" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+                                								
+                                <option id="gnu.cpp.link.option.pthread.1532181818" name="Support for pthread (-pthread)" superClass="gnu.cpp.link.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.188546013" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                                    									
+                                    <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+                                    									
+                                    <additionalInput kind="additionalinput" paths="$(LIBS)"/>
+                                    								
+                                </inputType>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.assembler.base.1370443516" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1549078192" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+                                							
+                            </tool>
+                            						
+                        </toolChain>
+                        					
+                    </folderInfo>
+                    					
+                    <sourceEntries>
+                        						
+                        <entry excluding="gsl/tests|src/third-party/microhal/os/windows|src/third-party/microhal/os/noRTOS|src/third-party/microhal/os/freeRTOS|src/third-party/microhal/ports/windows|src/third-party/microhal/ports/tms320F281x|src/third-party/microhal/ports/stmCommon|src/third-party/microhal/ports/stm32f4xx|src/third-party/microhal/ports/stm32f3xx|src/third-party/microhal/ports/stm32f1xx|src/third-party/microhal/ports/stm32f0xx|src/third-party/microhal/ports/rm57x|src/third-party/microhal/ports/lpc43xx|src/third-party/microhal/ports/common|src/tests/serialPort_ut_01.cpp|src/third-party/doctest/parts|src/bsp/Windows|src/bsp/stm32f4-discovery|src/bsp/nucleo-f411re|src/bsp/nucleo-f334r8" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        					
+                    </sourceEntries>
+                    				
+                </configuration>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+            		
+        </cconfiguration>
         	
     </storageModule>
     	
@@ -1195,7 +1335,19 @@
             		
         </scannerConfigBuildInfo>
         		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297.;cdt.managedbuild.tool.gnu.cpp.compiler.base.578177641;cdt.managedbuild.tool.gnu.cpp.compiler.input.220872512">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
         <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1432373011;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.1432373011.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1629269810;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1580005164">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.810923297.;cdt.managedbuild.tool.gnu.c.compiler.base.1446282764;cdt.managedbuild.tool.gnu.c.compiler.input.1101785436">
             			
             <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
             		
