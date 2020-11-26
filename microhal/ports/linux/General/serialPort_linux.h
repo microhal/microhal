@@ -47,7 +47,9 @@ class SerialPort : public microhal::SerialPort {
      */
     void close() noexcept final {
         if (tty_fd) {
-            ::close(tty_fd);
+            if (::close(tty_fd) == 0) {
+                tty_fd = 0;
+            }
         }
     }
     /**
@@ -101,7 +103,7 @@ class SerialPort : public microhal::SerialPort {
 
     bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept final { return ::tcdrain(tty_fd) == 0; }
 
-    bool clear(SerialPort::Direction dir = AllDirections) noexcept final { return true; }
+    bool clear(SerialPort::Direction dir = AllDirections) noexcept final;
 
     bool setBaudRate(uint32_t baudRate) noexcept final;
     uint32_t getBaudRate() const noexcept final;

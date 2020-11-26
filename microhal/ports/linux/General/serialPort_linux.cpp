@@ -13,33 +13,64 @@ namespace linux {
  * FUNCTIONS
  */
 bool SerialPort::open(OpenMode mode) noexcept {
+    int openParam = O_NONBLOCK;
+    switch (mode) {
+        case WriteOnly:
+            openParam |= O_WRONLY;
+            break;
+        case ReadOnly:
+            openParam |= O_RDONLY;
+            break;
+        case ReadWrite:
+            openParam |= O_RDWR;
+            break;
+        case NotOpen:
+            if (isOpen()) close();
+            return true;
+    }
+
     if (isOpen() == false) {
-        int openParam = O_RDWR | O_NONBLOCK;
-        switch (mode) {
-            case ReadOnly:
-                break;
-        }
         tty_fd = ::open(portName, openParam);
         if (tty_fd > 0 && isatty(tty_fd)) {
-            tcgetattr(tty_fd, &tio);
-            tio.c_iflag = 0;
-            tio.c_oflag = 0;
-            tio.c_cflag = CS8 | CREAD | CLOCAL;  // 8n1, see termios.h for more information
-            tio.c_lflag = 0;
-            tio.c_cc[VMIN] = 1;
-            tio.c_cc[VTIME] = 5;
-            return true;
+            if (tcgetattr(tty_fd, &tio) == 0) {
+                tio.c_cflag &= ~CRTSCTS;        // Disable RTS/CTS hardware flow control
+                tio.c_cflag |= CREAD | CLOCAL;  // see termios.h for more information
+
+                tio.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHONL | ISIG);
+                tio.c_iflag &= ~(IXON | IXOFF | IXANY);                                       // Turn off s/w flow ctrl
+                tio.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL);  // Disable any special handling of received bytes
+
+                tio.c_oflag &= ~(OPOST | ONLCR);
+
+                tio.c_cc[VMIN] = 0;
+                tio.c_cc[VTIME] = 1;
+                return tcsetattr(tty_fd, TCSANOW, &tio) == 0;
+            } else {
+                diagChannel << MICROHAL_ERROR << "Unable to get current serial port configuration, errno value: " << strerror(errno) << endl;
+            }
+        } else {
+            diagChannel << MICROHAL_ERROR << "Unable to open Linux serial port, errno value: " << strerror(errno) << endl;
         }
     }
     return false;
 }
 
 size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept {
+    if (timeout == timeout.zero()) {
+        // no timeout
+        tio.c_cc[VMIN] = 0;
+        tio.c_cc[VTIME] = 0;
+        tcsetattr(tty_fd, TCSANOW, &tio);
+    } else {
+        tio.c_cc[VMIN] = 0;
+        tio.c_cc[VTIME] = timeout.count() / 10;
+        tcsetattr(tty_fd, TCSANOW, &tio);
+    }
     ssize_t len = ::read(tty_fd, buffer, length);
     if (len > 0)
         return len;
     else {
-        diagChannel << Error << "Unable to read data from linux serial port, errno value: " << strerror(errno) << endl;
+        diagChannel << Error << "Unable to read data from Linux serial port, errno value: " << strerror(errno) << endl;
         return 0;
     }
 }
@@ -49,9 +80,29 @@ size_t SerialPort::write(const char *data, size_t length) noexcept {
     if (len > 0)
         return len;
     else {
-        diagChannel << Error << "Unable to write data into linux serial port, errno value: " << strerror(errno) << endl;
+        diagChannel << Error << "Unable to write data into Linux serial port, errno value: " << strerror(errno) << endl;
         return 0;
     }
+}
+
+bool SerialPort::clear(SerialPort::Direction dir) noexcept {
+    int flags = 0;
+    switch (dir) {
+        case SerialPort::Direction::Input:
+            flags |= TCIFLUSH;
+            break;
+        case SerialPort::Direction::Output:
+            flags |= TCOFLUSH;
+            break;
+        case SerialPort::Direction::AllDirections:
+            flags |= TCIOFLUSH;
+            break;
+    }
+    if (::tcflush(tty_fd, flags) != 0) {
+        diagChannel << MICROHAL_ERROR << "Unable to clear Linux serial port buffer, errno value: " << strerror(errno) << endl;
+        return false;
+    }
+    return true;
 }
 /**
  * @brief This function set new baudrate.
