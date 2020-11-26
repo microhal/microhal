@@ -1,0 +1,17 @@
+import re
+
+testType = 'linux unittest'
+targets = ['linux']
+executionTime = 1
+requireHardware = False
+requireDevice = False
+	
+def projectName():
+	return 'virtualIODevice_test'	
+	
+def binaryName(configuration):
+	return 'virtualIODevice_test'
+	
+def passed(data):
+	return "SUCCESS!" in data
+	

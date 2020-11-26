@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.settings">
+        		
+        <cconfiguration id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999">
+            			
+            <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999" moduleId="org.eclipse.cdt.core.settings" name="linux">
+                				
+                <externalSettings/>
+                				
+                <extensions>
+                    					
+                    <extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+                    					
+                    <extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+                    				
+                </extensions>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+                				
+                <configuration artifactExtension="" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999" name="linux" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug">
+                    					
+                    <folderInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999." name="/" resourcePath="">
+                        						
+                        <toolChain id="cdt.managedbuild.toolchain.gnu.base.1409155400" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
+                            							
+                            <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.40635208" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+                            							
+                            <builder buildPath="${workspace_loc:/example-diagnostic}/linux" id="cdt.managedbuild.target.gnu.builder.base.237851002" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.archiver.base.140916236" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+                            							
+                            <tool command="g++-7" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.127762373" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.577276375" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/ports/linux/General}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/core}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/gsl}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/os}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/bsp/linux}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/ports}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/doctest}&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.2012823927" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="__MICROHAL"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LINUX_PORT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="TEST_ALL"/>
+                                    								
+                                </option>
+                                								
+                                <option id="gnu.cpp.compiler.option.optimization.level.1906231461" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.debugging.level.1926465757" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.dialect.std.376096641" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.dialect.flags.328644394" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=c++17" valueType="string"/>
+                                								
+                                <option id="gnu.cpp.compiler.option.pthread.217891098" superClass="gnu.cpp.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1751133738" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool command="gcc-7" id="cdt.managedbuild.tool.gnu.c.compiler.base.105011810" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1782193352" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/ports/linux/General}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/os}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/gsl}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/microhal/core}&quot;"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/bsp/linux}&quot;"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.696950058" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+                                    									
+                                    <listOptionValue builtIn="false" value="__MICROHAL"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="LINUX_PORT"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="TEST_ALL"/>
+                                    								
+                                </option>
+                                								
+                                <option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.133612529" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.most" valueType="enumerated"/>
+                                								
+                                <option id="gnu.c.compiler.option.debugging.level.1288451043" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+                                								
+                                <option id="gnu.c.compiler.option.dialect.std.1445795206" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.c11" valueType="enumerated"/>
+                                								
+                                <option id="gnu.c.compiler.option.pthread.1002461038" superClass="gnu.c.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.224141614" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                                							
+                            </tool>
+                            							
+                            <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1815661898" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+                            							
+                            <tool command="g++-7" id="cdt.managedbuild.tool.gnu.cpp.linker.base.63799566" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.link.option.libs.444557559" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs"/>
+                                								
+                                <option id="gnu.cpp.link.option.pthread.2079597307" superClass="gnu.cpp.link.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1078387501" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                                    									
+                                    <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+                                    									
+                                    <additionalInput kind="additionalinput" paths="$(LIBS)"/>
+                                    								
+                                </inputType>
+                                							
+                            </tool>
+                            							
+                            <tool command="as-7" id="cdt.managedbuild.tool.gnu.assembler.base.852104595" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+                                								
+                                <option id="gnu.both.asm.option.include.paths.2133852593" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false"/>
+                                								
+                                <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1699400224" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+                                							
+                            </tool>
+                            						
+                        </toolChain>
+                        					
+                    </folderInfo>
+                    					
+                    <sourceEntries>
+                        						
+                        <entry excluding="src/doctest/parts|src/microhal/core/I2CDevice|src/microhal/core/crc|src/microhal/core/can|src/microhal/math|src/microhal/ports/tms320F281x|src/microhal/ports/stmCommon|src/microhal/ports/stm32f1xx|src/microhal/ports/stm32f0xx|src/microhal/ports/lpc43xx|src/microhal/ports/rm57x|src/bsp/stm32f4-discovery|src/bsp/nucleo-f334r8|src/bsp/nucleo-f411re|src/bsp/Windows|src/microhal/ports/stm32f4xx|src/microhal/ports/cmsis|src/microhal/core/SPIDevice|src/microhal/os/freeRTOS|src/microhal/ports/stm32f3xx|src/microhal/os/noRTOS|src/microhal/ports/common|src/microhal/ports/windows|src/microhal/core/button|src/microhal/core/buffers/tests|src/microhal/os/windows|src/gsl/tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+                        					
+                    </sourceEntries>
+                    				
+                </configuration>
+                			
+            </storageModule>
+            			
+            <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+            		
+        </cconfiguration>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+        		
+        <project id="example_diagnostic.ilg.gnuarmeclipse.managedbuild.cross.target.elf.258368422" name="Executable" projectType="ilg.gnuarmeclipse.managedbuild.cross.target.elf"/>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+    	
+    <storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+    	
+    <storageModule moduleId="refreshScope" versionNumber="2">
+        		
+        <configuration configurationName="Windows PC"/>
+        		
+        <configuration configurationName="NUCLEO-F334R8"/>
+        		
+        <configuration configurationName="linux"/>
+        		
+        <configuration configurationName="jenkins"/>
+        		
+        <configuration configurationName="stm32f4-discovery"/>
+        		
+        <configuration configurationName="NUCLEO-F411RE"/>
+        		
+        <configuration configurationName="Windows">
+            			
+            <resource resourceType="PROJECT" workspacePath="/example_diagnostic"/>
+            		
+        </configuration>
+        		
+        <configuration configurationName="Debug">
+            			
+            <resource resourceType="PROJECT" workspacePath="/example_diagnostic"/>
+            		
+        </configuration>
+        		
+        <configuration configurationName="Release">
+            			
+            <resource resourceType="PROJECT" workspacePath="/example_diagnostic"/>
+            		
+        </configuration>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+    	
+    <storageModule moduleId="scannerConfiguration">
+        		
+        <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751.1066680752;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751.1066680752.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.2135438441;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.979208039">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.1871331937;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.1871331937.;cdt.managedbuild.tool.gnu.c.compiler.base.315822316;cdt.managedbuild.tool.gnu.c.compiler.input.115643822">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1659419287;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.317581285">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.;cdt.managedbuild.tool.gnu.cpp.compiler.base.127762373;cdt.managedbuild.tool.gnu.cpp.compiler.input.1751133738">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.385733055;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.206184446">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751.1066680752;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.173438751.1066680752.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1292091666;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1461225842">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.468014793;cdt.managedbuild.tool.gnu.cpp.compiler.input.1563025629">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.1871331937;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.1871331937.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1648408240;cdt.managedbuild.tool.gnu.cpp.compiler.input.3079897">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.;cdt.managedbuild.tool.gnu.cross.c.compiler.922484193;cdt.managedbuild.tool.gnu.c.compiler.input.1339780618">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.286922947;cdt.managedbuild.tool.gnu.c.compiler.input.1613811030">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.468543811;cdt.managedbuild.tool.gnu.cpp.compiler.input.1961576125">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1059322475;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.892691974">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.;cdt.managedbuild.tool.gnu.c.compiler.mingw.base.949086627;cdt.managedbuild.tool.gnu.c.compiler.input.267772610">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1162624982;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1162624982.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.62554849;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1815039016">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1162624982;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.1162624982.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.662071358;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1600099486">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.base.1694946625;cdt.managedbuild.tool.gnu.cpp.compiler.input.401722914">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.102873147;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1773759780">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1331130272;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1017820494">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.482139461;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.462162375">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        		
+        <scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.454027956.36354343.1862922999.;cdt.managedbuild.tool.gnu.c.compiler.base.105011810;cdt.managedbuild.tool.gnu.c.compiler.input.224141614">
+            			
+            <autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+            		
+        </scannerConfigBuildInfo>
+        	
+    </storageModule>
+    
+</cproject>
