@@ -36,8 +36,8 @@ using namespace microhal;
 using namespace diagnostic;
 
 microhal::IODevice &debugPort = linux::consoleIODev;
-microhal::linux::SerialPort serialPortA("/dev/pts/5");   // ttyUSB0");
-microhal::linux::SerialPort serialPortB("/dev/pts/19");  // ttyUSB1");
+microhal::linux::SerialPort serialPortA("/dev/ttyS83");  // socat -d -d pty,raw,echo=0,link=/dev/ttyS83 pty,raw,echo=0,link=/dev/ttyS84
+microhal::linux::SerialPort serialPortB("/dev/ttyS84");  //
 
 microhal::SerialPort &communicationPortA = serialPortA;
 microhal::SerialPort &communicationPortB = serialPortB;

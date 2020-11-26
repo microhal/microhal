@@ -41,7 +41,7 @@ class testData {
 
     void setCounter(uint32_t cnt) { counter = cnt; }
 
-    uint8_t getCounter() { return counter; }
+    uint32_t getCounter() { return counter; }
 
  private:
     uint32_t counter;
