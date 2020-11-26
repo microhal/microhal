@@ -67,7 +67,7 @@ size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds t
         tcsetattr(tty_fd, TCSANOW, &tio);
     }
     ssize_t len = ::read(tty_fd, buffer, length);
-    if (len > 0)
+    if (len >= 0)
         return len;
     else {
         diagChannel << Error << "Unable to read data from Linux serial port, errno value: " << strerror(errno) << endl;
@@ -77,7 +77,7 @@ size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds t
 
 size_t SerialPort::write(const char *data, size_t length) noexcept {
     ssize_t len = ::write(tty_fd, data, length);
-    if (len > 0)
+    if (len >= 0)
         return len;
     else {
         diagChannel << Error << "Unable to write data into Linux serial port, errno value: " << strerror(errno) << endl;

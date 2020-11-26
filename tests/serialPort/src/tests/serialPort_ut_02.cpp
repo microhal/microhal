@@ -21,6 +21,30 @@ TEST_CASE("FixedPoint addition test") {
         CHECK_FALSE(serialPort1.isOpen());
     }
 
+    SUBCASE("Test clear method") {
+        CHECK(serialPort1.open(SerialPort::ReadWrite));
+        CHECK(serialPort2.open(SerialPort::ReadWrite));
+        REQUIRE(serialPort1.isOpen());
+        REQUIRE(serialPort2.isOpen());
+        serialPort1.clear();
+        serialPort2.clear();
+        CHECK(serialPort1.availableBytes() == 0);
+        CHECK(serialPort2.availableBytes() == 0);
+
+        std::string_view write = "Test data.";
+        CHECK(serialPort1.write(write) == write.length());
+        std::this_thread::sleep_for(10ms);
+        CHECK(serialPort1.availableBytes() == 0);
+        CHECK(serialPort2.availableBytes() == write.length());
+        serialPort2.clear(SerialPort::Direction::Output);
+        CHECK(serialPort2.availableBytes() == write.length());
+        serialPort2.clear(SerialPort::Direction::Input);
+        CHECK(serialPort2.availableBytes() == 0);
+
+        serialPort1.close();
+        serialPort2.close();
+    }
+
     SUBCASE("Test transmit and receive") {
         CHECK(serialPort1.open(SerialPort::ReadWrite));
         CHECK(serialPort2.open(SerialPort::ReadWrite));
@@ -50,5 +74,8 @@ TEST_CASE("FixedPoint addition test") {
         for (size_t i = 0; i < data.size(); i++) {
             CHECK(buffer[i] == data[i]);
         }
+
+        serialPort1.close();
+        serialPort2.close();
     }
 }
