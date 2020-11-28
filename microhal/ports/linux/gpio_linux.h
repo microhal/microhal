@@ -32,13 +32,10 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <fcntl.h>
-#include <unistd.h>
+
 #include <cstdint>
-#include <cstdio>
 
 #include "IOPin.h"
-#include "diagnostic/diagnostic.h"
 #include "interfaces/gpio_interface.h"
 
 namespace microhal {
@@ -59,127 +56,35 @@ class GPIO : public microhal::GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull) : pin(pin) {
-        char buf[100];
-        auto fd = open("/sys/class/gpio/export", O_WRONLY);
-        if (fd > 0) {
-            sprintf(buf, "%d", pin.pin);
-            write(fd, buf, strlen(buf));
-            close(fd);
-
-            setDirection(dir);
-        } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "GPIO error, unable to open gpio/export file"
-                                              << microhal::diagnostic::unlock;
-            std::terminate();
-        }
-    }
-
-    ~GPIO() {
-        setDirection(Direction::Input);
-        auto fd = open("/sys/class/gpio/unexport", O_WRONLY);
-        if (fd > 0) {
-            char buf[100];
-            sprintf(buf, "%d", pin.pin);
-            write(fd, buf, strlen(buf));
-
-            close(fd);
-        }
-    }
+    GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull);
+    ~GPIO();
     //------------------------------------ static functions -------------------------------------//
     /** This function set pin to high state.
      *
      * @param port - port name
      * @param pin - pin number
      */
-    bool set() final {
-        char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
-        auto fd = ::open(buf, O_WRONLY);
-        if (fd > 0) {
-            // Set GPIO high status
-            ::write(fd, "1", 1);
-            ::close(fd);
-        } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "GPIO error, unable to open gpio file"
-                                              << microhal::diagnostic::unlock;
-            std::terminate();
-        }
-        return true;
-    }
+    bool set() final;
     /** This function set pin to low state.
      *
      * @param port - port name
      * @param pin - pin number
      */
-    bool reset() final {
-        char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
-        auto fd = open(buf, O_WRONLY);
-        if (fd > 0) {
-            // Set GPIO low status
-            write(fd, "0", 1);
-            close(fd);
-        } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "GPIO error, unable to open gpio file"
-                                              << microhal::diagnostic::unlock;
-            std::terminate();
-        }
-        return true;
-    }
-    /** This function set pin to low state.*/
-    // void reset() { reset(pin); }
+    bool reset() final;
     /** This function read pin state
      *
      * @param port - port name
      * @param pin - pin number
      * @return
      */
-    bool get() const final {
-        char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", pin.pin);
-
-        auto fd = open(buf, O_RDONLY);
-        if (fd > 0) {
-            char value;
-            read(fd, &value, 1);
-            bool pinState = (value == '0') ? 0 : 1;
-
-            close(fd);
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "Pin value " << value
-                                              << microhal::diagnostic::unlock;
-            return pinState;
-        } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY
-                                              << "GPIO error, unable to open gpio file, GPIO number: " << pin.pin << microhal::diagnostic::unlock;
-            std::terminate();
-        }
-    }
+    bool get() const final;
     /** This function set pin direction.
      *
      * @param port - port name
      * @param pin - pin number
      * @param direction - pin direction
      */
-    void setDirection(Direction direction) {
-        char buf[100];
-        sprintf(buf, "/sys/class/gpio/gpio%d/direction", pin.pin);
-        auto fd = open(buf, O_WRONLY);
-        if (fd > 0) {
-            switch (direction) {
-                case Direction::Output:
-                    write(fd, "out", 3);
-                    break;
-                case Direction::Input:
-                    write(fd, "in", 2);
-                    break;
-            }
-            ::close(fd);
-        } else {
-            microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY
-                                              << "GPIO error, unable to open gpio file, GPIO number: " << pin.pin << microhal::diagnostic::unlock;
-        }
-    }
+    void setDirection(Direction direction);
     /** This function set pin pull type
      *
      * @param port
