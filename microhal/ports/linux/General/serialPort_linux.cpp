@@ -2,9 +2,11 @@
  * INCLUDES
  */
 #include "serialPort_linux.h"
+#include <filesystem>
 #include "diagnostic/diagnostic.h"
 
 using namespace microhal::diagnostic;
+namespace fs = std::filesystem;
 
 namespace microhal {
 namespace linux {
@@ -12,6 +14,18 @@ namespace linux {
 /* ************************************************************************************************
  * FUNCTIONS
  */
+std::vector<std::string> SerialPort::getSerialPortList() {
+    std::vector<std::string> result;
+    std::string begin("/dev/tty");
+    for (auto &p : fs::directory_iterator("/dev")) {
+        auto pathString = std::string(p.path());
+        if (pathString.rfind(begin, 0) == 0) {
+            result.push_back(std::move(pathString));
+        }
+    }
+    return result;
+}
+
 bool SerialPort::open(OpenMode mode) noexcept {
     int openParam = O_NONBLOCK;
     switch (mode) {
@@ -63,7 +77,8 @@ size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds t
         tcsetattr(tty_fd, TCSANOW, &tio);
     } else {
         tio.c_cc[VMIN] = 0;
-        tio.c_cc[VTIME] = timeout.count() / 10;
+        uint8_t termiosTimeout = (timeout.count() / 100) > 255 ? 255 : (timeout.count() / 100);
+        tio.c_cc[VTIME] = (termiosTimeout == 0 && timeout.count() > 50) ? 1 : termiosTimeout;
         tcsetattr(tty_fd, TCSANOW, &tio);
     }
     ssize_t len = ::read(tty_fd, buffer, length);

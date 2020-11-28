@@ -19,6 +19,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <cstring>  // needed for memset
+#include <vector>
 
 #include <sys/ioctl.h>
 
@@ -33,6 +34,10 @@ namespace linux {
  */
 class SerialPort : public microhal::SerialPort {
  public:
+    static std::vector<std::string> getSerialPortList();
+
+    std::string_view getPortName() const { return portName; }
+
     bool open(OpenMode mode) noexcept final;
     /**
      * @brief This function check is serial port open. When port is open function
