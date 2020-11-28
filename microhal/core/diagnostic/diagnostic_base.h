@@ -138,7 +138,13 @@ class Diagnostic_base {
 
     void write(const char *c);
 
-    void endl() { writeText("\n\r", 2); }
+    void endl() {
+#ifdef LINUX_PORT
+        writeText("\n", 1);
+#else
+        writeText("\n\r", 2);
+#endif
+    }
 
     void write(const uint8_t *data, size_t size, uint8_t radix);
     void write(const uint16_t *data, size_t size, uint8_t radix);
