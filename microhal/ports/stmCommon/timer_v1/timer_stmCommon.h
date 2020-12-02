@@ -16,6 +16,11 @@
 #include "signalSlot/signalSlot.h"
 
 #include _MICROHAL_INCLUDE_PORT_DEVICE
+#include _MICROHAL_INCLUDE_PORT_CONFIG
+
+#ifndef MICROHAL_USE_TIMER_SIGNAL
+#error MICROHAL_USE_TIMER_SIGNAL have to be defined, possible values 0, 1, 2. 0 - timer signals disabled, 1 - one signal per timer, 2 - signals per timer
+#endif
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -25,9 +30,19 @@ namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 extern "C" {
+void TIM1_BRK_IRQHandler(void);
 void TIM1_UP_IRQHandler(void);
+void TIM1_TRG_COM_IRQHandler(void);
 void TIM1_CC_IRQHandler(void);
+void TIM2_IRQHandler(void);
 void TIM3_IRQHandler(void);
+void TIM4_IRQHandler(void);
+void TIM6_IRQHandler(void);
+void TIM7_IRQHandler(void);
+void TIM8_BRK_IRQHandler(void);
+void TIM8_UP_IRQHandler(void);
+void TIM8_TRG_COM_IRQHandler(void);
+void TIM8_CC_IRQHandler(void);
 }
 
 namespace timer_detail {
@@ -56,6 +71,13 @@ enum class Event {
 
 constexpr Interrupt operator&(Interrupt a, Interrupt b) {
     return static_cast<Interrupt>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
+}
+constexpr Interrupt operator|(Interrupt a, Interrupt b) {
+    return static_cast<Interrupt>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+}
+constexpr Interrupt operator|=(Interrupt &a, Interrupt b) {
+    a = a | b;
+    return a;
 }
 
 constexpr uint32_t operator&(uint32_t a, Interrupt b) {
@@ -136,26 +158,21 @@ class Timer {
         CombinedResetAndTrigger
     };
 
-    Timer(registers::TIM *addr)
-        : timer(*addr), compare1(*addr, 0), compare2(*addr, 1), compare3(*addr, 2), compare4(*addr, 3), capture1(*addr, 0), capture2(*addr, 1) {
-        if (addr == registers::tim1) {
-            tim1 = this;
-        } else if (addr == registers::tim3) {
-            tim3 = this;
-        }
+    Signal<void> signal1 = {};
+    Signal<void> signal2 = {};
+
+    Timer(registers::TIM *addr) : timer(*addr) {
+        if (tim[getNumber()] != nullptr) std::terminate();
+        tim[getNumber()] = this;
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enableTimer(getNumber(), ClockManager::PowerMode::Normal);
+        ClockManager::enableTimer(getNumber() + 1, ClockManager::PowerMode::Normal);
 #else
-        ClockManager::enableTimer(getNumber());
+        ClockManager::enableTimer(getNumber() + 1);
 #endif
     }
     ~Timer() {
         disableInterrupt();
-        if (&timer == registers::tim1) {
-            tim1 = nullptr;
-        } else if (&timer == registers::tim3) {
-            tim3 = nullptr;
-        }
+        tim[getNumber()] = nullptr;
     }
 
     /**
@@ -175,14 +192,8 @@ class Timer {
         timer.cr1.volatileStore(cr1);
     }
 
-    void enableInterupt(uint32_t priority) {
-        IRQn_Type irq = getIRQn();
-        NVIC_SetPriority(irq, priority);
-        NVIC_ClearPendingIRQ(irq);
-        NVIC_EnableIRQ(irq);
-    }
-
-    void disableInterrupt() { NVIC_EnableIRQ(getIRQn()); }
+    void enableInterupt(uint32_t priority);
+    void disableInterrupt();
 
     void enableInterrupts(Interrupt interrupt) {
         auto dier = timer.dier.volatileLoad();
@@ -273,43 +284,13 @@ class Timer {
         timer.cr2.volatileStore(cr2);
     }
 
-    bool registerIsrFunction(void (*interruptFunction)(void)) {
-        if (signal.connect(interruptFunction)) {
-            return true;
-        }
-        return false;
-    }
-
-    template <typename T>
-    bool registerIsrFunction(const T &slot, const typename T::type &object) {
-        if (signal.connect(slot, object)) {
-            return true;
-        }
-        return false;
-    }
-
-    bool unregisterIsrFunction(void (*interruptFunction)(void)) {
-        if (signal.disconnect(interruptFunction)) {
-            return true;
-        }
-        return false;
-    }
-
-    template <typename T>
-    bool unregisterIsrFunction(const T &slot, const typename T::type &object) {
-        if (signal.disconnect(slot, object)) {
-            return true;
-        }
-        return false;
-    }
-
     uint32_t maxCounterValue() const { return 0xFFFF; }
 
-    uint32_t getTimerClockSourceFrequency() const { return ClockManager::TimerFrequency(getNumber()); }
-    uint32_t getTimerCounterFrequency() const { return ClockManager::TimerFrequency(getNumber()) / getPrescaler(); }
+    uint32_t getTimerClockSourceFrequency() const { return ClockManager::TimerFrequency(getNumber() + 1); }
+    uint32_t getTimerCounterFrequency() const { return ClockManager::TimerFrequency(getNumber() + 1) / getPrescaler(); }
     // one tick duration in [ns]
     uint32_t getTickPeriod() const {
-        uint32_t timerFrequency = ClockManager::TimerFrequency(getNumber());
+        uint32_t timerFrequency = ClockManager::TimerFrequency(getNumber() + 1);
         return (uint64_t{1000'000'000} * getPrescaler()) / timerFrequency;
     }
 
@@ -769,28 +750,58 @@ class Timer {
         timer.smcr.volatileStore(smcr);
     }
 
-    OutputCompare compare1;
-    OutputCompare compare2;
-    OutputCompare compare3;
-    OutputCompare compare4;
-    InputCapture capture1;
-    InputCapture capture2;
+    OutputCompare compare(uint_fast8_t i) { return OutputCompare(timer, i - 1); }
+    InputCapture capture(uint_fast8_t i) { return InputCapture(timer, i - 1); }
+
+#if MICROHAL_USE_TIMER_SIGNAL > 0
+    bool setSignal1Sources(Interrupt sources) {
+        signalInterrupt1 = sources;
+        return true;
+    }
+#endif
+#if MICROHAL_USE_TIMER_SIGNAL == 2
+    bool setSignal2Sources(Interrupt sources) {
+        signalInterrupt2 = sources;
+        return true;
+    }
+#endif
 
  private:
     registers::TIM &timer;
-    Signal<void> signal = {};
+#if MICROHAL_USE_TIMER_SIGNAL > 0
+    Interrupt signalInterrupt1{};
+#endif
+#if MICROHAL_USE_TIMER_SIGNAL == 2
+    Interrupt signalInterrupt2{};
+#endif
 
-    static Timer *tim1;
-    static Timer *tim3;
+    static Timer *tim[8];
 
+    /**
+     *
+     * @return timer number form 0, in example for tim1 function will return 0;
+     */
     uint8_t getNumber() const;
     IRQn_Type getIRQn() const;
 
-    friend void TIM3_IRQHandler(void);
+    void interruptFunction();
+
+    friend void TIM1_BRK_IRQHandler(void);
     friend void TIM1_UP_IRQHandler(void);
-};  // namespace stm32f3xx
+    friend void TIM1_TRG_COM_IRQHandler(void);
+    friend void TIM1_CC_IRQHandler(void);
+    friend void TIM2_IRQHandler(void);
+    friend void TIM3_IRQHandler(void);
+    friend void TIM4_IRQHandler(void);
+    friend void TIM6_IRQHandler(void);
+    friend void TIM7_IRQHandler(void);
+    friend void TIM8_BRK_IRQHandler(void);
+    friend void TIM8_UP_IRQHandler(void);
+    friend void TIM8_TRG_COM_IRQHandler(void);
+    friend void TIM8_CC_IRQHandler(void);
+};
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif /* _MICROHAL_TIMER_STM32F3XX_H_ */
+#endif /* _MICROHAL_TIMER_STMCOMMON_H_ */
