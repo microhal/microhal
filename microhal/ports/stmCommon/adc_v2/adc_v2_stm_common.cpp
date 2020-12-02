@@ -6,6 +6,11 @@
  */
 
 #include "adc_v2_stm_common.h"
+
+#include "ports/stm32f1xx/nvic.h"
+#if _MICROHAL_PORT_STM_DMA_DRIVER_VERSION == 1
+#include "ports/stmCommon/dma/dma_v1/dma_stm32f3xx.h"
+#endif
 /* ************************************************************************************************
  * 1.) Check if this driver should be used on selected MCU.
  */
@@ -15,10 +20,13 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 Adc *Adc::adc1 = nullptr;
 Adc *Adc::adc2 = nullptr;
+#ifdef _MICROHAL_ADC3_BASE_ADDRESS
+Adc *Adc::adc3 = nullptr;
+#endif
 
 Adc::~Adc() {
-    // disableInterrupt();
     disable();
+    disableInterrupt();
 
     if ((int)&adc == _MICROHAL_ADC1_BASE_ADDRESS) {
         ClockManager::disableADC(1);
@@ -28,14 +36,17 @@ Adc::~Adc() {
         ClockManager::disableADC(2);
         adc2 = nullptr;
     }
+#ifdef _MICROHAL_ADC3_BASE_ADDRESS
     if ((int)&adc == _MICROHAL_ADC2_BASE_ADDRESS) {
         ClockManager::disableADC(3);
+        adc3 = nullptr;
     }
+#endif
 }
 
-bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
+bool Adc::configureSamplingSequence(const gsl::span<const Adc::Channel> sequence) {
     if ((sequence.length() == 0) || (sequence.length() > 16)) return false;
-    //    if (adc.cr.volatileLoad().ADSTART) return false;
+    if (adc.cr2.volatileLoad().ADON) return false;
 
     for (int i = 0; i < sequence.length(); i++) {
         if (sequence.at(i) == Channel::Channel18) return false;
@@ -44,11 +55,11 @@ bool Adc::configureSamplingSequence(gsl::span<Adc::Channel> sequence) {
     for (int i = 0; i < sequence.length(); i++) {
         setSamplingSequence(sequence.length(), i + 1, sequence.at(i));
     }
-    //    auto cr1 = adc.cr1.volatileLoad();
-    //    cr1.SCAN.set();  // enable scan mode
-    //    adc.cr1.volatileStore(cr1);
+    auto cr1 = adc.cr1.volatileLoad();
+    cr1.SCAN.set();  // enable scan mode
+    adc.cr1.volatileStore(cr1);
 
-    // enableInterrupts(Interrupt::EndOfRegularSequence /*| /* Interrupt::EndOfRegularConversion | Interrupt::Overrun*/);
+    enableInterrupts(Interrupt::EndOfConversion);
     return true;
 }
 
@@ -138,8 +149,8 @@ bool Adc::configureAnalogWatchdog(Channel channel, uint16_t lowThreshold, uint16
 }
 
 bool Adc::calibrate() {
-    if (isEnabled()) {
-        auto cr2 = adc.cr2.volatileLoad();
+    auto cr2 = adc.cr2.volatileLoad();
+    if (cr2.ADON) {  // if enabled
         cr2.CAL.set();
         adc.cr2.volatileStore(cr2);
         return true;
@@ -147,57 +158,107 @@ bool Adc::calibrate() {
     return false;
 }
 
-void Adc::initDMA(uint16_t *data, size_t len) {
-    //    DMA::dma1->clockEnable();
-    //    auto &stream = DMA::dma1->stream[0];
-    //    stream.setPeripheralAddress(&adc.dr);
-    //    stream.setMemoryAddress(data);
-    //    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
-    //    stream.setNumberOfItemsToTransfer(len);
-    //    stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
-    //                DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
-    //                DMA::Channel::TransmisionDirection::PerToMem);
-    //    stream.enableCircularMode();
-    //    stream.enable();
-    //
-    //    auto cfgr = adc.cfgr.volatileLoad();
-    //    cfgr.DMACFG = 1;
-    //    cfgr.DMAEN = 1;
-    //    adc.cfgr.volatileStore(cfgr);
+bool Adc::waitForCallibrationFinish() {
+    while (1) {
+        if (!adc.cr2.volatileLoad().CAL) break;
+    }
+    return true;
 }
 
-void Adc::configureTriggerSource(TriggerSource externalTrigger) {
+bool Adc::resetCallibration() {
+    auto cr2 = adc.cr2.volatileLoad();
+    cr2.RSTCAL.set();
+    adc.cr2.volatileStore(cr2);
+    return true;
+}
+
+bool Adc::waitForConversionEnd(uint32_t ms) {
+    while (ms--) {
+        if (adc.sr.volatileLoad().EOC) {
+            return true;
+        }
+    }
+    return false;
+}
+
+#ifdef MICROHAL_USE_ADC_ISR_DMA
+void Adc::initDMA(uint16_t *data, size_t len) {
+    DMA::dma1->clockEnable();
+    volatile int i = 300000;
+    while (i--) {
+    }
+    auto &stream = DMA::dma1->channel[0];
+    stream.setPeripheralAddress(&adc.dr);
+    stream.setMemoryAddress(data);
+    stream.setNumberOfItemsToTransfer(len);
+    stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
+                DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
+                DMA::Channel::TransmisionDirection::PerToMem);
+    stream.enableCircularMode();
+    stream.enableInterrupt(DMA::Channel::Interrupt::TransferComplete);
+    stream.enable();
+
+    auto cr2 = adc.cr2.volatileLoad();
+    cr2.DMA.set();
+    adc.cr2.volatileStore(cr2);
+}
+#endif
+
+void Adc::configureTriggerSource(TriggerSourceADC12 externalTrigger) {
     auto cr2 = adc.cr2.volatileLoad();
     cr2.EXTSEL = static_cast<uint32_t>(externalTrigger);
     adc.cr2.volatileStore(cr2);
 }
 
-// void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize) {
-//    DMA::dma1->clockEnable();
-//    auto &stream = DMA::dma1->stream[0];
-//    stream.setPeripheralAddress(&ADC12_COMMON->CDR);
-//    stream.setMemoryAddress(data);
-//    stream.memoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
-//    stream.setNumberOfItemsToTransfer(dataSize);
-//    stream.init(DMA::Channel::MemoryDataSize::Word, DMA::Channel::PeripheralDataSize::Word,
-//    DMA::Channel::MemoryIncrementMode::PointerIncremented,
-//                DMA::Channel::PeripheralIncrementMode::PointerFixed, DMA::Channel::TransmisionDirection::PerToMem);
-//    stream.enableCircularMode();
-//    stream.enable();
-//
-//    auto ccr = registers::adc12Common->ccr.volatileLoad();
-//    ccr.MDMA = (resolution == Resolution_8Bit || resolution == Resolution_12Bit) ? 0b10 : 0b11;
-//    ccr.DMACFG = 1;
-//    registers::adc12Common->ccr.volatileStore(ccr);
-//}
+#ifdef _MICROHAL_ADC3_BASE_ADDRESS
+void Adc::configureTriggerSource(TriggerSourceADC3 externalTrigger) {
+    auto cr2 = adc.cr2.volatileLoad();
+    cr2.EXTSEL = static_cast<uint32_t>(externalTrigger);
+    adc.cr2.volatileStore(cr2);
+}
+#endif
+
+void Adc::enableInterrupts(Interrupt interrupts) {
+    auto cr1 = adc.cr1.volatileLoad();
+    if (static_cast<uint32_t>(interrupts) & Interrupt::AnalogWatchdog1) cr1.AWDIE.set();
+    if (static_cast<uint32_t>(interrupts) & Interrupt::EndOfInjectedConversion) cr1.JEOCIE.set();
+    if (static_cast<uint32_t>(interrupts) & Interrupt::EndOfConversion) cr1.EOCIE.set();
+    adc.cr1.volatileStore(cr1);
+}
+
+void Adc::enableInterrupt(uint32_t priority) {
+    NVIC_ClearPendingIRQ(ADC1_2_IRQn);
+    NVIC_SetPriority(ADC1_2_IRQn, priority);
+    NVIC_EnableIRQ(ADC1_2_IRQn);
+#ifdef MICROHAL_USE_ADC_ISR_DMA
+    DMA::dma1->enableInterrupt(DMA::dma1->channel[0], priority);
+#endif
+}
+
+void Adc::disableInterrupt() {
+    NVIC_DisableIRQ(ADC1_2_IRQn);
+#ifdef MICROHAL_USE_ADC_ISR_DMA
+    DMA::dma1->disableInterrupt(DMA::dma1->channel[0]);
+#endif
+}
 
 void Adc::interruptFunction() {
     auto sr = adc.sr.volatileLoad();
     auto cr1 = adc.cr1.volatileLoad();
 
     if (sr.EOC && cr1.EOCIE) {
+        sr.EOC.clear();
+#ifdef MICROHAL_ADC_USE_SIGNAL
         signal.emit();
+#endif
+        auto shouldYeld = regularSequenceFinishSemaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+        portYIELD_FROM_ISR(shouldYeld);
+#else
+        (void)shouldYeld;
+#endif
     }
+    adc.sr.volatileStore(sr);
 }
 
 void ADC1_2_IRQHandler(void) {
@@ -205,14 +266,29 @@ void ADC1_2_IRQHandler(void) {
     if (Adc::adc2) Adc::adc2->interruptFunction();
 }
 
-#ifdef MICROHAL_USE_ADC_ISR_DMA
-void DMA1_Channel1_IRQHandler(void) {
-    DMA::dma1->clearInterruptFlag(DMA::dma1->stream[0], DMA::Channel::Interrupt::TransferComplete);
-    DMA::dma1->stream[0].disable();
-
-    Adc::adc1->signal.emit();
+#ifdef _MICROHAL_ADC3_BASE_ADDRESS
+void ADC3_IRQHandler(void) {
+    Adc::adc3->interruptFunction();
 }
 #endif
+
+#ifdef MICROHAL_USE_ADC_ISR_DMA
+void DMA1_Channel1_IRQHandler(void) {
+    DMA::dma1->clearInterruptFlag(DMA::dma1->channel[0], DMA::Channel::Interrupt::TransferComplete);
+
+    auto shouldYeld = Adc::adc1->regularSequenceFinishSemaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+    portYIELD_FROM_ISR(shouldYeld);
+#else
+    (void)shouldYeld;
+#endif
+
+#ifdef MICROHAL_ADC_USE_SIGNAL
+    Adc::adc1->signal.emit();
+#endif  // MICROHAL_ADC_USE_SIGNAL
+}
+#endif  // MICROHAL_USE_ADC_ISR_DMA
+
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 #endif  // _MICROHAL_PORT_STM_ADC_DRIVER_VERSION == 2
