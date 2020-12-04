@@ -7,9 +7,9 @@
 
 #include "adc_v2_stm_common.h"
 
-#include "ports/stm32f1xx/nvic.h"
+#include _MICROHAL_INCLUDE_PORT_DEVICE
 #if _MICROHAL_PORT_STM_DMA_DRIVER_VERSION == 1
-#include "ports/stmCommon/dma/dma_v1/dma_stm32f3xx.h"
+#include <ports/stmCommon/dma/dma_v1/dma_stmCommon.h>
 #endif
 /* ************************************************************************************************
  * 1.) Check if this driver should be used on selected MCU.
