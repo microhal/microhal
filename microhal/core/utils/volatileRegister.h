@@ -53,6 +53,17 @@ struct VolatileRegister<T, ReadOnly> {
     T reg;
 };
 
+template <>
+struct VolatileRegister<uint32_t, ReadWrite> {
+    using underlyingType = uint32_t;
+    void volatileStore(uint32_t value) { const_cast<volatile uint32_t &>(reg) = value; }
+
+    uint32_t volatileLoad() const { return const_cast<volatile uint32_t &>(reg); }
+
+ private:
+    uint32_t reg;
+};
+
 }  // namespace microhal
 
 #endif /* _MICROHAL_PORTS_VOLATILEREGISTER_H_ */
