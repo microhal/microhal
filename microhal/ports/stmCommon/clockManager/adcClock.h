@@ -156,6 +156,47 @@ static void disableADC(uint16_t adcNumber) {
 #endif
 }
 
+[[maybe_unused]] inline bool ADCprescaler(uint_fast8_t prescaler) {
+    auto cfgr = registers::rcc->cfgr.volatileLoad();
+    switch (prescaler) {
+        case 2:
+            cfgr.ADCPRE = 0b00;
+            break;
+        case 4:
+            cfgr.ADCPRE = 0b01;
+            break;
+        case 6:
+            cfgr.ADCPRE = 0b10;
+            break;
+        case 8:
+            cfgr.ADCPRE = 0b11;
+            break;
+        default:
+            return false;
+    }
+    registers::rcc->cfgr.volatileStore(cfgr);
+    return true;
+}
+
+[[maybe_unused]] inline uint_fast8_t ADCprescaler() {
+    auto cfgr = registers::rcc->cfgr.volatileLoad();
+    switch (cfgr.ADCPRE) {
+        case 0b00:
+            return 2;
+        case 0b01:
+            return 4;
+        case 0b10:
+            return 6;
+        case 0b11:
+            return 8;
+    }
+    std::terminate();
+}
+
+[[maybe_unused]] inline uint32_t ADCFrequency(uint8_t number) {
+    return APB2::frequency() / ADCprescaler();
+}
+
 #endif  // defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
 #endif  // defined(_MICROHAL_ADC1_BASE_ADDRESS) || defined(_MICROHAL_ADC2_BASE_ADDRESS) || defined(_MICROHAL_ADC3_BASE_ADDRESS)
 
