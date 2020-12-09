@@ -211,7 +211,7 @@ class LogLevelChannel {
     auto &operator<<(LineEnd) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.endl();
                 }
             }
@@ -222,7 +222,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(const char *c) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.write(c);
                 }
             }
@@ -233,7 +233,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(std::string_view string) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.writeText(string.data(), string.length());
                 }
             }
@@ -245,7 +245,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(const char (&c)[len]) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.writeText(c, len - 1);
                 }
             }
@@ -265,7 +265,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(uint32_t i) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.write(i, 10);
                 }
             }
@@ -276,7 +276,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(uint64_t i) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.write(i, 10);
                 }
             }
@@ -291,7 +291,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(int32_t i) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.write(i, 10);
                 }
             }
@@ -302,7 +302,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(int64_t i) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.write(i, 10);
                 }
             }
@@ -314,7 +314,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(const Converter<base> &converter) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     if (converter.dataPtr == nullptr) {
                         diagnostic.write(converter.data, base);
                     } else {
@@ -342,7 +342,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(double d) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.write(d);
                 }
             }
@@ -353,7 +353,7 @@ class LogLevelChannel {
     LogLevelChannel &operator<<(bool b) {
         if constexpr (compileTimeLogLevel != LogLevel::Disabled) {
             if constexpr (B) {
-                if (diagnostic.logLevel >= this->logLevel) {
+                if (enabled) {
                     diagnostic.write(b);
                 }
             }
@@ -364,11 +364,12 @@ class LogLevelChannel {
  private:
     const LogLevel logLevel;
     class Diagnostic<compileTimeLogLevel> &diagnostic;
+    const bool enabled;
 
     //----------------------------------------- constructors ----------------------------------
     // because this constructor is private object of this class can be created by two friend operator
     explicit constexpr LogLevelChannel(LogLevel logLevel, Diagnostic<compileTimeLogLevel> &diagnostic) noexcept
-        : logLevel(logLevel), diagnostic(diagnostic) {}
+        : logLevel(logLevel), diagnostic(diagnostic), enabled(diagnostic.logLevel >= this->logLevel) {}
 
     //----------------------------------------- friends ----------------------------------
     friend Diagnostic<compileTimeLogLevel>;
