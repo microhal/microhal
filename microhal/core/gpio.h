@@ -32,7 +32,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "interfaces/gpio_interface.h"
+#include "gpio/gpio_interface.h"
 #include "ports/manager/gpio_port.h"
 namespace microhal {
 

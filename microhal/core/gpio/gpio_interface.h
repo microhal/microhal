@@ -8,7 +8,7 @@
  * created on: 11-09-2018
  * last modification: 11-09-2018
  *
- * @copyright Copyright (c) 2018, Pawel Okas
+ * @copyright Copyright (c) 2018-2020, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -76,12 +76,19 @@ class GPIO {
     /** Set pin to opposite state */
     void toggle() { get() ? reset() : set(); }
     /**
-     * @brief Get pin state
+     * @brief Get actual pin state
      * @return Current pin state
      * @retval true if pin is in high state
      * @retval false if pin is in low state
      */
     virtual bool get() const = 0;
+    /**
+     * @brief Get output state, this can be used with @ref get method to check if pin is shorted to ground or power lines.
+     * @return Programmed pin state, set by @ref set or @ref reset methods
+     * @retval true if pin should be in high state
+     * @retval false if pin should be in low state
+     */
+    virtual bool getOutputState() const = 0;
     /**
      * @brief Check if pin is set as high
      *
@@ -96,9 +103,39 @@ class GPIO {
      * @retval false - if pin is high
      */
     bool isReset() const { return !get(); }
+    /**
+     * @brief Check if pin is configured as output
+     *
+     * @retval true - if pin is configured as Output
+     * @retval false - if pin is configured as Input
+     */
+    bool isInput() const { return getDirection() == Direction::Input; }
+    /**
+     * @brief Check if pin is configured as input
+     *
+     * @retval true - if pin is configured as Input
+     * @retval false - if pin is configured as Output
+     */
+    bool isOutput() const { return getDirection() == Direction::Output; }
 
-    bool setDirectionInput(PullType pullUpOrDown) { return configure(Direction::Input, OutputType::PushPull, pullUpOrDown); }
-    bool setDirectionOutput(OutputType outputType, PullType pullUpOrDown) { return configure(Direction::Output, outputType, pullUpOrDown); }
+    bool configureAsInput(PullType pullUpOrDown) { return configure(Direction::Input, OutputType::PushPull, pullUpOrDown); }
+    bool configureAsOutput(OutputType outputType, PullType pullUpOrDown) { return configure(Direction::Output, outputType, pullUpOrDown); }
+    /**
+     * @brief Check current pin direction
+     *
+     * @return pin Direction
+     */
+    Direction getDirection() const;
+    /**
+     * @brief Returns pin output configuration, if pin is configured as input return value will be invalid.
+     *
+     */
+    OutputType getOutputType() const;
+    /**
+     * @brief Returns pin pull configuration
+     *
+     */
+    PullType getPullType() const;
     /**
      * @brief Returns state of pin
      *
@@ -141,6 +178,7 @@ class GPIO {
 
  private:
     virtual bool configure(Direction, OutputType, PullType) = 0;
+    virtual bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const = 0;
 };
 
 }  // namespace microhal

@@ -32,7 +32,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include <interfaces/gpio_interface.h>
+#include <gpio/gpio_interface.h>
 #include <cstdint>
 #include <type_traits>
 #include "../IOPin.h"
@@ -53,6 +53,7 @@ class GPIOPort {
     constexpr GPIOPort(microhal::registers::GPIO *gpio) : gpio(*gpio) {}
 
     uint16_t get() const { return (uint32_t)gpio.idr.volatileLoad(); }
+    uint16_t getOdr() const { return (uint32_t)gpio.odr.volatileLoad(); }
     void set(uint16_t value) { gpio.odr.volatileStore(value); }
     void setMask(uint16_t bitsToSet) { gpio.bsrr.volatileStore(bitsToSet); }
     void resetMask(uint16_t bitsToReset) { gpio.brr.volatileStore(bitsToReset); }
@@ -88,7 +89,7 @@ class GPIOPort {
      * @param pinNumber from 0 to 15
      * @return
      */
-    uint8_t getPinConfiguration(uint8_t pinNumber) {
+    uint8_t getPinConfiguration(uint8_t pinNumber) const {
         if (pinNumber < 8) {
             auto crl = gpio.crl.volatileLoad();
             uint32_t tmp = crl;
@@ -153,6 +154,11 @@ class GPIOCommonBase : public microhal::GPIO {
         return io & (1 << pinNo);
     }
 
+    bool getOutputState() const final {
+        uint16_t io = port.getOdr();
+        return io & (1 << pinNo);
+    }
+
     bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final;
     /** This function set pin speed
      *
@@ -168,6 +174,8 @@ class GPIOCommonBase : public microhal::GPIO {
         }
         return false;
     }
+
+    bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const final;
 
  protected:
     GPIOPort port;

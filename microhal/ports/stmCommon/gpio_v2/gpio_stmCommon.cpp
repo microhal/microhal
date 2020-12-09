@@ -55,16 +55,40 @@ bool GPIOCommonBase::configure(microhal::GPIO::Direction dir, microhal::GPIO::Ou
     } else {
         uint8_t cnf;
         switch (type) {
-            case OutputType::OpenCollector:
-                return false;
             case OutputType::OpenDrain:
                 cnf = 0b0100 | MediumSpeed;
                 break;
             case OutputType::PushPull:
                 cnf = 0b0000 | MediumSpeed;
                 break;
+            default:
+                return false;
         }
         port.configurePin(pinNo, cnf);
+    }
+    return true;
+}
+
+bool GPIOCommonBase::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
+    auto config = port.getPinConfiguration(pinNo);
+    if (config & 0b11) {
+        dir = Direction::Output;
+        if (config & 0b0100)
+            otype = OutputType::OpenDrain;
+        else {
+            otype = OutputType::PushPull;
+        }
+    } else {
+        dir = Direction::Input;
+        if ((config & 0b1100) == 0b1000) {
+            if (port.getOdr() & 1 << pinNo) {
+                pull = PullType::PullUp;
+            } else {
+                pull = PullType::PullDown;
+            }
+        } else {
+            pull = PullType::NoPull;
+        }
     }
     return true;
 }
