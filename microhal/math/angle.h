@@ -76,6 +76,11 @@ class Angle {
         return isEqual(b, error);
     };
 
+    bool operator!=(Angle b) const {
+        static const Angle error(allowedCompareDifference);
+        return isEqual(b, error);
+    };
+
  private:
     static constexpr float maxValue = 2.0f * pi;
     static constexpr const float allowedCompareDifference = 0.0001f;
