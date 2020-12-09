@@ -10,3 +10,6 @@
 [submodule "third-party/doctest"]
 	path = third-party/doctest
 	url = https://github.com/onqtam/doctest.git
+[submodule "third-party/FreeRTOS-Kernel"]
+	path = third-party/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
