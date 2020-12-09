@@ -5,10 +5,10 @@
  *      Author: pokas
  */
 
-#ifndef THIRD_PARTY_MICROHAL_CORE_IODEVICE_VIRTUALIODEVICE_H_
-#define THIRD_PARTY_MICROHAL_CORE_IODEVICE_VIRTUALIODEVICE_H_
+#ifndef _MICROHAL_VIRTUALIODEVICE_H_
+#define _MICROHAL_VIRTUALIODEVICE_H_
 
-#include "IODevice.h"
+#include "../IODevice.h"
 #include "buffers/cyclicBuffer.h"
 
 namespace microhal {
@@ -75,4 +75,4 @@ class VirtualIODevice : public IODevice {
 
 } /* namespace microhal */
 
-#endif /* THIRD_PARTY_MICROHAL_CORE_IODEVICE_VIRTUALIODEVICE_H_ */
+#endif /* _MICROHAL_VIRTUALIODEVICE_H_ */
