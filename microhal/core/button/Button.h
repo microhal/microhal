@@ -31,7 +31,7 @@ class Button {
     Button() = delete;
 
     Button(GPIO &gpio, ActiveState activeState = ACTIVE_LOW) : onPressed(), gpio(gpio), activeState(activeState), debouncer(0xAA) {
-        gpio.setDirectionInput(activeState == ACTIVE_LOW ? GPIO::PullType::PullUp : GPIO::PullType::PullDown);
+        gpio.configureAsInput(activeState == ACTIVE_LOW ? GPIO::PullType::PullUp : GPIO::PullType::PullDown);
         if (first == nullptr) {
             first = this;
         } else {

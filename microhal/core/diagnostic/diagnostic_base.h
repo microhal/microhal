@@ -30,9 +30,8 @@
 #ifndef _MICROHAL_DIAGNOSTIC_BASE_H_
 #define _MICROHAL_DIAGNOSTIC_BASE_H_
 
-#include "../IODevice.h"
-#include "../ioDeviceNull/IODeviceNull.h"
-#include "../itoa.h"
+#include "../IODevice/IODevice.h"
+#include "../IODevice/ioDeviceNull/IODeviceNull.h"
 #include "microhalConfig.h"
 
 namespace microhal {

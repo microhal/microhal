@@ -35,8 +35,8 @@
 #include <cstdint>
 #include <type_traits>
 #include "../i2c.h"
+#include "../utils/byteswap.h"
 #include "../utils/deviceRegister.h"
-#include "byteswap.h"
 #include "gsl/span"
 #include "ports/manager/hardware.h"
 

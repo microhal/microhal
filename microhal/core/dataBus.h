@@ -10,8 +10,8 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include "gpio/gpio_interface.h"
 #include "interfaces/dataBus_interface.h"
-#include "interfaces/gpio_interface.h"
 
 namespace microhal {
 
@@ -62,25 +62,25 @@ class GenericDataBus : public DataBus {
     }
 
     void setDirectionOutput() {
-        data0.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data1.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data2.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data3.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data4.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data5.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data6.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data7.setDirectionOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data0.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data1.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data2.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data3.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data4.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data5.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data6.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data7.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
     }
 
     void setDirectionInput() {
-        data0.setDirectionInput(microhal::GPIO::NoPull);
-        data1.setDirectionInput(microhal::GPIO::NoPull);
-        data2.setDirectionInput(microhal::GPIO::NoPull);
-        data3.setDirectionInput(microhal::GPIO::NoPull);
-        data4.setDirectionInput(microhal::GPIO::NoPull);
-        data5.setDirectionInput(microhal::GPIO::NoPull);
-        data6.setDirectionInput(microhal::GPIO::NoPull);
-        data7.setDirectionInput(microhal::GPIO::NoPull);
+        data0.configureAsInput(microhal::GPIO::NoPull);
+        data1.configureAsInput(microhal::GPIO::NoPull);
+        data2.configureAsInput(microhal::GPIO::NoPull);
+        data3.configureAsInput(microhal::GPIO::NoPull);
+        data4.configureAsInput(microhal::GPIO::NoPull);
+        data5.configureAsInput(microhal::GPIO::NoPull);
+        data6.configureAsInput(microhal::GPIO::NoPull);
+        data7.configureAsInput(microhal::GPIO::NoPull);
     }
 
     void write8(uint8_t data) {

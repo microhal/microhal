@@ -27,6 +27,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../utils/itoa.h"
 #include "diagnostic.h"
 
 namespace microhal {
