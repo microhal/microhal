@@ -99,8 +99,8 @@ TEST_CASE("GPS GNGGA check") {
     // CHECK(rmc.longitude)
     CHECK(gga.fixStatus == GPS::FixStatus::GNSS);
     CHECK(gga.numberOfSatelitesUsed == 8);
-    CHECK(gga.hdop == 2.85);
-    CHECK(gga.altitude == 53.2);
+    CHECK(gga.hdop == 2.85f);
+    CHECK(gga.altitude == 53.2f);
     CHECK(gga.geoidSeparation == 0.0);
     CHECK(std::isnan(gga.dgpsAge));
     CHECK(std::isnan(gga.dgpsStationId));

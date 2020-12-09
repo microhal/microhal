@@ -130,7 +130,12 @@ class GPS {
 
     void update(string_view messages);
 
- private:
+    float getLatitude() const { return latitude; }
+    float getLongitude() const { return longitude; }
+    float getAltitude() const { return altitude; }
+    FixStatus getFixStatus() const { return fixStatus; }
+
+ protected:
     float latitude;
     float longitude;
     float altitude;
@@ -141,6 +146,7 @@ class GPS {
     Date date;
     FixStatus fixStatus;
 
+ private:
     Time decodeTime(string_view timestr);
     Date decodeDate(string_view datestr);
     float decodeLatitude(string_view, string_view);
