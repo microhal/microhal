@@ -37,13 +37,13 @@ static void enableRTC() {
     bdcr.RTCEN.set();
     registers::rcc->bdcr.volatileStore(bdcr);
 }
-static void disableRTC() {
+inline void disableRTC() {
     auto bdcr = registers::rcc->bdcr.volatileLoad();
     bdcr.RTCEN.clear();
     registers::rcc->bdcr.volatileStore(bdcr);
 }
 
-static RTCClock RTCClockSource() {
+inline RTCClock RTCClockSource() {
     auto bdcr = registers::rcc->bdcr.volatileLoad();
     return static_cast<RTCClock>(bdcr.RTCSEL.get());
 }

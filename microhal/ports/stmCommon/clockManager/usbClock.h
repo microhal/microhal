@@ -43,13 +43,13 @@ enum UsbPrescaler { Div1 = 1, Div1_5 = 0 };
 #if defined(_MICROHAL_USB_BASE_ADDRESS)
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
 #else
-static void enableUSB() {
+inline void enableUSB() {
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     apb1enr.USBEN.set();
     registers::rcc->apb1enr.volatileStore(apb1enr);
 }
 
-static void disableUSB() {
+inline void disableUSB() {
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     apb1enr.USBEN.clear();
     registers::rcc->apb1enr.volatileStore(apb1enr);
@@ -63,7 +63,7 @@ static void USBClockSource(UsbClockSource clockSource) {
 }
 #endif
 
-static UsbClockSource USBClockSource() {
+inline UsbClockSource USBClockSource() {
 #if defined(RCC_CFGR3_USBSW)
     return static_cast<UsbClockSource>(registers::rcc->cfgr3.volatileLoad().USBSW.get());
 #endif

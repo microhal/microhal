@@ -29,12 +29,12 @@ namespace ClockManager {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
 
 #else
-static void enableBackupRegisters() {
+inline void enableBackupRegisters() {
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     apb1enr.BKPEN.set();
     registers::rcc->apb1enr.volatileStore(apb1enr);
 }
-static void disableBackupRegisters() {
+inline void disableBackupRegisters() {
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     apb1enr.BKPEN.clear();
     registers::rcc->apb1enr.volatileStore(apb1enr);

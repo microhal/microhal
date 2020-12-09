@@ -83,7 +83,7 @@ static void disableADC(uint16_t adcNumber, PowerMode mode) {
 
 #else
 
-static void enableADC(uint16_t adcNumber) {
+inline void enableADC(uint16_t adcNumber) {
 #if defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC12EN) || defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC34EN)
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
 
@@ -119,7 +119,7 @@ static void enableADC(uint16_t adcNumber) {
     registers::rcc->apb2enr.volatileStore(apb2enr);
 #endif
 }
-static void disableADC(uint16_t adcNumber) {
+inline void disableADC(uint16_t adcNumber) {
 #if defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC12EN) || defined(_MICROHAL_REGISTERS_RCC_AHB1ENR_HAS_ADC34EN)
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
 
