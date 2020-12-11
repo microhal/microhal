@@ -6,6 +6,7 @@
  */
 
 #include "adc_v2_stm_common.h"
+#include "../stmCommonDefines.h"
 
 #include _MICROHAL_INCLUDE_PORT_DEVICE
 #if _MICROHAL_PORT_STM_DMA_DRIVER_VERSION == 1
