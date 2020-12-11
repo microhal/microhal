@@ -34,7 +34,7 @@
  */
 #include <chrono>
 #include <cstdint>
-#include "IODevice.h"
+#include "IODevice/IODevice.h"
 
 namespace microhal {
 /*!
