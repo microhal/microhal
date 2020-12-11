@@ -30,7 +30,27 @@ enum class RTCClock { None = 0, LSE, LSI, HSE_div_128 };
 
 #if defined(_MICROHAL_RTC_BASE_ADDRESS)
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+inline void enableRTC() {
+    auto bdcr = registers::rcc->bdcr.volatileLoad();
+    bdcr.RTCEN.set();
+    registers::rcc->bdcr.volatileStore(bdcr);
+}
+inline void disableRTC() {
+    auto bdcr = registers::rcc->bdcr.volatileLoad();
+    bdcr.RTCEN.clear();
+    registers::rcc->bdcr.volatileStore(bdcr);
+}
 
+inline RTCClock RTCClockSource() {
+    auto bdcr = registers::rcc->bdcr.volatileLoad();
+    return static_cast<RTCClock>(bdcr.RTCSEL.get());
+}
+
+inline void RTCClockSource(RTCClock clock) {
+    auto bdcr = registers::rcc->bdcr.volatileLoad();
+    bdcr.RTCSEL = static_cast<uint32_t>(clock);
+    registers::rcc->bdcr.volatileStore(bdcr);
+}
 #else
 static void enableRTC() {
     auto bdcr = registers::rcc->bdcr.volatileLoad();
