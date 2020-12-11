@@ -37,7 +37,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "clockManager/usartClock.h"
+#include "../clockManager/usartClock.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

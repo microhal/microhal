@@ -187,7 +187,10 @@ class SerialPort : public microhal::SerialPort {
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-
+#else
+namespace microhal {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {}
+}  // namespace microhal
 #endif  // ENABLED_ANY_SERIAL_PORT(POLLING) || ENABLED_ANY_SERIAL_PORT(INTERRUPT) || ENABLED_ANY_SERIAL_PORT(DMA)
 #endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1
 #endif  // _MICROHAL_PORTS_SERIALPORT_STMCOMMON_H_
