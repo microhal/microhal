@@ -40,8 +40,8 @@ void hardwareConfig(void) {
 
 namespace bsp {
 void init() {
-    IOManager::routeSerial<2, Txd, stm32f1xx::IOPin::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f1xx::IOPin::PortA, 3>();
+    IOManager::routeSerial<2, Txd, IOPin{IOPin::PortA, 2}>();
+    IOManager::routeSerial<2, Rxd, IOPin{IOPin::PortA, 3}>();
 }
 }  // namespace bsp
 

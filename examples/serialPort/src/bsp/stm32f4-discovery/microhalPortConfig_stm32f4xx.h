@@ -69,7 +69,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT2_DMA_RX_STREAM 5  // Serial port 2 RX stream can be connected only to DMA1 Stream 5.
 
 // =================== Serial port 3 ===================
-#define MICROHAL_USE_SERIAL_PORT3_POLLING
+#define MICROHAL_USE_SERIAL_PORT3_POLLING 1
 #define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT3_DMA_TX_STREAM 4  // Serial port 3 TX stream can be connected to DMA1 Stream 3 or 4.
@@ -95,7 +95,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_I2C1_DMA_TX_STREAM 6  // possible streams are 6 and 7
 
 // =================== I2C 2 ===================
-#define MICROHAL_USE_I2C2_INTERRUPT
+#define MICROHAL_USE_I2C2_INTERRUPT 0
 #define MICROHAL_I2C2_DMA_RX_STREAM 2  // possible streams are 2 and 3
 // tx stream can be connected only to stream 7
 
@@ -106,7 +106,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                        SPI configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_SPI1_DMA          // available settings are MICROHAL_USE_SPIx_POLLING
+#define MICROHAL_USE_SPI1_             // available settings are MICROHAL_USE_SPIx_POLLING
                                        // MICROHAL_USE_SPIx_INTERRUPT
                                        // MICROHAL_USE_SPIx_DMA
 #define MICROHAL_SPI1_DMA_RX_STREAM 2  // possible streams are 0 and 2 this options are valid only when MICROHAL_USE_SPIx_DMA is defined
@@ -115,7 +115,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //#define MICROHAL_USE_SPI2_DMA
 // SPI 2 DMA can be connected only to stream 3 and 4
 
-#define MICROHAL_USE_SPI3_DMA
+#define MICROHAL_USE_SPI3_
 #define MICROHAL_SPI3_DMA_RX_STREAM 0  // possible streams are 0 and 2
 #define MICROHAL_SPI3_DMA_TX_STREAM 7  // possible streams are 5 and 7
 
