@@ -32,6 +32,12 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include "driver_configuration_stm32f4xx.h"
+
+#if _MICROHAL_PORT_STM_I2C_DRIVER_VERSION == 1
 #include "ports/stmCommon/i2c_v1/i2c_stmCommon.h"
+#else
+#include "ports/stmCommon/i2c_v2/i2c_stmCommon.h"
+#endif
 
 #endif  // _MICROHAL_I2C_STM32F4XX_H_

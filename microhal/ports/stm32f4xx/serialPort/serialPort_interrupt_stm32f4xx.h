@@ -31,6 +31,6 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "ports/stmCommon/serialPort_interrupt_stmCommon.h"
+#include "ports/stmCommon/serialPort_v1/serialPort_interrupt_stmCommon.h"
 
 #endif  // _MICROHAL_SERIALPORT_INTERRUPT_STM32F4XX_H_

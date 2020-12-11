@@ -33,6 +33,6 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "ports/stmCommon/serialPort_polling_stmCommon.h"
+#include "ports/stmCommon/serialPort_v1/serialPort_polling_stmCommon.h"
 
 #endif  // _MICROHAL_SERIALPORT_POLLING_STM32F4XX_H_
