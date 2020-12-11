@@ -56,6 +56,12 @@ void GPIOCommonBase::pinInitialize(PinConfiguration config) {
     setSpeed(config.speed);
 }
 
+bool GPIOCommonBase::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
+    dir = static_cast<Direction>((port.getDirection() >> pinNo) & 0b1);
+    pull = static_cast<PullType>((port.getPullConfig() >> (2 * pinNo)) & 0b11);
+    return true;
+}
+
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 #endif  // _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 1

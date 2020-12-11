@@ -31,7 +31,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include <interfaces/gpio_interface.h>
+#include <gpio/gpio_interface.h>
 #include <cstdint>
 #include <type_traits>
 #include "../IOPin.h"
@@ -52,6 +52,7 @@ class GPIOPort {
     constexpr GPIOPort(microhal::registers::GPIO *gpio) : gpio(*gpio) {}
 
     uint16_t get() const { return (uint32_t)gpio.idr.volatileLoad(); }
+    uint16_t getOdr() const { return gpio.odr.volatileLoad(); }
     void set(uint16_t value) { gpio.odr.volatileStore(value); }
     void setMask(uint16_t bitsToSet) { gpio.bsrr.volatileStore(bitsToSet); }
     void resetMask(uint16_t bitsToReset) {
@@ -70,11 +71,11 @@ class GPIOPort {
         gpio.bsrr.volatileStore(bsrr);
     }
 
-    uint16_t getDirection() { return (uint32_t)gpio.otyper.volatileLoad(); }
+    uint16_t getDirection() const { return (uint32_t)gpio.otyper.volatileLoad(); }
     void setDirection(uint16_t direction) { gpio.otyper.volatileStore(direction); }
-    uint32_t getPullConfig() { return gpio.pupdr.volatileLoad(); }
+    uint32_t getPullConfig() const { return gpio.pupdr.volatileLoad(); }
     void setPullConfig(uint32_t pullConfig) { gpio.pupdr.volatileStore(pullConfig); }
-    uint32_t getSpeed() { return gpio.ospeedr.volatileLoad(); }
+    uint32_t getSpeed() const { return gpio.ospeedr.volatileLoad(); }
     void setSpeed(uint32_t speed) { gpio.ospeedr.volatileStore(speed); }
 
     microhal::registers::GPIO &getGpioHandle() { return gpio; }
@@ -141,10 +142,17 @@ class GPIOCommonBase : public microhal::GPIO {
         return io & (1 << pinNo);
     }
 
+    bool getOutputState() const final {
+        uint16_t odr = port.getOdr();
+        return odr & (1 << pinNo);
+    }
+
     bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
         pinInitialize(PinConfiguration{dir, type, pull, MediumSpeed});
         return true;
     }
+
+    bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const final;
     /**
      * This function set pin pull type
      *
