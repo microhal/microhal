@@ -40,15 +40,15 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************
  *                                   STATIC VARIABLES
  * ***********************************************************************************************/
-#ifdef MICROHAL_USE_I2C1_POLLING
+#if MICROHAL_USE_I2C1_POLLING == 1
 I2C_polling I2C_polling::i2c1(*registers::i2c1);
 I2C &I2C::i2c1 = I2C_polling::i2c1;
 #endif
-#ifdef MICROHAL_USE_I2C2_POLLING
+#if MICROHAL_USE_I2C2_POLLING == 1
 I2C_polling I2C_polling::i2c2(*registers::i2c2);
 I2C &I2C::i2c2 = I2C_polling::i2c2;
 #endif
-#ifdef MICROHAL_USE_I2C3_POLLING
+#if MICROHAL_USE_I2C3_POLLING == 1
 I2C_polling I2C_polling::i2c3(*registers::i2c3);
 I2C &I2C::i2c3 = I2C_polling::i2c3;
 #endif

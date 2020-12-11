@@ -51,13 +51,13 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 class I2C_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
  public:
 //---------------------------------------- variables ----------------------------------------//
-#ifdef MICROHAL_USE_I2C1_POLLING
+#if MICROHAL_USE_I2C1_POLLING == 1
     static I2C_polling i2c1;
 #endif
-#ifdef MICROHAL_USE_I2C2_POLLING
+#if MICROHAL_USE_I2C2_POLLING == 1
     static I2C_polling i2c2;
 #endif
-#ifdef MICROHAL_USE_I2C3_POLLING
+#if MICROHAL_USE_I2C3_POLLING == 1
     static I2C_polling i2c3;
 #endif
 

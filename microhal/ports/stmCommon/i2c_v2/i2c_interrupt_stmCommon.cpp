@@ -48,16 +48,20 @@ I2C_interrupt I2C_interrupt::i2c1(*registers::i2c1);
 I2C &I2C::i2c1 = I2C_interrupt::i2c1;
 #endif
 #ifdef MICROHAL_USE_I2C2_INTERRUPT
-I2C_interrupt I2C_interrupt::i2c2(*I2C2);
+I2C_interrupt I2C_interrupt::i2c2(*registers::i2c2);
 I2C &I2C::i2c2 = I2C_interrupt::i2c2;
 #endif
 #ifdef MICROHAL_USE_I2C3_INTERRUPT
-I2C_interrupt I2C_interrupt::i2c3(*I2C3);
+I2C_interrupt I2C_interrupt::i2c3(*registers::i2c3);
 I2C &I2C::i2c3 = I2C_interrupt::i2c3;
 #endif
 
 I2C_interrupt::I2C_interrupt(registers::I2C &i2c) : I2C(i2c), transfer(), error(), semaphore() {
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::enableI2C(getNumber(), ClockManager::PowerMode::Normal);
+#else
     ClockManager::enableI2C(getNumber());
+#endif
 
     switch (getNumber()) {
         case 1:
