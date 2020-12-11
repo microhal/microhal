@@ -35,16 +35,16 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 namespace detail {
-#define _MICROHAL_HAS_IRQn(x)                                        \
-    template <class T>                                               \
-    struct has_##x {                                                 \
-        typedef char yes;                                            \
-        typedef yes (&no)[2];                                        \
-        template <class U>                                           \
-        static yes test(decltype(U::x) *);                           \
-        template <class U>                                           \
-        static no test(...);                                         \
-        static bool const value = sizeof(test<T>(0)) == sizeof(yes); \
+#define _MICROHAL_HAS_IRQn(x)                                                  \
+    template <class T>                                                         \
+    struct has_##x {                                                           \
+        typedef char yes;                                                      \
+        typedef yes (&no)[2];                                                  \
+        template <class U>                                                     \
+        static yes test(decltype(U::x) *);                                     \
+        template <class U>                                                     \
+        static no test(...);                                                   \
+        static constexpr bool const value = sizeof(test<T>(0)) == sizeof(yes); \
     }
 
 #define _MICROHAL_INIT_EXTI(x, y)         \
@@ -54,17 +54,12 @@ namespace detail {
         NVIC_EnableIRQ(T::y);             \
     }
 
-#define _MICROHAL_INIT_EXTI_ENABLE_IF_EXIST(x, y)             \
-    template <typename T>                                     \
-    std::enable_if_t<T::y, void> init##x(uint32_t priority) { \
-        NVIC_SetPriority(T::y, priority);                     \
-        NVIC_EnableIRQ(T::y);                                 \
+#define _MICROHAL_INIT_EXTI_ENABLE_IF_EXIST(x, y)                                  \
+    template <typename T>                                                          \
+    std::enable_if_t<detail::has_##y<T>::value, void> init##x(uint32_t priority) { \
+        NVIC_SetPriority(T::y, priority);                                          \
+        NVIC_EnableIRQ(T::y);                                                      \
     }
-
-template <typename T>
-std::enable_if_t<T::EXTI2_3_IRQn, void> initExti2(uint32_t) {
-    std::terminate();
-}
 
 // functions for stm32f0xx port
 _MICROHAL_INIT_EXTI(Exti0_1, EXTI0_1_IRQn)
@@ -74,17 +69,23 @@ _MICROHAL_INIT_EXTI(Exti4_15, EXTI4_15_IRQn)
 _MICROHAL_INIT_EXTI(Exti0, EXTI0_IRQn)
 _MICROHAL_INIT_EXTI(Exti1, EXTI1_IRQn)
 
-_MICROHAL_INIT_EXTI_ENABLE_IF_EXIST(Exti2, EXTI2_IRQn)
-_MICROHAL_INIT_EXTI_ENABLE_IF_EXIST(Exti2, EXTI2_TSC_IRQn)
-
 _MICROHAL_INIT_EXTI(Exti3, EXTI3_IRQn)
 _MICROHAL_INIT_EXTI(Exti4, EXTI4_IRQn)
 _MICROHAL_INIT_EXTI(Exti9_5, EXTI9_5_IRQn)
 _MICROHAL_INIT_EXTI(Exti15_10, EXTI15_10_IRQn)
 
 _MICROHAL_HAS_IRQn(EXTI0_1_IRQn);
+_MICROHAL_HAS_IRQn(EXTI2_IRQn);
+_MICROHAL_HAS_IRQn(EXTI2_TSC_IRQn);
 _MICROHAL_HAS_IRQn(EXTI2_3_IRQn);
 _MICROHAL_HAS_IRQn(EXTI4_15_IRQn);
+
+_MICROHAL_INIT_EXTI_ENABLE_IF_EXIST(Exti2, EXTI2_IRQn)
+_MICROHAL_INIT_EXTI_ENABLE_IF_EXIST(Exti2, EXTI2_TSC_IRQn)
+
+template <typename T>
+void initExti2(...) {}
+
 }  // namespace detail
 
 Signal<void> ExternalInterrupt::signals[16];
