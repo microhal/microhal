@@ -292,6 +292,11 @@ class Adc final {
 
     constexpr Channel getTemperatureSensorChannel() const { return Channel16; }
     constexpr Channel getInteranlReferenceChannel() const { return Channel17; }
+    static float voltageToTemperatureInCelsius(float voltage) {
+        constexpr const float v25 = 1.43f;
+        constexpr const float avgSlope = 4.3f / 1000.0f;
+        return (v25 - voltage) / avgSlope + 25.0;
+    }
 
     /**
      * Note: This function is enabling interrupt for both ADC1 and ADC2 devices
