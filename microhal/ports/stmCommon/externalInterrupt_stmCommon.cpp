@@ -31,6 +31,15 @@
  */
 #include "externalInterrupt_stmCommon.h"
 #include <type_traits>
+#include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
+#undef EXTI
+
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+#include "clockManager/afioClock.h"
+#endif
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+#include "clockManager/syscfgClock.h"
+#endif
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -91,7 +100,16 @@ void initExti2(...) {}
 Signal<void> ExternalInterrupt::signals[16];
 
 void ExternalInterrupt::init(uint32_t priority) {
-    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::enableSYSCFG(ClockManager::PowerMode::Normal);
+#else
+    ClockManager::enableSYSCFG();
+#endif
+#endif
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+    ClockManager::enableAFIO();
+#endif
 
     if constexpr (detail::has_EXTI0_1_IRQn<IRQn_Type>::value) {
         detail::initExti0_1<IRQn_Type>(priority);
@@ -119,138 +137,127 @@ void ExternalInterrupt::init(uint32_t priority) {
 //                                     Interrupt functions                                       //
 //***********************************************************************************************//
 void externalInterrupt0Irq() {
-    // clear interrupt
-    EXTI->PR |= EXTI_PR_PR0;
+    registers::EXTI::PR toClear{};
+    toClear.PR0.set();
+    registers::exti1->pr.volatileStore(toClear);
 
     ExternalInterrupt::signals[0].emit();
 }
 
 void externalInterrupt1Irq() {
-    // clear interrupt
-    EXTI->PR |= EXTI_PR_PR1;
+    registers::EXTI::PR toClear{};
+    toClear.PR1.set();
+    registers::exti1->pr.volatileStore(toClear);
 
     ExternalInterrupt::signals[1].emit();
 }
 
 void externalInterrupt2Irq() {
-    // clear interrupt
-    EXTI->PR |= EXTI_PR_PR2;
+    registers::EXTI::PR toClear{};
+    toClear.PR2.set();
+    registers::exti1->pr.volatileStore(toClear);
 
     ExternalInterrupt::signals[2].emit();
 }
 
 void externalInterrupt3Irq() {
-    // clear interrupt
-    EXTI->PR |= EXTI_PR_PR3;
+    registers::EXTI::PR toClear{};
+    toClear.PR3.set();
+    registers::exti1->pr.volatileStore(toClear);
 
     ExternalInterrupt::signals[3].emit();
 }
 
 void externalInterrupt4Irq() {
-    // clear interrupt
-    EXTI->PR |= EXTI_PR_PR4;
+    registers::EXTI::PR toClear{};
+    toClear.PR4.set();
+    registers::exti1->pr.volatileStore(toClear);
 
     ExternalInterrupt::signals[4].emit();
 }
 
-void externalInterrupt9_5Irq(uint32_t pr) {
-    if (pr & EXTI_PR_PR5) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR5;
-
+void externalInterrupt9_5Irq(registers::EXTI::PR pr) {
+    registers::EXTI::PR toClear;
+    toClear = 0;
+    if (pr.PR5) {
+        toClear.PR5.set();
         ExternalInterrupt::signals[5].emit();
     }
-    if (pr & EXTI_PR_PR6) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR6;
-
+    if (pr.PR6) {
+        toClear.PR6.set();
         ExternalInterrupt::signals[6].emit();
     }
-    if (pr & EXTI_PR_PR7) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR7;
-
+    if (pr.PR7) {
+        toClear.PR7.set();
         ExternalInterrupt::signals[7].emit();
     }
-    if (pr & EXTI_PR_PR8) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR8;
-
+    if (pr.PR8) {
+        toClear.PR8.set();
         ExternalInterrupt::signals[8].emit();
     }
-    if (pr & EXTI_PR_PR9) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR9;
-
+    if (pr.PR9) {
+        toClear.PR9.set();
         ExternalInterrupt::signals[9].emit();
     }
+    registers::exti1->pr.volatileStore(toClear);
 }
 
-void externalInterrupt15_10Irq(uint32_t pr) {
-    if (pr & EXTI_PR_PR10) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR10;
-
+void externalInterrupt15_10Irq(registers::EXTI::PR pr) {
+    registers::EXTI::PR toClear;
+    toClear = 0;
+    if (pr.PR10) {
+        toClear.PR10.set();
         ExternalInterrupt::signals[10].emit();
     }
-    if (pr & EXTI_PR_PR11) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR11;
-
+    if (pr.PR11) {
+        toClear.PR11.set();
         ExternalInterrupt::signals[11].emit();
     }
-    if (pr & EXTI_PR_PR12) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR12;
-
+    if (pr.PR12) {
+        toClear.PR12.set();
         ExternalInterrupt::signals[12].emit();
     }
-    if (pr & EXTI_PR_PR13) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR13;
-
+    if (pr.PR13) {
+        toClear.PR13.set();
         ExternalInterrupt::signals[13].emit();
     }
-    if (pr & EXTI_PR_PR14) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR14;
-
+    if (pr.PR14) {
+        toClear.PR14.set();
         ExternalInterrupt::signals[14].emit();
     }
-    if (pr & EXTI_PR_PR15) {
-        // clear interrupt
-        EXTI->PR |= EXTI_PR_PR15;
-
+    if (pr.PR15) {
+        toClear.PR15.set();
         ExternalInterrupt::signals[15].emit();
     }
+    registers::exti1->pr.volatileStore(toClear);
 }
 //***********************************************************************************************//
 //                                          IRQHandlers                                          //
 //***********************************************************************************************//
 #if defined(MCU_TYPE_STM32F0XX)
 extern "C" void EXTI0_1_IRQHandler(void) {
-    uint32_t pr = EXTI->PR;
-    if (pr & EXTI_PR_PR0) {
+    auto pr = registers::exti1->pr.volatileLoad();
+    if (pr.PR0) {
         externalInterrupt0Irq();
     }
-    if (pr & EXTI_PR_PR1) {
+    if (pr.PR1) {
         externalInterrupt1Irq();
     }
 }
 
 extern "C" void EXTI2_3_IRQHandler(void) {
-    uint32_t pr = EXTI->PR;
-    if (pr & EXTI_PR_PR2) {
+    auto pr = registers::exti1->pr.volatileLoad();
+    if (pr.PR2) {
         externalInterrupt2Irq();
     }
-    if (pr & EXTI_PR_PR3) {
+    if (pr.PR3) {
         externalInterrupt3Irq();
     }
 }
 
 extern "C" void EXTI4_15_IRQHandler(void) {
-    uint32_t pr = EXTI->PR;
-    if (pr & EXTI_PR_PR4) {
+    auto pr = registers::exti1->pr.volatileLoad();
+    if (pr.PR4) {
         externalInterrupt4Irq();
     }
     externalInterrupt9_5Irq(pr);
@@ -274,10 +281,10 @@ extern "C" void EXTI4_IRQHandler(void) {
     externalInterrupt4Irq();
 }
 extern "C" void EXTI9_5_IRQHandler(void) {
-    externalInterrupt9_5Irq(EXTI->PR);
+    externalInterrupt9_5Irq(registers::exti1->pr.volatileLoad());
 }
 extern "C" void EXTI15_10_IRQHandler(void) {
-    externalInterrupt15_10Irq(EXTI->PR);
+    externalInterrupt15_10Irq(registers::exti1->pr.volatileLoad());
 }
 #endif
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

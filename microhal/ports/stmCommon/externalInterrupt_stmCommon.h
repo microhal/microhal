@@ -36,10 +36,25 @@
 #include <exception>
 
 #include "IOPin.h"
+#include "registers/exti_registers_v1.h"
 #include "signalSlot/signalSlot.h"
 #include "stmCommonDefines.h"
 
-#include _MICROHAL_INCLUDE_PORT_DEVICE  // stmCommonDefines.h have to be included before this
+#undef EXTI
+#undef SYSCFG
+
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+#include "registers/afio_registers.h"
+#endif
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS)
+#include "registers/syscfgRegisters_v1.h"
+#endif
+#if defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS)
+#include "registers/syscfgCompOpampRegisters_v1.h"
+#endif
+#if defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+#include "registers/syscfgCompRegisters_v1.h"
+#endif
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -47,13 +62,6 @@
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-[[maybe_unused]] void externalInterrupt0Irq();
-[[maybe_unused]] void externalInterrupt1Irq();
-[[maybe_unused]] void externalInterrupt2Irq();
-[[maybe_unused]] void externalInterrupt3Irq();
-[[maybe_unused]] void externalInterrupt4Irq();
-[[maybe_unused]] void externalInterrupt9_5Irq(uint32_t);
-[[maybe_unused]] void externalInterrupt15_10Irq(uint32_t);
 /* ************************************************************************************************
  * CLASS
  */
@@ -66,27 +74,27 @@ class ExternalInterrupt {
     static void init(uint32_t priority);
 
     template <typename T>
-    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
-        if (signals[pinNumber].connect(slot, object)) {
-            configure(pinNumber, trigger);
-            selectEXTILinePort({port, pinNumber});
+    static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin pin) {
+        if (signals[pin.pin].connect(slot, object)) {
+            configure(pin.pin, trigger);
+            selectEXTILinePort(pin);
             return true;
         }
         return false;
     }
 
-    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, IOPin::Port port, IOPin::Pin pinNumber) {
-        if (signals[pinNumber].connect(interruptFunction)) {
-            configure(pinNumber, trigger);
-            selectEXTILinePort({port, pinNumber});
+    static inline bool connect(void (*interruptFunction)(void), Trigger trigger, IOPin pin) {
+        if (signals[pin.pin].connect(interruptFunction)) {
+            configure(pin.pin, trigger);
+            selectEXTILinePort(pin);
             return true;
         }
         return false;
     }
 
-    static inline bool disconnect(void (*interruptFunction)(void), IOPin::Port port, IOPin::Pin pinNumber) {
-        if (signals[pinNumber].disconnect(interruptFunction)) {
-            deselectEXTILinePort({port, pinNumber});
+    static inline bool disconnect(void (*interruptFunction)(void), IOPin pin) {
+        if (signals[pin.pin].disconnect(interruptFunction)) {
+            deselectEXTILinePort(pin);
             return true;
         }
         return false;
@@ -103,16 +111,18 @@ class ExternalInterrupt {
 
     static bool enable(IOPin pin) {
         if (getConfiguration(pin) == pin.port) {
-            volatile auto exti = EXTI;
-            exti->IMR |= 1 << pin.pin;
+            auto imr = registers::exti1->imr.volatileLoad();
+            imr |= 1 << pin.pin;
+            registers::exti1->imr.volatileStore(imr);
             return true;
         }
         return false;
     }
-    static inline bool disable(IOPin::Port port, IOPin::Pin pinNumber) {
-        if (getConfiguration({port, pinNumber}) == port) {
-            volatile auto exti = EXTI;
-            exti->IMR &= ~(1 << pinNumber);
+    static inline bool disable(IOPin pin) {
+        if (getConfiguration(pin) == pin.port) {
+            auto imr = registers::exti1->imr.volatileLoad();
+            imr &= ~(1 << pin.pin);
+            registers::exti1->imr.volatileStore(imr);
             return true;
         }
         return false;
@@ -120,8 +130,8 @@ class ExternalInterrupt {
 
     static bool isEnabled(IOPin pin) {
         if (getConfiguration(pin) == pin.port) {
-            volatile auto exti = EXTI;
-            return exti->IMR & (1 << pin.pin);
+            auto imr = registers::exti1->imr.volatileLoad();
+            return imr & (1 << pin.pin);
         }
         return false;
     }
@@ -134,44 +144,73 @@ class ExternalInterrupt {
     friend void externalInterrupt2Irq();
     friend void externalInterrupt3Irq();
     friend void externalInterrupt4Irq();
-    friend void externalInterrupt9_5Irq(uint32_t);
-    friend void externalInterrupt15_10Irq(uint32_t);
+    friend void externalInterrupt9_5Irq(registers::EXTI::PR pr);
+    friend void externalInterrupt15_10Irq(registers::EXTI::PR pr);
 
     static void configure(uint_fast8_t vectorNumber, Trigger trigger) {
         const uint32_t bitMask = 1 << vectorNumber;
 
+        auto rtsr = registers::exti1->rtsr.volatileLoad();
+        auto ftsr = registers::exti1->ftsr.volatileLoad();
         switch (trigger) {
             case TriggerOnRising:
-                EXTI->RTSR |= bitMask;
-                EXTI->FTSR &= ~bitMask;
+                rtsr |= bitMask;
+                ftsr &= ~bitMask;
                 break;
             case TriggerOnFalling:
-                EXTI->FTSR |= bitMask;
-                EXTI->RTSR &= ~bitMask;
+                ftsr |= bitMask;
+                rtsr &= ~bitMask;
                 break;
             case TriggerOnEdge:
-                EXTI->RTSR |= bitMask;
-                EXTI->FTSR |= bitMask;
+                rtsr |= bitMask;
+                ftsr |= bitMask;
                 break;
         }
+        registers::exti1->rtsr.volatileStore(rtsr);
+        registers::exti1->ftsr.volatileStore(ftsr);
     }
 
     static void selectEXTILinePort(IOPin pin) {
-        uint32_t exticr = SYSCFG->EXTICR[pin.pin / 4];
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+        auto exticr = registers::syscfg->exticr[pin.pin / 4].volatileLoad();
+#endif
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+        auto exticr = registers::afio1->exticr[pin.pin / 4].volatileLoad();
+#endif
         exticr &= ~(0b1111 << (4 * (pin.pin % 4)));
-        exticr |= ((pin.port - GPIOA_BASE) / (GPIOB_BASE - GPIOA_BASE)) << (4 * (pin.pin % 4));
-        SYSCFG->EXTICR[pin.pin / 4] = exticr;
+        exticr |= ((pin.port - _MICROHAL_GPIOA_BASE_ADDRESS) / (_MICROHAL_GPIOB_BASE_ADDRESS - _MICROHAL_GPIOA_BASE_ADDRESS)) << (4 * (pin.pin % 4));
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+        registers::syscfg->exticr[pin.pin / 4].volatileStore(exticr);
+#endif
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+        registers::afio1->exticr[pin.pin / 4].volatileStore(exticr);
+#endif
     }
 
     static void deselectEXTILinePort(IOPin pin) {
-        uint32_t exticr = SYSCFG->EXTICR[pin.pin / 4];
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+        auto exticr = registers::syscfg->exticr[pin.pin / 4].volatileLoad();
+#endif
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+        auto exticr = registers::afio1->exticr[pin.pin / 4].volatileLoad();
+#endif
         exticr &= ~(0b1111 << (4 * (pin.pin % 4)));
-        SYSCFG->EXTICR[pin.pin / 4] = exticr;
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+        registers::afio1->exticr[pin.pin / 4].volatileStore(exticr);
+#endif
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+        registers::syscfg->exticr[pin.pin / 4].volatileStore(exticr);
+#endif
     }
 
     static IOPin::Port getConfiguration(IOPin pin) {
         //        constexpr IOPin::Port map[] = {IOPin::PortA, IOPin::PortB, IOPin::PortC, IOPin::PortD, IOPin::PortE};
-        uint32_t exticr = SYSCFG->EXTICR[pin.pin / 4];
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
+        uint32_t exticr = registers::syscfg->exticr[pin.pin / 4].volatileLoad();
+#endif
+#if defined(_MICROHAL_AFIO_BASE_ADDRESS)
+        uint32_t exticr = registers::afio1->exticr[pin.pin / 4].volatileLoad();
+#endif
         exticr >>= 4 * (pin.pin % 4);
         exticr &= 0b1111;
         switch (exticr) {

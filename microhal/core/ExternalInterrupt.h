@@ -71,8 +71,7 @@ class ExternalInterrupt {
      * @retval false if this interrupt is already connected to another function.
      */
     static inline bool connect(void (*interruptFunction)(void), Trigger trigger, IOPin ioPin) noexcept __attribute__((always_inline)) {
-        return activePort::ExternalInterrupt::connect(interruptFunction, static_cast<activePort::ExternalInterrupt::Trigger>(trigger), ioPin.port,
-                                                      ioPin.pin);
+        return activePort::ExternalInterrupt::connect(interruptFunction, static_cast<activePort::ExternalInterrupt::Trigger>(trigger), ioPin);
     }
     /**
      *
@@ -83,7 +82,7 @@ class ExternalInterrupt {
      * @retval false if this interrupt is not connected to function.
      */
     static inline bool disconnect(void (*interruptFunction)(void), IOPin ioPin) noexcept __attribute__((always_inline)) {
-        return activePort::ExternalInterrupt::disconnect(interruptFunction, ioPin.port, ioPin.pin);
+        return activePort::ExternalInterrupt::disconnect(interruptFunction, ioPin);
     }
     /**
      *
@@ -99,8 +98,7 @@ class ExternalInterrupt {
 
     template <typename T>
     static inline bool connect(const T &slot, const typename T::type &object, Trigger trigger, IOPin ioPin) noexcept {
-        return activePort::ExternalInterrupt::connect(slot, object, static_cast<activePort::ExternalInterrupt::Trigger>(trigger), ioPin.port,
-                                                      ioPin.pin);
+        return activePort::ExternalInterrupt::connect(slot, object, static_cast<activePort::ExternalInterrupt::Trigger>(trigger), ioPin);
     }
 
     template <typename T>
@@ -128,7 +126,7 @@ class ExternalInterrupt {
      * @retval false if interrupt is unconnected.
      */
     static inline bool disable(microhal::IOPin ioPin) noexcept __attribute__((always_inline)) {
-        activePort::ExternalInterrupt::disable(ioPin.port, ioPin.pin);
+        activePort::ExternalInterrupt::disable(ioPin);
         return true;
     }
     /**
