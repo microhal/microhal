@@ -26,6 +26,8 @@
  */
 
 #include "dma_stmCommon.h"
+#if _MICROHAL_PORT_STM_DMA_DRIVER_VERSION == 1
+
 #include _MICROHAL_INCLUDE_PORT_DEVICE
 
 namespace microhal {
@@ -61,3 +63,4 @@ void Channel::init(MemoryDataSize memSize, PeripheralDataSize peripheralSize, Me
 }  // namespace DMA
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+#endif

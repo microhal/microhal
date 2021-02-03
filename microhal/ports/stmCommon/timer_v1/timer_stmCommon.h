@@ -255,6 +255,7 @@ class Timer {
         }
     }
     uint32_t getPrescaler() const { return (uint32_t)timer.psc.volatileLoad() + 1; }
+    uint32_t getMaxPrescaler() const { return 65536; }
 
     void setClockSource(ClockSource clockSource) {
         switch (clockSource) {
