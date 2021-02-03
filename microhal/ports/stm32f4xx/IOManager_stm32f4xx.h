@@ -58,16 +58,16 @@ class IOManager {
         // assert for Serial1
         if constexpr (serial == 1) {
             if constexpr (serialType == Txd) {
-                static_assert(pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 6},
+                static_assert(pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortA, 15} || pin == IOPin{IOPin::PortB, 6},
                               "Serial1 Txd can be connected only to: PortA.9 or PortB.6.");
             }
             if constexpr (serialType == Rxd) {
-                static_assert(pin == IOPin{IOPin::PortA, 10} || pin == IOPin{IOPin::PortB, 7},
+                static_assert(pin == IOPin{IOPin::PortA, 10} || pin == IOPin{IOPin::PortB, 3} || pin == IOPin{IOPin::PortB, 7},
                               "Serial1 Rxd can be connected only to: PortA.10 or PortB.7.");
             }
         }
         // assert for Serial2
-        if constexpr (serial == 1) {
+        if constexpr (serial == 2) {
 #if !defined(STM32F410Tx) && !defined(STM32F410Cx) && !defined(STM32F410Rx)
             if constexpr (serialType == Txd) {
                 static_assert(pin == IOPin{IOPin::PortA, 2} || pin == IOPin{IOPin::PortD, 5},

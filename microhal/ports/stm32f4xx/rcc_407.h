@@ -1102,13 +1102,12 @@ struct RCC {
     // Backup domain control register
     union BDCR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> LSEON;   /*!< External low-speed oscillator enable */
-            microhal::Bitfield<uint32_t, 1, 1> LSERDY;  /*!< External low-speed oscillator ready */
-            microhal::Bitfield<uint32_t, 2, 1> LSEBYP;  /*!< External low-speed oscillator bypass */
-            microhal::Bitfield<uint32_t, 8, 1> RTCSEL0; /*!< RTC clock source selection */
-            microhal::Bitfield<uint32_t, 9, 1> RTCSEL1; /*!< RTC clock source selection */
-            microhal::Bitfield<uint32_t, 15, 1> RTCEN;  /*!< RTC clock enable */
-            microhal::Bitfield<uint32_t, 16, 1> BDRST;  /*!< Backup domain software reset */
+            microhal::Bitfield<uint32_t, 0, 1> LSEON;  /*!< External low-speed oscillator enable */
+            microhal::Bitfield<uint32_t, 1, 1> LSERDY; /*!< External low-speed oscillator ready */
+            microhal::Bitfield<uint32_t, 2, 1> LSEBYP; /*!< External low-speed oscillator bypass */
+            microhal::Bitfield<uint32_t, 8, 2> RTCSEL; /*!< RTC clock source selection */
+            microhal::Bitfield<uint32_t, 15, 1> RTCEN; /*!< RTC clock enable */
+            microhal::Bitfield<uint32_t, 16, 1> BDRST; /*!< Backup domain software reset */
         };
 
         operator uint32_t() const { return raw; }

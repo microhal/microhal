@@ -67,24 +67,24 @@ extern "C" {
 //#define SYSCALLS_HAVE_UNLINK_R		1
 //#define SYSCALLS_HAVE_WAIT_R		1
 //#define SYSCALLS_HAVE_WRITE_R		1
-#define SYSCALLS_HAVE_CLOSE_R       1
-#define SYSCALLS_HAVE_EXECVE_R      1
-#define SYSCALLS_HAVE_EXIT          1
-#define SYSCALLS_HAVE_FORK_R        1
-#define SYSCALLS_HAVE_FSTAT_R       1
-#define SYSCALLS_HAVE_GETPID_R      1
-#define SYSCALLS_HAVE_ISATTY_R      1
-#define SYSCALLS_HAVE_KILL_R        1
-#define SYSCALLS_HAVE_LINK_R        1
-#define SYSCALLS_HAVE_LSEEK_R       1
-#define SYSCALLS_HAVE_OPEN_R        1
-#define SYSCALLS_HAVE_READ_R        1
-#define SYSCALLS_HAVE_SBRK_R        1
-#define SYSCALLS_HAVE_STAT_R        1
-#define SYSCALLS_HAVE_TIMES_R       1
-#define SYSCALLS_HAVE_UNLINK_R      1
-#define SYSCALLS_HAVE_WAIT_R        1
-#define SYSCALLS_HAVE_WRITE_R       1
+#define SYSCALLS_HAVE_CLOSE_R 1
+#define SYSCALLS_HAVE_EXECVE_R 1
+#define SYSCALLS_HAVE_EXIT 1
+#define SYSCALLS_HAVE_FORK_R 1
+#define SYSCALLS_HAVE_FSTAT_R 1
+#define SYSCALLS_HAVE_GETPID_R 1
+#define SYSCALLS_HAVE_ISATTY_R 1
+#define SYSCALLS_HAVE_KILL_R 1
+#define SYSCALLS_HAVE_LINK_R 1
+#define SYSCALLS_HAVE_LSEEK_R 1
+#define SYSCALLS_HAVE_OPEN_R 1
+#define SYSCALLS_HAVE_READ_R 1
+#define SYSCALLS_HAVE_SBRK_R 1
+#define SYSCALLS_HAVE_STAT_R 1
+#define SYSCALLS_HAVE_TIMES_R 1
+#define SYSCALLS_HAVE_UNLINK_R 1
+#define SYSCALLS_HAVE_WAIT_R 1
+#define SYSCALLS_HAVE_WRITE_R 1
 
 /*
  +=============================================================================+
@@ -93,11 +93,11 @@ extern "C" {
  */
 
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/times.h>
 #include <stdint.h>
+#include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/times.h>
+#include <sys/types.h>
 #include "device/stm32f4xx.h"
 /*
  +=============================================================================+
@@ -105,7 +105,7 @@ extern "C" {
  +=============================================================================+
  */
 
-char *environ_initial[1] = { 0 };
+char *environ_initial[1] = {0};
 char **environ = environ_initial;
 
 #undef errno
@@ -134,8 +134,8 @@ int native_handle_type;
  *//*-------------------------------------------------------------------------*/
 
 int _close_r(struct _reent *r, int file) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
+    r = r;        // suppress warning
+    file = file;  // suppress warning
 
     return -1;
 }
@@ -160,13 +160,13 @@ int _close_r(struct _reent *r, int file) {
  * \return -1 for failure.
  *//*-------------------------------------------------------------------------*/
 
-int _execve_r(struct _reent *r, const char *path, char * const argv[], char * const envp[]) {
-    r = r;									// suppress warning
-    path = path;							// suppress warning
-    argv = argv;							// suppress warning
-    envp = envp;							// suppress warning
+int _execve_r(struct _reent *r, const char *path, char *const argv[], char *const envp[]) {
+    r = r;        // suppress warning
+    path = path;  // suppress warning
+    argv = argv;  // suppress warning
+    envp = envp;  // suppress warning
 
-    //errno = ENOMEM;
+    // errno = ENOMEM;
     return -1;
 }
 
@@ -182,7 +182,7 @@ int _execve_r(struct _reent *r, const char *path, char * const argv[], char * co
  *//*-------------------------------------------------------------------------*/
 
 void _exit(int status) {
-    status = status;						// suppress warning
+    status = status;  // suppress warning
 
     while (1)
         ;
@@ -200,9 +200,9 @@ void _exit(int status) {
  *//*-------------------------------------------------------------------------*/
 
 pid_t _fork_r(struct _reent *r) {
-    r = r;									// suppress warning
+    r = r;  // suppress warning
 
-    //errno = EAGAIN;
+    // errno = EAGAIN;
     return -1;
 }
 
@@ -222,9 +222,9 @@ pid_t _fork_r(struct _reent *r) {
  *//*-------------------------------------------------------------------------*/
 
 int _fstat_r(struct _reent *r, int file, struct stat *st) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
-    st = st;								// suppress warning
+    r = r;        // suppress warning
+    file = file;  // suppress warning
+    st = st;      // suppress warning
 
     st->st_mode = S_IFCHR;
     return 0;
@@ -242,7 +242,7 @@ int _fstat_r(struct _reent *r, int file, struct stat *st) {
  *//*-------------------------------------------------------------------------*/
 
 pid_t _getpid_r(struct _reent *r) {
-    r = r;									// suppress warning
+    r = r;  // suppress warning
 
     return 1;
 }
@@ -260,8 +260,8 @@ pid_t _getpid_r(struct _reent *r) {
  *//*-------------------------------------------------------------------------*/
 
 int _isatty_r(struct _reent *r, int file) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
+    r = r;        // suppress warning
+    file = file;  // suppress warning
 
     return 1;
 }
@@ -280,11 +280,11 @@ int _isatty_r(struct _reent *r, int file) {
  *//*-------------------------------------------------------------------------*/
 
 int _kill_r(struct _reent *r, pid_t pid, int signal) {
-    r = r;									// suppress warning
-    pid = pid;								// suppress warning
-    signal = signal;						// suppress warning
+    r = r;            // suppress warning
+    pid = pid;        // suppress warning
+    signal = signal;  // suppress warning
 
-    //errno = EINVAL;
+    // errno = EINVAL;
     return -1;
 }
 
@@ -303,11 +303,11 @@ int _kill_r(struct _reent *r, pid_t pid, int signal) {
  *//*-------------------------------------------------------------------------*/
 
 int _link_r(struct _reent *r, const char *old, const char *new) {
-    r = r;									// suppress warning
-    old = old;								// suppress warning
-    new = new;								// suppress warning
+    r = r;      // suppress warning
+    old = old;  // suppress warning
+    new = new;  // suppress warning
 
-    //errno = EMLINK;
+    // errno = EMLINK;
     return -1;
 }
 
@@ -327,10 +327,10 @@ int _link_r(struct _reent *r, const char *old, const char *new) {
  *//*-------------------------------------------------------------------------*/
 
 off_t _lseek_r(struct _reent *r, int file, off_t offset, int whence) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
-    offset = offset;						// suppress warning
-    whence = whence;						// suppress warning
+    r = r;            // suppress warning
+    file = file;      // suppress warning
+    offset = offset;  // suppress warning
+    whence = whence;  // suppress warning
 
     return 0;
 }
@@ -351,10 +351,10 @@ off_t _lseek_r(struct _reent *r, int file, off_t offset, int whence) {
  *//*-------------------------------------------------------------------------*/
 
 int _open_r(struct _reent *r, const char *pathname, int flags, int mode) {
-    r = r;									// suppress warning
-    pathname = pathname;					// suppress warning
-    flags = flags;							// suppress warning
-    mode = mode;							// suppress warning
+    r = r;                // suppress warning
+    pathname = pathname;  // suppress warning
+    flags = flags;        // suppress warning
+    mode = mode;          // suppress warning
 
     return -1;
 }
@@ -374,10 +374,10 @@ int _open_r(struct _reent *r, const char *pathname, int flags, int mode) {
  *//*-------------------------------------------------------------------------*/
 
 ssize_t _read_r(struct _reent *r, int file, void *buf, size_t nbyte) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
-    buf = buf;								// suppress warning
-    nbyte = nbyte;							// suppress warning
+    r = r;          // suppress warning
+    file = file;    // suppress warning
+    buf = buf;      // suppress warning
+    nbyte = nbyte;  // suppress warning
 
     return 0;
 }
@@ -397,24 +397,24 @@ ssize_t _read_r(struct _reent *r, int file, void *buf, size_t nbyte) {
  *//*-------------------------------------------------------------------------*/
 
 caddr_t _sbrk_r(struct _reent *r, int size) {
-    extern char __heap_start;				// imported from linker script
-    extern char __heap_end;					// imported from linker script
+    extern char __heap_start;  // imported from linker script
+    extern char __heap_end;    // imported from linker script
     static char *current_heap_end = &__heap_start;
     char *previous_heap_end;
 
-    r = r;									// suppress warning
+    r = r;  // suppress warning
 
     previous_heap_end = current_heap_end;
 
-    if (current_heap_end + size > &__heap_end)	// is there enough space on the heap left?
-            {
-        errno = ENOMEM;						// not enough memory left
-        return (caddr_t) - 1;				// return immediatelly
+    if (current_heap_end + size > &__heap_end)  // is there enough space on the heap left?
+    {
+        errno = ENOMEM;      // not enough memory left
+        return (caddr_t)-1;  // return immediatelly
     }
 
-    current_heap_end += size;				// increase data space
+    current_heap_end += size;  // increase data space
 
-    return (caddr_t) previous_heap_end;		// return requested data space
+    return (caddr_t)previous_heap_end;  // return requested data space
 }
 
 #endif
@@ -432,8 +432,8 @@ caddr_t _sbrk_r(struct _reent *r, int size) {
  *//*-------------------------------------------------------------------------*/
 
 int _stat_r(struct _reent *r, const char *pathname, struct stat *st) {
-    r = r;									// suppress warning
-    pathname = pathname;					// suppress warning
+    r = r;                // suppress warning
+    pathname = pathname;  // suppress warning
 
     st->st_mode = S_IFCHR;
     return 0;
@@ -453,8 +453,8 @@ int _stat_r(struct _reent *r, const char *pathname, struct stat *st) {
  *//*-------------------------------------------------------------------------*/
 
 int _times_r(struct _reent *r, struct tms *buf) {
-    r = r;									// suppress warning
-    buf = buf;								// suppress warning
+    r = r;      // suppress warning
+    buf = buf;  // suppress warning
 
     return -1;
 }
@@ -473,10 +473,10 @@ int _times_r(struct _reent *r, struct tms *buf) {
  *//*-------------------------------------------------------------------------*/
 
 int _unlink_r(struct _reent *r, const char *pathname) {
-    r = r;									// suppress warning
-    pathname = pathname;					// suppress warning
+    r = r;                // suppress warning
+    pathname = pathname;  // suppress warning
 
-    //errno = ENOENT;
+    // errno = ENOENT;
     return -1;
 }
 
@@ -494,51 +494,18 @@ int _unlink_r(struct _reent *r, const char *pathname) {
  *//*-------------------------------------------------------------------------*/
 
 pid_t _wait_r(struct _reent *r, int *stat_loc) {
-    r = r;									// suppress warning
-    stat_loc = stat_loc;					// suppress warning
+    r = r;                // suppress warning
+    stat_loc = stat_loc;  // suppress warning
 
-    //errno = ECHILD;
+    // errno = ECHILD;
     return -1;
 }
 
 #endif
 
-#if SYSCALLS_HAVE_WRITE_R == 1
-
-/*------------------------------------------------------------------------*//**
- * \brief Wait for a child process.
- * \details Wait for a child process.
- *
- * \param [in] file is the file descriptor of an open file to write to.
- * \param [in] buf is an array of data to write to the open file.
- * \param [in] nbyte is the number of bytes to write to the file.
- * \return 0 for success.
- *//*-------------------------------------------------------------------------*/
-
-ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
-    r = r;									// suppress warning
-    file = file;							// suppress warning
-    buf = buf;								// suppress warning
-    nbyte = nbyte;							// suppress warning
-
-    return 0;
-}
-
 #endif
-extern uint64_t SysTick_time;
-//int _gettimeofday( struct timeval *tv, void *tzvp )
-//{
-//   uint64_t t = SysTick_time;// SysTick->VAL; // get uptime in nanoseconds
-//   tv->tv_sec = t / 1000;  // convert to seconds
-//   tv->tv_usec = ( t % 1000 ) * 1000;  // get remaining microseconds
-//  // tv->tv_sec = 0;//t / 1000000000;  // convert to seconds
-//  // tv->tv_usec = SysTick->VAL;
-//   return 0;  // return non-zero for error
-//}
 
 #ifdef __cplusplus
 }
 #endif
-#endif //LINUX_PORT#endif //VENDOR_ATMEL/******************************************************************************
- * END OF FILE
- ******************************************************************************/
+#endif
