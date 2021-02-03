@@ -33,7 +33,7 @@
 namespace microhal {
 namespace ClockManager {
 
-#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS)
+#if defined(_MICROHAL_SYSCFG_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_OPAMP_BASE_ADDRESS) || defined(_MICROHAL_SYSCFG_COMP_BASE_ADDRESS)
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
 
 static void enableSYSCFG(PowerMode mode) {
@@ -54,7 +54,16 @@ static void disableSYSCFG(PowerMode mode) {
 }
 
 #else
-
+inline void enableSYSCFG() {
+    auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+    apb2enr.SYSCFGEN.set();
+    registers::rcc->apb2enr.volatileStore(apb2enr);
+}
+inline void disableSYSCFG() {
+    auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+    apb2enr.SYSCFGEN.clear();
+    registers::rcc->apb2enr.volatileStore(apb2enr);
+}
 #endif  // defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
 #endif  // defined(_MICROHAL_SYSCFG_BASE_ADDRESS)
 

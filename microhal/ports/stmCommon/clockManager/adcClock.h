@@ -157,6 +157,7 @@ inline void disableADC(uint16_t adcNumber) {
 }
 
 [[maybe_unused]] inline bool ADCprescaler(uint_fast8_t prescaler) {
+#if defined(_MICROHAL_REGISTERS_RCC_CFGR_HAS_ADCPRE)
     auto cfgr = registers::rcc->cfgr.volatileLoad();
     switch (prescaler) {
         case 2:
@@ -176,9 +177,11 @@ inline void disableADC(uint16_t adcNumber) {
     }
     registers::rcc->cfgr.volatileStore(cfgr);
     return true;
+#endif
 }
 
 [[maybe_unused]] inline uint_fast8_t ADCprescaler() {
+#if defined(_MICROHAL_REGISTERS_RCC_CFGR_HAS_ADCPRE)
     auto cfgr = registers::rcc->cfgr.volatileLoad();
     switch (cfgr.ADCPRE) {
         case 0b00:
@@ -190,10 +193,11 @@ inline void disableADC(uint16_t adcNumber) {
         case 0b11:
             return 8;
     }
+#endif
     std::terminate();
 }
 
-[[maybe_unused]] inline uint32_t ADCFrequency(uint8_t number) {
+[[maybe_unused]] inline uint32_t ADCFrequency([[maybe_unused]] uint8_t number) {
     return APB2::frequency() / ADCprescaler();
 }
 
