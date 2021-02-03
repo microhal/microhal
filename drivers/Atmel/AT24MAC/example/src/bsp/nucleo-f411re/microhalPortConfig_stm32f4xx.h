@@ -49,7 +49,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
 
-#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT
+#define MICROHAL_USE_SERIAL_PORT2_INTERRUPT 1
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
 
@@ -59,7 +59,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_I2C1_INTERRUPT    // available settings are MICROHAL_USE_I2Cx_POLLING
+#define MICROHAL_USE_I2C1_INTERRUPT 1  // available settings are MICROHAL_USE_I2Cx_POLLING
                                        //						 MICROHAL_USE_I2Cx_INTERRUPT
                                        //						 MICROHAL_USE_I2Cx_DMA
 #define MICROHAL_I2C1_DMA_RX_STREAM 0  // possible streams are 0 and 5

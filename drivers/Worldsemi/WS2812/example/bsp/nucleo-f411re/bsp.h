@@ -46,7 +46,7 @@ constexpr microhal::IOPin io6(microhal::stm32f4xx::GPIO::Port::PortC, 12);
 }  // namespace a
 }  // namespace con1
 
-static microhal::SPI &wsSpi = microhal::stm32f4xx::SPI::spi1;
+extern microhal::SPI &wsSpi;
 
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 

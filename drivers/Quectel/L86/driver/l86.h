@@ -28,14 +28,41 @@
 #ifndef _MICROHAL_L86_H_
 #define _MICROHAL_L86_H_
 
-#include <charconv>
 #include <cstdint>
-#include <string_view>
+#include <thread>
+#include "gpio.h"
 #include "gps.h"
 
-class L86 : public microhal::GPS {
+namespace microhal {
+
+class L86 : public GPS {
  public:
+    L86(GPIO& reset, GPIO& forceOn, GPIO& antennaDetect, GPIO& pps) : resetPin(reset), forceOnPin(forceOn), antennaDetect(antennaDetect), pps(pps) {
+        resetPin.configureAsOutput(GPIO::OutputType::OpenDrain, GPIO::PullType::NoPull);
+        forceOnPin.configureAsOutput(GPIO::OutputType::OpenDrain, GPIO::PullType::NoPull);
+        antennaDetect.configureAsInput(GPIO::PullType::NoPull);
+        pps.configureAsInput(GPIO::PullType::NoPull);
+    }
+
+    void reset() {
+        using namespace std::literals;
+
+        resetPin.reset();
+        std::this_thread::sleep_for(11ms);
+        resetPin.set();
+    }
+
+    void forceOn(bool force) { forceOnPin = force; }
+
+    bool isExternalAntenaActive() const { return antennaDetect.isReset(); }
+
  private:
+    GPIO& resetPin;
+    GPIO& forceOnPin;
+    GPIO& antennaDetect;
+    GPIO& pps;
 };
+
+}  // namespace microhal
 
 #endif /* _MICROHAL_L86_H_ */

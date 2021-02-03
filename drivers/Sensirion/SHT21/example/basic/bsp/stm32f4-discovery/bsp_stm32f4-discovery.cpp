@@ -12,6 +12,13 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
 void hardwareConfig(void) {
     (void)bsp::sht21::i2c;
     (void)bsp::debugPort;

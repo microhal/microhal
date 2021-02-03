@@ -30,18 +30,28 @@
 
 #include "bsp.h"
 #include "microhal.h"
+#include "ports/stm32f3xx/clockManager.h"
 
 using namespace microhal;
 using namespace stm32f3xx;
 using namespace diagnostic;
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
+namespace bsp {
+microhal::stm32f3xx::SPI_polling &spi1 = microhal::stm32f3xx::SPI_polling::create<1, {IOPin::PortA, 6}, {IOPin::PortA, 7}, {IOPin::PortA, 5}>();
+microhal::SPI &wsSpi = spi1;
+}  // namespace bsp
+
 void hardwareConfig(void) {
     (void)bsp::wsSpi;
     Core::fpu_enable();
-    stm32f3xx::ClockManager::PLL::clockSource(stm32f3xx::ClockManager::PLL::ClockSource::HSIDiv2);
-    stm32f3xx::ClockManager::PLL::frequency(51200000);
-    stm32f3xx::ClockManager::SYSCLK::source(stm32f3xx::ClockManager::SYSCLK::Source::PLL);
-    while (stm32f3xx::ClockManager::SYSCLK::source() != stm32f3xx::ClockManager::SYSCLK::Source::PLL)
+    ClockManager::PLL::clockSource(ClockManager::PLL::ClockSource::HSIDiv2);
+    ClockManager::PLL::frequency(51200000);
+    ClockManager::SYSCLK::source(ClockManager::SYSCLK::Source::PLL);
+    while (ClockManager::SYSCLK::source() != ClockManager::SYSCLK::Source::PLL)
         ;
 
     IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
@@ -58,10 +68,10 @@ void hardwareConfig(void) {
     //    stm32f3xx::IOManager::routeSPI<1, MISO, stm32f3xx::GPIO::PortA, 6>();
     stm32f3xx::IOManager::routeSPI<1, MOSI, stm32f3xx::IOPin::PortA, 7>();
 
-    stm32f3xx::SPI::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
-    stm32f3xx::SPI::spi1.enable();
+    bsp::spi1.init(stm32f3xx::SPI::Mode1, stm32f3xx::SPI::Prescaler8);
+    bsp::spi1.enable();
 
-    diagChannel << Notice << "SPI frequency: " << stm32f3xx::SPI::spi1.speed() << endl;
+    diagChannel << Notice << "SPI frequency: " << bsp::spi1.speed() << endl;
 
     SysTick_Config(512000000 / 1000);
 }

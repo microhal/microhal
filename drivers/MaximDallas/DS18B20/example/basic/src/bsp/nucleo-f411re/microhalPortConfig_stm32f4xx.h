@@ -49,7 +49,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
 // =================== Serial port 1 ===================
-#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT /* available settings are:                                                              \
+#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT 1 /* available settings are:                                                              \
                                        * MICROHAL_USE_SERIAL_PORTx_POLLING                                                    \
                                        * MICROHAL_USE_SERIAL_PORTx_INTERRUPT                                                  \
                                        * MICROHAL_USE_SERIAL_PORTx_INTERRUPT_DMA -> receiving via interrupt, transmit via DMA \
@@ -61,7 +61,7 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 #define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5  // Serial port 1 RX stream can be connected to DMA2 Stream 2 or 5.
 
 // =================== Serial port 2 ===================
-#define MICROHAL_USE_SERIAL_PORT2_DMA
+#define MICROHAL_USE_SERIAL_PORT2_DMA 1
 #define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1000
 #define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 128
 #define MICROHAL_SERIAL_PORT2_DMA_TX_STREAM 6  // Serial port 2 TX stream can be connected only to DMA1 Stream 6.

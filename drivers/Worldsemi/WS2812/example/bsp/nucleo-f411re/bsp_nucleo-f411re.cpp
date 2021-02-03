@@ -30,14 +30,27 @@
 
 #include "bsp.h"
 #include "microhal.h"
+#include "ports/stm32f4xx/clockManager.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 using namespace diagnostic;
 
+namespace bsp {
+microhal::stm32f4xx::SPI_dma &spi1 = microhal::stm32f4xx::SPI_dma::create<1, {IOPin::PortA, 6}, {IOPin::PortA, 7}, {IOPin::PortA, 5}>();
+microhal::SPI &wsSpi = spi1;
+}  // namespace bsp
+
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
 void hardwareConfig(void) {
     (void)bsp::wsSpi;
-    stm32f4xx::ClockManager::PLL::clockSource(stm32f4xx::ClockManager::PLL::ClockSource::HSI);
+    ClockManager::PLL::clockSource(ClockManager::PLL::ClockSource::HSI);
     Core::pll_start(8000000, 102400000);
     Core::fpu_enable();
 
@@ -53,12 +66,12 @@ void hardwareConfig(void) {
 
     //    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::GPIO::PortA, 5>();
     //    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::GPIO::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
+    // stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler8);
-    stm32f4xx::SPI::spi1.enable();
+    bsp::spi1.init(stm32f4xx::SPI::Mode1, stm32f4xx::SPI::Prescaler8);
+    bsp::spi1.enable();
 
-    diagChannel << Notice << "SPI frequency: " << stm32f4xx::SPI::spi1.speed() << endl;
+    diagChannel << Notice << "SPI frequency: " << bsp::spi1.speed() << endl;
 
     SysTick_Config(102400000 / 1000);
 }

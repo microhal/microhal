@@ -32,6 +32,10 @@
 
 #include "bsp.h"
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
 using namespace microhal;
 using namespace stm32f3xx;
 

@@ -5,6 +5,32 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+namespace bsp {
+bool init() {
+    bsp::debugPort.clear();
+
+    bsp::debugPort.setDataBits(microhal::SerialPort::Data8);
+    bsp::debugPort.setStopBits(microhal::SerialPort::OneStop);
+    bsp::debugPort.setParity(microhal::SerialPort::NoParity);
+    bsp::debugPort.open(microhal::SerialPort::ReadWrite);
+    bsp::debugPort.setBaudRate(microhal::SerialPort::Baud115200);
+    return true;
+}
+
+void deinit() {}
+}  // namespace bsp
+
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
+extern "C" int _isatty(int file) {
+    return 1;
+}
+
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
@@ -22,12 +48,4 @@ void hardwareConfig(void) {
     stm32f4xx::I2C::i2c2.init();
     stm32f4xx::I2C::i2c2.speed(400000, microhal::I2C::Mode::Fast);
     stm32f4xx::I2C::i2c2.enable();
-
-    SysTick_Config(168000000 / 1000);
-}
-
-uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void) {
-    SysTick_time++;
 }

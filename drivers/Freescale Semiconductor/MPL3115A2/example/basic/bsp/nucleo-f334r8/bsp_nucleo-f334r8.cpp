@@ -35,6 +35,10 @@
 using namespace microhal;
 using namespace stm32f3xx;
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
 void bsp::init() {
     IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();

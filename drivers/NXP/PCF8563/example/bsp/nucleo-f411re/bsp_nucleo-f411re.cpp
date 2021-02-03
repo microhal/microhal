@@ -35,6 +35,13 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return serialPort.write((const char *)buf, nbyte);
+}
+
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();

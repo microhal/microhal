@@ -34,6 +34,14 @@
  */
 // clang-format off
 //***********************************************************************************************//
+//                                  Operating system configuration                               //
+//***********************************************************************************************//
+#define MICROHAL_RTOS_NoRTOS                        // Possible definitions:
+                                                    // MICROHAL_RTOS_FreeRTOS
+                                                    // MICROHAL_RTOS_NoRTOS
+                                                    // MICROHAL_RTOS_Linux
+                                                    // MICROHAL_RTOS_Windows
+//***********************************************************************************************//
 //                                    Diagnostic configuration                                   //
 //***********************************************************************************************//
 #define MICROHAL_DIAGNOSTIC_TEXT_VISIBLE  // when defined message text is printed in diagnostic channel messages

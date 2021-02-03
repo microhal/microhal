@@ -40,7 +40,7 @@ constexpr microhal::IOPin ss(microhal::stm32f4xx::GPIO::Port::PortE, 7);
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 
 // ---------------------------- Sensors ----------------------------------------
-static microhal::SPI &wsSpi = microhal::stm32f4xx::SPI::spi1;
+extern microhal::SPI &wsSpi;
 
 // ----------------------------- LEDs -------------------------------------------
 constexpr microhal::IOPin Led3(microhal::stm32f4xx::GPIO::Port::PortD, 13);
