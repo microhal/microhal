@@ -211,11 +211,11 @@ class GPIOCommon : public GPIOCommonBase {
         }
         port.configurePin(pinNo, cnf);
     }
-    //
-    //    void setAnalogFunction(PullType pull = NoPull, Speed speed = HighSpeed) __attribute__((always_inline)) {
-    //        // 0x03 in mode enable analog function
-    //        pinInitialize(PinConfiguration{static_cast<uint8_t>(0x03), 0x00, pull, speed});
-    //    }
+
+    void configureAsAnalogInput() {
+        port.enableClock();
+        port.configurePin(pinNo, 0);
+    }
     //----------------------------------------- friends -----------------------------------------//
     friend class IOManager;
     friend class DataBus;

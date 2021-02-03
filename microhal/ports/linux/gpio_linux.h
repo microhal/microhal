@@ -36,7 +36,7 @@
 #include <cstdint>
 
 #include "IOPin.h"
-#include "interfaces/gpio_interface.h"
+#include "gpio/gpio_interface.h"
 
 namespace microhal {
 namespace linux {
