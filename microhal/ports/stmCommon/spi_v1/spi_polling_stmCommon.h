@@ -26,12 +26,8 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
  */
 class SPI_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
  public:
-    template <int number, IOPin::Port misoPort, IOPin::Pin misoPin, IOPin::Port mosiPort, IOPin::Pin mosiPin, IOPin::Port sckPort, IOPin::Pin sckPin>
+    template <int number, IOPin miso, IOPin mosi, IOPin sck>
     static SPI_polling &create(GPIO::OutputType mosiType = GPIO::PushPull, GPIO::OutputType sckType = GPIO::PushPull) {
-        constexpr IOPin miso(misoPort, misoPin);
-        constexpr IOPin mosi(mosiPort, mosiPin);
-        constexpr IOPin sck(sckPort, sckPin);
-
         static_assert(IOManager::spiPinAssert(number, miso, mosi, sck), "Incorrect Pin configuration");
         IOManager::routeSpi<number>(miso, mosi, sck, mosiType, sckType);
 

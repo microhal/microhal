@@ -13,7 +13,7 @@
  * 2.) Check if this driver is enabled in microhal port configuration file
  */
 #if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
-#if ENABLED_ANY_SPI(INTERRUPT)                  // Check if driver is enabled in microhal port config
+#if ENABLED_ANY_SPI(DMA)                        // Check if driver is enabled in microhal port config
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -46,7 +46,7 @@ SPI_dma *SPI_dma::spi6;
 //***********************************************************************************************//
 //                                         Functions
 //***********************************************************************************************//
-inline SPI::Error SPI_dma::write(const void *data, size_t len, bool /*last*/) {
+SPI::Error SPI_dma::write(const void *data, size_t len, bool /*last*/) {
     txStream.setMemoryIncrement(DMAMemoryIncrementMode::PointerIncremented);
     txStream.setNumberOfItemsToTransfer(len);
 #ifdef _MICROHAL_DMA_HAS_BANKS
@@ -236,7 +236,7 @@ void SPI_dma::DMA_txFunction(SPI_dma &object) {
         ENABLE_IF_LESS_4(n, DMA1->LIFCR = GLUE(DMA_LIFCR_CTCIF, n);) \
         ENABLE_IF_MORE_4(n, DMA1->HIFCR = GLUE(DMA_HIFCR_CTCIF, n);) \
         /* disable SPI DMA request*/                                 \
-        DMA_txFunction(*SPI_dma::s)                                  \
+        SPI_dma::DMA_txFunction(*SPI_dma::s);                        \
     }
 
 #define DMA1_TX_STREAM_IRQHANDLER(s, n)                              \
@@ -245,7 +245,7 @@ void SPI_dma::DMA_txFunction(SPI_dma &object) {
         ENABLE_IF_LESS_4(n, DMA1->LIFCR = GLUE(DMA_LIFCR_CTCIF, n);) \
         ENABLE_IF_MORE_4(n, DMA1->HIFCR = GLUE(DMA_HIFCR_CTCIF, n);) \
         /* disable SPI DMA request*/                                 \
-        DMA_txFunction(*SPI_dma::s)                                  \
+        SPI_dma::DMA_txFunction(*SPI_dma::s);                        \
     }
 
 #define DMA2_RX_STREAM_IRQHANDLER(s, n)                              \
@@ -254,7 +254,7 @@ void SPI_dma::DMA_txFunction(SPI_dma &object) {
         ENABLE_IF_LESS_4(n, DMA2->LIFCR = GLUE(DMA_LIFCR_CTCIF, n);) \
         ENABLE_IF_MORE_4(n, DMA2->HIFCR = GLUE(DMA_HIFCR_CTCIF, n);) \
         /* disable SPI DMA request*/                                 \
-        DMA_txFunction(*SPI_dma::s)                                  \
+        SPI_dma::DMA_txFunction(*SPI_dma::s);                        \
     }
 
 #define DMA2_TX_STREAM_IRQHANDLER(s, n)                              \
@@ -263,7 +263,7 @@ void SPI_dma::DMA_txFunction(SPI_dma &object) {
         ENABLE_IF_LESS_4(n, DMA2->LIFCR = GLUE(DMA_LIFCR_CTCIF, n);) \
         ENABLE_IF_MORE_4(n, DMA2->HIFCR = GLUE(DMA_HIFCR_CTCIF, n);) \
         /* disable SPI DMA request*/                                 \
-        DMA_txFunction(*SPI_dma::s)                                  \
+        SPI_dma::DMA_txFunction(*SPI_dma::s);                        \
     }
 // ---------------------------- spi 1
 #if defined(MICROHAL_USE_SPI1_DMA) && MICROHAL_USE_SPI1_DMA == 1
