@@ -43,7 +43,7 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************
  *                                   STATIC VARIABLES
  * ***********************************************************************************************/
-#ifdef MICROHAL_USE_I2C1_DMA
+#if MICROHAL_USE_I2C1_DMA == 1
 #if MICROHAL_I2C1_DMA_RX_STREAM != 6 && MICROHAL_I2C1_DMA_RX_STREAM != 7
 #error I2C RX DMA channel can be confugured as 0 or 5 only
 #endif
@@ -53,14 +53,14 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 I2C_dma I2C_dma::i2c1(*registers::i2c1, DMA::dma1->stream[MICROHAL_I2C1_DMA_RX_STREAM - 1], DMA::dma1->stream[MICROHAL_I2C1_DMA_TX_STREAM - 1]);
 I2C &I2C::i2c1 = I2C_dma::i2c1;
 #endif
-#ifdef MICROHAL_USE_I2C2_DMA
+#if MICROHAL_USE_I2C2_DMA == 1
 #if MICROHAL_I2C2_DMA_RX_STREAM != 2 && MICROHAL_I2C2_DMA_RX_STREAM != 3
 #error I2C RX DMA channel can be confugured as 2 or 3 only
 #endif
 I2C_dma I2C_dma::i2c2(*I2C2, DMA::dma1->stream[MICROHAL_I2C2_DMA_RX_STREAM], DMA::dma1->stream[7]);
 I2C &I2C::i2c2 = I2C_dma::i2c2;
 #endif
-#ifdef MICROHAL_USE_I2C3_DMA
+#if MICROHAL_USE_I2C3_DMA == 1
 I2C_dma I2C_dma::i2c3(*I2C3, DMA::dma1->stream[2], DMA::dma1->stream[4]);
 I2C &I2C::i2c3 = I2C_dma::i2c3;
 #endif
@@ -419,35 +419,35 @@ void I2C_dma::IRQErrorFunction() {
 //***********************************************************************************************//
 //                                          IRQHandlers
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_I2C1_DMA
+#if MICROHAL_USE_I2C1_DMA == 1
 void I2C1_EV_IRQHandler(void) {
     I2C_dma::IRQFunction(I2C_dma::i2c1, registers::i2c1);
 }
 #endif
-#ifdef MICROHAL_USE_I2C2_DMA
+#if MICROHAL_USE_I2C2_DMA == 1
 void I2C2_EV_IRQHandler(void) {
-    I2C_dma::IRQFunction(I2C_dma::i2c2, I2C2);
+    I2C_dma::IRQFunction(I2C_dma::i2c2, registers::i2c2);
 }
 #endif
-#ifdef MICROHAL_USE_I2C3_DMA
+#if MICROHAL_USE_I2C3_DMA == 1
 void I2C3_EV_IRQHandler(void) {
-    I2C_dma::IRQFunction(I2C_dma::i2c3, I2C3);
+    I2C_dma::IRQFunction(I2C_dma::i2c3, registers::i2c3);
 }
 #endif
 //***********************************************************************************************//
 //                                       I2C error IRQHandlers
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_I2C1_DMA
+#if MICROHAL_USE_I2C1_DMA == 1
 void I2C1_ER_IRQHandler(void) {
     I2C_dma::i2c1.IRQErrorFunction();
 }
 #endif
-#ifdef MICROHAL_USE_I2C2_DMA
+#if MICROHAL_USE_I2C2_DMA == 1
 void I2C2_ER_IRQHandler(void) {
     I2C_dma::i2c2.IRQErrorFunction();
 }
 #endif
-#ifdef MICROHAL_USE_I2C3_DMA
+#if MICROHAL_USE_I2C3_DMA == 1
 void I2C3_ER_IRQHandler(void) {
     I2C_dma::i2c3.IRQErrorFunction();
 }

@@ -17,7 +17,7 @@
  * 2.) Check if this driver is enabled in microhal port configuration file
  */
 #include "i2c_stmCommon.h"
-#if _MICROHAL_PORT_I2C_I2C_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
+#if _MICROHAL_PORT_STM_I2C_DRIVER_VERSION == 1  // Check if driver is compatible with selected MCU
 #if ENABLED_ANY_I2C(DMA)                        // Check if driver is enabled in microhal port config
 /* ************************************************************************************************
  * INCLUDES
