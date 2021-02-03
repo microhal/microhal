@@ -88,7 +88,11 @@ typedef enum {
     DMA2_Channel4_5_IRQn = 59  /*!< DMA2 Channel 4 and Channel 5 global Interrupt        */
 
 } IRQn_Type;
+#define CAN1_TX_IRQn USB_HP_CAN1_TX_IRQn
+#define CAN1_RX0_IRQn USB_LP_CAN1_RX0_IRQn
 
+#define CAN1_TX_IRQHandler USB_HP_CAN1_TX_IRQHandler
+#define CAN1_RX0_IRQHandler USB_LP_CAN1_RX0_IRQHandler
 /**
  * @}
  */

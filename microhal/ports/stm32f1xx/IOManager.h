@@ -8,6 +8,7 @@
 #ifndef SRC_MICROHAL_PORTS_STM32F1XX_IOMANAGER_H_
 #define SRC_MICROHAL_PORTS_STM32F1XX_IOMANAGER_H_
 
+#include <stm32f1xx/mcuCapabilities.h>
 #include "gpio_stm32f1xx.h"
 
 namespace microhal {
@@ -29,13 +30,44 @@ class IOManager {
  public:
     IOManager() = delete;
 
-    template <int serial, SerialPinType serialType, stm32f1xx::IOPin::Port port, stm32f1xx::IOPin::Pin pinNr>
+    template <int adcNumber, int channel, stm32f1xx::IOPin pin>
+    static void routeADC() {
+        if constexpr (adcNumber == 1) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_ADC1 && adcNumber == 1, "ADC 1 unavailable in this MCU.");
+            //            static_assert((pin == IOPin{IOPin::PortA, 11} && pin == IOPin{IOPin::PortA, 12}) ||
+            //                              (pin == IOPin{IOPin::PortB, 8} && pin == IOPin{IOPin::PortB, 9}) ||
+            //                              (pin == IOPin{IOPin::PortD, 0} && pin == IOPin{IOPin::PortD, 1}),
+            //                          "Unable to use selected pin with ADC 1 peripheral.");
+        }
+        if constexpr (adcNumber == 2) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_CAN2 && adcNumber == 2, "CAN 2 unavailable in this MCU.");
+        }
+        GPIO gpio(pin);
+        gpio.configureAsAnalogInput();
+    }
+
+    template <int canNumber, stm32f1xx::IOPin rxPin, stm32f1xx::IOPin txPin>
+    static void routeCAN() {
+        if constexpr (canNumber == 1) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_CAN1 && canNumber == 1, "CAN 1 unavailable in this MCU.");
+            static_assert((rxPin == IOPin{IOPin::PortA, 11} && txPin == IOPin{IOPin::PortA, 12}) ||
+                              (rxPin == IOPin{IOPin::PortB, 8} && txPin == IOPin{IOPin::PortB, 9}) ||
+                              (rxPin == IOPin{IOPin::PortD, 0} && txPin == IOPin{IOPin::PortD, 1}),
+                          "Unable to use selected pin with CAN1 peripheral.");
+        }
+        if constexpr (canNumber == 2) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_CAN2 && canNumber == 2, "CAN 2 unavailable in this MCU.");
+        }
+        GPIO txGpio(txPin);
+        txGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF5, GPIO::NoPull, stm32f1xx::GPIO::PushPull);
+    }
+
+    template <int serial, SerialPinType serialType, stm32f1xx::IOPin pin>
     static void routeSerial(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::PushPull) {
-        static_assert(serial < 4, "This MCU have only 3 Serial ports.");
         static_assert(serial != 0, "Serial port numbers starts from 1.");
-        constexpr IOPin pin(port, pinNr);
 
         if constexpr (serial == 1) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_USART1 && serial == 1, "Serial Port 1 unavailable in this MCU.");
             if constexpr (serialType == Txd)
                 static_assert(pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 6} || pin == IOPin{IOPin::PortC, 4},
                               "Serial1 Txd can be connected only to: PortA.9, PortB.6 or PortC.4.");
@@ -44,26 +76,33 @@ class IOManager {
                               "Serial1 Rxd can be connected only to: PortA.10, PortB.7 or PortC.5.");
         }
         if constexpr (serial == 2) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_USART2 && serial == 2, "Serial Port 2 unavailable in this MCU.");
             if constexpr (serialType == Txd)
-                static_assert((port == IOPin::PortA && pinNr == 2) || (port == IOPin::PortA && pinNr == 14) || (port == IOPin::PortB && pinNr == 3),
+                static_assert(pin == IOPin{IOPin::PortA, 2} || pin == IOPin{IOPin::PortA, 14} || pin == IOPin{IOPin::PortB, 3},
                               "Serial2 Txd can be connected only to: PortA.2, PortA.14 or PortB.3.");
             if constexpr (serialType == Rxd)
-                static_assert((port == IOPin::PortA && pinNr == 3) || (port == IOPin::PortA && pinNr == 15) || (port == IOPin::PortB && pinNr == 4),
+                static_assert(pin == IOPin{IOPin::PortA, 3} || pin == IOPin{IOPin::PortA, 15} || pin == IOPin{IOPin::PortB, 4},
                               "Serial2 Rxd can be connected only to: PortA.3, PortA.15 or PortB.4.");
         }
         if constexpr (serial == 3) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_USART3 && serial == 3, "Serial Port 3 unavailable in this MCU.");
             if constexpr (serialType == Txd)
-                static_assert((port == IOPin::PortB && pinNr == 9) || (port == IOPin::PortB && pinNr == 10) || (port == IOPin::PortC && pinNr == 10),
+                static_assert(pin == IOPin{IOPin::PortB, 9} || pin == IOPin{IOPin::PortB, 10} || pin == IOPin{IOPin::PortC, 10},
                               "Serial3 Txd can be connected only to: PortB.9, PortB.10, PortC.10.");
             if constexpr (serialType == Rxd)
-                static_assert((port == IOPin::PortB && pinNr == 8) || (port == IOPin::PortB && pinNr == 11) || (port == IOPin::PortC && pinNr == 11),
+                static_assert(pin == IOPin{IOPin::PortB, 8} || pin == IOPin{IOPin::PortB, 11} || pin == IOPin{IOPin::PortC, 11},
                               "Serial3 Rxd can be connected only to: PortB.8, PortB.11, PortC.11.");
+        }
+        if constexpr (serial == 4) {
+            static_assert(_MICROHAL_STM32F1XX_HAS_USART4 && serial == 4, "Serial Port 4 unavailable in this MCU.");
+            if constexpr (serialType == Txd) static_assert(pin == IOPin{IOPin::PortC, 10}, "Serial4 Txd can be connected only to: PortC.10.");
+            if constexpr (serialType == Rxd) static_assert(pin == IOPin{IOPin::PortC, 11}, "Serial4 Rxd can be connected only to: PortC.11.");
         }
         if constexpr (serialType == Txd) {
             stm32f1xx::GPIO gpio(pin);
             gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, pull, type);
         }
-    }
+    }  // namespace stm32f1xx
 
     static constexpr bool spiPinAssert(int number, IOPin miso, IOPin mosi, IOPin sck) {
         if (number == 1) {
@@ -170,15 +209,15 @@ class IOManager {
         gpio.setAlternateFunctionOutput(alternateFunction, pull, type);
     }
 
-    template <USBPinType usbType, stm32f1xx::IOPin::Port port, stm32f1xx::IOPin::Pin pinNr>
+    template <stm32f1xx::IOPin dmPin, stm32f1xx::IOPin dpPin>
     static void routeUSB() {
-        constexpr IOPin pin(port, pinNr);
+        static_assert(dmPin == IOPin{IOPin::PortA, 11}, "USB1 DM can be connected only to: PortA.11.");
+        static_assert(dpPin == IOPin{IOPin::PortA, 12}, "USB1 DP can be connected only to: PortA.12.");
 
-        if constexpr (usbType == DM) static_assert(pin == IOPin{IOPin::PortA, 11}, "USB1 DM can be connected only to: PortA.11.");
-        if constexpr (usbType == DP) static_assert(pin == IOPin{IOPin::PortA, 12}, "USB1 DP can be connected only to: PortA.12.");
-
-        stm32f1xx::GPIO gpio(pin);
-        gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        stm32f1xx::GPIO dmGpio(dmPin);
+        dmGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        stm32f1xx::GPIO dpGpio(dpPin);
+        dpGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
     }
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
@@ -204,7 +243,7 @@ class IOManager {
         stm32f1xx::GPIO gpio(pin);
         gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, pull, type);
     }
-};
+};  // namespace microhal
 }  // namespace stm32f1xx
 }  // namespace microhal
 #endif /* SRC_MICROHAL_PORTS_STM32F1XX_IOMANAGER_H_ */

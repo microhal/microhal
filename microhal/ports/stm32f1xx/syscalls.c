@@ -410,6 +410,10 @@ caddr_t _sbrk_r(struct _reent *r, int size) {
 
     if (current_heap_end + size > &__heap_end)  // is there enough space on the heap left?
     {
+#if defined(MICROHAL_DEBUG_BREAKPOINTS)
+        __asm volatile("BKPT #01");
+#endif
+        // r->_errno = ENOMEM;
         errno = ENOMEM;      // not enough memory left
         return (caddr_t)-1;  // return immediatelly
     }
