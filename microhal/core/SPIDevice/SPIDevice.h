@@ -12,11 +12,11 @@
  */
 #include <cstdint>
 
-#include "byteswap.h"
 #include "gpio.h"
 #include "ports/manager/hardware.h"
 #include "ports/manager/spi_port.h"
 #include "spi.h"
+#include "utils/byteswap.h"
 
 namespace microhal {
 /**
@@ -34,7 +34,7 @@ class SPIDevice {
  public:
     //---------------------------------------- constructors ---------------------------------------
     SPIDevice(SPI &spi, microhal::GPIO &CEPin) : spi(spi), cePin(CEPin), lastError(SPI::Error::None) {
-        cePin.setDirectionOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
+        cePin.configureAsOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
         cePin.set();
     }
     ~SPIDevice() { cePin.set(); }
