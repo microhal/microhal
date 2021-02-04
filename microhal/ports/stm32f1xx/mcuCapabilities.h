@@ -51,6 +51,7 @@ constexpr size_t ramSize = 20 * 1024;
 #else
 #define _MICROHAL_STM32F1XX_HAS_USART3 0
 #endif
+#define _MICROHAL_STM32F1XX_HAS_USART4 0
 
 #define _MICROHAL_STM32F1XX_HAS_USB1 1
 
