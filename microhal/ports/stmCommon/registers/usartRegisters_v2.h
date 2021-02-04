@@ -67,7 +67,7 @@
 #if defined(STM32H742x) || defined(STM32H7x3) || defined(STM32H743x) || defined(STM32H7x7_CM4) || defined(STM32H753x) || defined(STM32H7x5_CM7) || \
     defined(STM32H7x5_CM4) || defined(STM32H750x) || defined(STM32H7x7_CM7) || defined(STM32G474xx) || defined(STM32G484xx) ||                     \
     defined(STM32G471xx) || defined(STM32G431xx) || defined(STM32G473xx) || defined(STM32G441xx) || defined(STM32GBK1CBT6) ||                      \
-    defined(STM32G483xx)  // version 6
+    defined(STM32G483xx) || defined(_MICROHAL_STM32G0XX_STM32G0xx)  // version 6
 #define _MICROHAL_REGISTERS_USART_CR1_HAS_UCSM
 #define _MICROHAL_REGISTERS_USART_CR1_HAS_M1
 #define _MICROHAL_REGISTERS_USART_CR1_HAS_FIFO
@@ -171,7 +171,7 @@ struct USART {
     // Control register 2
     union CR2 {
         union {
-#if _MICROHAL_REGISTERS_USART_CR2_HAS_SLVEN_DIS_NSS
+#ifdef _MICROHAL_REGISTERS_USART_CR2_HAS_SLVEN_DIS_NSS
             microhal::Bitfield<uint32_t, 0, 1> SLVEN;   /*!< Synchronous Slave mode enable */
             microhal::Bitfield<uint32_t, 3, 1> DIS_NSS; /*!< When the DSI_NSS bit is set, the NSS pin input is ignored */
 #endif

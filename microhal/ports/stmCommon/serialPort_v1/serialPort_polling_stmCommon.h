@@ -89,7 +89,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      * @return
      */
     bool putChar(char c) noexcept final {
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
         while (!(usart.isr.volatileLoad().TXE)) {
         }
         usart.tdr.volatileStore(c);
@@ -106,7 +106,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      * @return
      */
     bool getChar(char &c) noexcept final {
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
         while (!(usart.isr.volatileLoad().RXNE)) {
         }
         c = (uint32_t)usart.rdr.volatileLoad();
@@ -172,7 +172,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
     size_t outputQueueSize() const noexcept final { return 1; }
 
     size_t availableBytes() const noexcept final {
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
         if ((usart.isr.volatileLoad().RXNE)) {
 #else
         if (!(usart.sr.volatileLoad().RXNE)) {

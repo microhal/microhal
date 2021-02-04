@@ -22,6 +22,13 @@
 #elif defined(STM32F411xE)
 #define STM32F411
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f411.h"
+#elif defined(MCU_TYPE_STM32G0XX)
+#include "ports/stm32g0xx/mcuDefines.h"
+#if defined(_MICROHAL_STM32G0XX_STM32G071xx)
+#include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32g071.h"
+#else
+#error "MCU type have to be specified."
+#endif
 #else
 #error "MCU type have to be specified."
 #endif

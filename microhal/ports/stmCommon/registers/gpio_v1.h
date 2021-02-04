@@ -33,7 +33,8 @@
     defined(STM32GBK1CBT6) || defined(STM32G483xx) || defined(STM32F0x2) || defined(STM32F0x8) || defined(STM32F0x1) || defined(STM32F0x0) ||       \
     defined(STM32F302) || defined(STM32F303) || defined(STM32F301) || defined(STM32F3x8) || defined(STM32F373) || defined(STM32F3x4) ||             \
     defined(STM32F7x9) || defined(STM32F765) || defined(STM32F7x8) || defined(STM32F745) || defined(STM32F750) || defined(STM32F7x7) ||             \
-    defined(STM32F7x6)
+    defined(STM32F7x6) || defined(STM32G071) || defined(STM32G041) || defined(STM32G030) || defined(STM32G070) || defined(STM32G081) ||             \
+    defined(STM32G031)
 #define _MICROHAL_GPIO_REGISTER_VERSION 2
 #endif
 

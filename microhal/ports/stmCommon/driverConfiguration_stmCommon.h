@@ -24,4 +24,8 @@
 #include <ports/stm32f4xx/driver_configuration_stm32f4xx.h>
 #endif
 
+#ifdef MCU_TYPE_STM32G0XX
+#include <ports/stm32g0xx/driver_configuration_stm32g0xx.h>
+#endif
+
 #endif /* SRC_MICROHAL_PORTS_STMCOMMON_DRIVERCONFIGURATION_STMCOMMON_H_ */

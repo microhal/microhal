@@ -30,6 +30,9 @@
 #include "ports/stm32f4xx/rcc_407.h"
 #endif
 #endif
+#ifdef MCU_TYPE_STM32G0XX
+#include "ports/stm32g0xx/RCC_4.h"
+#endif
 
 namespace microhal {
 namespace ClockManager {

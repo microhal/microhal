@@ -253,8 +253,12 @@ static void disableGPIO(const registers::GPIO *const gpio) {
 #else
 [[maybe_unused]] static void enableGPIO(const registers::GPIO &gpio) {
     using IOPin = _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin;
-
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_IOPENR
+    auto ahb1enr = registers::rcc->iopenr.volatileLoad();
+#else
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
+#endif
+
 #ifdef _MICROHAL_GPIOA_BASE_ADDRESS
     if ((int)&gpio == IOPin::PortA) {
         ahb1enr.IOPAEN.set();
@@ -293,13 +297,21 @@ static void disableGPIO(const registers::GPIO *const gpio) {
     {
         std::terminate();
     }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_IOPENR
+    registers::rcc->iopenr.volatileStore(ahb1enr);
+#else
     registers::rcc->ahb1enr.volatileStore(ahb1enr);
+#endif
 }
 
 [[maybe_unused]] static void disableGPIO(const registers::GPIO &gpio) {
     using IOPin = _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin;
 
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_IOPENR
+    auto ahb1enr = registers::rcc->iopenr.volatileLoad();
+#else
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
+#endif
 
 #ifdef _MICROHAL_GPIOA_BASE_ADDRESS
     if ((int)&gpio == IOPin::PortA) {
@@ -339,7 +351,11 @@ static void disableGPIO(const registers::GPIO *const gpio) {
     {
         std::terminate();
     }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_IOPENR
+    registers::rcc->iopenr.volatileStore(ahb1enr);
+#else
     registers::rcc->ahb1enr.volatileStore(ahb1enr);
+#endif
 }
 
 #endif  // _MICROHAL_REGISTERS_GPIO_USE_APB2ENR

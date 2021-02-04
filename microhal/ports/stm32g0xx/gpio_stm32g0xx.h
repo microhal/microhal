@@ -1,14 +1,12 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
  * @brief
  *
- * @authors    pawel
- * created on: 17-12-2016
- * last modification: 17-12-2016
+ * @authors    Pawel Okas
+ * created on: 02-02-2021
  *
- * @copyright Copyright (c) 2016, microHAL
+ * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,32 +25,41 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_HARDWARE_STM_H_
-#define _MICROHAL_HARDWARE_STM_H_
+#ifndef _MICROHAL_PORTS_GPIO_STM32G0XX_H_
+#define _MICROHAL_PORTS_GPIO_STM32G0XX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/hardware_stm32f0xx.h"
-#elif defined(MCU_TYPE_STM32F1XX)
-#include "ports/stm32f1xx/hardware_stm32f1xx.h"
-#elif defined(MCU_TYPE_STM32F4XX)
-#include "ports/stm32f4xx/hardware_stm32f4xx.h"
+#include <cstdint>
+#include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
+/* **************************************************************************************************************************************************
+ * CLASS
+ */
 namespace microhal {
-// namespace activePort = stm32f4xx;
-}
-#elif defined(MCU_TYPE_STM32F3XX)
-#include "ports/stm32f3xx/hardware_stm32f3xx.h"
-namespace microhal {
-// namespace activePort = stm32f4xx;
-}
-#elif defined(MCU_TYPE_STM32G0XX)
-#include "ports/stm32g0xx/hardware_stm32g0xx.h"
-namespace microhal {
-// namespace activePort = stm32f4xx;
-}
-#else
-#error "MCU type must be specified."
-#endif
+namespace stm32g0xx {
 
-#endif  // _MICROHAL_HARDWARE_STM_H_
+namespace gpio_detail {
+typedef enum : uint8_t {
+    AF0 = 0x00,
+    AF1 = 0x01,
+    AF2 = 0x02,
+    AF3 = 0x03,
+    AF4 = 0x04,
+    Serial = 0x07,
+    AF5 = 0x05,
+    AF6 = 0x06,
+    SPI_2 = 0x05,
+    SPI_3 = 0x06,
+    // I2C = 0x04,  //!< I2C
+    CAN_TIM1_TIM15 = 0x09,
+    AF10 = 0x0A,
+    AF11 = 0x0B
+} AlternateFunction;
+}
+
+using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
+
+}  // namespace stm32g0xx
+}  // namespace microhal
+
+#endif  // _MICROHAL_PORTS_GPIO_STM32G0XX_H_

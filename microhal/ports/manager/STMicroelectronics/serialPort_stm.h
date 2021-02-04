@@ -28,6 +28,11 @@ namespace activePort = stm32f3xx;
 namespace microhal {
 namespace activePort = stm32f4xx;
 }
+#elif defined(MCU_TYPE_STM32G0XX)
+#include "ports/stm32g0xx/serialPort_stm32g0xx.h"
+namespace microhal {
+namespace activePort = stm32g0xx;
+}
 #else
 #error "MCU type must be specified."
 #endif

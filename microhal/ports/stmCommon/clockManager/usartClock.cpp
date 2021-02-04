@@ -151,14 +151,26 @@ void disableUSART(uint8_t number, PowerMode mode) {
 void enableUSART(uint8_t number) {
     if (number == 1) {
 #ifdef _MICROHAL_USART1_BASE_ADDRESS
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        auto apb2enr = registers::rcc->apbenr2.volatileLoad();
+#else
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+#endif
         apb2enr.USART1EN.set();
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        registers::rcc->apbenr2.volatileStore(apb2enr);
+#else
         registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
 #else
         std::terminate();
 #endif
     } else {
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR1
+        auto apb1enr = registers::rcc->apbenr1.volatileLoad();
+#else
         auto apb1enr = registers::rcc->apb1enr.volatileLoad();
+#endif
         switch (number) {
 #ifdef _MICROHAL_USART2_BASE_ADDRESS
             case 2:
@@ -198,21 +210,37 @@ void enableUSART(uint8_t number) {
             default:
                 std::terminate();
         }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR1
+        registers::rcc->apbenr1.volatileStore(apb1enr);
+#else
         registers::rcc->apb1enr.volatileStore(apb1enr);
+#endif
     }
 }
 
 void disableUSART(uint8_t number) {
     if (number == 1) {
 #ifdef _MICROHAL_USART1_BASE_ADDRESS
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        auto apb2enr = registers::rcc->apbenr2.volatileLoad();
+#else
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+#endif
         apb2enr.USART1EN.clear();
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        registers::rcc->apbenr2.volatileStore(apb2enr);
+#else
         registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
 #else
         std::terminate();
 #endif
     } else {
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR1
+        auto apb1enr = registers::rcc->apbenr1.volatileLoad();
+#else
         auto apb1enr = registers::rcc->apb1enr.volatileLoad();
+#endif
         switch (number) {
 #ifdef _MICROHAL_USART2_BASE_ADDRESS
             case 2:
@@ -252,7 +280,11 @@ void disableUSART(uint8_t number) {
             default:
                 std::terminate();
         }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR1
+        registers::rcc->apbenr1.volatileStore(apb1enr);
+#else
         registers::rcc->apb1enr.volatileStore(apb1enr);
+#endif
     }
 }
 #endif

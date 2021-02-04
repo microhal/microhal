@@ -45,9 +45,11 @@
 #include "../clockManager/usartClock.h"
 #include "../stmCommonDefines.h"
 #include "interfaces/serialPort_interface.h"
+#ifdef _MICROHAL_INCLUDE_PORT_DEVICE
 #include _MICROHAL_INCLUDE_PORT_DEVICE
+#endif
 
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
 #include "../registers/usartRegisters_v2.h"
 #else
 #include "../registers/usartRegisters_v1.h"

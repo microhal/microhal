@@ -15,23 +15,7 @@
 #include "clockTypes.h"
 #include "hsi.h"
 #include "lse.h"
-
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
-#ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
-#endif
+#include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
@@ -58,8 +42,13 @@ CREATE_SET_CLEAR_FUNCTION(USART8LPEN)
 enum UsartClockSource {
     PCLK = 0,  // PCLK means APB clock
     SYSCLK = 1,
+#ifdef MCU_TYPE_STM32G0XX
+    HSI16 = 2,
+    LSE = 3
+#else
     LSE = 2,
     HSI = 3
+#endif
 };
 
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
@@ -77,6 +66,39 @@ void disableUSART(uint8_t number);
 #ifdef MCU_TYPE_STM32F1XX
 [[maybe_unused]] constexpr UsartClockSource USARTClockSource([[maybe_unused]] uint8_t number) {
     return UsartClockSource::PCLK;
+}
+#else
+#ifdef MCU_TYPE_STM32G0XX
+[[maybe_unused]] inline UsartClockSource USARTClockSource(uint8_t number) {
+    if (number == 1)
+        return static_cast<UsartClockSource>(registers::rcc->ccipr.volatileLoad().USART1SEL.get());
+    else if (number == 2)
+        return static_cast<UsartClockSource>(registers::rcc->ccipr.volatileLoad().USART2SEL.get());
+
+    else if (number == 3)
+        return static_cast<UsartClockSource>(registers::rcc->ccipr.volatileLoad().USART3SEL.get());
+    else {
+        while (1)
+            ;
+    }
+}
+
+[[maybe_unused]] static void USARTClockSource(uint8_t usartNumber, UsartClockSource source) {
+    auto ccipr = registers::rcc->ccipr.volatileLoad();
+    if (usartNumber == 1)
+        ccipr.USART1SEL = static_cast<uint32_t>(source);
+    else if (usartNumber == 2) {
+        ccipr.USART2SEL = static_cast<uint32_t>(source);
+    } else if (usartNumber == 3) {
+        ccipr.USART3SEL = static_cast<uint32_t>(source);
+        if (source != UsartClockSource::PCLK) {
+            while (1)
+                ;
+        }
+    } else {
+        while (1)
+            ;
+    }
 }
 #else
 [[maybe_unused]] static UsartClockSource USARTClockSource(uint8_t number) {
@@ -118,6 +140,7 @@ void disableUSART(uint8_t number);
             ;
     }
 }
+#endif  // MCU_TYPE_STM32G0XX
 #endif
 #endif
 
@@ -136,8 +159,14 @@ void disableUSART(uint8_t number);
         case LSE:
             return LSE::frequency();
             break;
+#ifdef MCU_TYPE_STM32G0XX
+        case HSI16:
+            return HSI::frequency();
+            break;
+#else
         case HSI:
             return HSI::frequency();
+#endif
     }
     std::terminate();
 }

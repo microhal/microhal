@@ -8,8 +8,8 @@
 #ifndef SRC_MICROHAL_PORTS_STM32F1XX_IOMANAGER_H_
 #define SRC_MICROHAL_PORTS_STM32F1XX_IOMANAGER_H_
 
-#include <stm32f1xx/mcuCapabilities.h>
 #include "gpio_stm32f1xx.h"
+#include "mcuCapabilities.h"
 
 namespace microhal {
 

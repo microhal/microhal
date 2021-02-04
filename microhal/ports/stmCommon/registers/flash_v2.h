@@ -12,17 +12,20 @@
 #if defined(STM32F407) || defined(STM32F411) || defined(STM32F413) || defined(STM32F412) || defined(STM32F401) || defined(STM32F405) || \
     defined(STM32F217) || defined(STM32F215)  // version 1
 #define _MICROHAL_REGISTERS_FLASH_SR_HAS_nWRP 12
+#define _MICROHAL_REGISTERS_FLASH_HAS_OPTCR
 #endif
 
 #if defined(STM32F446)  // version 2
 #define _MICROHAL_REGISTERS_FLASH_SR_HAS_RDERR
 #define _MICROHAL_REGISTERS_FLASH_SR_HAS_SPRMOD
 #define _MICROHAL_REGISTERS_FLASH_SR_HAS_nWRP 8
+#define _MICROHAL_REGISTERS_FLASH_HAS_OPTCR
 #endif
 
 #if defined(STM32F410)  // version 3
 #define _MICROHAL_REGISTERS_FLASH_SR_HAS_SPRMOD
 #define _MICROHAL_REGISTERS_FLASH_SR_HAS_nWRP 5
+#define _MICROHAL_REGISTERS_FLASH_HAS_OPTCR
 #endif
 
 namespace microhal {
@@ -283,6 +286,7 @@ struct FLASH {
         friend class VolatileRegister<CR, AccessType::ReadWrite>;
     };
 
+#ifdef _MICROHAL_REGISTERS_FLASH_HAS_OPTCR
     // Flash option control register
     union OPTCR {
         union {
@@ -338,13 +342,16 @@ struct FLASH {
         friend class VolatileRegister<OPTCR, AccessType::WriteOnly>;
         friend class VolatileRegister<OPTCR, AccessType::ReadWrite>;
     };
+#endif
 
     VolatileRegister<ACR, AccessType::ReadWrite> acr;         /*!< Flash access control register	Address offset: 0x0 */
     VolatileRegister<KEYR, AccessType::ReadWrite> keyr;       /*!< Flash key register	Address offset: 0x4 */
     VolatileRegister<OPTKEYR, AccessType::ReadWrite> optkeyr; /*!< Flash option key register	Address offset: 0x8 */
     VolatileRegister<SR, AccessType::ReadWrite> sr;           /*!< Status register	Address offset: 0xC */
     VolatileRegister<CR, AccessType::ReadWrite> cr;           /*!< Control register	Address offset: 0x10 */
-    VolatileRegister<OPTCR, AccessType::ReadWrite> optcr;     /*!< Flash option control register	Address offset: 0x14 */
+#ifdef _MICROHAL_REGISTERS_FLASH_HAS_OPTCR
+    VolatileRegister<OPTCR, AccessType::ReadWrite> optcr; /*!< Flash option control register	Address offset: 0x14 */
+#endif
 };
 
 #if defined(_MICROHAL_FLASH_BASE_ADDRESS)

@@ -28,6 +28,10 @@
 #endif
 #endif
 
+#ifdef MCU_TYPE_STM32G0XX
+#include "ports/stm32g0xx/RCC_4.h"
+#endif
+
 namespace microhal {
 namespace ClockManager {
 
@@ -38,7 +42,7 @@ struct HSI {
      * @return HSI frequency in [Hz].
      */
     static constexpr Frequency frequency() noexcept {
-#if defined(MCU_TYPE_STM32F4XX)
+#if defined(MCU_TYPE_STM32F4XX) || defined(MCU_TYPE_STM32G0XX)
         return 16000000;
 #else
         return 8000000;
@@ -60,6 +64,7 @@ struct HSI {
     static bool isEnabled() noexcept { return registers::rcc->cr.volatileLoad().HSION; }
     static bool isReady() noexcept { return registers::rcc->cr.volatileLoad().HSIRDY; }
 
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_HSITRIM
     static bool trim(uint8_t trim) {
         if (trim <= 0b11111) {
             auto cr = registers::rcc->cr.volatileLoad();
@@ -70,6 +75,7 @@ struct HSI {
         return false;
     }
     static uint8_t trim() noexcept { return registers::rcc->cr.volatileLoad().HSITRIM; }
+#endif
 };
 
 }  // namespace ClockManager

@@ -33,6 +33,10 @@
 #endif
 #endif
 
+#ifdef MCU_TYPE_STM32G0XX
+#include "ports/stm32g0xx/RCC_4.h"
+#endif
+
 namespace microhal {
 namespace ClockManager {
 namespace ClockManagerDetail {
@@ -233,7 +237,11 @@ enum class TimerClockSource {
 
 [[maybe_unused]] static void enableTimer(uint8_t number) {
     if (getTimerApb(number) == 2) {
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        auto apb2enr = registers::rcc->apbenr2.volatileLoad();
+#else
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+#endif
         switch (number) {
             case 1:
                 ClockManagerDetail::set_TIM1EN_ifExist(apb2enr);  // equal to apb2enr.TIM1EN.set();
@@ -251,9 +259,17 @@ enum class TimerClockSource {
                 ClockManagerDetail::set_TIM11EN_ifExist(apb2enr);
                 break;
         }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        registers::rcc->apbenr1.volatileStore(apb2enr);
+#else
         registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
     } else {
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        auto apb1enr = registers::rcc->apbenr1.volatileLoad();
+#else
         auto apb1enr = registers::rcc->apb1enr.volatileLoad();
+#endif
         switch (number) {
             case 2:
                 ClockManagerDetail::set_TIM2EN_ifExist(apb1enr);
@@ -283,13 +299,21 @@ enum class TimerClockSource {
                 ClockManagerDetail::set_TIM14EN_ifExist(apb1enr);
                 break;
         }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        registers::rcc->apbenr1.volatileStore(apb1enr);
+#else
         registers::rcc->apb1enr.volatileStore(apb1enr);
+#endif
     }
 }
 
 [[maybe_unused]] static void disableTimer(uint8_t number) {
     if (getTimerApb(number) == 2) {
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        auto apb2enr = registers::rcc->apbenr2.volatileLoad();
+#else
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+#endif
         switch (number) {
             case 1:
                 ClockManagerDetail::clear_TIM1EN_ifExist(apb2enr);
@@ -307,9 +331,17 @@ enum class TimerClockSource {
                 ClockManagerDetail::clear_TIM11EN_ifExist(apb2enr);
                 break;
         }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        registers::rcc->apbenr2.volatileStore(apb2enr);
+#else
         registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
     } else {
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        auto apb1enr = registers::rcc->apbenr1.volatileLoad();
+#else
         auto apb1enr = registers::rcc->apb1enr.volatileLoad();
+#endif
         switch (number) {
             case 2:
                 ClockManagerDetail::clear_TIM2EN_ifExist(apb1enr);
@@ -339,7 +371,11 @@ enum class TimerClockSource {
                 ClockManagerDetail::clear_TIM14EN_ifExist(apb1enr);
                 break;
         }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+        registers::rcc->apbenr1.volatileStore(apb1enr);
+#else
         registers::rcc->apb1enr.volatileStore(apb1enr);
+#endif
     }
 }
 #endif
