@@ -12,6 +12,7 @@
 // Supported MCU version 4: STM32L4R7, STM32L4S9, STM32L4R9, STM32L4S5, STM32L4S7, STM32L4R5
 // Supported MCU version 5: STM32F302, STM32F303, STM32F3x4, STM32F3x8
 // Supported MCU version 6: STM32F301
+// Supported MCU version 7: STM32G041, STM32G030, STM32G031,
 
 #if defined(STM32G474xx) || defined(STM32G474xx) || defined(STM32G484xx) || defined(STM32G484xx) || defined(STM32G471xx) || defined(STM32G471xx) || \
     defined(STM32G431xx) || defined(STM32G473xx) || defined(STM32G473xx) || defined(STM32G441xx) || defined(STM32GBK1CBT6) ||                       \
@@ -27,6 +28,8 @@
 #define _MICROHAL_REGISTERS_ADC_SMPR1_HAS_SMPPLUS
 #define _MICROHAL_REGISTERS_ADC_AWDxCR_AWD2CH_0_19
 #define _MICROHAL_REGISTERS_ADC_HAS_CFGR2
+#define _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+#define _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
 #endif
 
 #if defined(STM32L4x6)  // version 2
@@ -36,12 +39,16 @@
 #define _MICROHAL_REGISTERS_ADC_SMPR1_HAS_SMPPLUS
 #define _MICROHAL_REGISTERS_ADC_AWDxCR_AWD2CH_0_19
 #define _MICROHAL_REGISTERS_ADC_HAS_CFGR2
+#define _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+#define _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
 #endif
 
 #if defined(STM32L4x3) || defined(STM32L4x1) || defined(STM32L4x2) || defined(STM32L4x5)  // version 3
 #define _MICROHAL_REGISTERS_ADC_CFGR_HAS_AUTOFF
 #define _MICROHAL_REGISTERS_ADC_AWDxCR_AWD2CH_1_18
 #define _MICROHAL_REGISTERS_ADC_HAS_CFGR2
+#define _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+#define _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
 #endif
 
 #if defined(STM32L4R7) || defined(STM32L4S9) || defined(STM32L4R9) || defined(STM32L4S5) || defined(STM32L4S7) || defined(STM32L4R5)  // version 4
@@ -49,15 +56,29 @@
 #define _MICROHAL_REGISTERS_ADC_SMPR1_HAS_SMP0
 #define _MICROHAL_REGISTERS_ADC_SMPR1_HAS_SMPPLUS
 #define _MICROHAL_REGISTERS_ADC_HAS_CFGR2
+#define _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+#define _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
 #endif
 
 #if defined(STM32F302) || defined(STM32F303) || defined(STM32F3x4) || defined(STM32F3x8)  // version 5
 #define _MICROHAL_REGISTERS_ADC_CFGR_HAS_AUTOFF
 #define _MICROHAL_REGISTERS_ADC_AWDxCR_AWD2CH_1_18
+#define _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+#define _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
 #endif
 
 #if defined(STM32F301)  // version 6
 #define _MICROHAL_REGISTERS_ADC_AWDxCR_AWD2CH_1_18
+#define _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+#define _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
+#endif
+
+#if defined(_MICROHAL_STM32G0XX_STM32G071xx)  // version 7
+#define _MICROHAL_REGISTERS_ADC_CFGR_HAS_AUTOFF
+#define _MICROHAL_REGISTERS_ADC_AWDxCR_AWD2CH_0_19
+#define _MICROHAL_REGISTERS_ADC_HAS_CFGR2
+#define _MICROHAL_REGISTERS_ADC_CFGR2_HAS_CKMODE
+#define _MICROHAL_REGISTERS_ADC_CFGR1_HAS_CHSELRMOD
 #endif
 
 namespace microhal {
@@ -69,17 +90,21 @@ struct ADC {
     // ADC interrupt and status register
     union ISR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> ADRDY;  /*!< ADC ready */
-            microhal::Bitfield<uint32_t, 1, 1> EOSMP;  /*!< End of sampling flag */
-            microhal::Bitfield<uint32_t, 2, 1> EOC;    /*!< End of conversion flag */
-            microhal::Bitfield<uint32_t, 3, 1> EOS;    /*!< End of regular sequence flag */
-            microhal::Bitfield<uint32_t, 4, 1> OVR;    /*!< ADC overrun */
-            microhal::Bitfield<uint32_t, 5, 1> JEOC;   /*!< Injected channel end of conversion flag */
-            microhal::Bitfield<uint32_t, 6, 1> JEOS;   /*!< Injected channel end of sequence flag */
-            microhal::Bitfield<uint32_t, 7, 1> AWD1;   /*!< Analog watchdog 1 flag */
-            microhal::Bitfield<uint32_t, 8, 1> AWD2;   /*!< Analog watchdog 2 flag */
-            microhal::Bitfield<uint32_t, 9, 1> AWD3;   /*!< Analog watchdog 3 flag */
+            microhal::Bitfield<uint32_t, 0, 1> ADRDY; /*!< ADC ready */
+            microhal::Bitfield<uint32_t, 1, 1> EOSMP; /*!< End of sampling flag */
+            microhal::Bitfield<uint32_t, 2, 1> EOC;   /*!< End of conversion flag */
+            microhal::Bitfield<uint32_t, 3, 1> EOS;   /*!< End of regular sequence flag */
+            microhal::Bitfield<uint32_t, 4, 1> OVR;   /*!< ADC overrun */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+            microhal::Bitfield<uint32_t, 5, 1> JEOC; /*!< Injected channel end of conversion flag */
+            microhal::Bitfield<uint32_t, 6, 1> JEOS; /*!< Injected channel end of sequence flag */
+#endif
+            microhal::Bitfield<uint32_t, 7, 1> AWD1; /*!< Analog watchdog 1 flag */
+            microhal::Bitfield<uint32_t, 8, 1> AWD2; /*!< Analog watchdog 2 flag */
+            microhal::Bitfield<uint32_t, 9, 1> AWD3; /*!< Analog watchdog 3 flag */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
             microhal::Bitfield<uint32_t, 10, 1> JQOVF; /*!< Injected context queue overflow */
+#endif
         };
 
         operator uint32_t() const { return raw; }
@@ -125,17 +150,21 @@ struct ADC {
     // ADC interrupt enable register
     union IER {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> ADRDYIE;  /*!< ADC ready interrupt enable */
-            microhal::Bitfield<uint32_t, 1, 1> EOSMPIE;  /*!< End of sampling flag interrupt enable for regular conversions */
-            microhal::Bitfield<uint32_t, 2, 1> EOCIE;    /*!< End of regular conversion interrupt enable */
-            microhal::Bitfield<uint32_t, 3, 1> EOSIE;    /*!< End of regular sequence of conversions interrupt enable */
-            microhal::Bitfield<uint32_t, 4, 1> OVRIE;    /*!< Overrun interrupt enable */
-            microhal::Bitfield<uint32_t, 5, 1> JEOCIE;   /*!< End of injected conversion interrupt enable */
-            microhal::Bitfield<uint32_t, 6, 1> JEOSIE;   /*!< End of injected sequence of conversions interrupt enable */
-            microhal::Bitfield<uint32_t, 7, 1> AWD1IE;   /*!< Analog watchdog 1 interrupt enable */
-            microhal::Bitfield<uint32_t, 8, 1> AWD2IE;   /*!< Analog watchdog 2 interrupt enable */
-            microhal::Bitfield<uint32_t, 9, 1> AWD3IE;   /*!< Analog watchdog 3 interrupt enable */
+            microhal::Bitfield<uint32_t, 0, 1> ADRDYIE; /*!< ADC ready interrupt enable */
+            microhal::Bitfield<uint32_t, 1, 1> EOSMPIE; /*!< End of sampling flag interrupt enable for regular conversions */
+            microhal::Bitfield<uint32_t, 2, 1> EOCIE;   /*!< End of regular conversion interrupt enable */
+            microhal::Bitfield<uint32_t, 3, 1> EOSIE;   /*!< End of regular sequence of conversions interrupt enable */
+            microhal::Bitfield<uint32_t, 4, 1> OVRIE;   /*!< Overrun interrupt enable */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+            microhal::Bitfield<uint32_t, 5, 1> JEOCIE; /*!< End of injected conversion interrupt enable */
+            microhal::Bitfield<uint32_t, 6, 1> JEOSIE; /*!< End of injected sequence of conversions interrupt enable */
+#endif
+            microhal::Bitfield<uint32_t, 7, 1> AWD1IE; /*!< Analog watchdog 1 interrupt enable */
+            microhal::Bitfield<uint32_t, 8, 1> AWD2IE; /*!< Analog watchdog 2 interrupt enable */
+            microhal::Bitfield<uint32_t, 9, 1> AWD3IE; /*!< Analog watchdog 3 interrupt enable */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
             microhal::Bitfield<uint32_t, 10, 1> JQOVFIE; /*!< Injected context queue overflow interrupt enable */
+#endif
         };
 
         operator uint32_t() const { return raw; }
@@ -181,16 +210,22 @@ struct ADC {
     // ADC control register
     union CR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> ADEN;      /*!< ADC enable control */
-            microhal::Bitfield<uint32_t, 1, 1> ADDIS;     /*!< ADC disable command */
-            microhal::Bitfield<uint32_t, 2, 1> ADSTART;   /*!< ADC start of regular conversion */
-            microhal::Bitfield<uint32_t, 3, 1> JADSTART;  /*!< ADC start of injected conversion */
-            microhal::Bitfield<uint32_t, 4, 1> ADSTP;     /*!< ADC stop of regular conversion command */
-            microhal::Bitfield<uint32_t, 5, 1> JADSTP;    /*!< ADC stop of regular conversion command */
+            microhal::Bitfield<uint32_t, 0, 1> ADEN;    /*!< ADC enable control */
+            microhal::Bitfield<uint32_t, 1, 1> ADDIS;   /*!< ADC disable command */
+            microhal::Bitfield<uint32_t, 2, 1> ADSTART; /*!< ADC start of regular conversion */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+            microhal::Bitfield<uint32_t, 3, 1> JADSTART; /*!< ADC start of injected conversion */
+#endif
+            microhal::Bitfield<uint32_t, 4, 1> ADSTP; /*!< ADC stop of regular conversion command */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+            microhal::Bitfield<uint32_t, 5, 1> JADSTP; /*!< ADC stop of regular conversion command */
+#endif
             microhal::Bitfield<uint32_t, 28, 2> ADVREGEN; /*!< ADC voltage regulator enable */
-            // microhal::Bitfield<uint32_t, 29, 1> DEEPPWD;  /*!< DEEPPWD */
+                                                          // microhal::Bitfield<uint32_t, 29, 1> DEEPPWD;  /*!< DEEPPWD */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
             microhal::Bitfield<uint32_t, 30, 1> ADCALDIF; /*!< Differential mode for calibration */
-            microhal::Bitfield<uint32_t, 31, 1> ADCAL;    /*!< ADC calibration */
+#endif
+            microhal::Bitfield<uint32_t, 31, 1> ADCAL; /*!< ADC calibration */
         };
 
         operator uint32_t() const { return raw; }
@@ -233,8 +268,8 @@ struct ADC {
         friend class VolatileRegister<CR, AccessType::ReadWrite>;
     };
 
-    // ADC configuration register
-    union CFGR {
+    // ADC configuration register 1
+    union CFGR1 {
         union {
             microhal::Bitfield<uint32_t, 0, 1> DMAEN;  /*!< Direct memory access enable */
             microhal::Bitfield<uint32_t, 1, 1> DMACFG; /*!< Direct memory access configuration */
@@ -254,16 +289,25 @@ struct ADC {
 #ifdef _MICROHAL_REGISTERS_ADC_CFGR_HAS_AUTOFF
             microhal::Bitfield<uint32_t, 15, 1> AUTOFF; /*!< AUTOFF */
 #endif
-            microhal::Bitfield<uint32_t, 16, 1> DISCEN;   /*!< Discontinuous mode for regular channels */
-            microhal::Bitfield<uint32_t, 17, 3> DISCNUM;  /*!< Discontinuous mode channel count */
-            microhal::Bitfield<uint32_t, 20, 1> JDISCEN;  /*!< Discontinuous mode on injected channels */
-            microhal::Bitfield<uint32_t, 21, 1> JQM;      /*!< JSQR queue mode */
-            microhal::Bitfield<uint32_t, 22, 1> AWD1SGL;  /*!< Enable the watchdog 1 on a single channel or on all channels */
-            microhal::Bitfield<uint32_t, 23, 1> AWD1EN;   /*!< Analog watchdog 1 enable on regular channels */
-            microhal::Bitfield<uint32_t, 24, 1> JAWD1EN;  /*!< Analog watchdog 1 enable on injected channels */
-            microhal::Bitfield<uint32_t, 25, 1> JAUTO;    /*!< Automatic injected group conversion */
+            microhal::Bitfield<uint32_t, 16, 1> DISCEN;  /*!< Discontinuous mode for regular channels */
+            microhal::Bitfield<uint32_t, 17, 3> DISCNUM; /*!< Discontinuous mode channel count */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+            microhal::Bitfield<uint32_t, 20, 1> JDISCEN; /*!< Discontinuous mode on injected channels */
+            microhal::Bitfield<uint32_t, 21, 1> JQM;     /*!< JSQR queue mode */
+#else
+#ifdef _MICROHAL_REGISTERS_ADC_CFGR1_HAS_CHSELRMOD
+            microhal::Bitfield<uint32_t, 21, 1> CHSELRMOD; /*!< Mode selection of the ADC_CHSELR register */
+#endif
+#endif
+
+            microhal::Bitfield<uint32_t, 22, 1> AWD1SGL; /*!< Enable the watchdog 1 on a single channel or on all channels */
+            microhal::Bitfield<uint32_t, 23, 1> AWD1EN;  /*!< Analog watchdog 1 enable on regular channels */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+            microhal::Bitfield<uint32_t, 24, 1> JAWD1EN; /*!< Analog watchdog 1 enable on injected channels */
+            microhal::Bitfield<uint32_t, 25, 1> JAUTO;   /*!< Automatic injected group conversion */
+#endif
             microhal::Bitfield<uint32_t, 26, 5> AWDCH1CH; /*!< Analog watchdog 1 channel selection */
-#ifdef _MICROHAL_REGISTERS_ADC_CFGR_HAS_JQDIS
+#if defined(_MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS) && defined(_MICROHAL_REGISTERS_ADC_CFGR_HAS_JQDIS)
             microhal::Bitfield<uint32_t, 31, 1> JQDIS; /*!< Injected Queue disable */
 #endif
         };
@@ -271,15 +315,15 @@ struct ADC {
         operator uint32_t() const { return raw; }
         operator bool() const { return raw; }
 
-        CFGR &operator=(uint32_t value) {
+        CFGR1 &operator=(uint32_t value) {
             raw = value;
             return *this;
         }
-        CFGR &operator|=(uint32_t value) {
+        CFGR1 &operator|=(uint32_t value) {
             raw |= value;
             return *this;
         }
-        CFGR &operator&=(uint32_t value) {
+        CFGR1 &operator&=(uint32_t value) {
             raw &= value;
             return *this;
         }
@@ -290,29 +334,31 @@ struct ADC {
         bool operator<(uint32_t value) const { return raw < value; }
         bool operator>=(uint32_t value) const { return raw >= value; }
         bool operator<=(uint32_t value) const { return raw <= value; }
-        CFGR operator&(uint32_t value) const {
-            CFGR tmp;
+        CFGR1 operator&(uint32_t value) const {
+            CFGR1 tmp;
             tmp.raw = raw & value;
             return tmp;
         }
-        CFGR operator|(uint32_t value) const {
-            CFGR tmp;
+        CFGR1 operator|(uint32_t value) const {
+            CFGR1 tmp;
             tmp.raw = raw | value;
             return tmp;
         }
 
      private:
         uint32_t raw;
-        friend class VolatileRegister<CFGR, AccessType::ReadOnly>;
-        friend class VolatileRegister<CFGR, AccessType::WriteOnly>;
-        friend class VolatileRegister<CFGR, AccessType::ReadWrite>;
+        friend class VolatileRegister<CFGR1, AccessType::ReadOnly>;
+        friend class VolatileRegister<CFGR1, AccessType::WriteOnly>;
+        friend class VolatileRegister<CFGR1, AccessType::ReadWrite>;
     };
 
-    // configuration register
+    // ADC configuration register 2
     union CFGR2 {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> ROVSE;  /*!< DMAEN */
-            microhal::Bitfield<uint32_t, 1, 1> JOVSE;  /*!< DMACFG */
+            microhal::Bitfield<uint32_t, 0, 1> ROVSE; /*!< DMAEN */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+            microhal::Bitfield<uint32_t, 1, 1> JOVSE; /*!< DMACFG */
+#endif
             microhal::Bitfield<uint32_t, 2, 3> OVSR;   /*!< RES */
             microhal::Bitfield<uint32_t, 5, 4> OVSS;   /*!< ALIGN */
             microhal::Bitfield<uint32_t, 9, 1> TROVS;  /*!< Triggered Regular Oversampling */
@@ -322,6 +368,9 @@ struct ADC {
             microhal::Bitfield<uint32_t, 25, 1> SWTRIG;  /*!< SWTRIG */
             microhal::Bitfield<uint32_t, 26, 1> BULB;    /*!< BULB */
             microhal::Bitfield<uint32_t, 27, 1> SMPTRIG; /*!< SMPTRIG */
+#endif
+#ifdef _MICROHAL_REGISTERS_ADC_CFGR2_HAS_CKMODE
+            microhal::Bitfield<uint32_t, 30, 2> CKMODE; /*!< ADC clock mode */
 #endif
         };
 
@@ -574,6 +623,105 @@ struct ADC {
         friend class VolatileRegister<TR2_3, AccessType::ReadOnly>;
         friend class VolatileRegister<TR2_3, AccessType::WriteOnly>;
         friend class VolatileRegister<TR2_3, AccessType::ReadWrite>;
+    };
+
+    // channel selection register
+    union CHSELR {
+        union {
+            microhal::Bitfield<uint32_t, 0, 19> CHSEL; /*!< Channel-x selection */
+        };
+
+        operator uint32_t() const { return raw; }
+        operator bool() const { return raw; }
+
+        CHSELR &operator=(uint32_t value) {
+            raw = value;
+            return *this;
+        }
+        CHSELR &operator|=(uint32_t value) {
+            raw |= value;
+            return *this;
+        }
+        CHSELR &operator&=(uint32_t value) {
+            raw &= value;
+            return *this;
+        }
+
+        bool operator==(uint32_t value) const { return raw == value; }
+        bool operator!=(uint32_t value) const { return raw != value; }
+        bool operator>(uint32_t value) const { return raw > value; }
+        bool operator<(uint32_t value) const { return raw < value; }
+        bool operator>=(uint32_t value) const { return raw >= value; }
+        bool operator<=(uint32_t value) const { return raw <= value; }
+        CHSELR operator&(uint32_t value) const {
+            CHSELR tmp;
+            tmp.raw = raw & value;
+            return tmp;
+        }
+        CHSELR operator|(uint32_t value) const {
+            CHSELR tmp;
+            tmp.raw = raw | value;
+            return tmp;
+        }
+
+     private:
+        uint32_t raw;
+        friend class VolatileRegister<CHSELR, AccessType::ReadOnly>;
+        friend class VolatileRegister<CHSELR, AccessType::WriteOnly>;
+        friend class VolatileRegister<CHSELR, AccessType::ReadWrite>;
+    };
+
+    // channel selection register CHSELRMOD = 1 in ADC_CFGR1
+    union CHSELR_1 {
+        union {
+            microhal::Bitfield<uint32_t, 0, 4> SQ1;  /*!< conversion of the sequence */
+            microhal::Bitfield<uint32_t, 4, 4> SQ2;  /*!< conversion of the sequence */
+            microhal::Bitfield<uint32_t, 8, 4> SQ3;  /*!< conversion of the sequence */
+            microhal::Bitfield<uint32_t, 12, 4> SQ4; /*!< conversion of the sequence */
+            microhal::Bitfield<uint32_t, 16, 4> SQ5; /*!< conversion of the sequence */
+            microhal::Bitfield<uint32_t, 20, 4> SQ6; /*!< conversion of the sequence */
+            microhal::Bitfield<uint32_t, 24, 4> SQ7; /*!< conversion of the sequence */
+            microhal::Bitfield<uint32_t, 28, 4> SQ8; /*!< conversion of the sequence */
+        };
+
+        operator uint32_t() const { return raw; }
+        operator bool() const { return raw; }
+
+        CHSELR_1 &operator=(uint32_t value) {
+            raw = value;
+            return *this;
+        }
+        CHSELR_1 &operator|=(uint32_t value) {
+            raw |= value;
+            return *this;
+        }
+        CHSELR_1 &operator&=(uint32_t value) {
+            raw &= value;
+            return *this;
+        }
+
+        bool operator==(uint32_t value) const { return raw == value; }
+        bool operator!=(uint32_t value) const { return raw != value; }
+        bool operator>(uint32_t value) const { return raw > value; }
+        bool operator<(uint32_t value) const { return raw < value; }
+        bool operator>=(uint32_t value) const { return raw >= value; }
+        bool operator<=(uint32_t value) const { return raw <= value; }
+        CHSELR_1 operator&(uint32_t value) const {
+            CHSELR_1 tmp;
+            tmp.raw = raw & value;
+            return tmp;
+        }
+        CHSELR_1 operator|(uint32_t value) const {
+            CHSELR_1 tmp;
+            tmp.raw = raw | value;
+            return tmp;
+        }
+
+     private:
+        uint32_t raw;
+        friend class VolatileRegister<CHSELR_1, AccessType::ReadOnly>;
+        friend class VolatileRegister<CHSELR_1, AccessType::WriteOnly>;
+        friend class VolatileRegister<CHSELR_1, AccessType::ReadWrite>;
     };
 
     // ADC regular sequence register 1
@@ -1083,8 +1231,10 @@ struct ADC {
     // ADC Calibration Factors
     union CALFACT {
         union {
-            microhal::Bitfield<uint32_t, 0, 7> CALFACT_S;  /*!< Calibration Factors In Single-Ended mode */
+            microhal::Bitfield<uint32_t, 0, 7> CALFACT_S; /*!< Calibration Factors In Single-Ended mode */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
             microhal::Bitfield<uint32_t, 16, 7> CALFACT_D; /*!< Calibration Factors in differential mode */
+#endif
         };
 
         operator uint32_t() const { return raw; }
@@ -1173,47 +1323,78 @@ struct ADC {
         friend class VolatileRegister<GCOMP, AccessType::ReadWrite>;
     };
 
-    VolatileRegister<ISR, AccessType::ReadWrite> isr;   /*!< ADC interrupt and status register	Address offset: 0x0 */
-    VolatileRegister<IER, AccessType::ReadWrite> ier;   /*!< ADC interrupt enable register	Address offset: 0x4 */
-    VolatileRegister<CR, AccessType::ReadWrite> cr;     /*!< ADC control register	Address offset: 0x8 */
-    VolatileRegister<CFGR, AccessType::ReadWrite> cfgr; /*!< ADC configuration register	Address offset: 0xC */
+    VolatileRegister<ISR, AccessType::ReadWrite> isr;     /*!< ADC interrupt and status register	Address offset: 0x0 */
+    VolatileRegister<IER, AccessType::ReadWrite> ier;     /*!< ADC interrupt enable register	Address offset: 0x4 */
+    VolatileRegister<CR, AccessType::ReadWrite> cr;       /*!< ADC control register	Address offset: 0x8 */
+    VolatileRegister<CFGR1, AccessType::ReadWrite> cfgr1; /*!< ADC configuration register	Address offset: 0xC */
 #ifdef _MICROHAL_REGISTERS_ADC_HAS_CFGR2
     VolatileRegister<CFGR2, AccessType::ReadWrite> cfgr2; /*!< ADC configuration register 2	Address offset: 0x10 */
 #else
     uint32_t reserved0;                                 /*!< Reserved register	Address offset: 0x10 */
 #endif
     VolatileRegister<SMPR1, AccessType::ReadWrite> smpr1; /*!< ADC sample time register 1	Address offset: 0x14 */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_SMPR2
     VolatileRegister<SMPR2, AccessType::ReadWrite> smpr2; /*!< ADC sample time register 2	Address offset: 0x18 */
-    uint32_t reserved1;                                   /*!< Reserved register	Address offset: 0x1c */
-    VolatileRegister<TR1, AccessType::ReadWrite> tr1;     /*!< ADC watchdog threshold register 1	Address offset: 0x20 */
-    VolatileRegister<TR2_3, AccessType::ReadWrite> tr2;   /*!< ADC watchdog threshold register 2	Address offset: 0x24 */
-    VolatileRegister<TR2_3, AccessType::ReadWrite> tr3;   /*!< ADC watchdog threshold register 3	Address offset: 0x28 */
-    uint32_t reserved2;                                   /*!< Reserved register	Address offset: 0x2c */
-    VolatileRegister<SQR1, AccessType::ReadWrite> sqr1;   /*!< ADC regular sequence register 1	Address offset: 0x30 */
-    VolatileRegister<SQR2, AccessType::ReadWrite> sqr2;   /*!< ADC regular sequence register 2	Address offset: 0x34 */
-    VolatileRegister<SQR3, AccessType::ReadWrite> sqr3;   /*!< ADC regular sequence register 3	Address offset: 0x38 */
-    VolatileRegister<SQR4, AccessType::ReadWrite> sqr4;   /*!< ADC regular sequence register 4	Address offset: 0x3C */
-    VolatileRegister<DR, AccessType::ReadWrite> dr;       /*!< ADC regular Data Register	Address offset: 0x40 */
-    uint32_t reserved3[2];                                /*!< Reserved register	Address offset: 0x44 */
-    VolatileRegister<JSQR, AccessType::ReadWrite> jsqr;   /*!< ADC injected sequence register	Address offset: 0x4C */
-    uint32_t reserved4[4];                                /*!< Reserved register	Address offset: 0x50 */
+#else
+    uint32_t reserved01;
+#endif
+    uint32_t reserved1;                                 /*!< Reserved register	Address offset: 0x1c */
+    VolatileRegister<TR1, AccessType::ReadWrite> tr1;   /*!< ADC watchdog threshold register 1	Address offset: 0x20 */
+    VolatileRegister<TR2_3, AccessType::ReadWrite> tr2; /*!< ADC watchdog threshold register 2	Address offset: 0x24 */
+#ifdef _MICROHAL_REGISTERS_ADC_CFGR1_HAS_CHSELRMOD
+    union {
+        VolatileRegister<CHSELR, AccessType::ReadWrite> chselr_mod0; /*!< channel selection register	Address offset: 0x28 */
+        VolatileRegister<CHSELR_1, AccessType::ReadWrite>
+            chselr_mod1; /*!< channel selection register CHSELRMOD = 1 in ADC_CFGR1	Address offset: 0x28 */
+    };
+#endif
+    VolatileRegister<TR2_3, AccessType::ReadWrite> tr3; /*!< ADC watchdog threshold register 3	Address offset: 0x28 or 2C */
+#ifndef _MICROHAL_REGISTERS_ADC_CFGR1_HAS_CHSELRMOD
+    uint32_t reserved2;                                 /*!< Reserved register	Address offset: 0x2c */
+    VolatileRegister<SQR1, AccessType::ReadWrite> sqr1; /*!< ADC regular sequence register 1	Address offset: 0x30 */
+    VolatileRegister<SQR2, AccessType::ReadWrite> sqr2; /*!< ADC regular sequence register 2	Address offset: 0x34 */
+    VolatileRegister<SQR3, AccessType::ReadWrite> sqr3; /*!< ADC regular sequence register 3	Address offset: 0x38 */
+    VolatileRegister<SQR4, AccessType::ReadWrite> sqr4; /*!< ADC regular sequence register 4	Address offset: 0x3C */
+#else
+    uint32_t reserved21[4];
+#endif
+    VolatileRegister<DR, AccessType::ReadWrite> dr; /*!< ADC regular Data Register	Address offset: 0x40 */
+    uint32_t reserved3[2];                          /*!< Reserved register	Address offset: 0x44 */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
+    VolatileRegister<JSQR, AccessType::ReadWrite> jsqr; /*!< ADC injected sequence register	Address offset: 0x4C */
+#else
+    uint32_t reserved31;
+#endif
+    uint32_t reserved4[4]; /*!< Reserved register	Address offset: 0x50 */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_OFR
     VolatileRegister<OFRx, AccessType::ReadWrite> ofr[4]; /*!< ADC offset register 1	Address offset: 0x60 */
     // VolatileRegister<OFRx, AccessType::ReadWrite> ofr2;       /*!< ADC offset register 2	Address offset: 0x64 */
     // VolatileRegister<OFRx, AccessType::ReadWrite> ofr3;       /*!< ADC offset register 3	Address offset: 0x68 */
     // VolatileRegister<OFRx, AccessType::ReadWrite> ofr4;       /*!< ADC offset register 4	Address offset: 0x6C */
-    uint32_t reserved5[4];                                /*!< Reserved register	Address offset: 0x70 */
+    uint32_t reserved5[4]; /*!< Reserved register	Address offset: 0x70 */
+#else
+    uint32_t reserved5[8];
+#endif
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
     VolatileRegister<JDRx, AccessType::ReadWrite> jdr[4]; /*!< injected data register 1	Address offset: 0x80 */
     // VolatileRegister<JDRx, AccessType::ReadWrite> jdr2;       /*!< injected data register 2	Address offset: 0x84 */
     // VolatileRegister<JDRx, AccessType::ReadWrite> jdr3;       /*!< injected data register 3	Address offset: 0x88 */
     // VolatileRegister<JDRx, AccessType::ReadWrite> jdr4;       /*!< injected data register 4	Address offset: 0x8C */
-    uint32_t reserved6[4];                                    /*!< Reserved register	Address offset: 0x90 */
-    VolatileRegister<AWDxCR, AccessType::ReadWrite> awd2cr;   /*!< ADC Analog Watchdog 2 Configuration Register	Address offset: 0xA0 */
-    VolatileRegister<AWDxCR, AccessType::ReadWrite> awd3cr;   /*!< ADC Analog Watchdog 3 Configuration Register	Address offset: 0xA4 */
-    uint32_t reserved7[2];                                    /*!< Reserved register	Address offset: 0xa8 */
-    VolatileRegister<DIFSEL, AccessType::ReadWrite> difsel;   /*!< ADC Differential Mode Selection Register	Address offset: 0xB0 */
+#else
+    uint32_t reserved51[4];
+#endif
+    uint32_t reserved6[4];                                  /*!< Reserved register	Address offset: 0x90 */
+    VolatileRegister<AWDxCR, AccessType::ReadWrite> awd2cr; /*!< ADC Analog Watchdog 2 Configuration Register	Address offset: 0xA0 */
+    VolatileRegister<AWDxCR, AccessType::ReadWrite> awd3cr; /*!< ADC Analog Watchdog 3 Configuration Register	Address offset: 0xA4 */
+    uint32_t reserved7[2];                                  /*!< Reserved register	Address offset: 0xa8 */
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
+    VolatileRegister<DIFSEL, AccessType::ReadWrite> difsel; /*!< ADC Differential Mode Selection Register	Address offset: 0xB0 */
+#else
+    uint32_t reserved8;
+#endif
     VolatileRegister<CALFACT, AccessType::ReadWrite> calfact; /*!< ADC Calibration Factors	Address offset: 0xB4 */
 #ifdef _MICROHAL_REGISTERS_ADC_HAS_GCOMP
-    uint32_t reserved8[2];                                /*!< Reserved register	Address offset: 0xb8 */
+    uint32_t reserved9[2];                                /*!< Reserved register	Address offset: 0xb8 */
     VolatileRegister<GCOMP, AccessType::ReadWrite> gcomp; /*!< Gain compensation Register	Address offset: 0xC0 */
 #endif
 };

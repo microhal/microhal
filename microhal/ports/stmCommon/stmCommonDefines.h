@@ -39,7 +39,7 @@
 #elif defined(MCU_TYPE_STM32G0XX)
 #define _MICROHAL_ACTIVE_PORT_NAMESPACE stm32g0xx
 #define _MICROHAL_INCLUDE_PORT_DEVICE "ports/stm32g0xx/nvic.h"
-#define _MICROHAL_INCLUDE_PORT_DMA "ports/stm32g0xx/dma_stm32g0xx.h"
+//#define _MICROHAL_INCLUDE_PORT_DMA "ports/stm32g0xx/dma_stm32g0xx.h"
 #define _MICROHAL_INCLUDE_PORT_CONFIG "microhalPortConfig_stm32g0xx.h"
 #define _MICROHAL_INCLUDE_PORT_IOMANAGER "ports/stm32g0xx/IOManager_stm32g0xx.h"
 #define _MICROHAL_INCLUDE_PORT_GPIO "ports/stm32g0xx/gpio_stm32g0xx.h"

@@ -44,6 +44,34 @@ class IOManager {
  public:
     IOManager() = delete;
 
+    template <int adcNumber, int channel, stm32g0xx::IOPin pin>
+    static void routeADC(stm32g0xx::GPIO::PullType pullUpOrDown = stm32g0xx::GPIO::NoPull) {
+        static_assert(adcNumber > 0, "ADC numbering starts from 1.");
+        static_assert(adcNumber == 1, "STM32G0xx has only 1 ADC");
+        static_assert(channel != 12 && channel != 13 && channel != 14,
+                      "Channels 12, 13 and 14 are used internally and can't be routed outside chip.");
+
+        static_assert(channel != 0 || pin == IOPin{IOPin::PortA, 0}, "ADC1 Channel 0 can be connected only to PortA.0");
+        static_assert(channel != 1 || pin == IOPin{IOPin::PortA, 1}, "ADC1 Channel 1 can be connected only to PortA.1");
+        static_assert(channel != 2 || pin == IOPin{IOPin::PortA, 2}, "ADC1 Channel 2 can be connected only to PortA.2");
+        static_assert(channel != 3 || pin == IOPin{IOPin::PortA, 3}, "ADC1 Channel 3 can be connected only to PortA.3");
+        static_assert(channel != 4 || pin == IOPin{IOPin::PortA, 4}, "ADC1 Channel 4 can be connected only to PortA.4");
+        static_assert(channel != 5 || pin == IOPin{IOPin::PortA, 5}, "ADC1 Channel 5 can be connected only to PortA.5");
+        static_assert(channel != 6 || pin == IOPin{IOPin::PortA, 6}, "ADC1 Channel 6 can be connected only to PortA.6");
+        static_assert(channel != 7 || pin == IOPin{IOPin::PortA, 7}, "ADC1 Channel 7 can be connected only to PortA.7");
+        static_assert(channel != 8 || pin == IOPin{IOPin::PortB, 0}, "ADC1 Channel 8 can be connected only to PortB.0");
+        static_assert(channel != 9 || pin == IOPin{IOPin::PortB, 1}, "ADC1 Channel 9 can be connected only to PortB.1");
+        static_assert(channel != 10 || pin == IOPin{IOPin::PortB, 2}, "ADC1 Channel 10 can be connected only to PortB.2");
+        static_assert(channel != 11 || pin == IOPin{IOPin::PortB, 10}, "ADC1 Channel 11 can be connected only to PortB.10");
+        static_assert(channel != 15 || pin == IOPin{IOPin::PortB, 11}, "ADC1 Channel 15 can be connected only to PortB.11");
+        static_assert(channel != 16 || pin == IOPin{IOPin::PortB, 12}, "ADC1 Channel 16 can be connected only to PortB.12");
+        static_assert(channel != 17 || pin == IOPin{IOPin::PortC, 4}, "ADC1 Channel 17 can be connected only to PortC.4");
+        static_assert(channel != 18 || pin == IOPin{IOPin::PortC, 5}, "ADC1 Channel 18 can be connected only to PortC.5");
+
+        GPIO gpio(pin);
+        gpio.configureAsInput(pullUpOrDown);
+    }
+
     template <int serial, SerialPinType serialType, stm32g0xx::IOPin pin>
     static void routeSerial(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::NoPull, stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::PushPull) {
         static_assert(serial != 0, "Serial port numbers starts from 1.");

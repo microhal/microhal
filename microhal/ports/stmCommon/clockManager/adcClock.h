@@ -106,17 +106,29 @@ inline void enableADC(uint16_t adcNumber) {
 
 #if defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC1EN) || defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC2EN) || \
     defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC3EN)
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+    auto apb2enr = registers::rcc->apbenr2.volatileLoad();
+#else
     auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+#endif
     if (adcNumber == 1) {
         apb2enr.ADC1EN.set();
+#ifdef _MICROHAL_ADC2_BASE_ADDRESS
     } else if (adcNumber == 2) {
         apb2enr.ADC2EN.set();
+#endif
+#ifdef _MICROHAL_ADC3_BASE_ADDRESS
     } else if (adcNumber == 3) {
         apb2enr.ADC3EN.set();
+#endif
     } else {
         std::terminate();
     }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+    registers::rcc->apbenr2.volatileStore(apb2enr);
+#else
     registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
 #endif
 }
 inline void disableADC(uint16_t adcNumber) {
@@ -142,17 +154,29 @@ inline void disableADC(uint16_t adcNumber) {
 
 #if defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC1EN) || defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC2EN) || \
     defined(_MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC3EN)
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+    auto apb2enr = registers::rcc->apbenr2.volatileLoad();
+#else
     auto apb2enr = registers::rcc->apb2enr.volatileLoad();
+#endif
     if (adcNumber == 1) {
         apb2enr.ADC1EN.clear();
+#ifdef _MICROHAL_ADC2_BASE_ADDRESS
     } else if (adcNumber == 2) {
         apb2enr.ADC2EN.clear();
+#endif
+#ifdef _MICROHAL_ADC3_BASE_ADDRESS
     } else if (adcNumber == 3) {
         apb2enr.ADC3EN.clear();
+#endif
     } else {
         std::terminate();
     }
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
+    registers::rcc->apbenr2.volatileStore(apb2enr);
+#else
     registers::rcc->apb2enr.volatileStore(apb2enr);
+#endif
 #endif
 }
 

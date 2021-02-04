@@ -101,7 +101,12 @@ class Adc final {
  public:
     using Interrupt = adc_detail::Interrupt;
 
-    enum class CalibrationType { SingleEnded = 0, Differential };
+    enum class CalibrationType {
+        SingleEnded = 0,
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
+        Differential
+#endif
+    };
     enum class TriggerSource { Software, HardwareOnRisingEdge, HardwareOnFallingEdge, HardwareOnBothEdges };
     /**
      * @brief Possible ADC channels
@@ -139,9 +144,15 @@ class Adc final {
 
     typedef enum {
         ADCCLK = 0x00,
+#ifdef _MICROHAL_STM32G0XX_STM32G0xx
+        PCLK_Half = 0b01,
+        PCLK_Quater = 0b10,
+        PCLK = 0b11,  //!< This option can be used only when AHB clock prescaler is set to 1
+#else
         PCLK = 0b01,  //!< This option can be used only when AHB clock prescaler is set to 1
         PCLK_Half = 0b10,
         PCLK_Quater = 0b11
+#endif
     } ClkMode;
 
     enum class ExternalTriggerSource {
@@ -172,34 +183,64 @@ class Adc final {
         AlternateTriggerOnly = 0b01001
     };
 
+    //=================== ADC On Off functions ===================
+    bool enable();
+    bool disable();
+
+    bool isEnabled() { return adc.cr.volatileLoad().ADEN; }
+
+    bool waitForADCready(uint32_t ms = 1000) {
+        while (ms--) {
+            if (adc.isr.volatileLoad().ADRDY) {
+                return true;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds{1});
+        }
+        return false;
+    }
+
     void enableAutoDelayedConversionMode() {
-        auto cfgr = adc.cfgr.volatileLoad();
+        auto cfgr = adc.cfgr1.volatileLoad();
         cfgr.AUTDLY = 1;
-        adc.cfgr.volatileStore(cfgr);
+        adc.cfgr1.volatileStore(cfgr);
     }
     void disableAutoDelayedConversionMode() {
-        auto cfgr = adc.cfgr.volatileLoad();
+        auto cfgr = adc.cfgr1.volatileLoad();
         cfgr.AUTDLY = 0;
-        adc.cfgr.volatileStore(cfgr);
+        adc.cfgr1.volatileStore(cfgr);
     }
+
+    bool setResolution(Resolution resolution) {
+        if (isEnabled() == false) {
+            auto cfgr = adc.cfgr1.volatileLoad();
+            cfgr.RES = resolution;
+            adc.cfgr1.volatileStore(cfgr);
+            return true;
+        }
+        return false;
+    }
+
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_OFR
+    bool configureChannelOffset(Channel channel, uint16_t offset);
+    bool enableChannelOffset(Channel channel);
+    bool disableChannelOffset(Channel channel);
+#endif
+
+    //=================== Regular conversion functions ===================
+    /**
+     *
+     * @param sequenceLength
+     * @param sequencePosition
+     * @param channel number form 1 to 18
+     * @return
+     */
+    bool configureSamplingSequence(gsl::span<Adc::Channel> sequence);
     /**
      *
      * @param triggerSource - @ref TriggerSource
      * @param eventNumber - Select hardware trigger source, ignored in Software trigger mode
      */
     void configureTriggerSource(TriggerSource triggerSource, ExternalTriggerSource externalTrigger);
-
-    void initDMA(uint16_t *data, size_t len);
-
-    Interrupt getInterrupFlags() const {
-        uint32_t isr = adc.isr.volatileLoad();
-        return static_cast<Interrupt>(isr);
-    }
-    void clearInterruptFlags(Interrupt interrupt) {
-        auto isr = adc.isr.volatileLoad();
-        isr &= ~static_cast<uint32_t>(interrupt);
-        adc.isr.volatileStore(isr);
-    }
     /**
      *
      * @retval true if conversion was started
@@ -230,35 +271,6 @@ class Adc final {
         }
         return false;
     }
-
-    bool enable();
-    bool disable();
-
-    bool isEnabled() { return adc.cr.volatileLoad().ADEN; }
-
-    bool setResolution(Resolution resolution) {
-        if (isEnabled() == false) {
-            auto cfgr = adc.cfgr.volatileLoad();
-            cfgr.RES = resolution;
-            adc.cfgr.volatileStore(cfgr);
-            return true;
-        }
-        return false;
-    }
-    /**
-     *
-     * @param sequenceLength
-     * @param sequencePosition
-     * @param channel number form 1 to 18
-     * @return
-     */
-    bool configureSamplingSequence(gsl::span<Adc::Channel> sequence);
-    bool configureChannelOffset(Channel channel, uint16_t offset);
-    bool enableChannelOffset(Channel channel);
-    bool disableChannelOffset(Channel channel);
-
-    bool waitForRegularSequenceEnd(std::chrono::milliseconds timeout) { return regularSequenceFinishSemaphore.wait(timeout); }
-
     bool waitForConversionEnd(uint32_t ms = 10000) {
         while (ms--) {
             if (adc.isr.volatileLoad().EOC) {
@@ -267,31 +279,69 @@ class Adc final {
         }
         return false;
     }
+    bool waitForRegularSequenceEnd(std::chrono::milliseconds timeout) { return regularSequenceFinishSemaphore.wait(timeout); }
+    uint16_t readSamples() { return adc.dr.volatileLoad().RDATA; }
 
-    bool waitForADCready(uint32_t ms = 1000) {
-        while (ms--) {
-            if (adc.isr.volatileLoad().ADRDY) {
-                return true;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds{1});
-        }
-        return false;
+    //=================== Injected conversion functions ===================
+
+    //=================== Analog watchdog functions ===================
+
+    //==================== ADC callibration functions ====================
+    /**
+     * @note Calibrate function can be called only when ADC is disabled.
+     */
+    bool calibrate(CalibrationType calibrationType);
+
+    //=================== Temperature sensor functions ===================
+    bool enableTemperatureSensor() {
+        auto ccr = registers::adc12Common->ccr.volatileLoad();
+        ccr.TSEN.set();
+        registers::adc12Common->ccr.volatileStore(ccr);
+        return true;
+    }
+    bool disableTemperatureSensor() {
+        auto ccr = registers::adc12Common->ccr.volatileLoad();
+        ccr.TSEN.clear();
+        registers::adc12Common->ccr.volatileStore(ccr);
+        return true;
+    }
+    constexpr Channel getTemperatureSensorChannel() const { return Channel12; }
+    constexpr Channel getInteranlReferenceChannel() const { return Channel13; }
+    static float voltageToTemperatureInCelsius(float voltage) {
+        constexpr const float v25 = 1.43f;
+        constexpr const float avgSlope = 4.3f / 1000.0f;
+        return (v25 - voltage) / avgSlope + 25.0;
+    }
+
+    void initDMA(uint16_t *data, size_t len);
+
+    Interrupt getInterrupFlags() const {
+        uint32_t isr = adc.isr.volatileLoad();
+        return static_cast<Interrupt>(isr);
+    }
+    void clearInterruptFlags(Interrupt interrupt) {
+        auto isr = adc.isr.volatileLoad();
+        isr &= ~static_cast<uint32_t>(interrupt);
+        adc.isr.volatileStore(isr);
     }
 
     bool setClockMode(ClkMode mode) {
         // Software is allowed to write these bits only when the ADC is disabled (ADCAL=0, ADSTART=0, ADSTP=0, ADDIS=0 and ADEN=0).
         if (isEnabled() == false) {
+#ifdef _MICROHAL_REGISTERS_ADC_CFGR2_HAS_CKMODE
+            auto cfgr2 = adc.cfgr2.volatileLoad();
+            cfgr2.CKMODE = mode;
+            adc.cfgr2.volatileStore(cfgr2);
+            return true;
+#else
             auto ccr = registers::adc12Common->ccr.volatileLoad();
             ccr.CKMODE = mode;
             registers::adc12Common->ccr.volatileStore(ccr);
             return true;
+#endif
         }
         return false;
     }
-    /**
-     * @note Calibrate function can be called only when ADC is disabled.
-     */
-    bool calibrate(CalibrationType calibrationType);
 
     bool registerIsrFunction(void (*interruptFunction)(void), uint32_t interruptPriority) {
         if (interruptFunction == nullptr) {
@@ -327,8 +377,6 @@ class Adc final {
      */
     void disableInterrupt() { NVIC_DisableIRQ(ADC1_2_IRQn); }
 
-    uint16_t readSamples() { return adc.dr.volatileLoad().RDATA; }
-
     static void setDualADCMode(DualADCMode dualMode) {
         auto ccr = registers::adc12Common->ccr.volatileLoad();
         ccr.DUAL = static_cast<uint32_t>(dualMode);
@@ -342,9 +390,9 @@ class Adc final {
         ClockManager::enableADC(1);
         // RCC->AHBENR |= RCC_AHBENR_ADC12EN;
         // RCC->CFGR2 |= RCC_CFGR2_ADCPRE12_4 | RCC_CFGR2_ADCPRE12_3;
-        auto cfgr2 = registers::rcc->cfgr2.volatileLoad();
-        cfgr2.ADC12PRES = 0b11000;
-        registers::rcc->cfgr2.volatileStore(cfgr2);
+        // auto cfgr2 = registers::rcc->cfgr2.volatileLoad();
+        // cfgr2.ADC12PRES = 0b11000;
+        // registers::rcc->cfgr2.volatileStore(cfgr2);
 
         enableVoltageRegulator();
 
@@ -353,13 +401,17 @@ class Adc final {
         registers::adc12Common->ccr.volatileStore(ccr);
 
         if ((int)adc == _MICROHAL_ADC1_BASE_ADDRESS) adc1 = this;
+#ifdef _MICROHAL_ADC2_BASE_ADDRESS
         if ((int)adc == _MICROHAL_ADC2_BASE_ADDRESS) adc2 = this;
+#endif
     }
     ~Adc();
 
  private:
     static Adc *adc1;
+#ifdef _MICROHAL_ADC2_BASE_ADDRESS
     static Adc *adc2;
+#endif
     microhal::registers::ADC &adc;
     microhal::os::Semaphore regularSequenceFinishSemaphore = {};
     Signal<void> signal = {};
