@@ -4,7 +4,7 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 02-02-2021
+ * created on: 04-02-2021
  *
  * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
@@ -25,27 +25,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_MICROHAL_PORTS_STM32G0XX_MCUCAPABILITIES_H_
-#define SRC_MICROHAL_PORTS_STM32G0XX_MCUCAPABILITIES_H_
+#ifndef _MICROHAL_PORTS_STM32G0XX_INDEPENDENTWATCHDOT_STM32G0XX_H_
+#define _MICROHAL_PORTS_STM32G0XX_INDEPENDENTWATCHDOT_STM32G0XX_H_
 
-#include "mcuDefines.h"
+/* **************************************************************************************************************************************************
+ * INCLUDES
+ */
+#include <ports/stmCommon/independentWatchdog_stmCommon_v1.h>
 
-#ifdef _MICROHAL_STM32G0XX_STM32G071xx
-
-#define _MICROHAL_STM32G0XX_HAS_AES1 0
-
-#define _MICROHAL_STM32G0XX_HAS_I2C1 1
-#define _MICROHAL_STM32G0XX_HAS_I2C2 1
-
-#define _MICROHAL_STM32G0XX_HAS_USART1 1
-#define _MICROHAL_STM32G0XX_HAS_USART2 1
-#define _MICROHAL_STM32G0XX_HAS_USART3 1
-#define _MICROHAL_STM32G0XX_HAS_USART4 1
-#define _MICROHAL_STM32G0XX_HAS_USART5 0
-#define _MICROHAL_STM32G0XX_HAS_USART6 0
-
-#define _MICROHAL_STM32G0XX_HAS_RTC1 1
-
-#endif
-
-#endif /* SRC_MICROHAL_PORTS_STM32G0XX_MCUCAPABILITIES_H_ */
+#endif /* _MICROHAL_PORTS_STM32G0XX_INDEPENDENTWATCHDOT_STM32G0XX_H_ */

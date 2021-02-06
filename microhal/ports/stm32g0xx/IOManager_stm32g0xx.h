@@ -38,6 +38,10 @@ typedef enum {
     Txd,
 } SerialPinType;
 
+typedef enum { MISO, MOSI, SCK } SpiPinType;
+
+typedef enum { SCL, SDA } I2cPinType;
+
 namespace stm32g0xx {
 
 class IOManager {
@@ -72,85 +76,191 @@ class IOManager {
         gpio.configureAsInput(pullUpOrDown);
     }
 
+    template <int i2cNumber, I2cPinType i2cPinType, stm32g0xx::IOPin pin>
+    static void routeI2C(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::NoPull, stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OpenDrain) {
+        static_assert(i2cNumber != 0, "I2C numbers starts from 1.");
+        static_assert(i2cNumber <= 6, "STM32G0XX family have up to 6 I2Cs.");
+        auto af = stm32g0xx::GPIO::AlternateFunction::AF0;
+
+        if constexpr (i2cNumber == 1) {
+            static_assert(_MICROHAL_STM32G0XX_HAS_I2C1 && i2cNumber == 1, "I2C 1 unavailable in this MCU.");
+            if constexpr (i2cPinType == SDA) {
+                static_assert(pin == IOPin{IOPin::PortA, 10} || pin == IOPin{IOPin::PortB, 7} || pin == IOPin{IOPin::PortB, 9},
+                              "I2C 1 SDA can be connected only to: PortA.10, PortB.7, PortB.9");
+                af = stm32g0xx::GPIO::AlternateFunction::AF6;
+            }
+            if constexpr (i2cPinType == SCL) {
+                static_assert(pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 6} || pin == IOPin{IOPin::PortB, 8},
+                              "I2C 1 SCL can be connected only to: PortA.9, PortB.6, PortB.8");
+                af = stm32g0xx::GPIO::AlternateFunction::AF6;
+            }
+        }
+        if constexpr (i2cNumber == 2) {
+            static_assert(_MICROHAL_STM32G0XX_HAS_I2C2 && i2cNumber == 2, "I2C 2 unavailable in this MCU.");
+            if constexpr (i2cPinType == SDA) {
+                static_assert(pin == IOPin{IOPin::PortA, 12} || pin == IOPin{IOPin::PortB, 11} || pin == IOPin{IOPin::PortB, 14},
+                              "I2C 2 SDA can be connected only to: PortA.12, PortB.11, PortB.14");
+                af = stm32g0xx::GPIO::AlternateFunction::AF6;
+            }
+            if constexpr (i2cPinType == SCL) {
+                static_assert(pin == IOPin{IOPin::PortA, 11} || pin == IOPin{IOPin::PortB, 10} || pin == IOPin{IOPin::PortB, 13},
+                              "I2C 2 SCL can be connected only to: PortA.11, PortB.10, PortB.13");
+                af = stm32g0xx::GPIO::AlternateFunction::AF6;
+            }
+        }
+
+        stm32g0xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(af, pull, type);
+    }
+    constexpr static bool spiPinAssert([[maybe_unused]] int number, [[maybe_unused]] stm32g0xx::IOPin miso, [[maybe_unused]] stm32g0xx::IOPin mosi,
+                                       [[maybe_unused]] stm32g0xx::IOPin sck) {
+        // this function is used only on some MCUs where miso, mosi and sck can't be set independently.
+        return true;
+    }
+
+    template <int spiNumber, SpiPinType spiType, IOPin pin>
+    static void routeSPI(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::NoPull, stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::PushPull) {
+        static_assert(spiNumber != 0, "SPI port numbers starts from 1.");
+        static_assert(spiNumber <= 2, "STM32G0xx has only 2 SPI.");
+
+        if constexpr (spiNumber == 1) {
+            if constexpr (spiType == SCK) {
+                static_assert(
+                    pin == IOPin{IOPin::PortA, 1} || pin == IOPin{IOPin::PortA, 5} || pin == IOPin{IOPin::PortB, 3} || pin == IOPin{IOPin::PortD, 8},
+                    "SPI1 SCK can be connected only to: PortA.1 or PortA.5 or PortB.3 or PortD.8");
+            }
+            if constexpr (spiType == MISO) {
+                static_assert(
+                    pin == IOPin{IOPin::PortA, 6} || pin == IOPin{IOPin::PortA, 11} || pin == IOPin{IOPin::PortB, 4} || pin == IOPin{IOPin::PortD, 5},
+                    "SPI1 MISO can be connected only to: PortA.6 or PortA.11 or PortB.4 or PortD.5");
+            }
+            if constexpr (spiType == MOSI) {
+                static_assert(pin == IOPin{IOPin::PortA, 2} || pin == IOPin{IOPin::PortA, 7} || pin == IOPin{IOPin::PortA, 12} ||
+                                  pin == IOPin{IOPin::PortB, 5} || pin == IOPin{IOPin::PortD, 6},
+                              "SPI1 MOSI can be connected only to: PortA.7 or PortB.0 or PortB.4 or PortC.9 or PortF.6");
+            }
+        }
+        if constexpr (spiNumber == 2) {
+            if constexpr (spiType == SCK) {
+                static_assert(pin == IOPin{IOPin::PortA, 0} || pin == IOPin{IOPin::PortB, 8} || pin == IOPin{IOPin::PortB, 10} ||
+                                  pin == IOPin{IOPin::PortB, 13} || pin == IOPin{IOPin::PortD, 1},
+                              "SPI1 SCK can be connected only to: PortA.0 or PortB.8 or PortB.10 or PortB.13 or PortD.1");
+            }
+            if constexpr (spiType == MISO) {
+                static_assert(pin == IOPin{IOPin::PortA, 3} || pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 2} ||
+                                  pin == IOPin{IOPin::PortB, 6} || pin == IOPin{IOPin::PortB, 14} || pin == IOPin{IOPin::PortC, 2} ||
+                                  pin == IOPin{IOPin::PortD, 3},
+                              "SPI1 MISO can be connected only to: PortA.3 or PortA.9 or PortB.2 or PortB.6 or PortB.14 or PortC.2 or PortD.3");
+            }
+            if constexpr (spiType == MOSI) {
+                static_assert(pin == IOPin{IOPin::PortA, 4} || pin == IOPin{IOPin::PortA, 10} || pin == IOPin{IOPin::PortB, 7} ||
+                                  pin == IOPin{IOPin::PortB, 11} || pin == IOPin{IOPin::PortB, 15} || pin == IOPin{IOPin::PortC, 3} ||
+                                  pin == IOPin{IOPin::PortD, 4},
+                              "SPI1 MOSI can be connected only to: PortA.4 or PortA.10 or PortB.7 or PortB.11 or PortB.15 or PortC.3 or PortD.4");
+            }
+        }
+
+        stm32g0xx::GPIO gpio(pin);
+        if constexpr (pin == IOPin{IOPin::PortB, 10}) {
+            gpio.setAlternateFunction(stm32g0xx::GPIO::AlternateFunction::AF5, pull, type);
+        } else if constexpr (pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 6}) {
+            gpio.setAlternateFunction(stm32g0xx::GPIO::AlternateFunction::AF4, pull, type);
+        } else if constexpr (pin.port == IOPin::PortD || pin.port == IOPin::PortC || pin == IOPin{IOPin::PortA, 4} || pin == IOPin{IOPin::PortB, 2} ||
+                             pin == IOPin{IOPin::PortB, 7} || pin == IOPin{IOPin::PortB, 8}) {
+            gpio.setAlternateFunction(stm32g0xx::GPIO::AlternateFunction::AF1, pull, type);
+        } else {
+            gpio.setAlternateFunction(stm32g0xx::GPIO::AlternateFunction::AF0, pull, type);
+        }
+    }
+
     template <int serial, SerialPinType serialType, stm32g0xx::IOPin pin>
     static void routeSerial(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::NoPull, stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::PushPull) {
         static_assert(serial != 0, "Serial port numbers starts from 1.");
-        static_assert(serial < 7, "STM32G0 family have up to 7 SerialPorts.");
+        static_assert(serial <= 4, "STM32G0 family have up to 4 SerialPorts.");
         auto af = stm32g0xx::GPIO::AlternateFunction::AF1;
 
         if constexpr (serial == 1) {
             static_assert(_MICROHAL_STM32G0XX_HAS_USART1 && serial == 1, "Serial Port 1 unavailable in this MCU.");
-            if constexpr (serialType == Txd)
+            if constexpr (serialType == Txd) {
                 static_assert(pin == IOPin{IOPin::PortA, 9} || pin == IOPin{IOPin::PortB, 6} || pin == IOPin{IOPin::PortC, 4},
-                              "Serial1 Txd can be connected only to: PortA.9, PortB.6 or PortC.4.");
-            if constexpr (serialType == Rxd)
+                              "Serial1 TxD can be connected only to: PortA.9, PortB.6, PortC.4");
+                if constexpr (pin == IOPin{IOPin::PortB, 6})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF0;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF1;
+            }
+            if constexpr (serialType == Rxd) {
                 static_assert(pin == IOPin{IOPin::PortA, 10} || pin == IOPin{IOPin::PortB, 7} || pin == IOPin{IOPin::PortC, 5},
-                              "Serial1 Rxd can be connected only to: PortA.10, PortB.7 or PortC.5.");
-            if constexpr (pin == IOPin{IOPin::PortB, 6} || pin == IOPin{IOPin::PortB, 7}) {
-                af = stm32g0xx::GPIO::AlternateFunction::AF0;
-            } else {
-                af = stm32g0xx::GPIO::AlternateFunction::AF1;
+                              "Serial1 RxD can be connected only to: PortA.10, PortB.7, PortC.5");
+                if constexpr (pin == IOPin{IOPin::PortB, 7})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF0;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF1;
             }
         }
         if constexpr (serial == 2) {
-            static_assert(_MICROHAL_STM32G0XX_HAS_USART2 && serial == 2, "Serial Port 2 unavailable in this MCU.");
-            if constexpr (serialType == Txd)
+            static_assert(_MICROHAL_STM32G0XX_HAS_USART1 && serial == 2, "Serial Port 2 unavailable in this MCU.");
+            if constexpr (serialType == Txd) {
                 static_assert(pin == IOPin{IOPin::PortA, 2} || pin == IOPin{IOPin::PortA, 14} || pin == IOPin{IOPin::PortD, 5},
-                              "Serial2 Txd can be connected only to: PortA.2, PortA.14 or PortD.5.");
-            if constexpr (serialType == Rxd)
+                              "Serial2 TxD can be connected only to: PortA.2, PortA.14, PortD.5");
+                if constexpr (pin == IOPin{IOPin::PortD, 5})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF0;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF1;
+            }
+            if constexpr (serialType == Rxd) {
                 static_assert(pin == IOPin{IOPin::PortA, 3} || pin == IOPin{IOPin::PortA, 15} || pin == IOPin{IOPin::PortD, 6},
-                              "Serial2 Rxd can be connected only to: PortA.3, PortA.15 or PortD.6.");
-            if constexpr (pin == IOPin{IOPin::PortD, 5} || pin == IOPin{IOPin::PortD, 6}) {
-                af = stm32g0xx::GPIO::AlternateFunction::AF0;
-            } else {
-                af = stm32g0xx::GPIO::AlternateFunction::AF1;
+                              "Serial2 RxD can be connected only to: PortA.3, PortA.15, PortD.6");
+                if constexpr (pin == IOPin{IOPin::PortD, 6})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF0;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF1;
             }
         }
         if constexpr (serial == 3) {
-            static_assert(_MICROHAL_STM32G0XX_HAS_USART3 && serial == 3, "Serial Port 3 unavailable in this MCU.");
-            if constexpr (serialType == Txd)
+            static_assert(_MICROHAL_STM32G0XX_HAS_USART1 && serial == 3, "Serial Port 3 unavailable in this MCU.");
+            if constexpr (serialType == Txd) {
                 static_assert(pin == IOPin{IOPin::PortA, 5} || pin == IOPin{IOPin::PortB, 2} || pin == IOPin{IOPin::PortB, 8} ||
                                   pin == IOPin{IOPin::PortB, 10} || pin == IOPin{IOPin::PortC, 4} || pin == IOPin{IOPin::PortC, 10} ||
                                   pin == IOPin{IOPin::PortD, 8},
-                              "Serial3 Txd can be connected only to: PortA.5, PortB.2, PortB.8, PortB.10, PortC.4, PortC.10, PortD.8.");
-            if constexpr (serialType == Rxd)
+                              "Serial3 TxD can be connected only to: PortA.5, PortB.2, PortB.8, PortB.10, PortC.4, PortC.10, PortD.8");
+                if constexpr (pin == IOPin{IOPin::PortA, 5})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF3;
+                else if constexpr (pin == IOPin{IOPin::PortC, 4} || pin == IOPin{IOPin::PortC, 10} || pin == IOPin{IOPin::PortD, 8})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF0;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF4;
+            }
+            if constexpr (serialType == Rxd) {
                 static_assert(pin == IOPin{IOPin::PortB, 0} || pin == IOPin{IOPin::PortB, 9} || pin == IOPin{IOPin::PortB, 11} ||
                                   pin == IOPin{IOPin::PortC, 5} || pin == IOPin{IOPin::PortC, 11} || pin == IOPin{IOPin::PortD, 9},
-                              "Serial3 Rxd can be connected only to: PortB.0, PortB.9, PortB.11, PortC.5, PortC.11, PortD.9.");
-            if constexpr (pin.port == IOPin::PortA || pin.port == IOPin::PortB) {
-                af = stm32g0xx::GPIO::AlternateFunction::AF4;
-            } else {
-                af = stm32g0xx::GPIO::AlternateFunction::AF0;
+                              "Serial3 RxD can be connected only to: PortB.0, PortB.9, PortB.11, PortC.5, PortC.11, PortD.9");
+                if constexpr (pin == IOPin{IOPin::PortB, 0} || pin == IOPin{IOPin::PortB, 9} || pin == IOPin{IOPin::PortB, 11})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF4;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF0;
             }
         }
         if constexpr (serial == 4) {
-            static_assert(_MICROHAL_STM32G0XX_HAS_USART4 && serial == 4, "Serial Port 3 unavailable in this MCU.");
-            if constexpr (serialType == Txd)
+            static_assert(_MICROHAL_STM32G0XX_HAS_USART1 && serial == 4, "Serial Port 4 unavailable in this MCU.");
+            if constexpr (serialType == Txd) {
                 static_assert(pin == IOPin{IOPin::PortA, 0} || pin == IOPin{IOPin::PortC, 10},
-                              "Serial4 Txd can be connected only to: PortA.0, PortC.10.");
-            if constexpr (serialType == Rxd)
+                              "Serial4 TxD can be connected only to: PortA.0, PortC.10");
+                if constexpr (pin == IOPin{IOPin::PortA, 0})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF4;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF1;
+            }
+            if constexpr (serialType == Rxd) {
                 static_assert(pin == IOPin{IOPin::PortA, 1} || pin == IOPin{IOPin::PortC, 11},
-                              "Serial4 Rxd can be connected only to: PortA.1, PortC.11.");
-            if constexpr (pin.port == IOPin::PortA) {
-                af = stm32g0xx::GPIO::AlternateFunction::AF4;
-            } else {
-                af = stm32g0xx::GPIO::AlternateFunction::AF1;
+                              "Serial4 RxD can be connected only to: PortA.1, PortC.11");
+                if constexpr (pin == IOPin{IOPin::PortA, 1})
+                    af = stm32g0xx::GPIO::AlternateFunction::AF4;
+                else
+                    af = stm32g0xx::GPIO::AlternateFunction::AF1;
             }
         }
-        if constexpr (serial == 5) {
-            static_assert(_MICROHAL_STM32G0XX_HAS_USART5 && serial == 5, "Serial Port 3 unavailable in this MCU.");
-            if constexpr (serialType == Txd) static_assert(serialType == Rxd, "Unimplemented");
-            if constexpr (serialType == Rxd) static_assert(serialType == Txd, "Unimplemented");
-        }
-        if constexpr (serial == 6) {
-            static_assert(_MICROHAL_STM32G0XX_HAS_USART6 && serial == 6, "Serial Port 3 unavailable in this MCU.");
-            if constexpr (serialType == Txd)
-                static_assert(pin == IOPin{IOPin::PortB, 9} || pin == IOPin{IOPin::PortB, 10} || pin == IOPin{IOPin::PortC, 10},
-                              "Serial3 Txd can be connected only to: PortB.9, PortB.10, PortC.10.");
-            if constexpr (serialType == Rxd)
-                static_assert(pin == IOPin{IOPin::PortB, 8} || pin == IOPin{IOPin::PortB, 11} || pin == IOPin{IOPin::PortC, 11},
-                              "Serial3 Rxd can be connected only to: PortB.8, PortB.11, PortC.11.");
-        }
+
         stm32g0xx::GPIO gpio(pin);
         gpio.setAlternateFunction(af, pull, type);
     }

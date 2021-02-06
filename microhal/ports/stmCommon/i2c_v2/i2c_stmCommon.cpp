@@ -34,8 +34,10 @@ bool I2C::init() {
     //	if(freqMHz >= 2 && freqMHz <= 42) {//
     // reset device
     registers::I2C::CR1 cr1 = {};
+#ifdef _MICROHAL_REGISTERS_I2C_CR1_HAS_SWRST
     cr1.SWRST.set();
     i2c.cr1.volatileStore(cr1);
+#endif
     cr1 = 0;
     i2c.cr1.volatileStore(cr1);
     // i2c.CR1 = I2C_CR1_SWRST;
