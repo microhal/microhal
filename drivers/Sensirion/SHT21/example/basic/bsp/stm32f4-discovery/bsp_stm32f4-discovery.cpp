@@ -12,14 +12,8 @@
 using namespace microhal;
 using namespace stm32f4xx;
 
-extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
-    (void)r;     // suppress warning
-    (void)file;  // suppress warning
-
-    return bsp::debugPort.write((const char *)buf, nbyte);
-}
-
-void hardwareConfig(void) {
+namespace bsp {
+void init() {
     (void)bsp::sht21::i2c;
     (void)bsp::debugPort;
     Core::pll_start(8000000, 168000000);
@@ -34,7 +28,17 @@ void hardwareConfig(void) {
     stm32f4xx::I2C::i2c2.init();
     stm32f4xx::I2C::i2c2.speed(100000, microhal::I2C::Mode::Standard);
     stm32f4xx::I2C::i2c2.enable();
+}
+}  // namespace bsp
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
+void hardwareConfig(void) {
     SysTick_Config(168000000 / 1000);
 }
 

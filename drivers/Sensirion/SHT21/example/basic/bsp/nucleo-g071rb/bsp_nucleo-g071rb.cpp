@@ -1,15 +1,13 @@
 /**
  * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for nucleo-g071rb board
  *
  * @authors    Pawel Okas
- * created on: 18-11-2016
- * last modification: <DD-MM-YYYY>
+ * created on: 02-02-2021
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,18 +26,44 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NUCLEO_F411RE_H_
-#define NUCLEO_F411RE_H_
-
+#include "bsp.h"
 #include "microhal.h"
 
-namespace bsp {
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
-namespace sht21 {
-static microhal::I2C &i2c = microhal::stm32f4xx::I2C::i2c1;
+using namespace microhal;
+using namespace stm32g0xx;
+
+extern "C" ssize_t _write_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] int file, const void *buf, size_t nbyte) {
+    return bsp::debugPort.write((const char *)buf, nbyte);
 }
 
-void init();
+namespace bsp {
+
+void init() {
+    IOManager::routeSerial<2, Txd, IOPin{IOPin::PortA, 2}>();
+    IOManager::routeSerial<2, Rxd, IOPin{IOPin::PortA, 3}>();
+
+    IOManager::routeI2C<1, SDA, IOPin{IOPin::PortB, 9}>();
+    IOManager::routeI2C<1, SCL, IOPin{IOPin::PortB, 8}>();
+
+    bsp::debugPort.open(IODevice::ReadWrite);
+    bsp::debugPort.setBaudRate(stm32g0xx::SerialPort::Baud115200);
+    bsp::debugPort.setDataBits(stm32g0xx::SerialPort::Data8);
+    bsp::debugPort.setStopBits(stm32g0xx::SerialPort::OneStop);
+    bsp::debugPort.setParity(stm32g0xx::SerialPort::NoParity);
+
+    stm32g0xx::I2C::i2c1.init();
+    stm32g0xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);
+    stm32g0xx::I2C::i2c1.enable();
+}
 
 }  // namespace bsp
-#endif  // NUCLEO_F411RE_H_
+
+void hardwareConfig(void) {
+    // SysTick_Config(8000000 / 1000);
+}
+
+uint64_t SysTick_time = 0;
+
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
+}

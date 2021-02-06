@@ -32,5 +32,9 @@ constexpr microhal::IOPin Sw1(microhal::stm32f4xx::GPIO::Port::PortA, 0);
 
 constexpr microhal::IOPin GreenLed = Led4;
 constexpr microhal::IOPin RedLed = Led3;
+
+void init();
+
 }  // namespace bsp
+
 #endif /* STM32F4DISCOVERY_H_ */

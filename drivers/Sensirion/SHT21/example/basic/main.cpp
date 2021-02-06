@@ -37,6 +37,8 @@ using namespace diagnostic;
 using namespace std::literals::chrono_literals;
 
 int main(void) {
+    bsp::init();
+
     bsp::debugPort.setDataBits(SerialPort::Data8);
     bsp::debugPort.setStopBits(SerialPort::OneStop);
     bsp::debugPort.setParity(SerialPort::NoParity);

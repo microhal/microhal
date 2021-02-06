@@ -108,6 +108,9 @@ static microhal::I2C &i2c = microhal::stm32f3xx::I2C::i2c1;
 }
 
 static microhal::SerialPort &debugPort = microhal::stm32f3xx::SerialPort::Serial2;
+
+void init();
+
 }  // namespace bsp
 
 #endif  // NUCLEO_F334F8_H_

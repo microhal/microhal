@@ -35,11 +35,8 @@
 using namespace microhal;
 using namespace stm32f3xx;
 
-extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
-    return bsp::debugPort.write((const char *)buf, nbyte);
-}
-
-void hardwareConfig(void) {
+namespace bsp {
+void init() {
     (void)bsp::sht21::i2c;
     (void)bsp::debugPort;
     // Core::pll_start(8000000, 168000000);
@@ -54,12 +51,18 @@ void hardwareConfig(void) {
     stm32f3xx::I2C::i2c1.init();
     stm32f3xx::I2C::i2c1.speed(400000, microhal::I2C::Mode::Fast);
     stm32f3xx::I2C::i2c1.enable();
+}
+}  // namespace bsp
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    return bsp::debugPort.write((const char *)buf, nbyte);
+}
+
+void hardwareConfig(void) {
     SysTick_Config(8000000 / 1000);
 }
 
 uint64_t SysTick_time = 0;
-;
 
 extern "C" void SysTick_Handler(void) {
     SysTick_time++;
