@@ -15,23 +15,7 @@
 #include "clockTypes.h"
 #include "hse.h"
 #include "hsi.h"
-
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
-#ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
-#endif
+#include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
@@ -66,6 +50,8 @@ struct PLL {
         return inputFrequency / MDivider();
     }
 
+    static float PLLCLKFrequency() { return Main::PFrequency(); }
+
     struct Main {
         static void enable() noexcept {
             auto cr = registers::rcc->cr.volatileLoad();
@@ -77,8 +63,8 @@ struct PLL {
             cr.PLLON.clear();
             registers::rcc->cr.volatileStore(cr);
         }
-        static bool isReady() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLRDY; }
-        static bool isEnabled() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLON; }
+        static bool isReady() noexcept { return registers::rcc->cr.volatileLoad().PLLRDY; }
+        static bool isEnabled() noexcept { return registers::rcc->cr.volatileLoad().PLLON; }
 
         static float PFrequency() { return VCOOutputFrequency() / P(); }
         static float QFrequency() { return VCOOutputFrequency() / Q(); }
@@ -129,8 +115,8 @@ struct PLL {
             cr.PLLI2SON.clear();
             registers::rcc->cr.volatileStore(cr);
         }
-        static bool isReady() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLI2SRDY; }
-        static bool isEnabled() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLI2SON; }
+        static bool isReady() noexcept { return registers::rcc->cr.volatileLoad().PLLI2SRDY; }
+        static bool isEnabled() noexcept { return registers::rcc->cr.volatileLoad().PLLI2SON; }
     };
 #endif
 #if defined(RCC_CR_PLLSAION)

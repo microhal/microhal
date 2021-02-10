@@ -132,6 +132,8 @@ struct PLL {
 
     static float VCOOutputFrequency() noexcept;
 
+    static float PLLCLKFrequency() { return VCOOutputFrequency(); }
+
  private:
     static uint32_t PLLMUL() noexcept;
     static bool PLLMUL(uint32_t mul) noexcept;

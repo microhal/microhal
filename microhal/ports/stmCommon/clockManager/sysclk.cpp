@@ -39,7 +39,7 @@ void SYSCLK::source(Source source) {
             flashLatency(HSE::frequency());
             break;
         case Source::PLL:
-            flashLatency(PLL::VCOOutputFrequency());
+            flashLatency(PLL::PLLCLKFrequency());
             break;
 #ifdef _MICROHAL_REGISTERS_RCC_HAS_HSI48
         case Source::HSI48:
@@ -62,7 +62,7 @@ uint32_t SYSCLK::frequency() noexcept {
             freq = HSE::frequency();
             break;
         case 0b10:
-            freq = PLL::VCOOutputFrequency();
+            freq = PLL::PLLCLKFrequency();
             break;
 #ifdef _MICROHAL_REGISTERS_RCC_HAS_HSI48
         case 0b11:
