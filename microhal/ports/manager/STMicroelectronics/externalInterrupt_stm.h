@@ -33,11 +33,11 @@ namespace microhal {
 namespace activePort = stm32f4xx;
 }
 #elif defined(MCU_TYPE_STM32G0XX)
-//#define _MICROHAL_PORT_HAS_EXTERNAL_INTERRUPT
-//#include "ports/stmCommon/externalInterrupt_stmCommon.h"
-// namespace microhal {
-// namespace activePort = stm32g0xx;
-//}
+#define _MICROHAL_PORT_HAS_EXTERNAL_INTERRUPT
+#include "ports/stmCommon/externalInterrupt_stmCommon_v2.h"
+namespace microhal {
+namespace activePort = stm32g0xx;
+}
 #else
 #error "MCU type must be specified."
 #endif
