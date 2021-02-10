@@ -26,22 +26,22 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>FreeRTOS</name>
+			<name>src/FreeRTOS</name>
 			<type>2</type>
-			<locationURI>PARENT-5-PROJECT_LOC/third-party/FreeRTOS/FreeRTOS/Source</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/third-party/FreeRTOS-Kernel</locationURI>
 		</link>
 		<link>
-			<name>gsl</name>
+			<name>src/gsl</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>
 		</link>
 		<link>
-			<name>microhal</name>
+			<name>src/microhal</name>
 			<type>2</type>
 			<locationURI>PARENT-5-PROJECT_LOC/microhal</locationURI>
 		</link>
 		<link>
-			<name>mrf89xa</name>
+			<name>src/mrf89xa</name>
 			<type>2</type>
 			<locationURI>PARENT-2-PROJECT_LOC/driver</locationURI>
 		</link>

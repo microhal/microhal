@@ -44,6 +44,8 @@ stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortD, 8}, stm32f4xx::GP
 stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortD, 1}, stm32f4xx::GPIO::Direction::Input);
 stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortD, 0}, stm32f4xx::GPIO::Direction::Input);
 }  // namespace detail
+
+microhal::SPI &spi = microhal::stm32f4xx::SPI_interrupt::create<2, IOPin{IOPin::PortB, 4}, IOPin{IOPin::PortB, 5}, IOPin{IOPin::PortA, 5}>();
 microhal::GPIO &csDat = detail::csDat;
 microhal::GPIO &csCon = detail::csCon;
 microhal::GPIO &RESET = detail::RESET;

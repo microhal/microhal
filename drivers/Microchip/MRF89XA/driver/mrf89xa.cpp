@@ -153,7 +153,7 @@ uint8_t MRF89XA::readPacket(uint8_t *payload, uint8_t maxPayloadSize) {
                         return 0;
                     }
                 };
-                log << lock << Debug << "Payload size = " << payloadSize << "Payload = " << toHex(payload, payloadSize) << endl << unlock;
+                log << lock << Debug << "Payload size = " << payloadSize << ", Payload = " << toHex(payload, payloadSize) << endl << unlock;
             } else {
                 log << lock << Debug << "Packet payload is grater than reserved memory for it, aborting packet receiving." << endl << unlock;
             }

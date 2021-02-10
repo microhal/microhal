@@ -370,8 +370,7 @@ class MRF89XA : private microhal::SPIDevice {
     MRF89XA(microhal::SPI &spi, microhal::GPIO &csCon, microhal::GPIO &csDat, microhal::IOPin IRQ1pin, microhal::GPIO &reset,
             microhal::diagnostic::Diagnostic<microhal::diagnostic::LogLevel::Debug> &log = microhal::diagnostic::diagChannel)
         : microhal::SPIDevice(spi, csCon), data(spi, csDat), IRQ1interrupt(IRQ1pin), resetPin(reset), log(log), irqRun(&MRF89XA::IRQThread, this) {
-        resetPin.setDirectionOutput(microhal::GPIO::OutputType::OpenDrain, microhal::GPIO::PullType::NoPull);
-        resetPin.reset();
+        resetPin.configureAsInput(microhal::GPIO::PullType::PullDown);
     }
     /**
      * @brief These function configure RF channels. MRF89XA contain two sets of PLL registers that can be used to quick carrier frequency change.
@@ -787,9 +786,11 @@ class MRF89XA : private microhal::SPIDevice {
     bool clearPLLlockFlag() { return setBitsInRegister(FTPRIREG, LSTSPLL); }
 
     void reset() {
+        resetPin.configureAsOutput(microhal::GPIO::OutputType::OpenDrain, microhal::GPIO::PullType::PullUp);
         resetPin.set();
         std::this_thread::sleep_for(std::chrono::milliseconds{1});
-        resetPin.reset();
+        // resetPin.reset();
+        resetPin.configureAsInput(microhal::GPIO::PullType::PullDown);
         std::this_thread::sleep_for(std::chrono::milliseconds{5});
     }
 

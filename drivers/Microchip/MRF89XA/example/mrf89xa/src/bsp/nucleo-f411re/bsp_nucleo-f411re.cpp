@@ -48,6 +48,8 @@ stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortC, 11}, stm32f4xx::G
 stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortA, 15}, stm32f4xx::GPIO::Direction::Input);  // CON1A SS
 stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortD, 2}, stm32f4xx::GPIO::Direction::Input);   // CON1A GPIO3
 }  // namespace detail
+microhal::stm32f4xx::SPI_interrupt &spi =
+    microhal::stm32f4xx::SPI_interrupt::create<1, IOPin{IOPin::PortA, 6}, IOPin{IOPin::PortA, 7}, IOPin{IOPin::PortA, 5}>();
 microhal::GPIO &csDat = detail::csDat;
 microhal::GPIO &csCon = detail::csCon;
 microhal::GPIO &RESET = detail::RESET;
@@ -59,6 +61,8 @@ stm32f4xx::GPIO csDat({microhal::stm32f4xx::GPIO::Port::PortB, 0}, stm32f4xx::GP
 stm32f4xx::GPIO csCon({microhal::stm32f4xx::GPIO::Port::PortC, 1}, stm32f4xx::GPIO::Direction::Input);  // CON1C SS
 stm32f4xx::GPIO RESET({microhal::stm32f4xx::GPIO::Port::PortC, 3}, stm32f4xx::GPIO::Direction::Input);  // CON1C GPIO3
 }  // namespace detail
+microhal::stm32f4xx::SPI_interrupt &spi =
+    microhal::stm32f4xx::SPI_interrupt::create<3, IOPin{IOPin::PortB, 4}, IOPin{IOPin::PortB, 5}, IOPin{IOPin::PortB, 3}>();
 microhal::GPIO &csDat = detail::csDat;
 microhal::GPIO &csCon = detail::csCon;
 microhal::GPIO &RESET = detail::RESET;
@@ -77,17 +81,17 @@ void hardwareConfig(void) {
     (void)bsp::debugPort;
     Core::fpu_enable();
     Core::flash_latency(100000000);
-    stm32f4xx::ClockManager::PLL::clockSource(stm32f4xx::ClockManager::PLL::ClockSource::HSI);
-    stm32f4xx::ClockManager::PLL::MDivider(4);
-    stm32f4xx::ClockManager::PLL::Main::enable();
-    stm32f4xx::ClockManager::PLL::Main::N(50);
-    stm32f4xx::ClockManager::PLL::Main::P(2);
-    stm32f4xx::ClockManager::PLL::Main::Q(4);
-    while (!stm32f4xx::ClockManager::PLL::Main::isReady()) {
+    ClockManager::PLL::clockSource(ClockManager::PLL::ClockSource::HSI);
+    ClockManager::PLL::MDivider(4);
+    ClockManager::PLL::Main::enable();
+    ClockManager::PLL::Main::N(50);
+    ClockManager::PLL::Main::P(2);
+    ClockManager::PLL::Main::Q(4);
+    while (!ClockManager::PLL::Main::isReady()) {
     }
-    stm32f4xx::ClockManager::SYSCLK::source(stm32f4xx::ClockManager::SYSCLK::Source::PLL);
-    while (stm32f4xx::ClockManager::SYSCLK::source() != stm32f4xx::ClockManager::SYSCLK::Source::PLL)
-        ;
+    //  ClockManager::SYSCLK::source(ClockManager::SYSCLK::Source::PLL);
+    // while (ClockManager::SYSCLK::source() != ClockManager::SYSCLK::Source::PLL)
+    //    ;
 
     IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
     IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
@@ -99,19 +103,19 @@ void hardwareConfig(void) {
     bsp::debugPort.setBaudRate(stm32f4xx::SerialPort::Baud115200);
     diagChannel.setOutputDevice(bsp::debugPort);
 
-    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
-    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
-    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
+    //    stm32f4xx::IOManager::routeSPI<1, SCK, stm32f4xx::IOPin::PortA, 5>();
+    //    stm32f4xx::IOManager::routeSPI<1, MISO, stm32f4xx::IOPin::PortA, 6>();
+    //    stm32f4xx::IOManager::routeSPI<1, MOSI, stm32f4xx::IOPin::PortA, 7>();
 
-    stm32f4xx::IOManager::routeSPI<3, SCK, stm32f4xx::IOPin::PortB, 3>();
-    stm32f4xx::IOManager::routeSPI<3, MISO, stm32f4xx::IOPin::PortB, 4>();
-    stm32f4xx::IOManager::routeSPI<3, MOSI, stm32f4xx::IOPin::PortB, 5>();
+    //    stm32f4xx::IOManager::routeSPI<3, SCK, stm32f4xx::IOPin::PortB, 3>();
+    //    stm32f4xx::IOManager::routeSPI<3, MISO, stm32f4xx::IOPin::PortB, 4>();
+    //    stm32f4xx::IOManager::routeSPI<3, MOSI, stm32f4xx::IOPin::PortB, 5>();
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler256);
-    stm32f4xx::SPI::spi1.enable();
+    bsp::moduleA::spi.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler256);
+    bsp::moduleA::spi.enable();
 
-    stm32f4xx::SPI::spi3.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler256);
-    stm32f4xx::SPI::spi3.enable();
+    bsp::moduleB::spi.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler256);
+    bsp::moduleB::spi.enable();
 
     xTaskHandle mainHandle;
     xTaskCreate(run_main, (const char *)"main", (11 * 1024), 0, tskIDLE_PRIORITY, &mainHandle);

@@ -30,11 +30,13 @@
 #ifndef STM32F4DISCOVERY_H_
 #define STM32F4DISCOVERY_H_
 
+#include "microhal.h"
+
 namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial3;
 
 namespace moduleA {
-static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi2;
+extern microhal::SPI &spi;  // = microhal::stm32f4xx::SPI::spi2;
 constexpr microhal::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortD, 3);
 constexpr microhal::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortD, 10);
 extern microhal::GPIO &csDat;
@@ -42,7 +44,7 @@ extern microhal::GPIO &csCon;
 extern microhal::GPIO &RESET;
 }  // namespace moduleA
 namespace moduleB {
-static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+extern microhal::SPI &spi;  // = microhal::stm32f4xx::SPI::spi1;
 constexpr microhal::IOPin IRQ0(microhal::stm32f4xx::GPIO::Port::PortA, 2);
 constexpr microhal::IOPin IRQ1(microhal::stm32f4xx::GPIO::Port::PortE, 4);
 extern microhal::GPIO &csDat;

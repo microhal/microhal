@@ -55,5 +55,5 @@
 												// Notice
 												// Informational
 												// Debug  -> lowest log priority
-// clang-format on
+// clang_format on
 #endif  // _MICROHAL_MICROHALCONFIG_H_

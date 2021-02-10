@@ -154,13 +154,13 @@ int main(void) {
     std::thread t2(interuptThread, std::ref(rfMod2), std::ref(rfMod2IrqSemaphore));
 
     // initialize external interrupt controller.
-    ExternalInterrupt::init();
+    ExternalInterrupt::init(8);
 
     // configure interrupts for RF modules
-    stm32f4xx::GPIO irq0a(bsp::moduleA::IRQ0);
-    stm32f4xx::GPIO irq0b(bsp::moduleB::IRQ0);
-    irq0a.setDirectionInput(GPIO::PullType::PullDown);
-    irq0b.setDirectionInput(GPIO::PullType::PullDown);
+    activePort::GPIO irq0a(bsp::moduleA::IRQ0);
+    activePort::GPIO irq0b(bsp::moduleB::IRQ0);
+    irq0a.configureAsInput(GPIO::PullType::PullDown);
+    irq0b.configureAsInput(GPIO::PullType::PullDown);
     ExternalInterrupt rfMod1_IRQ0(bsp::moduleA::IRQ0);
     ExternalInterrupt rfMod2_IRQ0(bsp::moduleB::IRQ0);
 
