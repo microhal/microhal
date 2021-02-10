@@ -5,28 +5,23 @@
 #include <exception>
 #include "apbClock.h"
 #include "clockTypes.h"
-
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
-#ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
-#endif
+#include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
 
-enum class RTCClock { None = 0, LSE, LSI, HSE_div_128 };
+enum class RTCClock {
+    None = 0,
+    LSE,
+    LSI,
+#ifdef _MICROHAL_REGISTERS_RCC_BDCR_RTCSEL_HAS_HSE_DIV_32
+    HSE_div_32,
+#elif defined(_MICROHAL_REGISTERS_RCC_BDCR_RTCSEL_HAS_HSE_DIV_128)
+    HSE_div_128
+#else
+#error HSE_div has to be defined inside rcc definition file. Probably mcu is not specified
+#endif
+};
 
 #if defined(_MICROHAL_RTC_BASE_ADDRESS)
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
@@ -52,7 +47,13 @@ inline void RTCClockSource(RTCClock clock) {
     registers::rcc->bdcr.volatileStore(bdcr);
 }
 #else
-static void enableRTC() {
+inline void enableRTCRegistersClock() {
+    auto apb1enr = registers::rcc->apb1enr.volatileLoad();
+    apb1enr.RTCAPBEN.set();
+    registers::rcc->apb1enr.volatileStore(apb1enr);
+}
+
+inline void enableRTC() {
     auto bdcr = registers::rcc->bdcr.volatileLoad();
     bdcr.RTCEN.set();
     registers::rcc->bdcr.volatileStore(bdcr);
@@ -68,7 +69,7 @@ inline RTCClock RTCClockSource() {
     return static_cast<RTCClock>(bdcr.RTCSEL.get());
 }
 
-static void RTCClockSource(RTCClock clock) {
+inline void RTCClockSource(RTCClock clock) {
     auto bdcr = registers::rcc->bdcr.volatileLoad();
     bdcr.RTCSEL = static_cast<uint32_t>(clock);
     registers::rcc->bdcr.volatileStore(bdcr);
