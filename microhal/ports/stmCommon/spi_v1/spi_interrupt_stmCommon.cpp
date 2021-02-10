@@ -66,6 +66,7 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
 
 SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
     writePtr = nullptr;
+    writeEnd = nullptr;
     readPtr = static_cast<uint8_t *>(data);
     readEnd = static_cast<uint8_t *>(data) + len;
     writeData = write;
@@ -76,16 +77,20 @@ SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
 #endif
     busyWait();
 #ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-    for (size_t i = spi.sr.volatileLoad().FRLVL; i > 0; i--) {
-        spi.dr.volatileLoad();
-    }
+    size_t i = spi.sr.volatileLoad().FRLVL;
+    do {
+        for (; i > 0; i--) {
+            spi.dr.volatileLoad();
+        }
+        i = spi.sr.volatileLoad().FRLVL;
+    } while (i);
 #else
     spi.dr.volatileLoad();
 #endif
 
     enableInterrupt(Interrupt::ReceiverNotEmpty);
 
-    spi.dr.volatileStore(write);
+    spi.dr.volatileStore_8bit(write);
     if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
 }
@@ -122,38 +127,32 @@ void SPI_interrupt::IRQfunction() {
     auto cr2 = spi.cr2.volatileLoad();
 
     if ((readPtr != nullptr) && (sr.RXNE)) {
-        sr.RXNE.clear();
         *readPtr++ = (uint32_t)spi.dr.volatileLoad();
         if (readPtr == readEnd) {
             readPtr = nullptr;
             auto cr2 = spi.cr2.volatileLoad();
             cr2.RXNEIE.clear();  // fixme maybe bitband
             spi.cr2.volatileStore(cr2);
-            bool shouldYeld = semaphore.giveFromISR();
+            [[maybe_unused]] bool shouldYeld = semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
             portYIELD_FROM_ISR(shouldYeld);
-#else
-            (void)shouldYeld;
 #endif
-        } else if (writePtr == nullptr) {
-            spi.dr.volatileStore(writeData);
+        } else if (writePtr == nullptr && writeEnd == nullptr) {
+            spi.dr.volatileStore_8bit(writeData);
         }
     }
     if (cr2.TXEIE) {
         if ((writePtr != nullptr) && (sr.TXE)) {
-            sr.TXE.clear();
-            spi.dr.volatileStore(*writePtr++);
+            spi.dr.volatileStore_8bit(*writePtr++);
             if (writePtr == writeEnd) {
                 writePtr = nullptr;
                 auto cr2 = spi.cr2.volatileLoad();
                 cr2.TXEIE.clear();  // fixme maybe bitband
                 spi.cr2.volatileStore(cr2);
                 if (readPtr == nullptr) {
-                    bool shouldYeld = semaphore.giveFromISR();
+                    [[maybe_unused]] bool shouldYeld = semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
                     portYIELD_FROM_ISR(shouldYeld);
-#else
-                    (void)shouldYeld;
 #endif
                 }
             }
@@ -163,8 +162,6 @@ void SPI_interrupt::IRQfunction() {
             spi.cr2.volatileStore(cr2);
         }
     }
-
-    spi.sr.volatileStore(sr);
 }
 //***********************************************************************************************//
 //                                          IRQHandlers //

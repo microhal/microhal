@@ -47,10 +47,13 @@ inline void RTCClockSource(RTCClock clock) {
     registers::rcc->bdcr.volatileStore(bdcr);
 }
 #else
+
 inline void enableRTCRegistersClock() {
+#ifdef _MICROHAL_REGISTERS_RCC_APB1ENR_HAS_RTCAPBEN
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     apb1enr.RTCAPBEN.set();
     registers::rcc->apb1enr.volatileStore(apb1enr);
+#endif
 }
 
 inline void enableRTC() {

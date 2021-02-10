@@ -12,23 +12,7 @@
 #include <type_traits>
 #include "apbClock.h"
 #include "clockTypes.h"
-
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
-#ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
-#endif
+#include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
@@ -129,20 +113,27 @@ CREATE_SET_CLEAR_FUNCTION(SPI6LPEN)
     if (number == 2 || number == 3) {
         auto apb1enr = registers::rcc->apb1enr.volatileLoad();
         switch (number) {
+#ifdef _MICROHAL_SPI2_BASE_ADDRESS
             case 2:
-                ClockManagerDetail::set_SPI2EN_ifExist(apb1enr);
+                apb1enr.SPI2EN.set();
                 break;
+#endif
+#ifdef _MICROHAL_SPI3_BASE_ADDRESS
             case 3:
-                ClockManagerDetail::set_SPI3EN_ifExist(apb1enr);
+                apb1enr.SPI3EN.set();
                 break;
+
+#endif
         }
         registers::rcc->apb1enr.volatileStore(apb1enr);
     } else {
         auto apb2enr = registers::rcc->apb2enr.volatileLoad();
         switch (number) {
+#ifdef _MICROHAL_SPI1_BASE_ADDRESS
             case 1:
-                ClockManagerDetail::set_SPI1EN_ifExist(apb2enr);
+                apb2enr.SPI1EN.set();
                 break;
+#endif
             case 4:
                 ClockManagerDetail::set_SPI4EN_ifExist(apb2enr);
                 break;

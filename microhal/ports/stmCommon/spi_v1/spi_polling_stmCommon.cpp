@@ -113,7 +113,7 @@ SPI::Error SPI_polling::writeRead(uint8_t data, uint8_t &receivedData) {
         if (error != Error::None) return error;
     } while (!(sr.TXE));
 
-    spi.dr.volatileStore(data);
+    spi.dr.volatileStore_8bit(data);
 
     do {
         sr = spi.sr.volatileLoad();

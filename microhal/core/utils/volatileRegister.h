@@ -20,6 +20,7 @@ struct VolatileRegister {
     using underlyingType = T;
     void volatileStore(T value) { const_cast<volatile decltype(reg.raw) &>(reg.raw) = value.raw; }
     void volatileStore(decltype(T::raw) value) { const_cast<volatile decltype(reg.raw) &>(reg.raw) = value; }
+    void volatileStore_8bit(decltype(T::raw) value) { reinterpret_cast<volatile uint8_t &>(reg.raw) = value; }
 
     T volatileLoad() const {
         T tmp;

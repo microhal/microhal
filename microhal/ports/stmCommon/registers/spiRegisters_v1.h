@@ -6,7 +6,7 @@
 #include "utils/volatileRegister.h"
 
 // Supported MCU version 1: STM32F7x9, STM32F765, STM32F765, STM32F7x8, STM32F745, STM32F745, STM32F750, STM32F750, STM32F7x7, STM32F7x6, STM32F7x6,
-//                          STM32F765, STM32F745, STM32F7x3, STM32F7x2, STM32F730
+//                          STM32F765, STM32F745, STM32F7x3, STM32F7x2, STM32F730, STM32G071, STM32G041, STM32G030, STM32G070, STM32G081, STM32G031
 // Supported MCU version 2: STM32G474xx, STM32G474xx, STM32G484xx, STM32G484xx, STM32G471xx, STM32G471xx, STM32G431xx, STM32G473xx, STM32G473xx,
 //                          STM32G441xx, STM32GBK1CBT6, STM32G483xx, STM32G483xx
 // Supported MCU version 3: STM32L100
@@ -20,7 +20,7 @@
 
 #if defined(STM32F7x9) || defined(STM32F765) || defined(STM32F765) || defined(STM32F7x8) || defined(STM32F745) || defined(STM32F745) || \
     defined(STM32F750) || defined(STM32F750) || defined(STM32F7x7) || defined(STM32F7x6) || defined(STM32F7x6) || defined(STM32F765) || \
-    defined(STM32F745) || defined(STM32F7x3) || defined(STM32F7x2) || defined(STM32F730)  // version 1
+    defined(STM32F745) || defined(STM32F7x3) || defined(STM32F7x2) || defined(STM32F730) || defined(_MICROHAL_STM32G0XX_STM32G071xx)  // version 1
 #define _MICROHAL_REGISTERS_SPI_CR1_HAS_CRCL
 #define _MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
 #define _MICROHAL_REGISTERS_SPI_I2SCFGR_HAS_ASTRTEN
@@ -309,6 +309,7 @@ struct SPI {
     union DR {
         union {
             microhal::Bitfield<uint32_t, 0, 16> data; /*!< Data register */
+            microhal::Bitfield<uint32_t, 0, 8> data8; /*!< Data register */
         };
 
         operator uint32_t() const { return raw; }

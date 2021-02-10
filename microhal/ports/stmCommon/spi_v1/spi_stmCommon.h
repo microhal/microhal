@@ -45,7 +45,7 @@ void SPI6_IRQHandler(void);
 }
 
 namespace spiDetail {
-enum class Interrupt { TransmitterEmpty, ReceiverNotEmpty };
+enum class Interrupt { TransmitterEmpty = 0b01, ReceiverNotEmpty = 0b10 };
 
 constexpr Interrupt operator|(Interrupt a, Interrupt b) {
     uint32_t tmp = static_cast<uint32_t>(a) | static_cast<uint32_t>(b);

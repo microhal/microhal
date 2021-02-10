@@ -46,14 +46,13 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
  */
 class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
  public:
-    template <int number, IOPin::Port misoPort, IOPin::Pin misoPin, IOPin::Port mosiPort, IOPin::Pin mosiPin, IOPin::Port sckPort, IOPin::Pin sckPin>
+    template <int number, IOPin miso, IOPin mosi, IOPin sck>
     static SPI_interrupt &create(GPIO::OutputType mosiType = GPIO::PushPull, GPIO::OutputType sckType = GPIO::PushPull) {
-        constexpr IOPin miso(misoPort, misoPin);
-        constexpr IOPin mosi(mosiPort, mosiPin);
-        constexpr IOPin sck(sckPort, sckPin);
-
+        IOManager::routeSPI<number, MISO, miso>();
+        IOManager::routeSPI<number, MOSI, mosi>(GPIO::NoPull, mosiType);
+        IOManager::routeSPI<number, SCK, sck>(GPIO::NoPull, sckType);
         static_assert(IOManager::spiPinAssert(number, miso, mosi, sck), "Incorrect Pin configuration");
-        IOManager::routeSpi<number>(miso, mosi, sck, mosiType, sckType);
+
         if constexpr (number == 1) {
             static_assert(MICROHAL_USE_SPI1_INTERRUPT == 1 && number == 1,
                           "You have to define 'MICROHAL_USE_SPI1_INTERRUPT 1' in microhalPortConfig_xxx.h file.");

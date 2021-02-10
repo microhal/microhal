@@ -29,22 +29,27 @@ class SPI_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     template <int number, IOPin miso, IOPin mosi, IOPin sck>
     static SPI_polling &create(GPIO::OutputType mosiType = GPIO::PushPull, GPIO::OutputType sckType = GPIO::PushPull) {
         static_assert(IOManager::spiPinAssert(number, miso, mosi, sck), "Incorrect Pin configuration");
-        IOManager::routeSpi<number>(miso, mosi, sck, mosiType, sckType);
+        IOManager::routeSPI<number, MISO, miso>();
+        IOManager::routeSPI<number, MOSI, mosi>(GPIO::NoPull, mosiType);
+        IOManager::routeSPI<number, SCK, sck>(GPIO::NoPull, sckType);
 
         if constexpr (number == 1) {
             static SPI_polling spi1(*microhal::registers::spi1, miso);
             return spi1;
         }
+#if defined(_MICROHAL_SPI2_BASE_ADDRESS)
         if constexpr (number == 2) {
             static SPI_polling spi2(*microhal::registers::spi2, miso);
             return spi2;
         }
+#endif
 #if defined(_MICROHAL_SPI3_BASE_ADDRESS)
         if constexpr (number == 3) {
             static SPI_polling spi3(*microhal::registers::spi3, miso);
             return spi3;
         }
 #endif
+        std::terminate();
     }
     //---------------------------------------- functions ----------------------------------------//
     SPI::Error write(const void *data, const size_t len, bool last) final;
