@@ -55,7 +55,7 @@ enum UsartClockSource {
 void enableUSART(uint8_t number, PowerMode mode);
 void disableUSART(uint8_t number, PowerMode mode);
 
-[[maybe_unused]] constexpr UsartClockSource USARTClockSource(uint8_t number) {
+[[maybe_unused]] constexpr UsartClockSource USARTClockSource([[maybe_unused]] uint8_t number) {
     return UsartClockSource::PCLK;
 }
 #else
