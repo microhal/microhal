@@ -39,14 +39,16 @@ using namespace std::literals::chrono_literals;
 using namespace microhal;
 using namespace diagnostic;
 
+void showNativeRepresentation();
+
 int main(int argc, char* const argv[]) {
     int result = -1;
-
     if (bsp::init()) {
         bsp::debugPort.write("\n\r------------------- CAN Demo -------------------------\n\r");
         diagChannel.setOutputDevice(bsp::debugPort);
 
         diagChannel << lock << MICROHAL_INFORMATIONAL << "Starting unit tests." << endl << unlock;
+        showNativeRepresentation();
 
 #if defined(USE_DOCTEST) && USE_DOCTEST == 1
         doctest::Context context(argc, argv);
