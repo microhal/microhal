@@ -168,6 +168,13 @@ void Adc::setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequence
 #endif
 }
 
+void Adc::configureOversampling(OversamplingRatio ovsr, OversamplingShift ovss) {
+    auto cfgr2 = adc.cfgr2.volatileLoad();
+    cfgr2.OVSR = static_cast<uint32_t>(ovsr);
+    cfgr2.OVSS = static_cast<uint32_t>(ovss);
+    adc.cfgr2.volatileStore(cfgr2);
+}
+
 #ifdef _MICROHAL_REGISTERS_ADC_HAS_OFR
 bool Adc::configureChannelOffset(Channel channel, uint16_t offset) {
     for (size_t i = 0; i < 4; i++) {
@@ -242,10 +249,10 @@ void Adc::configureTriggerSource(TriggerSource triggerSource, ExternalTriggerSou
 #if defined(_MICROHAL_INCLUDE_PORT_DMA)
 void Adc::initDMA(uint16_t *data, size_t len) {
     DMA::dma1->clockEnable();
-    auto &stream = DMA::dma1->stream[0];
+    auto &stream = DMA::dma1->channel[0];
     stream.setPeripheralAddress(&adc.dr);
     stream.setMemoryAddress(data);
-    stream.setMemoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
+    // stream.setMemoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
     stream.setNumberOfItemsToTransfer(len);
     stream.init(DMA::Channel::MemoryDataSize::HalfWord, DMA::Channel::PeripheralDataSize::HalfWord,
                 DMA::Channel::MemoryIncrementMode::PointerIncremented, DMA::Channel::PeripheralIncrementMode::PointerFixed,
@@ -253,15 +260,16 @@ void Adc::initDMA(uint16_t *data, size_t len) {
     stream.enableCircularMode();
     stream.enable();
 
-    auto cfgr = adc.cfgr.volatileLoad();
+    auto cfgr = adc.cfgr1.volatileLoad();
     cfgr.DMACFG = 1;
     cfgr.DMAEN = 1;
-    adc.cfgr.volatileStore(cfgr);
+    adc.cfgr1.volatileStore(cfgr);
 }
 
+#ifdef ADC12_COMMON
 void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize) {
     DMA::dma1->clockEnable();
-    auto &stream = DMA::dma1->stream[0];
+    auto &stream = DMA::dma1->channel[0];
     stream.setPeripheralAddress(&ADC12_COMMON->CDR);
     stream.setMemoryAddress(data);
     stream.setMemoryIncrement(DMA::Channel::MemoryIncrementMode::PointerIncremented);
@@ -276,6 +284,7 @@ void Adc::configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSiz
     ccr.DMACFG = 1;
     registers::adc12Common->ccr.volatileStore(ccr);
 }
+#endif  // ADC12_COMMON
 #endif
 
 void Adc::enableVoltageRegulator() {
@@ -309,6 +318,7 @@ void Adc::interruptFunction() {
 
     if (activeAndEnabledInterruptFlags & Interrupt::EndOfRegularSequence) {
         isr |= static_cast<uint32_t>(Interrupt::EndOfRegularSequence);
+        regularSequenceFinishSemaphore.giveFromISR();
         signal.emit();
     }
 
@@ -319,17 +329,28 @@ void Adc::interruptFunction() {
     adc.isr.volatileStore(isr);
 }
 
+#ifdef _MICROHAL_PORT_STMCOMMON_ADC_HAS_ADC1_2_IRQHANDLER
 void ADC1_2_IRQHandler(void) {
     if (Adc::adc1) Adc::adc1->interruptFunction();
 #ifdef _MICROHAL_ADC2_BASE_ADDRESS
     if (Adc::adc2) Adc::adc2->interruptFunction();
 #endif
 }
+#else
+extern "C" void ADC1_IRQHandler(void) {
+    Adc::adc1->interruptFunction();
+}
+#ifdef _MICROHAL_ADC2_BASE_ADDRESS
+extern "C" void ADC2_IRQHandler(void) {
+    Adc::adc2->interruptFunction();
+}
+#endif
+#endif
 
 #if defined(_MICROHAL_INCLUDE_PORT_DMA) && defined(MICROHAL_USE_ADC_ISR_DMA)
 void DMA1_Channel1_IRQHandler(void) {
-    DMA::dma1->clearInterruptFlag(DMA::dma1->stream[0], DMA::Channel::Interrupt::TransferComplete);
-    DMA::dma1->stream[0].disable();
+    DMA::dma1->clearInterruptFlag(DMA::dma1->channel[0], DMA::Channel::Interrupt::TransferComplete);
+    DMA::dma1->channel[0].disable();
 
     Adc::adc1->signal.emit();
 }

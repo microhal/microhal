@@ -142,6 +142,29 @@ class Adc final {
         Resolution_6Bit = 0b11,
     } Resolution;
 
+    enum class OversamplingRatio {
+        Ovs2x = 0b000,
+        Ovs4x = 0b001,
+        Ovs8x = 0b010,
+        Ovs16x = 0b011,
+        Ovs32x = 0b100,
+        Ovs64x = 0b101,
+        Ovs128x = 0b110,
+        Ovs256x = 0b111
+    };
+
+    enum class OversamplingShift {
+        NoShift = 0b0000,
+        Shift1bit = 0b0001,
+        Shift2bit = 0b0010,
+        Shift3bit = 0b0011,
+        Shift4bit = 0b0100,
+        Shift5bit = 0b0101,
+        Shift6bit = 0b0110,
+        Shift7bit = 0b0111,
+        Shift8bit = 0b1000,
+    };
+
     typedef enum {
         ADCCLK = 0x00,
 #ifdef _MICROHAL_STM32G0XX_STM32G0xx
@@ -215,6 +238,28 @@ class Adc final {
             auto cfgr = adc.cfgr1.volatileLoad();
             cfgr.RES = resolution;
             adc.cfgr1.volatileStore(cfgr);
+            return true;
+        }
+        return false;
+    }
+
+    void configureOversampling(OversamplingRatio ovsr, OversamplingShift ovss);
+
+    bool enableOversampling() {
+        if (isEnabled() == false) {
+            auto cfgr2 = adc.cfgr2.volatileLoad();
+            cfgr2.ROVSE.set();
+            adc.cfgr2.volatileStore(cfgr2);
+            return true;
+        }
+        return false;
+    }
+
+    bool disableOversampling() {
+        if (isEnabled() == false) {
+            auto cfgr2 = adc.cfgr2.volatileLoad();
+            cfgr2.ROVSE.clear();
+            adc.cfgr2.volatileStore(cfgr2);
             return true;
         }
         return false;
@@ -313,8 +358,6 @@ class Adc final {
         return (v25 - voltage) / avgSlope + 25.0;
     }
 
-    void initDMA(uint16_t *data, size_t len);
-
     Interrupt getInterrupFlags() const {
         uint32_t isr = adc.isr.volatileLoad();
         return static_cast<Interrupt>(isr);
@@ -383,8 +426,10 @@ class Adc final {
         registers::adc12Common->ccr.volatileStore(ccr);
     }
 
+#if defined(_MICROHAL_INCLUDE_PORT_DMA)
+    void initDMA(uint16_t *data, size_t len);
     static void configureDualDMA(Resolution resolution, uint32_t *data, size_t dataSize);
-
+#endif
  public:
     Adc(registers::ADC *adc) : adc(*adc) {
         ClockManager::enableADC(1);
