@@ -655,7 +655,7 @@ struct RCC {
     // AHB peripheral clock enable register
     union AHBENR {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> DMAEN;   /*!< DMA clock enable */
+            microhal::Bitfield<uint32_t, 0, 1> DMA1EN;  /*!< DMA clock enable */
             microhal::Bitfield<uint32_t, 8, 1> FLASHEN; /*!< Flash memory interface clock enable */
             microhal::Bitfield<uint32_t, 12, 1> CRCEN;  /*!< CRC clock enable */
             microhal::Bitfield<uint32_t, 16, 1> AESEN;  /*!< AES hardware accelerator */
@@ -1226,7 +1226,7 @@ struct RCC {
     VolatileRegister<APBRSTR1, AccessType::ReadWrite> apbrstr1; /*!< APB peripheral reset register 1	Address offset: 0x2C */
     VolatileRegister<APBRSTR2, AccessType::ReadWrite> apbrstr2; /*!< APB peripheral reset register 2	Address offset: 0x30 */
     VolatileRegister<IOPENR, AccessType::ReadWrite> iopenr;     /*!< GPIO clock enable register	Address offset: 0x34 */
-    VolatileRegister<AHBENR, AccessType::ReadWrite> ahbenr;     /*!< AHB peripheral clock enable register	Address offset: 0x38 */
+    VolatileRegister<AHBENR, AccessType::ReadWrite> ahb1enr;    /*!< AHB peripheral clock enable register	Address offset: 0x38 */
     union {
         VolatileRegister<APBENR1, AccessType::ReadWrite> apbenr1; /*!< APB peripheral clock enable register 1	Address offset: 0x3C */
         VolatileRegister<APBENR1, AccessType::ReadWrite> apb1enr; /*!< APB peripheral clock enable register 1	Address offset: 0x3C */

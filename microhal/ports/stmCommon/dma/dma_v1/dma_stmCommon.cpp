@@ -34,19 +34,52 @@ namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 namespace DMA {
 
+#ifdef _MICROHAL_DMA_SHERED_IRQ
+static constexpr const IRQn_Type irq[7] = {DMA1_Channel1_IRQn,          DMA1_Channel2_3_IRQn,        DMA1_Channel2_3_IRQn,
+                                           DMA1_Ch4_7_DMAMUX1_OVR_IRQn, DMA1_Ch4_7_DMAMUX1_OVR_IRQn, DMA1_Ch4_7_DMAMUX1_OVR_IRQn,
+                                           DMA1_Ch4_7_DMAMUX1_OVR_IRQn};
+
+volatile static uint8_t enabledInterrupts = 0;
+#else
 static constexpr const IRQn_Type irq[7] = {DMA1_Channel1_IRQn, DMA1_Channel2_IRQn, DMA1_Channel3_IRQn, DMA1_Channel4_IRQn,
                                            DMA1_Channel5_IRQn, DMA1_Channel6_IRQn, DMA1_Channel7_IRQn};
 
+#endif
+
 void DMA::enableInterrupt(const Channel &stream, uint32_t priority) noexcept {
-    const IRQn_Type interruptNumber = irq[calculateChannelNumber(stream)];
+    const uint32_t channelNumber = calculateChannelNumber(stream);
+    const IRQn_Type interruptNumber = irq[channelNumber];
+#ifdef _MICROHAL_DMA_SHERED_IRQ
+    enabledInterrupts |= 1 << channelNumber;
+#endif
     NVIC_EnableIRQ(interruptNumber);
     NVIC_SetPriority(interruptNumber, priority);
 }
 
+#ifdef _MICROHAL_DMA_SHERED_IRQ
+void DMA::disableInterrupt(const Channel &stream) {
+    const uint32_t channelNumber = calculateChannelNumber(stream);
+    const IRQn_Type interruptNumber = irq[channelNumber];
+    enabledInterrupts &= ~(1 << channelNumber);
+
+    bool disable = true;
+    for (size_t i = 0; i < 7; i++) {
+        if (irq[i] == interruptNumber) {
+            if (enabledInterrupts & (1 << i)) {
+                disable = false;
+                break;
+            }
+        }
+    }
+
+    if (disable) NVIC_DisableIRQ(interruptNumber);
+}
+#else
 void DMA::disableInterrupt(const Channel &stream) {
     const IRQn_Type interruptNumber = irq[calculateChannelNumber(stream)];
     NVIC_DisableIRQ(interruptNumber);
 }
+#endif
 
 void Channel::init(MemoryDataSize memSize, PeripheralDataSize peripheralSize, MemoryIncrementMode memoryInc, PeripheralIncrementMode peripheralInc,
                    TransmisionDirection direction) {
@@ -60,7 +93,25 @@ void Channel::init(MemoryDataSize memSize, PeripheralDataSize peripheralSize, Me
     channel.ccr.volatileStore(ccr);
 }
 
+#ifdef _MICROHAL_DMA_SHERED_IRQ
+extern "C" {
+void __Default_Handler(void) {
+    while (1)
+        ;
+}
+
+void DMA1_Channel2_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+void DMA1_Channel3_IRQHandler(void) __attribute__((interrupt, weak, alias("__Default_Handler")));
+}
+
+extern "C" void DMA1_Channel2_3_IRQHandler(void) {
+    uint32_t isr = dma1->dma.isr.volatileLoad();
+    if ((isr & (0b1111 << 4)) && (enabledInterrupts & 0b1 << 2)) DMA1_Channel2_IRQHandler();
+    if ((isr & (0b1111 << 8)) && (enabledInterrupts & 0b1 << 3)) DMA1_Channel3_IRQHandler();
+}
+#endif
 }  // namespace DMA
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
 #endif

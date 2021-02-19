@@ -31,6 +31,7 @@
 #define DMA_V1_STMCOMMON_H_
 
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #include "../../registers/dma_registers_v1.h"
 #include "../../stmCommonDefines.h"
@@ -43,6 +44,7 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 namespace DMA {
+extern "C" void DMA1_Channel2_3_IRQHandler(void);
 
 class Channel {
  public:
@@ -144,14 +146,15 @@ class DMA {
 
  private:
     uint32_t calculateChannelNumber(const Channel &channel) const noexcept { return &channel - &this->channel[0]; }
+    friend void DMA1_Channel2_3_IRQHandler(void);
 };
 
 #ifdef _MICROHAL_DMA1_BASE_ADDRESS
-static DMA *dma1[[maybe_unused]] = reinterpret_cast<DMA *>(_MICROHAL_DMA1_BASE_ADDRESS);
+static DMA *dma1 [[maybe_unused]] = reinterpret_cast<DMA *>(_MICROHAL_DMA1_BASE_ADDRESS);
 #endif
 
 #ifdef _MICROHAL_DMA2_BASE_ADDRESS
-static DMA *dma2[[maybe_unused]] = reinterpret_cast<DMA *>(_MICROHAL_DMA2_BASE_ADDRESS);
+static DMA *dma2 [[maybe_unused]] = reinterpret_cast<DMA *>(_MICROHAL_DMA2_BASE_ADDRESS);
 #endif
 
 }  // namespace DMA
