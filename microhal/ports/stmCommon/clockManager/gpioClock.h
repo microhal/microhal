@@ -14,6 +14,7 @@
 #include "../IOPin.h"
 #include "apbClock.h"
 #include "clockTypes.h"
+#include "rcc_register_select.h"
 
 #if defined(STM32F102) || defined(STM32F107) || defined(STM32F103) || defined(STM32F101) || defined(STM32F100)
 #include "../registers/gpio_v2.h"
@@ -21,22 +22,8 @@
 #include "../registers/gpio_v1.h"
 #endif
 
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
 #ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
 #define _MICROHAL_REGISTERS_GPIO_USE_APB2ENR
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
 #endif
 
 namespace microhal {
@@ -302,6 +289,10 @@ static void disableGPIO(const registers::GPIO *const gpio) {
 #else
     registers::rcc->ahb1enr.volatileStore(ahb1enr);
 #endif
+}
+
+inline void enableGPIO(_MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin::Port port) {
+    enableGPIO(reinterpret_cast<const registers::GPIO &>(port));
 }
 
 [[maybe_unused]] static void disableGPIO(const registers::GPIO &gpio) {

@@ -13,23 +13,7 @@
 #include <type_traits>
 #include "apbClock.h"
 #include "clockTypes.h"
-
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
-#ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
-#endif
+#include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
@@ -75,7 +59,7 @@ CREATE_SET_CLEAR_FUNCTION(DMA2LPEN)
 [[maybe_unused]] static void enableDMA(uint8_t dmaNumber) {
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
     if (dmaNumber == 1) {
-        ClockManagerDetail::set_DMA1EN_ifExist(ahb1enr);
+        ahb1enr.DMA1EN.set();
     } else if (dmaNumber == 2) {
         ClockManagerDetail::set_DMA2EN_ifExist(ahb1enr);
     } else {
@@ -87,7 +71,7 @@ CREATE_SET_CLEAR_FUNCTION(DMA2LPEN)
 [[maybe_unused]] static void disableDMA(uint8_t dmaNumber) {
     auto ahb1enr = registers::rcc->ahb1enr.volatileLoad();
     if (dmaNumber == 1) {
-        ClockManagerDetail::clear_DMA1EN_ifExist(ahb1enr);
+        ahb1enr.DMA1EN.clear();
     } else if (dmaNumber == 2) {
         ClockManagerDetail::clear_DMA2EN_ifExist(ahb1enr);
     } else {
