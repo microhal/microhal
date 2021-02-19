@@ -58,6 +58,8 @@ typedef enum {
 #define USART3_IRQn USART3_4_LPUART1_IRQn
 #define ADC1_2_IRQn ADC1_COMP_IRQn
 
+#define _MICROHAL_DMA_SHERED_IRQ
+
 #include <core_cm0plus.h>
 
 #endif /* SRC_MICROHAL_PORTS_STM32G0XX_NVIC_H_ */

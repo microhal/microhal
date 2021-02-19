@@ -26,6 +26,8 @@
 #include "ports/stm32g0xx/mcuDefines.h"
 #if defined(_MICROHAL_STM32G0XX_STM32G071xx)
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32g071.h"
+#elif defined(_MICROHAL_STM32G0XX_STM32G070xx)
+#include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32g070.h"
 #else
 #error "MCU type have to be specified."
 #endif
