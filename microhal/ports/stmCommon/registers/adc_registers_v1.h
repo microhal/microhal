@@ -73,7 +73,7 @@
 #define _MICROHAL_REGISTERS_ADC_HAS_DIFFERENTIAL_MODE
 #endif
 
-#if defined(_MICROHAL_STM32G0XX_STM32G071xx)  // version 7
+#if defined(_MICROHAL_STM32G0XX_STM32G071xx) || defined(_MICROHAL_STM32G0XX_STM32G070xx)  // version 7
 #define _MICROHAL_REGISTERS_ADC_CFGR_HAS_AUTOFF
 #define _MICROHAL_REGISTERS_ADC_AWDxCR_AWD2CH_0_19
 #define _MICROHAL_REGISTERS_ADC_HAS_CFGR2
@@ -355,12 +355,12 @@ struct ADC {
     // ADC configuration register 2
     union CFGR2 {
         union {
-            microhal::Bitfield<uint32_t, 0, 1> ROVSE; /*!< DMAEN */
+            microhal::Bitfield<uint32_t, 0, 1> ROVSE; /*!< Oversampler Enable */
 #ifdef _MICROHAL_REGISTERS_ADC_HAS_INJECTED_CHANNELS
             microhal::Bitfield<uint32_t, 1, 1> JOVSE; /*!< DMACFG */
 #endif
-            microhal::Bitfield<uint32_t, 2, 3> OVSR;   /*!< RES */
-            microhal::Bitfield<uint32_t, 5, 4> OVSS;   /*!< ALIGN */
+            microhal::Bitfield<uint32_t, 2, 3> OVSR;   /*!< Oversampling ratio */
+            microhal::Bitfield<uint32_t, 5, 4> OVSS;   /*!< Oversampling shift */
             microhal::Bitfield<uint32_t, 9, 1> TROVS;  /*!< Triggered Regular Oversampling */
             microhal::Bitfield<uint32_t, 10, 1> ROVSM; /*!< EXTEN */
 #ifdef _MICROHAL_REGISTERS_ADC_CFGR2_HAS_GCOMP_SWTRIG_BULF_SMPTRIG
