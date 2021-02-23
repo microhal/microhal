@@ -61,6 +61,8 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
  */
 extern "C" {
 void ADC1_2_IRQHandler(void);
+void ADC1_IRQHandler(void);
+void ADC2_IRQHandler(void);
 void DMA1_Channel1_IRQHandler(void);
 }
 /* **************************************************************************************************************************************************
@@ -474,6 +476,8 @@ class Adc final {
     void interruptFunction();
 
     friend void ADC1_2_IRQHandler(void);
+    friend void ADC1_IRQHandler(void);
+    friend void ADC2_IRQHandler(void);
     friend void DMA1_Channel1_IRQHandler(void);
 };
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
