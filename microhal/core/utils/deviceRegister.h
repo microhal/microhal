@@ -45,7 +45,7 @@ namespace microhal {
 
 enum class Access { ReadOnly, WriteOnly, ReadWrite };
 
-template <typename T, T Value, Endianness... endianness>
+template <typename T, T WriteValue, T ReadValue, Endianness... endianness>
 class Address {
     static_assert(std::is_unsigned<T>::value, "");
     static_assert((sizeof(T) == 1 && sizeof...(endianness) == 0) || sizeof(T) > 1, "");
@@ -53,7 +53,7 @@ class Address {
 
  public:
     using Type = T;
-    enum : T { value = Value };
+    enum : T { writeAddress = WriteValue, readAddress = ReadValue };
     constexpr bool isEndiannessConveted() { return true; }
 };
 
@@ -62,9 +62,15 @@ class Register {
  public:
     using Address = AddressType;
     using Type = T;
-    // const Address address;
 
-    constexpr typename Address::Type getAddress() const { return Address::value; }
+    template <std::enable_if<AddressType::readAddress == AddressType::writeAddress, bool> = true>
+    constexpr typename Address::Type getAddress() const {
+        return Address::writeAddress;
+    }
+
+    constexpr typename Address::Type getReadAddress() const { return Address::readAddress; }
+
+    constexpr typename Address::Type getWriteAddress() const { return Address::writeAddress; }
 
     constexpr Endianness endianness() const noexcept { return get(endianness_...); }
 
@@ -82,7 +88,14 @@ class Register<T, _Access, AddressType> {
     using Address = AddressType;
     using Type = T;
 
-    constexpr typename Address::Type getAddress() const { return Address::value; }
+    template <std::enable_if<AddressType::readAddress == AddressType::writeAddress, bool> = true>
+    constexpr typename Address::Type getAddress() const {
+        return Address::writeAddress;
+    }
+
+    constexpr typename Address::Type getReadAddress() const { return Address::readAddress; }
+
+    constexpr typename Address::Type getWriteAddress() const { return Address::writeAddress; }
 
     constexpr bool requireEndiannessConversion() const noexcept { return false; }
 
@@ -100,7 +113,8 @@ template <typename Register, typename Register2, typename... Rest>
 constexpr void isContinous(Register reg, Register2 reg2, Rest... regs) {
     (void)reg;
     (void)reg2;
-    static_assert(Register::Address::value + sizeof(typename Register::Type) == Register2::Address::value, "Registers have to be continous");
+    static_assert(Register::Address::readAddress + sizeof(typename Register::Type) == Register2::Address::readAddress,
+                  "Registers have to be continous");
     if constexpr (sizeof...(regs)) isContinous(reg2, regs...);
 }
 ////////////////////////
