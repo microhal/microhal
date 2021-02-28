@@ -43,7 +43,6 @@
 class RFM96HCW {
     using Endianness = microhal::Endianness;
     using Access = microhal::Access;
-    using Error = microhal::SPI::Error;
     // create alias to microhal::Address, we just want to type less
     template <typename T, T registerAddress>
     using Address = microhal::Address<T, registerAddress + 0b1000'0000, registerAddress>;
@@ -124,6 +123,8 @@ class RFM96HCW {
     static constexpr auto RegTest = microhal::makeRegister<uint8_t, Access::ReadWrite>(Address<uint8_t, 0x50>{});
 
  public:
+    using Error = microhal::SPI::Error;
+
     enum DataMode {
         PacketMode,
         ContinousModeWithBitSynchronizer,
@@ -201,7 +202,7 @@ class RFM96HCW {
     static constexpr const std::array<microhal::SPI::Mode, 1> supportedSPIModes = {microhal::SPI::Mode::Mode0};
     static constexpr const uint_fast8_t fifoSize = 66;
 
-    RFM96HCW(microhal::SPI &spi, microhal::GPIO &ceGpio);
+    RFM96HCW(microhal::SPI &spi, microhal::GPIO &ceGpio, microhal::IOPin dio0, microhal::GPIO &resetGpio);
     virtual ~RFM96HCW();
 
     void init();
@@ -334,6 +335,8 @@ class RFM96HCW {
 
  private:
     microhal::SPIDevice spi;
+    microhal::GPIO &m_resetGpio;
+    microhal::ExternalInterrupt m_dio0;
     uint_fast8_t maxPacketLen = fifoSize;  // this depend on mode so it can't be const
     int_fast8_t lbtThreshold = -90;
 
@@ -341,6 +344,8 @@ class RFM96HCW {
     microhal::os::Semaphore txSendRxReceivedSemaphore;  // semaphore has dual function depending on packet reception/transmission:
                                                         // during packet transmission this semaphore indicates transmission completion
                                                         // during packet reception this semaphore indicates that packet is ready for read from FIFO
+    void irqDIO0Func();
+    microhal::Slot_0<RFM96HCW, &RFM96HCW::irqDIO0Func> irq0Slot;
 };
 
 inline constexpr uint32_t operator&(RFM96HCW::InterruptFlags2 a, RFM96HCW::InterruptFlags2 b) {

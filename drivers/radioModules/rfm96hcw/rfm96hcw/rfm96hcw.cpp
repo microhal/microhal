@@ -37,8 +37,8 @@ using namespace std::literals;
 enum { unused = 0 };
 const uint8_t poutCorrection[] = {unused, unused, 18, 14, 18};
 
-RFM96HCW::RFM96HCW(SPI &spi, GPIO &ceGpio) : spi(spi, ceGpio) {
-    // TODO Auto-generated constructor stub
+RFM96HCW::RFM96HCW(SPI &spi, GPIO &ceGpio, microhal::IOPin dio0, GPIO &resetGpio) : spi(spi, ceGpio), m_dio0(dio0), m_resetGpio(resetGpio) {
+    m_dio0.connect(irq0Slot, *this, ExternalInterrupt::Trigger::OnRisingEdge);
 }
 
 RFM96HCW::~RFM96HCW() {
@@ -51,6 +51,9 @@ void RFM96HCW::init() {
     spi.writeRegister(RegDioMapping2, 0x07);
     spi.writeRegister(RegRssiThresh, 0xE4);
     spi.writeRegister(RegTestDagc, 0x30);
+
+    configureDIO0(RFM96HCW::DIO0::CrcOK_PacketSent);
+    m_dio0.enable();
 }
 
 //--------------------------------------------------------------------------
@@ -188,7 +191,7 @@ Result<uint32_t, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::frequencyDevi
 //--------------------------------------------------------------------------
 //                           Packet mode functions
 //--------------------------------------------------------------------------
-RFM96HCW::Error RFM96HCW::sendPacket(uint8_t destinationAddress, gsl::span<uint8_t> data, bool lbt = false) {
+RFM96HCW::Error RFM96HCW::sendPacket(uint8_t destinationAddress, gsl::span<uint8_t> data, bool lbt) {
     assert(data.size() <= maxPacketLen - 2);
 
     if (auto mode = getMode()) {
@@ -269,11 +272,11 @@ RFM96HCW::Error RFM96HCW::configureSyncWord(gsl::span<uint8_t> syncWord, uint8_t
     return spi.modifyBitsInRegister(RegSyncConfig, ((syncWord.size() - 1) << 3) | toleartedBitErrorsInSyncWord, 0b0011'1111);
 }
 
-RFM96HCW::Error RFM96HCW::enableSyncWord() {
+RFM96HCW::Error RFM96HCW::enableSyncWordRecognition() {
     return spi.setBitsInRegister(RegSyncConfig, 1 << 7);
 }
 
-RFM96HCW::Error RFM96HCW::disableSyncWord() {
+RFM96HCW::Error RFM96HCW::disableSyncWordRecognition() {
     return spi.clearBitsInRegister(RegSyncConfig, 1 << 7);
 }
 
@@ -424,4 +427,7 @@ void RFM96HCW::dumpConfiguration() {
                 << unlock;
 }
 #endif
-void irqFunction() {}
+
+void RFM96HCW::irqDIO0Func() {
+    txSendRxReceivedSemaphore.giveFromISR();
+}
