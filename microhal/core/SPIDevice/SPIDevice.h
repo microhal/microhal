@@ -12,11 +12,14 @@
  */
 #include <cstdint>
 
+#include "../utils/deviceRegister.h"
 #include "gpio.h"
+#include "gsl/span"
 #include "ports/manager/hardware.h"
 #include "ports/manager/spi_port.h"
 #include "spi.h"
 #include "utils/byteswap.h"
+#include "utils/result.h"
 
 namespace microhal {
 /**
@@ -33,18 +36,12 @@ namespace microhal {
 class SPIDevice {
  public:
     //---------------------------------------- constructors ---------------------------------------
-    SPIDevice(SPI &spi, microhal::GPIO &CEPin) : spi(spi), cePin(CEPin), lastError(SPI::Error::None) {
+    SPIDevice(SPI &spi, microhal::GPIO &CEPin) : spi(spi), cePin(CEPin) {
         cePin.configureAsOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
         cePin.set();
     }
     ~SPIDevice() { cePin.set(); }
     //------------------------------------------ functions ----------------------------------------
-    /**
-     * @brief This function return last error of this device.
-     *
-     * @return lastError
-     */
-    SPI::Error getLastError() { return lastError; }
     /**
      * @brief This function write 8-bit data to SPI device. Function is thread safe.
      * This function firstly lock SPI interface, next reset SPI device CE pin and
@@ -56,31 +53,7 @@ class SPIDevice {
      * @retval true if data was sent.
      * @retval false if an error occurred.
      */
-    bool write(uint8_t data) {
-        spi.lock();  // fixme maybe lock_guard
-
-        cePin.reset();
-
-        volatile uint32_t i = 300;
-        while (i--) {
-        }
-
-        SPI::Error status = spi.write(data, true);
-
-        i = 300;
-        while (i--) {
-        }
-
-        cePin.set();
-        spi.unlock();
-
-        if (status == SPI::Error::None) {
-            return true;
-        } else {
-            lastError = status;
-            return false;
-        }
-    }
+    SPI::Error write(uint8_t data);
     /**
      * @brief This function read 8-bit data from SPI device. Function is thread
      * safe.
@@ -93,492 +66,446 @@ class SPIDevice {
      * @retval true if data was sent.
      * @retval false if an error occurred.
      */
-    bool read(uint8_t &data) {
-        spi.lock();  // fixme maybe unique_lock
-        cePin.reset();
+    SPI::Error read_to(uint8_t &data);
 
-        SPI::Error status = spi.read(data);
+    /**
+     * @brief This function write data into register of the SPI device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register to write.
+     * @param value to write
+     *
+     * @retval This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename Register>
+    SPI::Error writeRegister(Register reg, typename Register::Type value) {
+        static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
+        return writeRegister_lock(reg.getWriteAddress(), value);
+    }
 
-        cePin.set();
-        spi.unlock();
+    /**
+     * @brief This function write data into FIFO register of the SPI device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register to write.
+     * @param value to write
+     *
+     * @retval This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename Register>
+    SPI::Error writeFIFORegister(Register reg, gsl::span<typename Register::Type> value) {
+        static_assert(reg.access() != Access::ReadOnly, "You can't write data to read only register.");
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
+        return writeRegisters_noEndiannessConversion(reg.getWriteAddress(), value.data(), value.size());
+    }
 
-        if (status == SPI::Error::None) {
-            return true;
+    /**
+     * @brief This function read data from register of the SPI device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register to read.
+     *
+     * @retval This function will return @ref Result object that contain error code and read value. Result error code is equal SPI::Error::None if
+     * data was read correctly. If an error occurred this function will return corresponding SPI::Error code. Result object can be converted to bool
+     * witch true value when Result object don't hold error.
+     */
+    template <typename Register>
+    microhal::Result<typename Register::Type, SPI::Error, SPI::Error::None> readRegister(Register reg) {
+        static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
+
+        typename Register::Type value;
+        if constexpr (reg.requireEndiannessConversion()) {
+            const auto error = readRegister_convertEndiannes(reg.getReadAddress(), value);
+            return {error, value};
         } else {
-            lastError = status;
-            return false;
+            const auto error = readRegister_noEndiannesConversion(reg.getReadAddress(), value);
+            return {error, value};
         }
     }
 
-    // writing registers functions
-    inline bool writeRegister(uint8_t registerAddress, uint8_t data);
-    inline bool writeRegister(uint8_t registerAddress, uint16_t data, Endianness endianness);
-    inline bool writeRegister(uint8_t registerAddress, uint32_t data, Endianness endianness);
+    /**
+     * @brief This function read data from register of the SPI device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param[in] reg register to read.
+     * @param[out] value reference to place where register value will be stored.
+     *
+     * @return This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename Register>
+    microhal::Result<typename Register::Type, SPI::Error, SPI::Error::None> readRegister_to(Register reg, typename Register::Type &value) {
+        static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
 
-    bool writeRegisters(uint8_t registerAddress, const uint8_t *buffer, size_t length);
+        if constexpr (reg.requireEndiannessConversion()) {
+            return readRegister_convertEndiannes(reg.getReadAddress(), value);
+        } else {
+            return readRegister_noEndiannesConversion(reg.getReadAddress(), value);
+        }
+    }
 
-    // reading registers functions
-    inline bool readRegister(uint8_t registerAddress, uint8_t &data);
-    inline bool readRegister(uint8_t registerAddress, uint16_t &data, Endianness endianness);
-    inline bool readRegister(uint8_t registerAddress, uint32_t &data, Endianness endianness);
+    /**
+     * @brief This function read data from FIFO register of the SPI device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param[in] reg register to read.
+     * @param[out] data pointer to place where register value will be stored.
+     *
+     * @return This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename Register>
+    SPI::Error readFIFORegister_to(Register reg, typename Register::Type *data, size_t length) {
+        static_assert(reg.access() != Access::WriteOnly, "You can't read data from write only register.");
 
-    bool readRegisters(uint8_t registerAddress, uint8_t *buffer, size_t length);
+        if constexpr (reg.requireEndiannessConversion()) {
+            return readRegisters_convertEndianness(reg.getReadAddress(), data, length);
+        } else {
+            return readRegisters_noEndiannessConversion(reg.getReadAddress(), data, length);
+        }
+    }
 
-    // register bit modification functions
-    inline bool setBitsInRegister(uint8_t regAddr, uint8_t bitMask);
-    inline bool setBitsInRegister(uint8_t registerAddress, uint16_t bitMask, Endianness endianness);
-    inline bool setBitsInRegister(uint8_t registerAddress, uint32_t bitMask, Endianness endianness);
+    /**
+     * @brief This function sets bits in register of the SPI device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register where bits will be set.
+     * @param value if bit in value is set then corresponding bit in register will be set.
+     *
+     * @retval This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename Register>
+    SPI::Error setBitsInRegister(Register reg, typename Register::Type value) {
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
 
-    inline bool clearBitsInRegister(uint8_t regAddr, uint8_t bitMask);
-    inline bool clearBitsInRegister(uint8_t registerAddress, uint16_t bitMask, Endianness endianness);
-    inline bool clearBitsInRegister(uint8_t registerAddress, uint32_t bitMask, Endianness endianness);
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
+        return modifyBitsInRegister_noEndiannesConversion(reg.getReadAddress(), reg.getWriteAddress(), value, value);
+    }
+
+    /**
+     * @brief This function clear bits in register of the SPI device.
+     * This function automatically handle endianness conversion.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register where bits will be cleared.
+     * @param value if bits is set then corresponding bit in register will be cleared.
+     *
+     * @retval This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename Register>
+    SPI::Error clearBitsInRegister(Register reg, typename Register::Type value) {
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+
+        if constexpr (reg.requireEndiannessConversion()) {
+            value = microhal::convertEndianness(value);
+        }
+        return modifyBitsInRegister_noEndiannesConversion(reg.getReadAddress(), reg.getWriteAddress(), ~value, value);
+    }
+
+    /**
+     * @brief This function modify content of the register of the I2C device.
+     * This function automatically handle endianness conversion.
+     * @example Suppose that register content is equal to 0b1111; value field is set to 0b0101 and mask is set to 0b0011. As a result new register
+     * value will be equal to 0b1101.
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param reg register to modify.
+     * @param value new value to set. Bits from this field will be written only if corresponding bits in mask parameter are set.
+     * @param mask if bit is set then corresponding bit in register will be set.
+     *
+     * @retval This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename Register>
+    SPI::Error modifyBitsInRegister(Register reg, typename Register::Type value, typename Register::Type mask) {
+        static_assert(reg.access() == Access::ReadWrite, "Bits can be modify only in WriteRead registers.");
+
+        if constexpr (reg.requireEndiannessConversion()) {
+            mask = microhal::convertEndianness(mask);
+            value = microhal::convertEndianness(value);
+        }
+        return modifyBitsInRegister_noEndiannesConversion(reg.getReadAddress(), reg.getWriteAddress(), value, mask);
+    }
+
+    /**
+     * @brief This function allow you to write few register in one SPI transaction.
+     * This function automatically handle endianness conversion.
+     *
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param[in] array with data that will be written into registers.
+     * @param reg registers to write. This registers have to be sorted in rising order and continuous.
+     *
+     * @retval This function will return SPI::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding SPI::Error code.
+     */
+    template <typename ArrayType, size_t N, typename... Registers>
+    SPI::Error writeMultipleRegisters(const std::array<ArrayType, N> &array, Registers... reg) {
+        static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
+        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>,
+                      "Incompatible array and register types. Using this function you can write data into registers with the same type and your "
+                      "array have to have the same type as registers. If you want to write multiple registers with different types please use "
+                      "std::tuple instead of std::aray.");
+        if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
+            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+        }
+        isContinous(reg...);
+        accessCheck<Access::ReadOnly>(reg...);
+
+        const auto firstReg = microhal::first(reg...);
+        const auto registerWriteAddress = firstReg.getWriteAddress();
+
+        if constexpr (sizeof(ArrayType) > 1) {
+            std::array<ArrayType, N> tmpArray = array;
+            convertEndianness(tmpArray, reg...);
+            return writeRegisters_noEndiannessConversion(registerWriteAddress, (uint8_t *)tmpArray.data(), N * sizeof(ArrayType));
+        } else {
+            return writeRegisters_noEndiannessConversion(registerWriteAddress, (uint8_t *)array.data(), N * sizeof(ArrayType));
+        }
+    }
+
+    /**
+     * @brief This function allow you to read multiple register in one I2C transaction.
+     * This function automatically handle endianness conversion.
+     *
+     * @remark This function is thread-safe.
+     * @remark This function is no-throw guarantee.
+     *
+     * @param[in] array where register values will be stored.
+     * @param reg registers to read. This registers have to be sorted in rising order and be continuous.
+     *
+     * @retval This function will return I2C::Error::None if data was written correctly. If an error occurred this function will return
+     * corresponding I2C::Error code.
+     */
+    template <typename ArrayType, size_t N, typename... Registers>
+    SPI::Error readMultipleRegisters_to(std::array<ArrayType, N> &array, Registers... reg) {
+        static_assert(sizeof...(reg) > 1, "You are trying to read only one register, please use write function.");
+        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>, "Incompatible array type with register types.");
+        if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
+            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+        }
+        microhal::isContinous(reg...);
+        microhal::accessCheck<Access::WriteOnly>(reg...);
+
+        const auto firstReg = microhal::first(reg...);
+        const auto registerReadAddress = firstReg.getReadAddress();
+
+        if constexpr (sizeof(ArrayType) > 1) {
+            auto status = readRegisters_noEndiannessConversion(registerReadAddress, (uint8_t *)array.data(), N * sizeof(ArrayType));
+            convertEndianness(array, reg...);
+            return status;
+        } else {
+            return readRegisters_noEndiannessConversion(registerReadAddress, (uint8_t *)array.data(), N * sizeof(ArrayType));
+        }
+    }
 
     //-------------------------------------------- buffer reading functions ---------------------------
-    bool writeBuffer(const uint8_t *buffer, size_t length, bool last = true);
-    /**
-     * @brief This function write 16 bit buffer of data to SPI device. Function
-     * works same as writeBuffer(const uint8_t *buffer, uint16_t length, bool last) but for 16 bit data.
-     *
-     * @param[in] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data buffer was sent.
-     * @retval false if an error occurred
-     */
-    bool writeBuffer(const uint16_t *buffer, size_t length, bool last = true) { return writeBuffer((uint8_t *)buffer, length, last); }
-    /**
-     * @brief This function write 32 bit buffer of data to SPI device. Function
-     * works same as writeBuffer(const uint16_t *buffer, uint16_t length, bool last) but for 32 bit register.
-     *
-     * @param[in] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool writeBuffer(const uint32_t *buffer, size_t length, bool last = true) { return writeBuffer((uint8_t *)buffer, length, last); }
-    /**
-     * @brief This function write 8 bit buffer of data to SPI device. Function
-     * works same as writeBuffer(const uint8_t *buffer, uint16_t length, bool last) but for signed 8-bit data.
-     *
-     * @param[in] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool writeBuffer(const int8_t *buffer, size_t length, bool last = true) { return writeBuffer((uint8_t *)buffer, length, last); }
-    /**
-     * @brief This function write 16 bit buffer of data to SPI device. Function
-     * works same as writeBuffer(const uint8_t *buffer, uint16_t length, bool last) but for signed 16-bit data.
-     *
-     * @param[in] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool writeBuffer(const int16_t *buffer, size_t length, bool last = true) { return writeBuffer((uint8_t *)buffer, length, last); }
-    /**
-     * @brief This function write 32 bit buffer of data to SPI device. Function
-     * works same as writeBuffer(const int16_t *buffer, uint16_t length, bool last) but for 32-bit data.
-     *
-     * @param[in] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool writeBuffer(const int32_t *buffer, size_t length, bool last = true) { return writeBuffer((uint8_t *)buffer, length, last); }
+    SPI::Error writeBuffer(const uint8_t *buffer, size_t length, bool last = true);
+
     //-------------------------------------------- buffer reading functions ---------------------------
     bool readBuffer(uint8_t *buffer, size_t length, bool last = true);
-    /**
-     * @brief This function read 16 bit buffer of data to SPI device. Function
-     * works same as readBuffer(uint8_t *buffer, uint16_t length, bool last) but for 16-bit data.
-     *
-     * @param[out] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool readBuffer(uint16_t *buffer, size_t length, bool last = true) { return readBuffer((uint8_t *)buffer, length, last); }
-    /**
-     * @brief This function read 32 bit buffer of data to SPI device. Function works same as
-     * readBuffer(uint16_t *buffer, uint16_t length, bool last) but for 32-bit data.
-     *
-     * @param[out] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool readBuffer(uint32_t *buffer, size_t length, bool last = true) { return readBuffer((uint8_t *)buffer, length, last); }
-    /**
-     * @brief This function read signed 8-bit buffer of data to SPI device.
-     * Function works same as readBuffer(uint8_t *buffer, uint16_t length, bool last) but for signed 8-bit data.
-     *
-     * @param[out] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool readBuffer(int8_t *buffer, size_t length, bool last = true) { return readBuffer((uint8_t *)buffer, length, last); }
-    /**
-     * @brief This function read signed 16-bit buffer of data to SPI device.
-     * Function works same as readBuffer(uint8_t *buffer, uint16_t length, bool last) but for signed 16-bit data.
-     *
-     * @param[out] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool readBuffer(int16_t *buffer, size_t length, bool last = true) { return readBuffer(buffer, length, last); }
-    /**
-     * @brief This function read signed 32-bit buffer of data to SPI device. Function works same as
-     * readBuffer(int16_t *buffer, uint16_t length, bool last) but for signed 32-bit data.
-     *
-     * @param[out] buffer - pointer to data buffer
-     * @param[in] length - length of buffer
-     * @param[in] last - if false device will be still active and wait to next communication.
-     *                   When true device will be set to unactive state.
-     *
-     * @retval true if data was sent.
-     * @retval false if an error occurred.
-     */
-    bool readBuffer(int32_t *buffer, size_t length, bool last = true) { return readBuffer(buffer, length, last); }
-
-    /**@brief This function write bits from data parameter to 8bit register but only bits set to one in mask parameter are changed.
-     *
-     * @param registerAddress address of register where bit will be cleared
-     * @param data to write
-     * @param bitMask if set then corresponding bit in register will be written.
-     *
-     * @retval true if bits was set
-     * @retval false if an error occurred
-     */
-    bool writeRegisterWithMask(uint8_t registerAddress, uint8_t data, uint8_t mask) {
-        bool status = false;
-        spi.lock();
-
-        uint8_t readData;
-        if (readRegister_noLock(registerAddress, readData)) {
-            // clear bits
-            readData &= ~mask;
-            // set new value
-            readData |= (data & mask);
-            status = writeRegister_noLock(registerAddress, readData);
-        }
-
-        spi.unlock();
-        return status;
-    }
 
  protected:
     void SPIlock() { spi.lock(); }
-
     void SPIunlock() { spi.unlock(); }
 
-    bool writeRegister_noLock(uint8_t registerAddress, uint8_t data);
-    bool writeRegister_noLock(uint8_t registerAddress, uint16_t data, Endianness endianness);
-    bool writeRegister_noLock(uint8_t registerAddress, uint32_t data, Endianness endianness);
+    // bool writeRegisters(uint8_t registerAddress, const uint8_t *buffer, size_t length);
 
-    bool readRegister_noLock(uint8_t registerAddress, uint8_t &data);
-    bool readRegister_noLock(uint8_t registerAddress, uint16_t &data, Endianness endianness);
-    bool readRegister_noLock(uint8_t registerAddress, uint32_t &data, Endianness endianness);
+    SPI::Error writeRegister_lock(uint8_t registerAddress, uint8_t data);
+    SPI::Error writeRegister_lock(uint8_t registerAddress, uint16_t data);
+    SPI::Error writeRegister_lock(uint8_t registerAddress, microhal::uint24_t data);
+    SPI::Error writeRegister_noLock(uint8_t registerAddress, uint8_t data);
+
+    SPI::Error readRegister_noLock(uint8_t registerAddress, uint8_t &data);
+    SPI::Error readRegister_noLock_noEndiannesConversion(uint8_t registerAddress, uint8_t &data);
+    SPI::Error readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint16_t &data);
+    SPI::Error readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, microhal::uint24_t &data);
+    SPI::Error readRegister_noLock_noEndiannesConversion(uint8_t registerAddress, uint32_t &data);
+    SPI::Error readRegister_noEndiannesConversion(uint8_t registerAddress, uint8_t &data);
+    SPI::Error readRegister_noEndiannesConversion(uint8_t registerAddress, uint16_t &data);
+    SPI::Error readRegister_noEndiannesConversion(uint8_t registerAddress, uint32_t &data);
+    SPI::Error readRegister_convertEndiannes(uint8_t registerAddress, uint16_t &data);
+    SPI::Error readRegister_convertEndiannes(uint8_t registerAddress, microhal::uint24_t &data);
+    SPI::Error readRegister_convertEndiannes(uint8_t registerAddress, uint32_t &data);
+
+    SPI::Error writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint8_t data);
+    SPI::Error writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint16_t data);
+    SPI::Error writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, microhal::uint24_t data);
+    SPI::Error writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint32_t data);
+
+    SPI::Error writeRegisters_noEndiannessConversion(uint8_t registerAddress, const uint8_t *buffer, size_t length);
+    SPI::Error readRegisters_noEndiannessConversion(uint8_t registerAddress, uint8_t *buffer, size_t length);
+
+    SPI::Error modifyBitsInRegister_noEndiannesConversion(uint8_t readRegisterAddress, uint8_t writeRegisterAddress, uint8_t data, uint8_t mask);
+    SPI::Error modifyBitsInRegister_noEndiannesConversion(uint8_t readRegisterAddress, uint8_t writeRegisterAddress, uint16_t data, uint16_t mask);
+    SPI::Error modifyBitsInRegister_noEndiannesConversion(uint8_t readRegisterAddress, uint8_t writeRegisterAddress, uint32_t data, uint32_t mask);
 
  private:
+    uint32_t chipEnableDelay = 300;
     SPI &spi;
     GPIO &cePin;
 
-    SPI::Error lastError;
+    template <typename Type, size_t N, typename Register, typename... Registers>
+    void convertEndianness(std::array<Type, N> &array, Register reg, Registers... regs) {
+        auto index = array.size() - sizeof...(Registers) - 1;
+        if constexpr (reg.requireEndiannessConversion()) {
+            array[index] = microhal::convertEndianness(array[index]);
+        }
+        if constexpr (sizeof...(Registers)) convertEndianness(array, regs...);
+    }
 };
 /* ************************************************************************************************
  * INLINE FUNCTIONS
  */
-/**
- * @brief This function write data to 8 bit register. Function is thread safe.
- * This function firstly lock SPI interface, next reset SPI device CE pin and
- * start writing data.
- * When data will be sent function set CE pin and unlock SPI interface.
- *
- * @param[in] registerAddress - address of register where data will be written
- * @param[in] data - data to write
- *
- * @retval true if data was sent successfully.
- * @retval false if an error occurred.
- */
-bool SPIDevice::writeRegister(uint8_t registerAddress, uint8_t data) {
-    spi.lock();
-    bool status = writeRegister_noLock(registerAddress, data);
-    spi.unlock();
-
-    return status;
-}
-/**
- * @brief This function write data to 16 bit register. Function is thread safe.
- * This function firstly lock SPI interface, next reset SPI device CE pin and
- * start writing data.
- * When data will be sent function set CE pin and unlock SPI interface.
- *
- * @param[in] registerAddress - address of register where data will be written
- * @param[in] data - data to write
- * @param[in] endianness - order of byte MSB or LSB first
- *
- * @retval true if data was sent successfully.
- * @retval false if an error occurred.
- */
-bool SPIDevice::writeRegister(uint8_t registerAddress, uint16_t data, Endianness endianness) {
-    spi.lock();
-    bool status = writeRegister_noLock(registerAddress, data, endianness);
-    spi.unlock();
-
-    return status;
-}
-/**
- * @brief This function write data to 32 bit register. Function is thread safe.
- * This function firstly lock SPI interface, next reset SPI device CE pin and
- * start writing data.
- * When data will be sent function set CE pin and unlock SPI interface.
- *
- * @param[in] registerAddress - address of register where data will be written
- * @param[in] data - data to write
- * @param[in] endianness - order of byte MSB or LSB first
- *
- * @retval true if data was sent successfully.
- * @retval false if an error occurred.
- */
-bool SPIDevice::writeRegister(uint8_t registerAddress, uint32_t data, Endianness endianness) {
-    spi.lock();
-    bool status = writeRegister_noLock(registerAddress, data, endianness);
-    spi.unlock();
-
-    return status;
-}
-/**
- * @brief This function read data from 8 bit register. Function is thread safe.
- * This function firstly lock SPI interface, next reset SPI device CE pin and
- * start writing address
- * next function read data. When data will be read, function set CE pin and
- * unlock SPI interface.
- *
- * @param[in] registerAddress - address of register from data will be read.
- * @param[out] data - read data
- *
- * @retval true if data was read successfully.
- * @retval false if an error occurred.
- */
-bool SPIDevice::readRegister(uint8_t registerAddress, uint8_t &data) {
-    spi.lock();
-    bool status = readRegister_noLock(registerAddress, data);
-    spi.unlock();
-
-    return status;
-}
-/**
- * @brief This function read data from 16 bit register. Function is thread safe.
- * This function firstly lock SPI interface, next reset SPI device CE pin and
- * start writing address
- * next function read data. When data will be read, function set CE pin and
- * unlock SPI interface.
- *
- * @param[in] registerAddress - address of register from data will be read.
- * @param[out] data - read data
- * @param[in] endianness - order of byte MSB or LSB first
- *
- * @retval true if data was read successfully.
- * @retval false if an error occurred.
- */
-bool SPIDevice::readRegister(uint8_t registerAddress, uint16_t &data, Endianness endianness) {
-    spi.lock();
-    bool status = readRegister_noLock(registerAddress, data, endianness);
-    spi.unlock();
-
-    return status;
-}
-/**
- * @brief This function read data from 32 bit register. Function is thread safe.
- * This function firstly lock SPI interface, next reset SPI device CE pin and
- * start writing address
- * next function read data. When data will be read, function set CE pin and
- * unlock SPI interface.
- *
- * @param[in] registerAddress - address of register from data will be read.
- * @param[out] data - read data
- * @param[in] endianness - order of byte MSB or LSB first
- *
- * @retval true if data was read successfully.
- * @retval false if an error occurred.
- */
-bool SPIDevice::readRegister(uint8_t registerAddress, uint32_t &data, Endianness endianness) {
-    spi.lock();
-    bool status = readRegister_noLock(registerAddress, data, endianness);
-    spi.unlock();
-
-    return status;
-}
-/**
- * @brief This function modify 8 bit register. Function set bitMask
- * corresponding bits in register.
- * Function is thread safe.
- *
- * @param registerAddress - address of register where bits will be set
- * @param bitMask - bits to set
- *
- * @retval true if data was sent.
- * @retval false if an error occurred.
- */
-bool SPIDevice::setBitsInRegister(uint8_t registerAddress, uint8_t bitMask) {
-    uint8_t registerValue;
-    bool status = false;
-
-    spi.lock();
-    if (readRegister_noLock(registerAddress, registerValue) == true) {
-        registerValue |= bitMask;
-        status = writeRegister_noLock(registerAddress, registerValue);
-    }
-    spi.unlock();
-    return status;
-}
-/**
- * @brief This function works same as setBitsInRegister(uint8_t registerAddress,
- * uint8_t bitMask)
- * but for 16-bit register.
- *
- * @param registerAddress - address of register where bits will be set
- * @param bitMask - bits to set
- * @param endianness - order of byte in register (MSB or LSB first)
- *
- * @retval true if data was sent.
- * @retval false if an error occurred.
- */
-bool SPIDevice::setBitsInRegister(uint8_t registerAddress, uint16_t bitMask, Endianness endianness) {
-    uint16_t registerValue;
-    bool status = false;
-
-    spi.lock();
-    if (readRegister_noLock(registerAddress, registerValue, endianness) == true) {
-        registerValue |= bitMask;
-        status = writeRegister_noLock(registerAddress, registerValue, endianness);
-    }
-    spi.unlock();
-    return status;
-}
-/**
- * @brief This function works same as setBitsInRegister(uint8_t registerAddress,
- * uint16_t bitMask,
- * const Endianness endianness) but for 32-bit register.
- *
- * @param registerAddress - address of register where bits will be set
- * @param bitMask - bits to set
- * @param endianness - order of byte in register (MSB or LSB first)
- *
- * @retval true if data was sent.
- * @retval false if an error occurred.
- */
-bool SPIDevice::setBitsInRegister(uint8_t registerAddress, uint32_t bitMask, Endianness endianness) {
-    uint32_t registerValue;
-    bool status = false;
-
-    spi.lock();
-    if (readRegister_noLock(registerAddress, registerValue, endianness) == true) {
-        registerValue |= bitMask;
-        status = writeRegister_noLock(registerAddress, registerValue, endianness);
-    }
-    spi.unlock();
-    return status;
-}
-/**
- * @brief This function modify 8 bit register. Function clear bitMask
- * corresponding bits in register.
- * Function is thread safe.
- *
- * @param registerAddress - address of register where bits will be clear
- * @param bitMask - bits to clear
- *
- * @retval true if data was sent.
- * @retval false if an error occurred.
- */
-bool SPIDevice::clearBitsInRegister(uint8_t registerAddress, uint8_t bitMask) {
-    uint8_t registerValue;
-    bool status = false;
-
-    spi.lock();
-    if (readRegister_noLock(registerAddress, registerValue) == true) {
-        registerValue &= ~bitMask;
-        status = writeRegister_noLock(registerAddress, registerValue);
-    }
-    spi.unlock();
-    return status;
-}
-/**
- * @brief This function works same as clearBitsInRegister(uint8_t
- * registerAddress, uint8_t bitMask)
- * but for 16-bit register.
- *
- * @param registerAddress - address of register where bits will be clear
- * @param bitMask - bits to clear
- * @param endianness - order of byte in register (MSB or LSB first)
- *
- * @retval true if data was sent.
- * @retval false if an error occurred.
- */
-bool SPIDevice::clearBitsInRegister(uint8_t registerAddress, uint16_t bitMask, Endianness endianness) {
-    uint16_t registerValue;
-    bool status = false;
-
-    spi.lock();
-    if (readRegister_noLock(registerAddress, registerValue, endianness) == true) {
-        registerValue &= ~bitMask;
-        status = writeRegister_noLock(registerAddress, registerValue, endianness);
-    }
-    spi.unlock();
-    return status;
-}
-/**
- * @brief This function works same as clearBitsInRegister(uint8_t
- * registerAddress, uint16_t bitMask,
- * const Endianness endianness) but for 32-bit register.
- *
- * @param registerAddress - address of register where bits will be clear
- * @param bitMask - bits to clear
- * @param endianness - order of byte in register (MSB or LSB first)
- *
- * @retval true if data was sent.
- * @retval false if an error occurred.
- */
-bool SPIDevice::clearBitsInRegister(uint8_t registerAddress, uint32_t bitMask, Endianness endianness) {
-    uint32_t registerValue;
-    bool status = false;
-
-    spi.lock();
-    if (readRegister_noLock(registerAddress, registerValue, endianness) == true) {
-        registerValue &= ~bitMask;
-        status = writeRegister_noLock(registerAddress, registerValue, endianness);
-    }
-    spi.unlock();
-    return status;
-}
+///**
+// * @brief This function write data to 8 bit register. Function is thread safe.
+// * This function firstly lock SPI interface, next reset SPI device CE pin and
+// * start writing data.
+// * When data will be sent function set CE pin and unlock SPI interface.
+// *
+// * @param[in] registerAddress - address of register where data will be written
+// * @param[in] data - data to write
+// *
+// * @retval true if data was sent successfully.
+// * @retval false if an error occurred.
+// */
+// bool SPIDevice::writeRegister(uint8_t registerAddress, uint8_t data) {
+//    spi.lock();
+//    bool status = writeRegister_noLock(registerAddress, data);
+//    spi.unlock();
+//
+//    return status;
+//}
+///**
+// * @brief This function write data to 16 bit register. Function is thread safe.
+// * This function firstly lock SPI interface, next reset SPI device CE pin and
+// * start writing data.
+// * When data will be sent function set CE pin and unlock SPI interface.
+// *
+// * @param[in] registerAddress - address of register where data will be written
+// * @param[in] data - data to write
+// * @param[in] endianness - order of byte MSB or LSB first
+// *
+// * @retval true if data was sent successfully.
+// * @retval false if an error occurred.
+// */
+// bool SPIDevice::writeRegister(uint8_t registerAddress, uint16_t data, Endianness endianness) {
+//    spi.lock();
+//    bool status = writeRegister_noLock(registerAddress, data, endianness);
+//    spi.unlock();
+//
+//    return status;
+//}
+///**
+// * @brief This function write data to 32 bit register. Function is thread safe.
+// * This function firstly lock SPI interface, next reset SPI device CE pin and
+// * start writing data.
+// * When data will be sent function set CE pin and unlock SPI interface.
+// *
+// * @param[in] registerAddress - address of register where data will be written
+// * @param[in] data - data to write
+// * @param[in] endianness - order of byte MSB or LSB first
+// *
+// * @retval true if data was sent successfully.
+// * @retval false if an error occurred.
+// */
+// bool SPIDevice::writeRegister(uint8_t registerAddress, uint32_t data, Endianness endianness) {
+//    spi.lock();
+//    bool status = writeRegister_noLock(registerAddress, data, endianness);
+//    spi.unlock();
+//
+//    return status;
+//}
+///**
+// * @brief This function read data from 8 bit register. Function is thread safe.
+// * This function firstly lock SPI interface, next reset SPI device CE pin and
+// * start writing address
+// * next function read data. When data will be read, function set CE pin and
+// * unlock SPI interface.
+// *
+// * @param[in] registerAddress - address of register from data will be read.
+// * @param[out] data - read data
+// *
+// * @retval true if data was read successfully.
+// * @retval false if an error occurred.
+// */
+// bool SPIDevice::readRegister(uint8_t registerAddress, uint8_t &data) {
+//    spi.lock();
+//    bool status = readRegister_noLock(registerAddress, data);
+//    spi.unlock();
+//
+//    return status;
+//}
+///**
+// * @brief This function read data from 16 bit register. Function is thread safe.
+// * This function firstly lock SPI interface, next reset SPI device CE pin and
+// * start writing address
+// * next function read data. When data will be read, function set CE pin and
+// * unlock SPI interface.
+// *
+// * @param[in] registerAddress - address of register from data will be read.
+// * @param[out] data - read data
+// * @param[in] endianness - order of byte MSB or LSB first
+// *
+// * @retval true if data was read successfully.
+// * @retval false if an error occurred.
+// */
+// bool SPIDevice::readRegister(uint8_t registerAddress, uint16_t &data, Endianness endianness) {
+//    spi.lock();
+//    bool status = readRegister_noLock(registerAddress, data, endianness);
+//    spi.unlock();
+//
+//    return status;
+//}
+///**
+// * @brief This function read data from 32 bit register. Function is thread safe.
+// * This function firstly lock SPI interface, next reset SPI device CE pin and
+// * start writing address
+// * next function read data. When data will be read, function set CE pin and
+// * unlock SPI interface.
+// *
+// * @param[in] registerAddress - address of register from data will be read.
+// * @param[out] data - read data
+// * @param[in] endianness - order of byte MSB or LSB first
+// *
+// * @retval true if data was read successfully.
+// * @retval false if an error occurred.
+// */
+// bool SPIDevice::readRegister(uint8_t registerAddress, uint32_t &data, Endianness endianness) {
+//    spi.lock();
+//    bool status = readRegister_noLock(registerAddress, data, endianness);
+//    spi.unlock();
+//
+//    return status;
+//}
 
 }  // namespace microhal
 
