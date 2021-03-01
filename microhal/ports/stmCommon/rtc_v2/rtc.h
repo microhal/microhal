@@ -135,6 +135,7 @@ class RTC {
     }
     static bool enableWakeupTimer();
     static bool disableWakeupTimer();
+    static bool isWakeupTimerEnabled();
     //--------------------------------------------------------------------------
     //                             Interrupts
     //--------------------------------------------------------------------------

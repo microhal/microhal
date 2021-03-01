@@ -217,6 +217,10 @@ bool RTC::disableWakeupTimer() {
     }
     return true;
 }
+
+bool RTC::isWakeupTimerEnabled() {
+    return registers::rtc->cr.volatileLoad().WUTE;
+}
 //------------------------------------------------------------------------------
 //                             Interrupts
 //------------------------------------------------------------------------------
