@@ -36,6 +36,10 @@
 #include "signalSlot/signalSlot.h"
 #include "utils/result.h"
 
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+#include <time.h>
+#endif
+
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
 #endif
@@ -78,6 +82,11 @@ class RTC {
         ck_spare,         //!< ck_spre (usually 1Hz) clock is selected
         ck_spare_WUT_add  //!< ck_spre (usually 1 Hz) clock is selected and 2^16 is added to the WUT counter value
     };
+    enum class Alarm {
+        A,
+        B,
+    };
+
     struct Time {
         uint8_t hour;
         uint8_t minute;
@@ -107,6 +116,14 @@ class RTC {
     static ResultSubsecond subsecond();
     static ResultTime time();
     static ResultDate date();
+
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+    /**
+     *
+     * @return number of seconds since 00:00, Jan 1 1970 UTC, or negative number when error occurred
+     */
+    static time_t epoch();
+#endif
     //--------------------------------------------------------------------------
     //                             timestamp read
     //--------------------------------------------------------------------------
@@ -120,6 +137,14 @@ class RTC {
     static bool setSubsecond(uint16_t subsecond);
     static bool setTime(const Time &time);
     static bool setDate(const Date &date);
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+    /**
+     * Set RTC date and time without subsecond
+     * @param time - number of seconds since 00:00, Jan 1 1970 UTC (POSIX time)
+     * @return
+     */
+    static bool setEpoch(time_t &time);
+#endif
     static bool setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler);
     //--------------------------------------------------------------------------
     //                             Wakeup timer
@@ -136,6 +161,27 @@ class RTC {
     static bool enableWakeupTimer();
     static bool disableWakeupTimer();
     static bool isWakeupTimerEnabled();
+    //--------------------------------------------------------------------------
+    //                                Alarm
+    // Note: You need to enter configuration mode before using these functions
+    //--------------------------------------------------------------------------
+    /**
+     * Note: This function has effect only when RTC is in initialization mode or ALRxWF field in ICSR register is set to 1. When this condition is
+     *       not meat function will return false.
+     * Note: This function support masking of specific date or time fields. If you don't want to use specific field from date or time just set it to
+     *       value outside reasonable value ie.: if you don't want use minutes set field time.minute to 70 or any other value grater than 60.
+     * Note: year field from date parameter is not used.
+     *
+     * @param alarm
+     * @param date
+     * @param time
+     * @param subsecond
+     * @param subsecondMask
+     * @return
+     */
+    static bool configureAlarm(Alarm alarm, const Date &date, const Time &time, uint16_t subsecond, uint8_t subsecondMask);
+    static bool enableAlarm(Alarm alarm);
+    static bool disableAlarm(Alarm alarm);
     //--------------------------------------------------------------------------
     //                             Interrupts
     //--------------------------------------------------------------------------
@@ -156,6 +202,16 @@ class RTC {
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+
+#ifdef MICROHAL_RTC_USE_DIAGNOSTIC
+template <microhal::diagnostic::LogLevel level, bool B>
+inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel,
+                                                                  _MICROHAL_ACTIVE_PORT_NAMESPACE::RTC::Error error) {
+    constexpr const std::array<std::string_view, 2> str{"None", "NoData"};
+    return logChannel << str[static_cast<uint8_t>(error)];
+}
+#endif
+
 }  // namespace microhal
 
 #endif /* _MICROHAL_PORTS_STMCOMMON_RTC_V2_RTC_H_ */

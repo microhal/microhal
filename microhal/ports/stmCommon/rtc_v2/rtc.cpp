@@ -69,10 +69,29 @@ RTC::ResultDate RTC::date() {
         date.weekDay = dr.WDU;
         date.month = dr.MT * 10 + dr.MU;
         date.monthDay = dr.DT * 10 + dr.DU;
+        date.year = (dr.YT * 10) + dr.YU + 2000;
         result.error(Error::None);
     }
     return result;
 }
+
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+time_t RTC::epoch() {
+    auto date = stm32g0xx::RTC::date();
+    auto time = stm32g0xx::RTC::time();
+    tm tm_time;
+    tm_time.tm_isdst = 0;
+    tm_time.tm_year = date.value().year - 1900;
+    // tm_time.tm_yday;
+    tm_time.tm_mon = date.value().month;
+    tm_time.tm_mday = date.value().monthDay;
+    tm_time.tm_wday = date.value().weekDay;
+    tm_time.tm_hour = time.value().hour;
+    tm_time.tm_min = time.value().minute;
+    tm_time.tm_sec = time.value().second;
+    return mktime(&tm_time);
+}
+#endif
 //------------------------------------------------------------------------------
 //                             timestamp read
 //------------------------------------------------------------------------------
@@ -165,6 +184,29 @@ bool RTC::setDate(const Date &date) {
     return false;
 }
 
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+bool RTC::setEpoch(time_t &time) {
+    struct tm *tm_time = gmtime(&time);
+    if (tm_time) {
+        RTC::Date date = {};
+        date.month = tm_time->tm_mon;
+        date.monthDay = tm_time->tm_mday;
+        date.weekDay = tm_time->tm_wday + 1;
+        date.year = tm_time->tm_year;
+        RTC::Time tm = {};
+        tm.hour = tm_time->tm_hour;
+        tm.minute = tm_time->tm_min;
+        tm.second = tm_time->tm_sec;
+        tm.amPm = RTC::AM_PM::AM;
+
+        if (RTC::setTime(tm)) {
+            return RTC::setDate(date);
+        }
+    }
+    return false;
+}
+#endif
+
 bool RTC::setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler) {
     assert(async_prescaler > 0);
     assert(async_prescaler <= 128);
@@ -221,6 +263,97 @@ bool RTC::disableWakeupTimer() {
 bool RTC::isWakeupTimerEnabled() {
     return registers::rtc->cr.volatileLoad().WUTE;
 }
+//------------------------------------------------------------------------------
+//                                Alarm
+//------------------------------------------------------------------------------
+bool RTC::configureAlarm(Alarm alarm, const Date &date, const Time &time, uint16_t subsecond, uint8_t subsecondMask) {
+    assert(subsecondMask < 16);
+    assert(subsecond < 0x8000U);
+    auto icsr = registers::rtc->icsr.volatileLoad();
+    if (registers::rtc->icsr.volatileLoad().INITF || (alarm == Alarm::A && icsr.ALRAWF.get()) || (alarm == Alarm::B && icsr.ALRBWF.get())) {
+        registers::RTC::ALRMxR alrm = {};
+
+        // date or weak day
+        if (date.weekDay > 1 && date.weekDay < 8) {
+            alrm.MSK4.clear();
+            alrm.WDSEL.set();
+            alrm.DU = date.weekDay;
+        } else if (date.monthDay > 0 && date.monthDay < 32) {
+            alrm.MSK4.clear();
+            alrm.WDSEL.clear();
+            alrm.DT = date.monthDay / 10;
+            alrm.DU = date.monthDay % 10;
+        } else {
+            alrm.MSK4.set();
+        }
+        // hours
+        if (time.hour < 25) {
+            alrm.MSK3.clear();
+            alrm.HT = time.hour / 10;
+            alrm.HU = time.hour % 10;
+        } else {
+            alrm.MSK3.set();
+        }
+        // minutes
+        if (time.minute < 60) {
+            alrm.MSK2.clear();
+            alrm.MNT = time.minute / 10;
+            alrm.MNU = time.minute % 10;
+        } else {
+            alrm.MSK2.set();
+        }
+        // seconds
+        if (time.second < 60) {
+            alrm.MSK1.clear();
+            alrm.ST = time.second / 10;
+            alrm.SU = time.second % 10;
+        } else {
+            alrm.MSK1.set();
+        }
+        // subsecond
+        registers::RTC::ALRMxSSR alrmssr = {};
+        alrmssr.SS = subsecond;
+        alrmssr.MASKSS = subsecondMask;
+
+        if (alarm == Alarm::A) {
+            registers::rtc->alrmar.volatileStore(alrm);
+            registers::rtc->alrmassr.volatileStore(alrmssr);
+        } else {
+            registers::rtc->alrmbr.volatileStore(alrm);
+            registers::rtc->alrmbssr.volatileStore(alrmssr);
+        }
+        return true;
+    }
+    return false;
+}
+bool RTC::enableAlarm(Alarm alarm) {
+    auto cr = registers::rtc->cr.volatileLoad();
+    switch (alarm) {
+        case Alarm::A:
+            cr.ALRAE.set();
+            break;
+        case Alarm::B:
+            cr.ALRBE.set();
+            break;
+    }
+    registers::rtc->cr.volatileStore(cr);
+    return true;
+}
+
+bool RTC::disableAlarm(Alarm alarm) {
+    auto cr = registers::rtc->cr.volatileLoad();
+    switch (alarm) {
+        case Alarm::A:
+            cr.ALRAE.clear();
+            break;
+        case Alarm::B:
+            cr.ALRBE.clear();
+            break;
+    }
+    registers::rtc->cr.volatileStore(cr);
+    return true;
+}
+
 //------------------------------------------------------------------------------
 //                             Interrupts
 //------------------------------------------------------------------------------

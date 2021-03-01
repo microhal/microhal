@@ -672,37 +672,37 @@ struct RTC {
         friend class VolatileRegister<TSSSR, AccessType::ReadWrite>;
     };
 
-    // alarm A register
-    union ALRMAR {
+    // alarm register
+    union ALRMxR {
         union {
             microhal::Bitfield<uint32_t, 0, 4> SU;     /*!< Second units in BCD format */
             microhal::Bitfield<uint32_t, 4, 3> ST;     /*!< Second tens in BCD format */
-            microhal::Bitfield<uint32_t, 7, 1> MSK1;   /*!< Alarm A seconds mask */
+            microhal::Bitfield<uint32_t, 7, 1> MSK1;   /*!< Alarm x seconds mask */
             microhal::Bitfield<uint32_t, 8, 4> MNU;    /*!< Minute units in BCD format */
             microhal::Bitfield<uint32_t, 12, 3> MNT;   /*!< Minute tens in BCD format */
-            microhal::Bitfield<uint32_t, 15, 1> MSK2;  /*!< Alarm A minutes mask */
+            microhal::Bitfield<uint32_t, 15, 1> MSK2;  /*!< Alarm x minutes mask */
             microhal::Bitfield<uint32_t, 16, 4> HU;    /*!< Hour units in BCD format */
             microhal::Bitfield<uint32_t, 20, 2> HT;    /*!< Hour tens in BCD format */
             microhal::Bitfield<uint32_t, 22, 1> PM;    /*!< AM/PM notation */
-            microhal::Bitfield<uint32_t, 23, 1> MSK3;  /*!< Alarm A hours mask */
+            microhal::Bitfield<uint32_t, 23, 1> MSK3;  /*!< Alarm x hours mask */
             microhal::Bitfield<uint32_t, 24, 4> DU;    /*!< Date units or day in BCD format */
             microhal::Bitfield<uint32_t, 28, 2> DT;    /*!< Date tens in BCD format */
             microhal::Bitfield<uint32_t, 30, 1> WDSEL; /*!< Week day selection */
-            microhal::Bitfield<uint32_t, 31, 1> MSK4;  /*!< Alarm A date mask */
+            microhal::Bitfield<uint32_t, 31, 1> MSK4;  /*!< Alarm x date mask */
         };
 
         operator uint32_t() const { return raw; }
         operator bool() const { return raw; }
 
-        ALRMAR &operator=(uint32_t value) {
+        ALRMxR &operator=(uint32_t value) {
             raw = value;
             return *this;
         }
-        ALRMAR &operator|=(uint32_t value) {
+        ALRMxR &operator|=(uint32_t value) {
             raw |= value;
             return *this;
         }
-        ALRMAR &operator&=(uint32_t value) {
+        ALRMxR &operator&=(uint32_t value) {
             raw &= value;
             return *this;
         }
@@ -713,26 +713,26 @@ struct RTC {
         bool operator<(uint32_t value) const { return raw < value; }
         bool operator>=(uint32_t value) const { return raw >= value; }
         bool operator<=(uint32_t value) const { return raw <= value; }
-        ALRMAR operator&(uint32_t value) const {
-            ALRMAR tmp;
+        ALRMxR operator&(uint32_t value) const {
+            ALRMxR tmp;
             tmp.raw = raw & value;
             return tmp;
         }
-        ALRMAR operator|(uint32_t value) const {
-            ALRMAR tmp;
+        ALRMxR operator|(uint32_t value) const {
+            ALRMxR tmp;
             tmp.raw = raw | value;
             return tmp;
         }
 
      private:
         uint32_t raw;
-        friend class VolatileRegister<ALRMAR, AccessType::ReadOnly>;
-        friend class VolatileRegister<ALRMAR, AccessType::WriteOnly>;
-        friend class VolatileRegister<ALRMAR, AccessType::ReadWrite>;
+        friend class VolatileRegister<ALRMxR, AccessType::ReadOnly>;
+        friend class VolatileRegister<ALRMxR, AccessType::WriteOnly>;
+        friend class VolatileRegister<ALRMxR, AccessType::ReadWrite>;
     };
 
     // alarm A sub second register
-    union ALRMASSR {
+    union ALRMxSSR {
         union {
             microhal::Bitfield<uint32_t, 0, 15> SS;     /*!< Sub seconds value */
             microhal::Bitfield<uint32_t, 24, 4> MASKSS; /*!< Mask the most-significant bits starting at this bit */
@@ -741,15 +741,15 @@ struct RTC {
         operator uint32_t() const { return raw; }
         operator bool() const { return raw; }
 
-        ALRMASSR &operator=(uint32_t value) {
+        ALRMxSSR &operator=(uint32_t value) {
             raw = value;
             return *this;
         }
-        ALRMASSR &operator|=(uint32_t value) {
+        ALRMxSSR &operator|=(uint32_t value) {
             raw |= value;
             return *this;
         }
-        ALRMASSR &operator&=(uint32_t value) {
+        ALRMxSSR &operator&=(uint32_t value) {
             raw &= value;
             return *this;
         }
@@ -760,128 +760,22 @@ struct RTC {
         bool operator<(uint32_t value) const { return raw < value; }
         bool operator>=(uint32_t value) const { return raw >= value; }
         bool operator<=(uint32_t value) const { return raw <= value; }
-        ALRMASSR operator&(uint32_t value) const {
-            ALRMASSR tmp;
+        ALRMxSSR operator&(uint32_t value) const {
+            ALRMxSSR tmp;
             tmp.raw = raw & value;
             return tmp;
         }
-        ALRMASSR operator|(uint32_t value) const {
-            ALRMASSR tmp;
+        ALRMxSSR operator|(uint32_t value) const {
+            ALRMxSSR tmp;
             tmp.raw = raw | value;
             return tmp;
         }
 
      private:
         uint32_t raw;
-        friend class VolatileRegister<ALRMASSR, AccessType::ReadOnly>;
-        friend class VolatileRegister<ALRMASSR, AccessType::WriteOnly>;
-        friend class VolatileRegister<ALRMASSR, AccessType::ReadWrite>;
-    };
-
-    // alarm B register
-    union ALRMBR {
-        union {
-            microhal::Bitfield<uint32_t, 0, 4> SU;     /*!< Second units in BCD format */
-            microhal::Bitfield<uint32_t, 4, 3> ST;     /*!< Second tens in BCD format */
-            microhal::Bitfield<uint32_t, 7, 1> MSK1;   /*!< Alarm B seconds mask */
-            microhal::Bitfield<uint32_t, 8, 4> MNU;    /*!< Minute units in BCD format */
-            microhal::Bitfield<uint32_t, 12, 3> MNT;   /*!< Minute tens in BCD format */
-            microhal::Bitfield<uint32_t, 15, 1> MSK2;  /*!< Alarm B minutes mask */
-            microhal::Bitfield<uint32_t, 16, 4> HU;    /*!< Hour units in BCD format */
-            microhal::Bitfield<uint32_t, 20, 2> HT;    /*!< Hour tens in BCD format */
-            microhal::Bitfield<uint32_t, 22, 1> PM;    /*!< AM/PM notation */
-            microhal::Bitfield<uint32_t, 23, 1> MSK3;  /*!< Alarm B hours mask */
-            microhal::Bitfield<uint32_t, 24, 4> DU;    /*!< Date units or day in BCD format */
-            microhal::Bitfield<uint32_t, 28, 2> DT;    /*!< Date tens in BCD format */
-            microhal::Bitfield<uint32_t, 30, 1> WDSEL; /*!< Week day selection */
-            microhal::Bitfield<uint32_t, 31, 1> MSK4;  /*!< Alarm B date mask */
-        };
-
-        operator uint32_t() const { return raw; }
-        operator bool() const { return raw; }
-
-        ALRMBR &operator=(uint32_t value) {
-            raw = value;
-            return *this;
-        }
-        ALRMBR &operator|=(uint32_t value) {
-            raw |= value;
-            return *this;
-        }
-        ALRMBR &operator&=(uint32_t value) {
-            raw &= value;
-            return *this;
-        }
-
-        bool operator==(uint32_t value) const { return raw == value; }
-        bool operator!=(uint32_t value) const { return raw != value; }
-        bool operator>(uint32_t value) const { return raw > value; }
-        bool operator<(uint32_t value) const { return raw < value; }
-        bool operator>=(uint32_t value) const { return raw >= value; }
-        bool operator<=(uint32_t value) const { return raw <= value; }
-        ALRMBR operator&(uint32_t value) const {
-            ALRMBR tmp;
-            tmp.raw = raw & value;
-            return tmp;
-        }
-        ALRMBR operator|(uint32_t value) const {
-            ALRMBR tmp;
-            tmp.raw = raw | value;
-            return tmp;
-        }
-
-     private:
-        uint32_t raw;
-        friend class VolatileRegister<ALRMBR, AccessType::ReadOnly>;
-        friend class VolatileRegister<ALRMBR, AccessType::WriteOnly>;
-        friend class VolatileRegister<ALRMBR, AccessType::ReadWrite>;
-    };
-
-    // alarm B sub second register
-    union ALRMBSSR {
-        union {
-            microhal::Bitfield<uint32_t, 0, 15> SS;     /*!< Sub seconds value */
-            microhal::Bitfield<uint32_t, 24, 4> MASKSS; /*!< Mask the most-significant bits starting at this bit */
-        };
-
-        operator uint32_t() const { return raw; }
-        operator bool() const { return raw; }
-
-        ALRMBSSR &operator=(uint32_t value) {
-            raw = value;
-            return *this;
-        }
-        ALRMBSSR &operator|=(uint32_t value) {
-            raw |= value;
-            return *this;
-        }
-        ALRMBSSR &operator&=(uint32_t value) {
-            raw &= value;
-            return *this;
-        }
-
-        bool operator==(uint32_t value) const { return raw == value; }
-        bool operator!=(uint32_t value) const { return raw != value; }
-        bool operator>(uint32_t value) const { return raw > value; }
-        bool operator<(uint32_t value) const { return raw < value; }
-        bool operator>=(uint32_t value) const { return raw >= value; }
-        bool operator<=(uint32_t value) const { return raw <= value; }
-        ALRMBSSR operator&(uint32_t value) const {
-            ALRMBSSR tmp;
-            tmp.raw = raw & value;
-            return tmp;
-        }
-        ALRMBSSR operator|(uint32_t value) const {
-            ALRMBSSR tmp;
-            tmp.raw = raw | value;
-            return tmp;
-        }
-
-     private:
-        uint32_t raw;
-        friend class VolatileRegister<ALRMBSSR, AccessType::ReadOnly>;
-        friend class VolatileRegister<ALRMBSSR, AccessType::WriteOnly>;
-        friend class VolatileRegister<ALRMBSSR, AccessType::ReadWrite>;
+        friend class VolatileRegister<ALRMxSSR, AccessType::ReadOnly>;
+        friend class VolatileRegister<ALRMxSSR, AccessType::WriteOnly>;
+        friend class VolatileRegister<ALRMxSSR, AccessType::ReadWrite>;
     };
 
     // status register
@@ -1052,10 +946,10 @@ struct RTC {
     VolatileRegister<TSDR, AccessType::ReadWrite> tsdr;         /*!< time stamp date register	Address offset: 0x34 */
     VolatileRegister<TSSSR, AccessType::ReadWrite> tsssr;       /*!< timestamp sub second register	Address offset: 0x38 */
     uint32_t reserved1;                                         /*!< Reserved register	Address offset: 0x3c */
-    VolatileRegister<ALRMAR, AccessType::ReadWrite> alrmar;     /*!< alarm A register	Address offset: 0x40 */
-    VolatileRegister<ALRMASSR, AccessType::ReadWrite> alrmassr; /*!< alarm A sub second register	Address offset: 0x44 */
-    VolatileRegister<ALRMBR, AccessType::ReadWrite> alrmbr;     /*!< alarm B register	Address offset: 0x48 */
-    VolatileRegister<ALRMBSSR, AccessType::ReadWrite> alrmbssr; /*!< alarm B sub second register	Address offset: 0x4C */
+    VolatileRegister<ALRMxR, AccessType::ReadWrite> alrmar;     /*!< alarm A register	Address offset: 0x40 */
+    VolatileRegister<ALRMxSSR, AccessType::ReadWrite> alrmassr; /*!< alarm A sub second register	Address offset: 0x44 */
+    VolatileRegister<ALRMxR, AccessType::ReadWrite> alrmbr;     /*!< alarm B register	Address offset: 0x48 */
+    VolatileRegister<ALRMxSSR, AccessType::ReadWrite> alrmbssr; /*!< alarm B sub second register	Address offset: 0x4C */
     VolatileRegister<SR, AccessType::ReadWrite> sr;             /*!< status register	Address offset: 0x50 */
     VolatileRegister<MISR, AccessType::ReadWrite> misr;         /*!< masked interrupt status register	Address offset: 0x54 */
     uint32_t reserved2;                                         /*!< Reserved register	Address offset: 0x58 */
