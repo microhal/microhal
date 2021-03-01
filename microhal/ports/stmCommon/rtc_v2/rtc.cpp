@@ -69,10 +69,29 @@ RTC::ResultDate RTC::date() {
         date.weekDay = dr.WDU;
         date.month = dr.MT * 10 + dr.MU;
         date.monthDay = dr.DT * 10 + dr.DU;
+        date.year = (dr.YT * 10) + dr.YU + 2000;
         result.error(Error::None);
     }
     return result;
 }
+
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+time_t RTC::epoch() {
+    auto date = stm32g0xx::RTC::date();
+    auto time = stm32g0xx::RTC::time();
+    tm tm_time;
+    tm_time.tm_isdst = 0;
+    tm_time.tm_year = date.value().year - 1900;
+    // tm_time.tm_yday;
+    tm_time.tm_mon = date.value().month;
+    tm_time.tm_mday = date.value().monthDay;
+    tm_time.tm_wday = date.value().weekDay;
+    tm_time.tm_hour = time.value().hour;
+    tm_time.tm_min = time.value().minute;
+    tm_time.tm_sec = time.value().second;
+    return mktime(&tm_time);
+}
+#endif
 //------------------------------------------------------------------------------
 //                             timestamp read
 //------------------------------------------------------------------------------
@@ -164,6 +183,29 @@ bool RTC::setDate(const Date &date) {
     }
     return false;
 }
+
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+bool RTC::setEpoch(time_t &time) {
+    struct tm *tm_time = gmtime(&time);
+    if (tm_time) {
+        RTC::Date date = {};
+        date.month = tm_time->tm_mon;
+        date.monthDay = tm_time->tm_mday;
+        date.weekDay = tm_time->tm_wday + 1;
+        date.year = tm_time->tm_year;
+        RTC::Time tm = {};
+        tm.hour = tm_time->tm_hour;
+        tm.minute = tm_time->tm_min;
+        tm.second = tm_time->tm_sec;
+        tm.amPm = RTC::AM_PM::AM;
+
+        if (RTC::setTime(tm)) {
+            return RTC::setDate(date);
+        }
+    }
+    return false;
+}
+#endif
 
 bool RTC::setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler) {
     assert(async_prescaler > 0);

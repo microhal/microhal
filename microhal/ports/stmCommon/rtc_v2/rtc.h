@@ -36,6 +36,10 @@
 #include "signalSlot/signalSlot.h"
 #include "utils/result.h"
 
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+#include <time.h>
+#endif
+
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
 #endif
@@ -112,6 +116,14 @@ class RTC {
     static ResultSubsecond subsecond();
     static ResultTime time();
     static ResultDate date();
+
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+    /**
+     *
+     * @return number of seconds since 00:00, Jan 1 1970 UTC, or negative number when error occurred
+     */
+    static time_t epoch();
+#endif
     //--------------------------------------------------------------------------
     //                             timestamp read
     //--------------------------------------------------------------------------
@@ -125,6 +137,14 @@ class RTC {
     static bool setSubsecond(uint16_t subsecond);
     static bool setTime(const Time &time);
     static bool setDate(const Date &date);
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+    /**
+     * Set RTC date and time without subsecond
+     * @param time - number of seconds since 00:00, Jan 1 1970 UTC (POSIX time)
+     * @return
+     */
+    static bool setEpoch(time_t &time);
+#endif
     static bool setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler);
     //--------------------------------------------------------------------------
     //                             Wakeup timer
@@ -181,6 +201,16 @@ class RTC {
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+
+#ifdef MICROHAL_RTC_USE_DIAGNOSTIC
+template <microhal::diagnostic::LogLevel level, bool B>
+inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel,
+                                                                  _MICROHAL_ACTIVE_PORT_NAMESPACE::RTC::Error error) {
+    constexpr const std::array<std::string_view, 2> str{"None", "NoData"};
+    return logChannel << str[static_cast<uint8_t>(error)];
+}
+#endif
+
 }  // namespace microhal
 
 #endif /* _MICROHAL_PORTS_STMCOMMON_RTC_V2_RTC_H_ */
