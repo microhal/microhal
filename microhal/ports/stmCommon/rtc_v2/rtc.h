@@ -78,6 +78,11 @@ class RTC {
         ck_spare,         //!< ck_spre (usually 1Hz) clock is selected
         ck_spare_WUT_add  //!< ck_spre (usually 1 Hz) clock is selected and 2^16 is added to the WUT counter value
     };
+    enum class Alarm {
+        A,
+        B,
+    };
+
     struct Time {
         uint8_t hour;
         uint8_t minute;
@@ -135,6 +140,27 @@ class RTC {
     }
     static bool enableWakeupTimer();
     static bool disableWakeupTimer();
+    //--------------------------------------------------------------------------
+    //                                Alarm
+    // Note: You need to enter configuration mode before using these functions
+    //--------------------------------------------------------------------------
+    /**
+     * Note: This function has effect only when RTC is in initialization mode or ALRxWF field in ICSR register is set to 1. When this condition is
+     *       not meat function will return false.
+     * Note: This function support masking of specific date or time fields. If you don't want to use specific field from date or time just set it to
+     *       value outside reasonable value ie.: if you don't want use minutes set field time.minute to 70 or any other value grater than 60.
+     * Note: year field from date parameter is not used.
+     *
+     * @param alarm
+     * @param date
+     * @param time
+     * @param subsecond
+     * @param subsecondMask
+     * @return
+     */
+    static bool configureAlarm(Alarm alarm, const Date &date, const Time &time, uint16_t subsecond, uint8_t subsecondMask);
+    static bool enableAlarm(Alarm alarm);
+    static bool disableAlarm(Alarm alarm);
     //--------------------------------------------------------------------------
     //                             Interrupts
     //--------------------------------------------------------------------------
