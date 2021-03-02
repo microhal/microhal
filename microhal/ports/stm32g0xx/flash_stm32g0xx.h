@@ -4,7 +4,7 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 07-02-2021
+ * created on: 27-02-2021
  *
  * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
@@ -25,12 +25,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_STM32G0XX_CLOCKMANAGER_H_
-#define _MICROHAL_PORTS_STM32G0XX_CLOCKMANAGER_H_
+#ifndef _MICROHAL_PORTS_STM32G0XX_FLASH_STM32G0XX_H_
+#define _MICROHAL_PORTS_STM32G0XX_FLASH_STM32G0XX_H_
 
-#include <ports/stmCommon/clockManager/flashClock.h>
-#include <ports/stmCommon/clockManager/gpioClock.h>
-#include <ports/stmCommon/clockManager/lse.h>
-#include <ports/stmCommon/clockManager/rtcClock.h>
+/* ************************************************************************************************
+ * INCLUDES
+ */
+#include "ports/stmCommon/flash/flash_v3/flash_stmCommon.h"
 
-#endif /* _MICROHAL_PORTS_STM32G0XX_CLOCKMANAGER_H_ */
+#endif /* _MICROHAL_PORTS_STM32G0XX_FLASH_STM32G0XX_H_ */
