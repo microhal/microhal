@@ -30,6 +30,7 @@
  */
 #include "hardware_stm32g0xx.h"
 #include "ports/stmCommon/clockManager/sysclk.h"
+#include "ports/stmCommon/registers/registersBaseAddressDefinitions.h"
 
 namespace microhal {
 namespace hardware {
@@ -39,17 +40,17 @@ uint32_t Device::coreFrequency() {
 }
 
 uint64_t Device::getUniqueID() {
-    //    const uint32_t *id = reinterpret_cast<uint32_t *>(_MICROHAL_UID_BASE_ADDRESS);
-    //
-    //    const uint32_t idA = id[0] + id[2];
-    //    const uint32_t idB = id[1];
-    //
-    //    return ((uint64_t)idA << 32) | idB;
+    const volatile uint32_t *id = reinterpret_cast<volatile uint32_t *>(_MICROHAL_UID_BASE_ADDRESS);
+
+    const uint32_t idA = id[0];
+    const uint32_t idB = id[1];
+
+    return ((uint64_t)idA << 32) | idB;
 }
 
 std::array<uint32_t, 3> Device::getNativeUniqueID() {
-    //    const uint32_t *id = reinterpret_cast<uint32_t *>(_MICROHAL_UID_BASE_ADDRESS);
-    //    return {id[0], id[1], id[2]};
+    const uint32_t *id = reinterpret_cast<uint32_t *>(_MICROHAL_UID_BASE_ADDRESS);
+    return {id[0], id[1], id[2]};
 }
 
 }  // namespace hardware
