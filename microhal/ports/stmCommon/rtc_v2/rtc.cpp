@@ -192,7 +192,7 @@ bool RTC::setEpoch(time_t &time) {
         date.month = tm_time->tm_mon;
         date.monthDay = tm_time->tm_mday;
         date.weekDay = tm_time->tm_wday + 1;
-        date.year = tm_time->tm_year;
+        date.year = tm_time->tm_year + 1900;
         RTC::Time tm = {};
         tm.hour = tm_time->tm_hour;
         tm.minute = tm_time->tm_min;
