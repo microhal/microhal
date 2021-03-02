@@ -198,7 +198,7 @@ RFM96HCW::Error RFM96HCW::sendPacket(uint8_t destinationAddress, gsl::span<uint8
         if (mode.value() == Mode::Receiver) setMode(Mode::Standby);
         do {
             auto currentMode = getMode();
-            if (currentMode.value() == Mode::Standby) break;
+            if (currentMode.value() != Mode::Receiver) break;
         } while (1);
     } else {
         return mode.error();

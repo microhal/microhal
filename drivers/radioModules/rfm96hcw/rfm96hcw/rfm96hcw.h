@@ -133,7 +133,7 @@ class RFM96HCW {
     enum class PacketLength { Fixed = 0, Variable = 0b1000'0000 };
     enum class CRCMode { Disable = 0b0, EnableClearFifoOnFail = 0b0001'0000, EnableNotClearFifoOnFail = 0b0001'1000 };
     enum class EncodingMode { None = 0, Manchester, Whitening };
-    enum class AddressFilteringMode { None, MatchNodeAddress, MatchNodeOrBroadcastAddress };
+    enum class AddressFilteringMode { None = 0b000, MatchNodeAddress = 0b010, MatchNodeOrBroadcastAddress = 0b100 };
     enum class FSKGaussianFilter { Disable = 0, BT10 = 0b01, BT05 = 0b10, BT03 = 0b11 };
     enum class PARamp {
         RaiseFallRamp_3400us = 0,
@@ -197,6 +197,29 @@ class RFM96HCW {
     enum class DIO0 { CrcOK_PacketSent = 0b00 << 6, PayloadReady_TxReady = 0b01 << 6, PllLock = 0b11 << 6 };
     enum class DIO1 { FifoLevel = 0b00 << 4, FifoFull = 0b01 << 4, FifoNotEmpty = 0b10 << 4, PllLock = 0b11 << 4 };
 
+    template <size_t maxPacketDataLength = 64>
+    struct Packet {
+        uint8_t m_length;  // payload length
+        uint8_t m_destinationAddress;
+        uint8_t m_payload[maxPacketDataLength];
+        static_assert(maxPacketDataLength <= 64);
+
+        uint8_t destinationAddress() const { return m_destinationAddress; }
+        gsl::span<uint8_t> payload() const { return {m_payload, m_length}; }
+        gsl::span<uint8_t> payload() { return {m_payload, m_length}; }
+
+     protected:
+        template <typename T>
+        T *payload() {
+            return reinterpret_cast<T *>(m_payload);
+        }
+
+        template <typename T>
+        const T *payload() const {
+            return reinterpret_cast<const T *>(m_payload);
+        }
+    };
+
     static constexpr const uint32_t fxosc = 32000000;  // in Hz
     static constexpr const uint32_t fstep = 61;        // in Hz
     static constexpr const std::array<microhal::SPI::Mode, 1> supportedSPIModes = {microhal::SPI::Mode::Mode0};
@@ -258,9 +281,19 @@ class RFM96HCW {
     //                           Packet mode functions
     //--------------------------------------------------------------------------
     Error sendPacket(uint8_t destinationAddress, gsl::span<uint8_t> data, bool lbt = false);
+    template <size_t maxPacketDataLength>
+    Error sendPacket(Packet<maxPacketDataLength> packet, bool lbt = false) {
+        return sendPacket(packet.m_destinationAddress, packet.payload(), lbt);
+    }
 
     microhal::Result<int_fast8_t, Error, Error::None> readPacket_to(gsl::span<uint8_t> data);
     microhal::Result<int_fast8_t, Error, Error::None> readPacket_to(uint8_t &address, gsl::span<uint8_t> data, std::chrono::milliseconds timeout);
+    template <size_t maxPacketDataLength>
+    Error readPacket_to(Packet<maxPacketDataLength> &packet, std::chrono::milliseconds timeout) {
+        auto result = readPacket_to(packet.m_destinationAddress, packet.payload(), timeout);
+        packet.m_length = result ? result.value() : 0;
+        return result.error();
+    }
     /**
      *
      * @param packetLengthMode @ref PacketLength
