@@ -45,8 +45,14 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 class PWR {
  public:
     enum class PowerMode { Stop0 = 0b000, Stop1 = 0b001, Standby = 0b011, Shutdown = 0b100 };
+    enum class WakeupPin { WKUP1 = 0, WKUP2, WKUP3, WKUP4, WKUP5, WKUP6 };
+    enum class Edge { Rising = 0, Falling };
 
     static void init() { ClockManager::enablePWR(); }
+
+    static void configureWakeup(WakeupPin pinNumber, Edge edge);
+    static void enableWakeup(WakeupPin pinNumber);
+    static void disableWakeup(WakeupPin pinNumber);
 
     static void disableBackupDomainWriteProtection() {
         auto cr1 = registers::pwr->cr1.volatileLoad();
