@@ -30,7 +30,7 @@
 #ifndef HOSTCOMM_H_
 #define HOSTCOMM_H_
 
-#include "IODevice.h"
+#include "IODevice/IODevice.h"
 #include "diagnostic/diagnostic.h"
 #include "hostCommPacket.h"
 #include "hostCommPacketACK.h"
