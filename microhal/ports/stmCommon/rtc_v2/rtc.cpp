@@ -85,7 +85,7 @@ time_t RTC::epoch() {
     // tm_time.tm_yday;
     tm_time.tm_mon = date.value().month;
     tm_time.tm_mday = date.value().monthDay;
-    tm_time.tm_wday = date.value().weekDay;
+    tm_time.tm_wday = date.value().weekDay - 1;
     tm_time.tm_hour = time.value().hour;
     tm_time.tm_min = time.value().minute;
     tm_time.tm_sec = time.value().second;
@@ -128,10 +128,43 @@ RTC::ResultDate RTC::timestampDate() {
         date.weekDay = tsdr.WDU;
         date.month = tsdr.MT * 10 + tsdr.MU;
         date.monthDay = tsdr.DT * 10 + tsdr.DU;
+        // date.year = tsdr.yt * 10 + tsdr.yu + 2000;
+        date.year = 0;
         result.error(Error::None);
     }
     return result;
 }
+
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+time_t RTC::timestampEpoch() {
+    auto dateTimestamp = timestampDate();
+    auto time = timestampTime();
+    auto currentDate = date();
+    tm tm_time;
+    tm_time.tm_isdst = 0;
+    tm_time.tm_year = currentDate.value().year - 1900;
+    // tm_time.tm_yday;
+    tm_time.tm_mon = dateTimestamp.value().month;
+    tm_time.tm_mday = dateTimestamp.value().monthDay;
+    tm_time.tm_wday = dateTimestamp.value().weekDay - 1;
+    tm_time.tm_hour = time.value().hour;
+    tm_time.tm_min = time.value().minute;
+    tm_time.tm_sec = time.value().second;
+    return mktime(&tm_time);
+}
+#endif
+
+bool RTC::configureTimestamp(TimestampOnInternalEvent timestampInternalEvent, TimestampOnExternalEvent timestampExternalEvent,
+                             TimestampOnTamperDetection timestampTamperDetection) {
+    auto cr = registers::rtc->cr.volatileLoad();
+    cr.ITSE = static_cast<uint32_t>(timestampInternalEvent);
+    cr.TSE = timestampExternalEvent != TimestampOnExternalEvent::Disable ? 1 : 0;
+    cr.TSEDGE = static_cast<uint32_t>(timestampExternalEvent) & 0b1;
+    cr.TAMPTS = static_cast<uint32_t>(timestampTamperDetection);
+    registers::rtc->cr.volatileStore(cr);
+    return true;
+}
+
 //------------------------------------------------------------------------------
 //                             set date & time
 //------------------------------------------------------------------------------

@@ -102,6 +102,10 @@ class RTC {
         uint8_t monthDay;
     };
 
+    enum class TimestampOnInternalEvent { Enable = 0b1, Disable = 0b0 };
+    enum class TimestampOnExternalEvent { OnRisingEdge = 0b00, OnFallingEdge = 0b01, Disable };
+    enum class TimestampOnTamperDetection { Enable = 0b1, Disable = 0b0 };
+
     enum class Error { None, NoData };
 
     using ResultTime = Result<Time, Error, Error::None>;
@@ -114,6 +118,10 @@ class RTC {
     //                            date & time read
     //--------------------------------------------------------------------------
     static ResultSubsecond subsecond();
+    static ResultSubsecond subsecond_ms(uint16_t synchronousPrescaler) {
+        auto subsec = subsecond();
+        return {subsec.error(), (subsec.value() * 1000) / synchronousPrescaler};
+    }
     static ResultTime time();
     static ResultDate date();
 
@@ -130,6 +138,15 @@ class RTC {
     static ResultSubsecond timestampSubsecond();
     static ResultTime timestampTime();
     static ResultDate timestampDate();
+#ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
+    /**
+     *
+     * @return number of seconds since 00:00, Jan 1 1970 UTC, or negative number when error occurred
+     */
+    static time_t timestampEpoch();
+#endif
+
+    static bool configureTimestamp(TimestampOnInternalEvent, TimestampOnExternalEvent, TimestampOnTamperDetection);
     //--------------------------------------------------------------------------
     //                             set date & time
     // Note: You need to enter configuration mode before using these functions
@@ -209,6 +226,18 @@ inline microhal::diagnostic::LogLevelChannel<level, B> operator<<(microhal::diag
                                                                   _MICROHAL_ACTIVE_PORT_NAMESPACE::RTC::Error error) {
     constexpr const std::array<std::string_view, 2> str{"None", "NoData"};
     return logChannel << str[static_cast<uint8_t>(error)];
+}
+
+template <microhal::diagnostic::LogLevel level, bool B>
+inline microhal::diagnostic::LogLevelChannel<level, B> &operator<<(microhal::diagnostic::LogLevelChannel<level, B> &logChannel,
+                                                                   _MICROHAL_ACTIVE_PORT_NAMESPACE::RTC::Time time) {
+    return logChannel << time.hour << ":" << time.minute << ":" << time.second;
+}
+
+template <microhal::diagnostic::LogLevel level, bool B>
+inline microhal::diagnostic::LogLevelChannel<level, B> &operator<<(microhal::diagnostic::LogLevelChannel<level, B> &logChannel,
+                                                                   _MICROHAL_ACTIVE_PORT_NAMESPACE::RTC::Date date) {
+    return logChannel << date.monthDay << ":" << date.month << ":" << date.year;
 }
 #endif
 
