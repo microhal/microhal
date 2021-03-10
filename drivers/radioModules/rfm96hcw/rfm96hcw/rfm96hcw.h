@@ -225,6 +225,8 @@ class RFM96HCW {
     static constexpr const std::array<microhal::SPI::Mode, 1> supportedSPIModes = {microhal::SPI::Mode::Mode0};
     static constexpr const uint_fast8_t fifoSize = 66;
 
+    static constexpr uint16_t packetSendTime_ms(uint16_t bps, uint_fast8_t packetLenBytes) { return (packetLenBytes * 8 * 1000) / bps; }
+
     RFM96HCW(microhal::SPI &spi, microhal::GPIO &ceGpio, microhal::IOPin dio0, microhal::GPIO &resetGpio);
     virtual ~RFM96HCW();
 
