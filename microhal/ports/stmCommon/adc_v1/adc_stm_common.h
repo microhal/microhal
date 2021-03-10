@@ -353,7 +353,22 @@ class Adc final {
         return true;
     }
     constexpr Channel getTemperatureSensorChannel() const { return Channel12; }
+
+    //=================== Internal reference functions ===================
+    bool enableVref() {
+        auto ccr = registers::adc12Common->ccr.volatileLoad();
+        ccr.VREFEN.set();
+        registers::adc12Common->ccr.volatileStore(ccr);
+        return true;
+    }
+    bool disableVref() {
+        auto ccr = registers::adc12Common->ccr.volatileLoad();
+        ccr.VREFEN.clear();
+        registers::adc12Common->ccr.volatileStore(ccr);
+        return true;
+    }
     constexpr Channel getInteranlReferenceChannel() const { return Channel13; }
+
     static float voltageToTemperatureInCelsius(float voltage) {
         constexpr const float v25 = 1.43f;
         constexpr const float avgSlope = 4.3f / 1000.0f;
