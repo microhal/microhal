@@ -39,10 +39,11 @@ const uint8_t poutCorrection[] = {unused, unused, 18, 14, 18};
 
 RFM96HCW::RFM96HCW(SPI &spi, GPIO &ceGpio, microhal::IOPin dio0, GPIO &resetGpio) : spi(spi, ceGpio), m_dio0(dio0), m_resetGpio(resetGpio) {
     m_dio0.connect(irq0Slot, *this, ExternalInterrupt::Trigger::OnRisingEdge);
+    this->spi.chipEnablePinDelay(40);
 }
 
 RFM96HCW::~RFM96HCW() {
-    // TODO Auto-generated destructor stub
+    setMode(RFM96HCW::Mode::Sleep);
 }
 
 void RFM96HCW::init() {
