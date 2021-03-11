@@ -17,9 +17,9 @@ SPI::Error SPIDevice::write(uint8_t data) {
     std::lock_guard<SPI> guard(spi);
 
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     const SPI::Error status = spi.write(data, true);
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
 
     return status;
@@ -28,9 +28,9 @@ SPI::Error SPIDevice::write(uint8_t data) {
 SPI::Error SPIDevice::read_to(uint8_t &data) {
     std::lock_guard<SPI> guard(spi);
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     SPI::Error status = spi.read(data);
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
 
     return status;
@@ -162,12 +162,12 @@ SPI::Error SPIDevice::readRegister_convertEndiannes(uint8_t registerAddress, uin
  */
 SPI::Error SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint8_t data) {
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     const uint8_t buffer[2] = {registerAddress, data};
     SPI::Error status = spi.write(buffer, sizeof(buffer), true);
 
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
 
     return status;
@@ -191,7 +191,7 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
 
     // activate spi device
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     buffer.registerAddress = registerAddress;
     buffer.data = data;
@@ -199,7 +199,7 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
     SPI::Error status = spi.write(&buffer.registerAddress, 3, true);
 
     // deactivate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
     return status;
 }
@@ -216,7 +216,7 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
 SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, microhal::uint24_t data) {
     // activate spi device
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     SPI::Error status = spi.write(registerAddress, false);
     if (status == SPI::Error::None) {
@@ -224,7 +224,7 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
     }
 
     // deactivate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
     return status;
 }
@@ -241,7 +241,7 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
 SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint32_t data) {
     // activate spi device
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     SPI::Error status = spi.write(registerAddress, false);
     if (status == SPI::Error::None) {
@@ -249,7 +249,7 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
     }
 
     // deactivate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
     return status;
 }
@@ -266,7 +266,7 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
 SPI::Error SPIDevice::readRegister_noLock(uint8_t registerAddress, uint8_t &data) {
     // activate spi device
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     // write write register address
     SPI::Error status = spi.write(registerAddress, false);
@@ -276,7 +276,7 @@ SPI::Error SPIDevice::readRegister_noLock(uint8_t registerAddress, uint8_t &data
     }
 
     // deactivate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
     return status;
 }
@@ -305,7 +305,7 @@ SPI::Error SPIDevice::readRegister_noLock(uint8_t registerAddress, uint8_t &data
 SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint16_t &data) {
     // activate spi device
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     SPI::Error status = spi.write(registerAddress, false);
     if (status == SPI::SPI::Error::None) {
@@ -313,7 +313,7 @@ SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registe
     }
 
     // deactivate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
 
     return status;
@@ -333,7 +333,7 @@ SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registe
 SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, microhal::uint24_t &data) {
     // activate spi device
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     SPI::Error status = spi.write(registerAddress, false);
     if (status == SPI::SPI::Error::None) {
@@ -341,7 +341,7 @@ SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registe
     }
 
     // deactivate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
 
     return status;
@@ -449,14 +449,14 @@ SPI::Error SPIDevice::writeRegisters_noEndiannessConversion(uint8_t registerAddr
 
     // activate spi device
     cePin.reset();
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
 
     SPI::Error status = spi.write(registerAddress, false);
     if (status == SPI::SPI::Error::None) {
         status = spi.write(buffer, length, true);
     }
 
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
     return status;
 }
@@ -476,7 +476,7 @@ SPI::Error SPIDevice::readRegisters_noEndiannessConversion(uint8_t registerAddre
     std::lock_guard<SPI> guard(spi);
 
     // activate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.reset();
 
     SPI::Error status = spi.write(registerAddress, false);
@@ -485,7 +485,7 @@ SPI::Error SPIDevice::readRegisters_noEndiannessConversion(uint8_t registerAddre
     }
 
     // deactivate spi device
-    if (chipEnableDelay > 0) delay(chipEnableDelay);
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
     cePin.set();
 
     return status;
