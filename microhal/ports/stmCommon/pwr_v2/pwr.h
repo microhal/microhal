@@ -31,6 +31,7 @@
  * INCLUDES
  */
 #include <ports/stmCommon/clockManager/pwrClock.h>
+#include "../IOPin.h"
 #include "../registers/pwrRegisters_v2.h"
 #include "../stmCommonDefines.h"
 #include _MICROHAL_INCLUDE_PORT_DEVICE
@@ -46,13 +47,29 @@ class PWR {
  public:
     enum class PowerMode { Stop0 = 0b000, Stop1 = 0b001, Standby = 0b011, Shutdown = 0b100 };
     enum class WakeupPin { WKUP1 = 0, WKUP2, WKUP3, WKUP4, WKUP5, WKUP6 };
+    enum class WakeupFlag {
+        WUF1 = 0b0000'0001,
+        WUF2 = 0b0000'0010,
+        WUF3 = 0b0000'0100,
+        WUF4 = 0b0000'1000,
+        WUF5 = 0b0001'0000,
+        WUF6 = 0b0010'0000,
+        WUFI = 1 << 15,
+    };
     enum class Edge { Rising = 0, Falling };
+    enum class Pull { None, Up, Down };
 
     static void init() { ClockManager::enablePWR(); }
 
     static void configureWakeup(WakeupPin pinNumber, Edge edge);
     static void enableWakeup(WakeupPin pinNumber);
     static void disableWakeup(WakeupPin pinNumber);
+
+    static void clearWakeupFlag(WakeupFlag flag);
+
+    static void configurePin(IOPin pin, Pull pull);
+    static void enablePullConfiguration();
+    static void disablePullConfiguration();
 
     static void disableBackupDomainWriteProtection() {
         auto cr1 = registers::pwr->cr1.volatileLoad();
