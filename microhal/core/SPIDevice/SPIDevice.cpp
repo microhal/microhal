@@ -66,7 +66,7 @@ SPI::Error SPIDevice::modifyBitsInRegister_noEndiannesConversion(uint8_t readReg
                                                                  uint32_t mask) {
     std::lock_guard<SPI> guard(spi);
     uint32_t regValue;
-    SPI::Error error = readRegister_noLock_noEndiannesConversion(readRegisterAddress, regValue);
+    SPI::Error error = readRegister_noLock_noEndiannessConversion(readRegisterAddress, regValue);
     if (error == SPI::Error::None) {
         regValue &= ~mask;
         regValue |= (data & mask);
@@ -127,7 +127,7 @@ SPI::Error SPIDevice::readRegister_noEndiannesConversion(uint8_t registerAddress
 
 SPI::Error SPIDevice::readRegister_noEndiannesConversion(uint8_t registerAddress, uint32_t &data) {
     std::lock_guard<SPI> guard(spi);
-    return readRegister_noLock_noEndiannesConversion(registerAddress, data);
+    return readRegister_noLock_noEndiannessConversion(registerAddress, data);
 }
 
 SPI::Error SPIDevice::readRegister_convertEndiannes(uint8_t registerAddress, uint16_t &data) {
@@ -146,7 +146,7 @@ SPI::Error SPIDevice::readRegister_convertEndiannes(uint8_t registerAddress, mic
 
 SPI::Error SPIDevice::readRegister_convertEndiannes(uint8_t registerAddress, uint32_t &data) {
     std::lock_guard<SPI> guard(spi);
-    SPI::Error error = readRegister_noLock_noEndiannesConversion(registerAddress, data);
+    SPI::Error error = readRegister_noLock_noEndiannessConversion(registerAddress, data);
     data = microhal::convertEndianness(data);
     return error;
 }
@@ -161,16 +161,8 @@ SPI::Error SPIDevice::readRegister_convertEndiannes(uint8_t registerAddress, uin
  * @retval false if an error occurred.
  */
 SPI::Error SPIDevice::writeRegister_noLock(uint8_t registerAddress, uint8_t data) {
-    cePin.reset();
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-
     const uint8_t buffer[2] = {registerAddress, data};
-    SPI::Error status = spi.write(buffer, sizeof(buffer), true);
-
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-    cePin.set();
-
-    return status;
+    return write_noLock(buffer, sizeof(buffer));
 }
 /**
  * @brief This function write data to 16 bit register.
@@ -188,20 +180,9 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
         uint8_t registerAddress;
         uint16_t data;
     } buffer;
-
-    // activate spi device
-    cePin.reset();
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-
     buffer.registerAddress = registerAddress;
     buffer.data = data;
-
-    SPI::Error status = spi.write(&buffer.registerAddress, 3, true);
-
-    // deactivate spi device
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-    cePin.set();
-    return status;
+    return write_noLock(&buffer.registerAddress, 3);
 }
 /**
  * @brief This function write data to 16 bit register.
@@ -214,19 +195,16 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
  * @retval false if an error occurred.
  */
 SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, microhal::uint24_t data) {
-    // activate spi device
-    cePin.reset();
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-
-    SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::Error::None) {
-        status = spi.write(&data, 3, true);
-    }
-
-    // deactivate spi device
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-    cePin.set();
-    return status;
+    struct {
+        uint8_t unused;
+        uint8_t unused2;
+        uint8_t unused3;
+        uint8_t registerAddress;
+        uint32_t data;
+    } buffer;
+    buffer.registerAddress = registerAddress;
+    buffer.data = data;
+    return write_noLock(&buffer.registerAddress, 4);
 }
 /**
  * @brief This function write data to 16 bit register.
@@ -239,19 +217,16 @@ SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t regist
  * @retval false if an error occurred.
  */
 SPI::Error SPIDevice::writeRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint32_t data) {
-    // activate spi device
-    cePin.reset();
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-
-    SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::Error::None) {
-        status = spi.write(&data, 3, true);
-    }
-
-    // deactivate spi device
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-    cePin.set();
-    return status;
+    struct {
+        uint8_t unused;
+        uint8_t unused2;
+        uint8_t unused3;
+        uint8_t registerAddress;
+        uint32_t data;
+    } buffer;
+    buffer.registerAddress = registerAddress;
+    buffer.data = data;
+    return write_noLock(&buffer.registerAddress, 5);
 }
 
 /**
@@ -281,16 +256,6 @@ SPI::Error SPIDevice::readRegister_noLock(uint8_t registerAddress, uint8_t &data
     return status;
 }
 /**
- * @brief This function read data from 16 bit register.
- *
- * @param[in] registerAddress - address of register from data will be read.
- * @param[out] data - read data
- * @param[in] endianness - order of byte MSB or LSB first
- *
- * @retval true if data was read successfully.
- * @retval false if an error occurred.
- */
-/**
  * @brief This function read data from 32 bit register. Function is thread safe.
  * This function firstly lock SPI interface, next reset SPI device CE pin and start writing address
  * next function read data. When data will be read, function set CE pin and unlock SPI interface.
@@ -303,20 +268,7 @@ SPI::Error SPIDevice::readRegister_noLock(uint8_t registerAddress, uint8_t &data
  * @retval false if an error occurred.
  */
 SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint16_t &data) {
-    // activate spi device
-    cePin.reset();
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-
-    SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::SPI::Error::None) {
-        status = spi.read(&data, 2);
-    }
-
-    // deactivate spi device
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-    cePin.set();
-
-    return status;
+    return readRegister_noLock_impl(registerAddress, (uint8_t *)&data, sizeof(data));
 }
 /**
  * @brief This function read data from 32 bit register. Function is thread safe.
@@ -331,20 +283,22 @@ SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registe
  * @retval false if an error occurred.
  */
 SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, microhal::uint24_t &data) {
-    // activate spi device
-    cePin.reset();
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-
-    SPI::Error status = spi.write(registerAddress, false);
-    if (status == SPI::SPI::Error::None) {
-        status = spi.read(&data, 3);
-    }
-
-    // deactivate spi device
-    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
-    cePin.set();
-
-    return status;
+    return readRegister_noLock_impl(registerAddress, (uint8_t *)&data, 3);
+}
+/**
+ * @brief This function read data from 32 bit register. Function is thread safe.
+ * This function firstly lock SPI interface, next reset SPI device CE pin and start writing address
+ * next function read data. When data will be read, function set CE pin and unlock SPI interface.
+ *
+ * @param[in] registerAddress - address of register from data will be read.
+ * @param[out] data - read data
+ * @param[in] endianness - order of byte MSB or LSB first
+ *
+ * @retval true if data was read successfully.
+ * @retval false if an error occurred.
+ */
+SPI::Error SPIDevice::readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint32_t &data) {
+    return readRegister_noLock_impl(registerAddress, (uint8_t *)&data, sizeof(data));
 }
 /**
  * @brief This function write 8 bit data. Function is thread safe.
@@ -483,6 +437,37 @@ SPI::Error SPIDevice::readRegisters_noEndiannessConversion(uint8_t registerAddre
     if (status == SPI::Error::None) {
         status = spi.read(buffer, length);
     }
+
+    // deactivate spi device
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
+    cePin.set();
+
+    return status;
+}
+
+SPI::Error SPIDevice::readRegister_noLock_impl(uint8_t registerAddress, uint8_t *data, size_t len) {
+    // activate spi device
+    cePin.reset();
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
+
+    SPI::Error status = spi.write(registerAddress, false);
+    if (status == SPI::SPI::Error::None) {
+        status = spi.read(data, len);
+    }
+
+    // deactivate spi device
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
+    cePin.set();
+
+    return status;
+}
+
+SPI::Error SPIDevice::write_noLock(const uint8_t *data, size_t len) {
+    // activate spi device
+    if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);
+    cePin.reset();
+
+    SPI::Error status = spi.write(data, len, true);
 
     // deactivate spi device
     if (chipEnableDelay_ns > 0) delay(chipEnableDelay_ns);

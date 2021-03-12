@@ -349,7 +349,7 @@ class SPIDevice {
     SPI::Error readRegister_noLock_noEndiannesConversion(uint8_t registerAddress, uint8_t &data);
     SPI::Error readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint16_t &data);
     SPI::Error readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, microhal::uint24_t &data);
-    SPI::Error readRegister_noLock_noEndiannesConversion(uint8_t registerAddress, uint32_t &data);
+    SPI::Error readRegister_noLock_noEndiannessConversion(uint8_t registerAddress, uint32_t &data);
     SPI::Error readRegister_noEndiannesConversion(uint8_t registerAddress, uint8_t &data);
     SPI::Error readRegister_noEndiannesConversion(uint8_t registerAddress, uint16_t &data);
     SPI::Error readRegister_noEndiannesConversion(uint8_t registerAddress, uint32_t &data);
@@ -368,6 +368,9 @@ class SPIDevice {
     SPI::Error modifyBitsInRegister_noEndiannesConversion(uint8_t readRegisterAddress, uint8_t writeRegisterAddress, uint8_t data, uint8_t mask);
     SPI::Error modifyBitsInRegister_noEndiannesConversion(uint8_t readRegisterAddress, uint8_t writeRegisterAddress, uint16_t data, uint16_t mask);
     SPI::Error modifyBitsInRegister_noEndiannesConversion(uint8_t readRegisterAddress, uint8_t writeRegisterAddress, uint32_t data, uint32_t mask);
+
+    SPI::Error readRegister_noLock_impl(uint8_t registerAddress, uint8_t *data, size_t len);
+    SPI::Error write_noLock(const uint8_t *data, size_t len);
 
  private:
     uint32_t chipEnableDelay_ns = 300;
