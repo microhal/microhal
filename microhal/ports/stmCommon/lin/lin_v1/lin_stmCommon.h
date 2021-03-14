@@ -58,7 +58,7 @@ void USART2_IRQHandler(void);
 }
 
 class LIN final : public lin::LIN {
-    enum Mode { WaitForBreak, Transmitter, Receiver, Response };
+    enum Mode { WaitForBreak, TransmitterWaitForBreak, Transmitter, Receiver };
 
  public:
     LIN(registers::USART &usart);
@@ -69,8 +69,6 @@ class LIN final : public lin::LIN {
     void enable();
     bool isEnabled() const { return usart.cr1.volatileLoad().UE; }
     void disable();
-
-    void sendBreak() final;
 
     Error waitForBreak(std::chrono::milliseconds timeout);
 
@@ -92,9 +90,11 @@ class LIN final : public lin::LIN {
     uint8_t *txPtr = nullptr;
     uint8_t *txEndPtr = nullptr;
 
-    Error write(gsl::span<uint8_t> data, std::chrono::milliseconds timeout) final;
+    void sendBreak();
+    Error write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::milliseconds timeout) final;
     Error readHeader_to(lin::Header &header, std::chrono::milliseconds timeout) final;
     Error read_to(uint8_t *data, uint_fast8_t length, std::chrono::milliseconds timeout) final;
+    Error request_impl(lin::Frame &frame, std::chrono::milliseconds timeout) final;
 
     void enableInterrupt(uint32_t priority);
     void disableInterrupt();

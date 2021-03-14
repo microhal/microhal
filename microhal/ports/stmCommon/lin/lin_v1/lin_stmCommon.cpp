@@ -162,13 +162,30 @@ void LIN::sendBreak() {
     usart.rqr.volatileStore(rqr);
 }
 
-LIN::Error LIN::write(gsl::span<uint8_t> data, std::chrono::milliseconds timeout) {
-    mode = Transmitter;
+LIN::Error LIN::write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::milliseconds timeout) {
     txPtr = data.data();
-    txEndPtr = txPtr + data.length_bytes();
-    usart.tdr.volatileStore(*txPtr);
+    txEndPtr = txPtr + data.length_bytes() - 1;
+    if (sendBreak) {
+        mode = TransmitterWaitForBreak;
+        this->sendBreak();
+    } else {
+        mode = Transmitter;
+        usart.tdr.volatileStore(*txPtr);
+    }
 
     if (!txDone.wait(timeout)) return Error::Timeout;
+    return status;
+}
+
+LIN::Error LIN::request_impl(lin::Frame &frame, std::chrono::milliseconds timeout) {
+    txPtr = (uint8_t *)&frame.header;
+    txEndPtr = txPtr + sizeof(frame.header) - 1;
+    waitForBytes = frame.size();
+    mode = TransmitterWaitForBreak;
+    sendBreak();
+
+    if (!rxDone.wait(timeout)) return Error::Timeout;
+    std::copy_n(rxBuffer, frame.size(), (uint8_t *)&frame.header);
     return status;
 }
 
@@ -206,9 +223,13 @@ void LIN::interrupt() {
 #if defined(HAL_RTOS_FreeRTOS)
             portYIELD_FROM_ISR(shouldYeld);
 #endif
+        } else if (mode == TransmitterWaitForBreak) {
+            usart.tdr.volatileStore(*txPtr);
+            mode = Transmitter;
+        } else {
+            mode = Receiver;
         }
         rxBufferIter = 0;
-        mode = Receiver;
         // clear lin break interrupt
         registers::USART::ICR icr = {};
         icr.LBDCF.set();
@@ -216,11 +237,11 @@ void LIN::interrupt() {
     }
     if (isr.RXNE) {
         const uint8_t rxData = (uint32_t)usart.rdr.volatileLoad();
+        rxBuffer[rxBufferIter] = rxData;
+        rxBufferIter++;
         if (mode == Receiver) {
-            rxBuffer[rxBufferIter] = rxData;
-            rxBufferIter++;
-            if (rxBufferIter == 3 || rxBufferIter > waitForBytes) {
-                if (waitForBytes > 0 && rxBufferIter > waitForBytes) {
+            if (rxBufferIter == 2 || rxBufferIter == waitForBytes) {
+                if (rxBufferIter == waitForBytes) {
                     waitForBytes = -1;
                     mode = WaitForBreak;
                 }
@@ -231,22 +252,31 @@ void LIN::interrupt() {
 #endif
             }
         } else if (mode == Transmitter) {
-            if (*txPtr != rxData) {
-                // detected transmission error
-                status = Error::BusConflictDetected;
-                [[maybe_unused]] bool shouldYeld = txDone.giveFromISR();
+            if (txPtr < txEndPtr) {
+                if (*txPtr != rxData) {
+                    // detected transmission error
+                    status = Error::BusConflictDetected;
+                    [[maybe_unused]] bool shouldYeld = txDone.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
-                portYIELD_FROM_ISR(shouldYeld);
+                    portYIELD_FROM_ISR(shouldYeld);
 #endif
-            } else {
-                txPtr++;
-                if (txPtr < txEndPtr) {
-                    usart.tdr.volatileStore(*txPtr);
                 } else {
+                    txPtr++;
+                    usart.tdr.volatileStore(*txPtr);
+                }
+            } else {
+                if (waitForBytes < 0) {
                     // all data transmitted
-                    mode = WaitForBreak;
                     status = Error::None;
                     [[maybe_unused]] bool shouldYeld = txDone.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+                    portYIELD_FROM_ISR(shouldYeld);
+#endif
+                } else if (rxBufferIter == waitForBytes) {
+                    waitForBytes = -1;
+                    mode = WaitForBreak;
+                    status = Error::None;
+                    [[maybe_unused]] bool shouldYeld = rxDone.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
                     portYIELD_FROM_ISR(shouldYeld);
 #endif

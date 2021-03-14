@@ -47,15 +47,16 @@ class LIN {
 
     microhal::Result<Header, Error, Error::None> readHeader(std::chrono::milliseconds timeout);
     microhal::Result<Frame *, Error, Error::None> readFrame(Frame &frame, std::chrono::milliseconds timeout);
+    microhal::Result<Frame *, Error, Error::None> request(Frame &frame, std::chrono::milliseconds timeout);
+
     Error sendResponse(Frame &frame, std::chrono::milliseconds timeout);
     Error sendFrame(Frame &frame, std::chrono::milliseconds timeout);
 
-    virtual void sendBreak() = 0;
-
  protected:
     virtual Error readHeader_to(Header &header, std::chrono::milliseconds timeout) = 0;
-    virtual Error read_to(uint8_t *data, uint_fast8_t length, std::chrono::milliseconds timeout);
-    virtual Error write(gsl::span<uint8_t> data, std::chrono::milliseconds timeout);
+    virtual Error read_to(uint8_t *data, uint_fast8_t length, std::chrono::milliseconds timeout) = 0;
+    virtual Error write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::milliseconds timeout) = 0;
+    virtual Error request_impl(lin::Frame &frame, std::chrono::milliseconds timeout) = 0;
 };
 
 }  // namespace lin

@@ -61,12 +61,23 @@ microhal::Result<Frame *, LIN::Error, LIN::Error::None> LIN::readFrame(Frame &fr
     return status;
 }
 
+microhal::Result<Frame *, LIN::Error, LIN::Error::None> LIN::request(Frame &frame, std::chrono::milliseconds timeout) {
+    Error status = request_impl(frame, timeout);
+    if (status == Error::None) {
+        if (frame.isChecksumValid()) {
+            return &frame;
+        }
+        return Error::IncorrectChecksum;
+    }
+    return status;
+}
+
 LIN::Error LIN::sendResponse(Frame &frame, std::chrono::milliseconds timeout) {
     frame.updateChecksum();
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
     diagChannel << lock << MICROHAL_DEBUG << "Sending LIN response: " << toHex(frame.data, frame.dataLen + 1) << unlock;
 #endif
-    return write({frame.data, frame.dataLen + 1}, timeout);
+    return write({frame.data, frame.dataLen + 1}, false, timeout);
 }
 
 LIN::Error LIN::sendFrame(Frame &frame, std::chrono::milliseconds timeout) {
@@ -75,8 +86,7 @@ LIN::Error LIN::sendFrame(Frame &frame, std::chrono::milliseconds timeout) {
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
     diagChannel << lock << MICROHAL_DEBUG << "Sending LIN frame: " << frame << unlock;
 #endif
-    sendBreak();
-    return write({(uint8_t *)&frame, frame.size()}, timeout);
+    return write({(uint8_t *)&frame, frame.size()}, true, timeout);
 }
 
 }  // namespace lin

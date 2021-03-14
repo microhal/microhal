@@ -114,6 +114,15 @@ inline microhal::diagnostic::LogLevelChannel<level, B> &operator<<(microhal::dia
     return logChannel << "Id: " << frame.id() << ", data: " << microhal::diagnostic::toHex(frame.data, frame.dataLen)
                       << ", checksum valid: " << frame.isChecksumValid() << ", checksum enhanced: " << frame.isEnhancedChecksum(frame.header);
 }
+
+template <microhal::diagnostic::LogLevel level, bool B>
+inline microhal::diagnostic::LogLevelChannel<level, B> &operator<<(microhal::diagnostic::LogLevelChannel<level, B> &logChannel,
+                                                                   const microhal::lin::Frame *frame) {
+    if (frame)
+        return logChannel << *frame;
+    else
+        return logChannel << "nullptr";
+}
 #endif
 
 #endif  // _MICROHAL_LIN_LINFRAME_H_
