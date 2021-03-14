@@ -26,6 +26,7 @@
  */
 
 #include "linFrame.h"
+#include <array>
 #include <bitset>
 
 namespace microhal {
