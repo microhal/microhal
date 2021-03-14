@@ -25,8 +25,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_STMCOMMON_NVIC_NVIC_H_
-#define _MICROHAL_PORTS_STMCOMMON_NVIC_NVIC_H_
+#ifndef SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_
+#define SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_
 
 #include "../stmCommonDefines.h"
 
@@ -41,12 +41,12 @@
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-namespace nvic {
+namespace usart {
 
-IRQn_Type USARTIrq(const registers::USART* usart);
+uint_fast8_t number(const registers::USART* usart);
 
 }
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif /* _MICROHAL_PORTS_STMCOMMON_NVIC_NVIC_H_ */
+#endif /* SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_ */

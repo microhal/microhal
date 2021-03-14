@@ -25,28 +25,40 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_STMCOMMON_NVIC_NVIC_H_
-#define _MICROHAL_PORTS_STMCOMMON_NVIC_NVIC_H_
-
-#include "../stmCommonDefines.h"
-
-#ifdef _MICROHAL_INCLUDE_PORT_DEVICE
-#include _MICROHAL_INCLUDE_PORT_DEVICE
-#endif
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
-#include "../registers/usartRegisters_v2.h"
-#else
-#include "../registers/usartRegisters_v1.h"
-#endif
+#include <ports/stmCommon/usart/usart.h>
+#include <exception>
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-namespace nvic {
+namespace usart {
 
-IRQn_Type USARTIrq(const registers::USART* usart);
-
+uint_fast8_t number(const registers::USART* usart) {
+    if (usart == registers::usart1) return 1;
+    if (usart == registers::usart2) return 2;
+#if defined(_MICROHAL_USART3_BASE_ADDRESS)
+    if (usart == registers::usart3) return 3;
+#endif
+#if defined(_MICROHAL_USART4_BASE_ADDRESS)
+    if (usart == registers::usart4) return 4;
+#endif
+#if defined(_MICROHAL_UART4_BASE_ADDRESS)
+    if (usart == registers::uart4) return 4;
+#endif
+#if defined(_MICROHAL_UART5_BASE_ADDRESS)
+    if (usart == registers::uart5) return 5;
+#endif
+#if defined(_MICROHAL_USART6_BASE_ADDRESS)
+    if (usart == registers::usart6) return 6;
+#endif
+#if defined(_MICROHAL_UART7_BASE_ADDRESS)
+    if (usart == registers::uart7) return 7;
+#endif
+#if defined(_MICROHAL_UART8_BASE_ADDRESS)
+    if (usart == registers::uart8) return 8;
+#endif
+    std::terminate();
 }
+
+}  // namespace usart
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
-
-#endif /* _MICROHAL_PORTS_STMCOMMON_NVIC_NVIC_H_ */

@@ -77,9 +77,9 @@ SerialPort &SerialPort::Serial8 = SerialPort_polling::Serial8;
 
 SerialPort_polling::SerialPort_polling(registers::USART &usart) : SerialPort(usart) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enableUSART(number(), ClockManager::PowerMode::Normal);
+    ClockManager::enableUSART(usart::number(&usart), ClockManager::PowerMode::Normal);
 #else
-    ClockManager::enableUSART(number());
+    ClockManager::enableUSART(usart::number(&usart));
 #endif
 }
 

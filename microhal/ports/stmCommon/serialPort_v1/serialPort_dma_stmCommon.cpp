@@ -110,9 +110,9 @@ SerialPort_Dma::SerialPort_Dma(microhal::registers::USART &usart, char *const rx
 #endif
 {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enableUSART(number(), ClockManager::PowerMode::Normal);
+    ClockManager::enableUSART(usart::number(&usart), ClockManager::PowerMode::Normal);
 #else
-    ClockManager::enableUSART(number());
+    ClockManager::enableUSART(usart::number(&usart));
 #endif
     enableInterrupt(0);
 ///////////////////////////////////

@@ -100,9 +100,9 @@ SerialPort &SerialPort::Serial8 = SerialPort_interrupt::Serial8;
 SerialPort_interrupt::SerialPort_interrupt(registers::USART &usart, char *const rxData, char *const txData, size_t rxDataSize, size_t txDataSize)
     : SerialPort_BufferedBase(usart, rxData, rxDataSize, txData, txDataSize) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enableUSART(number(), ClockManager::PowerMode::Normal);
+    ClockManager::enableUSART(usart::number(&usart), ClockManager::PowerMode::Normal);
 #else
-    ClockManager::enableUSART(number());
+    ClockManager::enableUSART(usart::number(&usart));
 #endif
 
 #ifndef MICROHAL_RTOS_FreeRTOS

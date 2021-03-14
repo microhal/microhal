@@ -44,12 +44,12 @@ namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 bool SerialPort::setBaudRate(uint32_t baudRate) noexcept {
-    usart.brr.volatileStore(ClockManager::USARTFrequency(number()) / baudRate);
+    usart.brr.volatileStore(ClockManager::USARTFrequency(usart::number(&usart)) / baudRate);
     return true;
 }
 
 uint32_t SerialPort::getBaudRate() const noexcept {
-    return ClockManager::USARTFrequency(number()) * (uint32_t)usart.brr.volatileLoad();
+    return ClockManager::USARTFrequency(usart::number(&usart)) * (uint32_t)usart.brr.volatileLoad();
 }
 
 bool SerialPort::setParity(SerialPort::Parity parity) noexcept {
