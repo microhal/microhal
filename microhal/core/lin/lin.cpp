@@ -27,7 +27,9 @@
 
 #include "lin.h"
 
+#ifdef MICROHAL_LIN_USE_DIAGNOSTIC
 using namespace microhal::diagnostic;
+#endif
 
 namespace microhal {
 namespace lin {
