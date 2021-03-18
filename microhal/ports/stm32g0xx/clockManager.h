@@ -28,9 +28,14 @@
 #ifndef _MICROHAL_PORTS_STM32G0XX_CLOCKMANAGER_H_
 #define _MICROHAL_PORTS_STM32G0XX_CLOCKMANAGER_H_
 
+#include <ports/stmCommon/clockManager/adcClock.h>
 #include <ports/stmCommon/clockManager/flashClock.h>
 #include <ports/stmCommon/clockManager/gpioClock.h>
+#include <ports/stmCommon/clockManager/hse.h>
+#include <ports/stmCommon/clockManager/hsi.h>
 #include <ports/stmCommon/clockManager/lse.h>
+#include <ports/stmCommon/clockManager/pll.h>
 #include <ports/stmCommon/clockManager/rtcClock.h>
+#include <ports/stmCommon/clockManager/sysclk.h>
 
 #endif /* _MICROHAL_PORTS_STM32G0XX_CLOCKMANAGER_H_ */

@@ -56,6 +56,19 @@ struct HSI {
     }
     static uint8_t trim() noexcept { return registers::rcc->cr.volatileLoad().HSITRIM; }
 #endif
+
+#ifdef _MICROHAL_REGISTERS_RCC_ICSCR_HAS_HSITRIM
+    static bool trim(uint8_t trim) {
+        if (trim <= 0b11111) {
+            auto cr = registers::rcc->icscr.volatileLoad();
+            cr.HSITRIM = trim;
+            registers::rcc->icscr.volatileStore(cr);
+            return true;
+        }
+        return false;
+    }
+    static uint8_t trim() noexcept { return registers::rcc->icscr.volatileLoad().HSITRIM; }
+#endif
 };
 
 }  // namespace ClockManager

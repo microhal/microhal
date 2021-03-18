@@ -60,7 +60,9 @@ constexpr uint8_t getTimerApb(int8_t timerNumber) {
 }
 
 enum class TimerClockSource {
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_APB2
     APB2 = 0,
+#endif
 #if defined(_MICROHAL_REGISTERS_RCC_HAS_TIMCLOCKSOURCE)
     PLL = 1,
 #endif
@@ -72,11 +74,17 @@ enum class TimerClockSource {
 #if defined(_MICROHAL_REGISTERS_RCC_HAS_TIMCLOCKSOURCE)
         auto cfgr3 = registers::rcc->cfgr3.volatileLoad();
         return static_cast<TimerClockSource>(cfgr3.TIM1SW.get());
-#else
+#elif defined(_MICROHAL_CLOCKMANAGER_HAS_APB2)
         return TimerClockSource::APB2;
+#else
+        return TimerClockSource::APB1;
 #endif
     } else if (timerNumber >= 8 && timerNumber <= 11) {
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_APB2
         return TimerClockSource::APB2;
+#else
+        return TimerClockSource::APB1;
+#endif
     } else {
         return TimerClockSource::APB1;
     }
@@ -87,8 +95,10 @@ enum class TimerClockSource {
     switch (clockSource) {
         case TimerClockSource::APB1:
             return APB1::prescaler() == 1 ? APB1::frequency() : APB1::frequency() * 2;
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_APB2
         case TimerClockSource::APB2:
             return APB2::prescaler() == 1 ? APB2::frequency() : APB2::frequency() * 2;
+#endif
 #if defined(_MICROHAL_REGISTERS_RCC_HAS_TIMCLOCKSOURCE)
         case TimerClockSource::PLL:
             return PLL::VCOOutputFrequency();

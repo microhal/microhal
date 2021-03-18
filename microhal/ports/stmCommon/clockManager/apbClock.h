@@ -59,20 +59,22 @@ struct APB1 {
     [[maybe_unused]] static uint32_t frequency() { return AHB::frequency() / prescaler(); }
 };
 
+#ifdef _MICROHAL_REGISTERS_RCC_CFGR_HAS_PPRE2
+
+#define _MICROHAL_CLOCKMANAGER_HAS_APB2
+
 struct APB2 {
     [[maybe_unused]] static uint32_t prescaler() {
-#ifdef _MICROHAL_REGISTERS_RCC_CFGR_HAS_PPRE2
         auto cfgr = registers::rcc->cfgr.volatileLoad();
         uint32_t ppre2 = ClockManagerDetail::get_PPRE2_ifExist(cfgr);
         if (ppre2 & 0b100) {
             static constexpr const uint8_t dividers[] = {2, 4, 8, 16};
             return dividers[ppre2 & 0b11];
         }
-#endif
+
         return 1;
     }
 
-#ifdef _MICROHAL_REGISTERS_RCC_CFGR_HAS_PPRE2
     [[maybe_unused]] static bool prescaler(uint_fast8_t prescaler) {
         auto cfgr = registers::rcc->cfgr.volatileLoad();
         switch (prescaler) {
@@ -97,10 +99,11 @@ struct APB2 {
         registers::rcc->cfgr.volatileStore(cfgr);
         return true;
     }
-#endif
 
     [[maybe_unused]] static uint32_t frequency() { return AHB::frequency() / prescaler(); }
 };
+#endif  //  _MICROHAL_REGISTERS_RCC_CFGR_HAS_PPRE2
+
 }  // namespace ClockManager
 }  // namespace microhal
 

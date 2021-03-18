@@ -149,11 +149,15 @@ void disableUSART(uint8_t number);
 
     switch (usartClockSource) {
         case PCLK:
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_APB2
             if (number == 1 || number == 6) {
                 return APB2::frequency();
             } else {
                 return APB1::frequency();
             }
+#else
+            return APB1::frequency();
+#endif
         case SYSCLK:
             return SYSCLK::frequency();
         case LSE:

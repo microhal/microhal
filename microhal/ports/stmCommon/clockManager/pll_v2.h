@@ -21,7 +21,41 @@ namespace microhal {
 namespace ClockManager {
 
 struct PLL {
+#ifdef MCU_TYPE_STM32G0XX
+    enum class ClockSource : uint32_t { NoClock = 0b00, HSI = 0b10, HSE = 0b11 };
+
+    static constexpr const uint32_t mDividerMinValue = 1;
+    static constexpr const uint32_t mDividerMaxValue = 8;
+    static constexpr const uint32_t mDividerRegisterCorrectionValue = 1;
+    static constexpr const uint32_t nDividerMinValue = 8;
+    static constexpr const uint32_t nDividerMaxValue = 86;
+    static constexpr const uint32_t pDividerMinValue = 2;
+    static constexpr const uint32_t pDividerMaxValue = 32;
+    static constexpr const uint32_t pDividerRegisterCorrectionValue = 1;
+    static constexpr const uint32_t rDividerMinValue = 2;
+    static constexpr const uint32_t rDividerMaxValue = 8;
+    static constexpr const uint32_t rDividerRegisterCorrectionValue = 1;
+    static constexpr const uint32_t qDividerMinValue = 2;
+    static constexpr const uint32_t qDividerMaxValue = 8;
+    static constexpr const uint32_t qDividerRegisterCorrectionValue = 1;
+#else
+#define P_DIVIDER_EVEN_VALUES_ONLY
     enum class ClockSource : uint32_t { HSI = 0, HSE = 1 };
+
+    static constexpr const uint32_t mDividerMinValue = 2;
+    static constexpr const uint32_t mDividerMaxValue = 63;
+    static constexpr const uint32_t mDividerRegisterCorrectionValue = 0;
+    static constexpr const uint32_t nDividerMinValue = 8;
+    static constexpr const uint32_t nDividerMaxValue = 432;
+    static constexpr const uint32_t pDividerMaxValue = 8;
+    static constexpr const uint32_t pDividerRegisterCorrectionValue = 0;
+    static constexpr const uint32_t rDividerMinValue = 2;
+    static constexpr const uint32_t rDividerMaxValue = 8;
+    static constexpr const uint32_t rDividerRegisterCorrectionValue = 0;
+    static constexpr const uint32_t qDividerMinValue = 3;
+    static constexpr const uint32_t qDividerMaxValue = 15;
+    static constexpr const uint32_t qDividerRegisterCorrectionValue = 0;
+#endif
 
     static ClockSource clockSource(ClockSource source) noexcept {
         auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
@@ -34,23 +68,29 @@ struct PLL {
     static ClockSource clockSource() noexcept { return static_cast<ClockSource>(registers::rcc->pllcfgr.volatileLoad().PLLSRC.get()); }
 
     static void MDivider(uint32_t m) {
-        if (m < 2 || m > 63) {
+        if (m < mDividerMinValue || m > mDividerMaxValue) {
             while (1) {
             }
         }
         auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
-        pllcfgr.PLLM = m;
+        pllcfgr.PLLM = m - mDividerRegisterCorrectionValue;
         registers::rcc->pllcfgr.volatileStore(pllcfgr);
     }
 
-    static uint32_t MDivider() { return registers::rcc->pllcfgr.volatileLoad().PLLM; }
+    static uint32_t MDivider() { return registers::rcc->pllcfgr.volatileLoad().PLLM + mDividerRegisterCorrectionValue; }
 
     static float inputFrequency() {
         const float inputFrequency = clockSource() == ClockSource::HSI ? HSI::frequency() : HSE::frequency();
         return inputFrequency / MDivider();
     }
 
-    static float PLLCLKFrequency() { return Main::PFrequency(); }
+    static float PLLCLKFrequency() {
+#ifdef MCU_TYPE_STM32G0XX
+        return Main::RFrequency();
+#else
+        return Main::PFrequency();
+#endif
+    }
 
     struct Main {
         static void enable() noexcept {
@@ -68,9 +108,43 @@ struct PLL {
 
         static float PFrequency() { return VCOOutputFrequency() / P(); }
         static float QFrequency() { return VCOOutputFrequency() / Q(); }
+        static float RFrequency() { return VCOOutputFrequency() / R(); }
+
+        static void enableROutput() {
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLREN.set();
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+        }
+        static void disableROutput() {
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLREN.clear();
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+        }
+
+        static void enablePOutput() {
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLPEN.set();
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+        }
+        static void disablePOutput() {
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLPEN.clear();
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+        }
+
+        static void enableQOutput() {
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLQEN.set();
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+        }
+        static void disableQOutput() {
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLQEN.clear();
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+        }
 
         static bool N(uint32_t n) noexcept {
-            if (n < 2 || n > 432) return false;
+            if (n < nDividerMinValue || n > nDividerMaxValue) return false;
             auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
             pllcfgr.PLLN = n;
             registers::rcc->pllcfgr.volatileStore(pllcfgr);
@@ -78,17 +152,33 @@ struct PLL {
         }
 
         static bool P(uint32_t p) noexcept {
-            if ((p > 8) || (p & 0b1)) return false;
+#ifdef P_DIVIDER_EVEN_VALUES_ONLY
+            if ((p > pDividerMaxValue) || (p & 0b1)) return false;
             auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
             pllcfgr.PLLP = p / 2 - 1;
             registers::rcc->pllcfgr.volatileStore(pllcfgr);
             return true;
+#else
+            if ((p < pDividerMinValue) || (p > pDividerMaxValue)) return false;
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLP = p - pDividerRegisterCorrectionValue;
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+            return true;
+#endif
         }
 
         static bool Q(uint32_t q) noexcept {
-            if (q < 3 || q > 15) return false;
+            if (q < qDividerMinValue || q > qDividerMaxValue) return false;
             auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
-            pllcfgr.PLLQ = q;
+            pllcfgr.PLLQ = q - qDividerRegisterCorrectionValue;
+            registers::rcc->pllcfgr.volatileStore(pllcfgr);
+            return true;
+        }
+
+        static bool R(uint32_t r) noexcept {
+            if (r < rDividerMinValue || r > rDividerMaxValue) return false;
+            auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
+            pllcfgr.PLLR = r - rDividerRegisterCorrectionValue;
             registers::rcc->pllcfgr.volatileStore(pllcfgr);
             return true;
         }
@@ -97,10 +187,15 @@ struct PLL {
         static float VCOOutputFrequency() noexcept { return inputFrequency() * N(); }
         static uint32_t N() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLN; }
         static uint32_t P() noexcept {
+#ifdef P_DIVIDER_EVEN_VALUES_ONLY
             const uint32_t tab[] = {2, 4, 6, 8};
             return tab[registers::rcc->pllcfgr.volatileLoad().PLLP];
+#else
+            return registers::rcc->pllcfgr.volatileLoad().PLLP + pDividerRegisterCorrectionValue;
+#endif
         }
-        static uint32_t Q() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLQ; }
+        static uint32_t Q() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLQ + qDividerRegisterCorrectionValue; }
+        static uint32_t R() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLR + rDividerRegisterCorrectionValue; }
     };
 
 #if defined(RCC_CR_PLLI2SON)

@@ -12,10 +12,14 @@
 #include <exception>
 #include "apbClock.h"
 #include "clockTypes.h"
+#include "hsi.h"
+#include "pll.h"
 #include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
+
+enum class AdcClockSource { SYSCLK = 0b00, HSI16 = 0b10, PLLP = 0b01 };
 
 #if defined(_MICROHAL_ADC1_BASE_ADDRESS) || defined(_MICROHAL_ADC2_BASE_ADDRESS) || defined(_MICROHAL_ADC3_BASE_ADDRESS)
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
@@ -186,6 +190,7 @@ inline void disableADC(uint16_t adcNumber) {
     registers::rcc->cfgr.volatileStore(cfgr);
     return true;
 #endif
+    std::terminate();
 }
 
 [[maybe_unused]] inline uint_fast8_t ADCprescaler() {
@@ -201,12 +206,45 @@ inline void disableADC(uint16_t adcNumber) {
         case 0b11:
             return 8;
     }
+#else
+    return 1;
 #endif
-    std::terminate();
+}
+
+[[maybe_unused]] inline void ADCClockSource(uint8_t number, AdcClockSource clockSource) {
+    if (number == 1) {
+        auto ccipr = registers::rcc->ccipr.volatileLoad();
+        ccipr.ADCSEL = static_cast<uint32_t>(clockSource);
+        registers::rcc->ccipr.volatileStore(ccipr);
+    } else {
+        while (1)
+            ;
+    }
+}
+
+[[maybe_unused]] inline AdcClockSource ADCClockSource(uint8_t number) {
+    if (number == 1)
+        return static_cast<AdcClockSource>(registers::rcc->ccipr.volatileLoad().ADCSEL.get());
+    else {
+        while (1)
+            ;
+    }
 }
 
 [[maybe_unused]] inline uint32_t ADCFrequency([[maybe_unused]] uint8_t number) {
-    return APB2::frequency() / ADCprescaler();
+    const AdcClockSource clockSource = ADCClockSource(number);
+    switch (clockSource) {
+        case AdcClockSource::HSI16:
+            return HSI::frequency();
+        case AdcClockSource::PLLP:
+            return PLL::Main::PFrequency();
+        case AdcClockSource::SYSCLK:
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_APB2
+            return APB2::frequency() / ADCprescaler();
+#else
+            return APB1::frequency() / ADCprescaler();
+#endif
+    }
 }
 
 #endif  // defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
