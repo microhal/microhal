@@ -208,6 +208,19 @@ class Adc final {
         AlternateTriggerOnly = 0b01001
     };
 
+    enum class SamplingTime {
+        ADCclockCycles_1_5 = 0,
+        ADCclockCycles_3_5,
+        ADCclockCycles_7_5,
+        ADCclockCycles_12_5,
+        ADCclockCycles_19_5,
+        ADCclockCycles_39_5,
+        ADCclockCycles_79_5,
+        ADCclockCycles_160_5
+    };
+
+    enum class SamplingTimeSelection { SamplingTime1, SamplingTime2 };
+
     //=================== ADC On Off functions ===================
     bool enable();
     bool disable();
@@ -267,13 +280,18 @@ class Adc final {
         return false;
     }
 
+    //================= Common channel configuration functions =================
+#ifdef _MICROHAL_REGISTERS_ADC_SMPR_HAS_SMPSEL
+    bool configureSamplingTime(SamplingTime selection1, SamplingTime selection2);
+    bool configureSamplingTime(Channel channel, SamplingTimeSelection samplingSelection);
+#endif
 #ifdef _MICROHAL_REGISTERS_ADC_HAS_OFR
     bool configureChannelOffset(Channel channel, uint16_t offset);
     bool enableChannelOffset(Channel channel);
     bool disableChannelOffset(Channel channel);
 #endif
 
-    //=================== Regular conversion functions ===================
+    //===================== Regular conversion functions =======================
     /**
      *
      * @param sequenceLength
@@ -441,6 +459,17 @@ class Adc final {
         auto ccr = registers::adc12Common->ccr.volatileLoad();
         ccr.DUAL = static_cast<uint32_t>(dualMode);
         registers::adc12Common->ccr.volatileStore(ccr);
+    }
+
+    static bool prescaler(uint32_t divider) {
+        static constexpr std::array<uint16_t, 12> dividers = {1, 2, 4, 6, 8, 10, 12, 16, 32, 64, 128, 256};
+        const auto found = std::find(dividers.begin(), dividers.end(), divider);
+        if (found == dividers.end()) return false;
+
+        auto ccr = registers::adc12Common->ccr.volatileLoad();
+        ccr.PRESC = std::distance(dividers.begin(), found);
+        registers::adc12Common->ccr.volatileStore(ccr);
+        return true;
     }
 
 #if defined(_MICROHAL_INCLUDE_PORT_DMA)

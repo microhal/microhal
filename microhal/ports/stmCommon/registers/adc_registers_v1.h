@@ -79,6 +79,7 @@
 #define _MICROHAL_REGISTERS_ADC_HAS_CFGR2
 #define _MICROHAL_REGISTERS_ADC_CFGR2_HAS_CKMODE
 #define _MICROHAL_REGISTERS_ADC_CFGR1_HAS_CHSELRMOD
+#define _MICROHAL_REGISTERS_ADC_SMPR_HAS_SMPSEL
 #endif
 
 namespace microhal {
@@ -414,21 +415,70 @@ struct ADC {
         friend class VolatileRegister<CFGR2, AccessType::ReadWrite>;
     };
 
+#ifdef _MICROHAL_REGISTERS_ADC_SMPR_HAS_SMPSEL
+    // ADC sampling time register
+    union SMPR1 {
+        union {
+            microhal::Bitfield<uint32_t, 0, 3> SMP1;    /*!< Sampling time selection */
+            microhal::Bitfield<uint32_t, 4, 3> SMP2;    /*!< Sampling time selection */
+            microhal::Bitfield<uint32_t, 8, 19> SMPSEL; /*!< Channel sampling time selection */
+        };
+
+        operator uint32_t() const { return raw; }
+        operator bool() const { return raw; }
+
+        SMPR1 &operator=(uint32_t value) {
+            raw = value;
+            return *this;
+        }
+        SMPR1 &operator|=(uint32_t value) {
+            raw |= value;
+            return *this;
+        }
+        SMPR1 &operator&=(uint32_t value) {
+            raw &= value;
+            return *this;
+        }
+
+        bool operator==(uint32_t value) const { return raw == value; }
+        bool operator!=(uint32_t value) const { return raw != value; }
+        bool operator>(uint32_t value) const { return raw > value; }
+        bool operator<(uint32_t value) const { return raw < value; }
+        bool operator>=(uint32_t value) const { return raw >= value; }
+        bool operator<=(uint32_t value) const { return raw <= value; }
+        SMPR1 operator&(uint32_t value) const {
+            SMPR1 tmp;
+            tmp.raw = raw & value;
+            return tmp;
+        }
+        SMPR1 operator|(uint32_t value) const {
+            SMPR1 tmp;
+            tmp.raw = raw | value;
+            return tmp;
+        }
+
+     private:
+        uint32_t raw;
+        friend class VolatileRegister<SMPR1, AccessType::ReadOnly>;
+        friend class VolatileRegister<SMPR1, AccessType::WriteOnly>;
+        friend class VolatileRegister<SMPR1, AccessType::ReadWrite>;
+    };
+#else
     // ADC sample time register 1
     union SMPR1 {
         union {
 #ifdef _MICROHAL_REGISTERS_ADC_SMPR1_HAS_SMP0
-            microhal::Bitfield<uint32_t, 0, 3> SMP0; /*!< SMP0 */
+            microhal::Bitfield<uint32_t, 0, 3> SMP0;     /*!< SMP0 */
 #endif
-            microhal::Bitfield<uint32_t, 3, 3> SMP1;  /*!< Channel 1 sampling time selection */
-            microhal::Bitfield<uint32_t, 6, 3> SMP2;  /*!< Channel 2 sampling time selection */
-            microhal::Bitfield<uint32_t, 9, 3> SMP3;  /*!< Channel 3 sampling time selection */
-            microhal::Bitfield<uint32_t, 12, 3> SMP4; /*!< Channel 4 sampling time selection */
-            microhal::Bitfield<uint32_t, 15, 3> SMP5; /*!< Channel 5 sampling time selection */
-            microhal::Bitfield<uint32_t, 18, 3> SMP6; /*!< Channel 6 sampling time selection */
-            microhal::Bitfield<uint32_t, 21, 3> SMP7; /*!< Channel 7 sampling time selection */
-            microhal::Bitfield<uint32_t, 24, 3> SMP8; /*!< Channel 8 sampling time selection */
-            microhal::Bitfield<uint32_t, 27, 3> SMP9; /*!< Channel 9 sampling time selection */
+            microhal::Bitfield<uint32_t, 3, 3> SMP1;     /*!< Channel 1 sampling time selection */
+            microhal::Bitfield<uint32_t, 6, 3> SMP2;     /*!< Channel 2 sampling time selection */
+            microhal::Bitfield<uint32_t, 9, 3> SMP3;     /*!< Channel 3 sampling time selection */
+            microhal::Bitfield<uint32_t, 12, 3> SMP4;    /*!< Channel 4 sampling time selection */
+            microhal::Bitfield<uint32_t, 15, 3> SMP5;    /*!< Channel 5 sampling time selection */
+            microhal::Bitfield<uint32_t, 18, 3> SMP6;    /*!< Channel 6 sampling time selection */
+            microhal::Bitfield<uint32_t, 21, 3> SMP7;    /*!< Channel 7 sampling time selection */
+            microhal::Bitfield<uint32_t, 24, 3> SMP8;    /*!< Channel 8 sampling time selection */
+            microhal::Bitfield<uint32_t, 27, 3> SMP9;    /*!< Channel 9 sampling time selection */
 #ifdef _MICROHAL_REGISTERS_ADC_SMPR1_HAS_SMPPLUS
             microhal::Bitfield<uint32_t, 31, 1> SMPPLUS; /*!< Addition of one clock cycle to the sampling time */
 #endif
@@ -473,7 +523,7 @@ struct ADC {
         friend class VolatileRegister<SMPR1, AccessType::WriteOnly>;
         friend class VolatileRegister<SMPR1, AccessType::ReadWrite>;
     };
-
+#endif
     // ADC sample time register 2
     union SMPR2 {
         union {

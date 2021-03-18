@@ -175,6 +175,33 @@ void Adc::configureOversampling(OversamplingRatio ovsr, OversamplingShift ovss) 
     adc.cfgr2.volatileStore(cfgr2);
 }
 
+#ifdef _MICROHAL_REGISTERS_ADC_SMPR_HAS_SMPSEL
+bool Adc::configureSamplingTime(SamplingTime selection1, SamplingTime selection2) {
+    if (adc.cr.volatileLoad().ADSTART.get() == 0) {
+        auto smpr = adc.smpr1.volatileLoad();
+        smpr.SMP1 = static_cast<uint32_t>(selection1);
+        smpr.SMP2 = static_cast<uint32_t>(selection2);
+        adc.smpr1.volatileStore(smpr);
+        return true;
+    }
+    return false;
+}
+
+bool Adc::configureSamplingTime(Channel channel, SamplingTimeSelection samplingSelection) {
+    if (adc.cr.volatileLoad().ADSTART.get() == 0) {
+        auto smpr = adc.smpr1.volatileLoad();
+        if (samplingSelection == SamplingTimeSelection::SamplingTime1) {
+            smpr.SMPSEL &= ~(1 << static_cast<uint32_t>(channel));
+        } else {
+            smpr.SMPSEL |= 1 << static_cast<uint32_t>(channel);
+        }
+        adc.smpr1.volatileStore(smpr);
+        return true;
+    }
+    return false;
+}
+#endif
+
 #ifdef _MICROHAL_REGISTERS_ADC_HAS_OFR
 bool Adc::configureChannelOffset(Channel channel, uint16_t offset) {
     for (size_t i = 0; i < 4; i++) {
