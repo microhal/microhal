@@ -10,14 +10,22 @@
 
 #include <string_view>
 #include <thread>
+#include <type_traits>
 
 namespace microhal {
 namespace os {
 
 class thread : public std::thread {
  public:
-    template <typename _Callable, typename... _Args>
-    explicit thread(size_t stackSize, std::string_view name, int priotiry, _Callable&& __f, _Args&&... __args) : std::thread(__f, __args...) {}
+    template <typename _Callable, typename... _Args, typename = std::_Require<__not_same<_Callable>>>
+    explicit thread(size_t stackSize, const char* name, int priority, _Callable&& __f, _Args&&... __args) {
+        static_assert(std::__is_invocable<typename std::decay<_Callable>::type, typename std::decay<_Args>::type...>::value,
+                      "std::thread arguments must be invocable after conversion to rvalues");
+
+        auto __depend = nullptr;
+        _M_start_thread(stackSize, name, priority, _S_make_state(__make_invoker(std::forward<_Callable>(__f), std::forward<_Args>(__args)...)),
+                        __depend);
+    }
 };
 
 }  // namespace os

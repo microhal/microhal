@@ -70,8 +70,7 @@ volatile static size_t defaultStackSize = configMINIMAL_STACK_SIZE;
 namespace microhal {
 namespace os {
 void setDefaultStackSize(size_t size) noexcept {
-    defaultStackSize = (size % 4) ? size / 4 : size / 4 + 1;  // freeRTOS is assaining stack in words (4bytes), so we need to divide required stack
-                                                              // size by 4 to get correct amount of stack memory
+    defaultStackSize = size;  
 }
 size_t getDefaultStackSize() noexcept {
     return defaultStackSize * 4;
@@ -182,10 +181,16 @@ namespace std _GLIBCXX_VISIBILITY(default) {
         _M_id = id();
     }
 
-    void thread::_M_start_thread(_State_ptr state, void (*)()) {
+	void thread::_M_start_thread(_State_ptr state, void (*)()) {
+		_M_start_thread(defaultStackSize, "std", configMAX_PRIORITIES / 2, std::move(state), nullptr);
+	}
+
+    void thread::_M_start_thread(size_t stackSize, const char *name, int priority, _State_ptr state, void (*)()) {    	
         // const int err = __gthread_create(&_M_id._M_thread, &execute_native_thread_routine, state.get());
         this->state = state.get();
-        BaseType_t err = xTaskCreate(&execute_native_thread_routine, "Cpp", defaultStackSize, state.get(), configMAX_PRIORITIES / 2, &_M_id._M_thread);
+        stackSize = (stackSize % 4) ? stackSize / 4 : stackSize / 4 + 1;  // freeRTOS is assaining stack in words (4bytes), so we need to divide required stack
+                                                                          // size by 4 to get correct amount of stack memory
+        BaseType_t err = xTaskCreate(&execute_native_thread_routine, name, stackSize, state.get(), priority, &_M_id._M_thread);
         if (err != pdPASS) __throw_system_error(err);
         state.release();
     }
