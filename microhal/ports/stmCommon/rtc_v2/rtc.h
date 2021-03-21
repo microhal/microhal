@@ -131,6 +131,7 @@ class RTC {
      * @return number of seconds since 00:00, Jan 1 1970 UTC, or negative number when error occurred
      */
     static time_t epoch();
+    static int64_t epoch_ms(uint16_t synchronousPrescaler);
 #endif
     //--------------------------------------------------------------------------
     //                             timestamp read

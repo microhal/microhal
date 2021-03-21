@@ -91,6 +91,26 @@ time_t RTC::epoch() {
     tm_time.tm_sec = time.value().second;
     return mktime(&tm_time);
 }
+
+int64_t RTC::epoch_ms(uint16_t synchronousPrescaler) {
+    auto date = stm32g0xx::RTC::date();
+    auto time = stm32g0xx::RTC::time();
+    auto subsecond = stm32g0xx::RTC::subsecond_ms(synchronousPrescaler);
+    if (subsecond && time && date) {
+        tm tm_time;
+        tm_time.tm_isdst = 0;
+        tm_time.tm_year = date.value().year - 1900;
+        // tm_time.tm_yday;
+        tm_time.tm_mon = date.value().month;
+        tm_time.tm_mday = date.value().monthDay;
+        tm_time.tm_wday = date.value().weekDay - 1;
+        tm_time.tm_hour = time.value().hour;
+        tm_time.tm_min = time.value().minute;
+        tm_time.tm_sec = time.value().second;
+        return mktime(&tm_time) * 1000 + subsecond.value();
+    }
+    return -1;
+}
 #endif
 //------------------------------------------------------------------------------
 //                             timestamp read
