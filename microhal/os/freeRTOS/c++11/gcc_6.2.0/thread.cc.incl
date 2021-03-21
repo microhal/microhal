@@ -73,7 +73,7 @@ void setDefaultStackSize(size_t size) noexcept {
     defaultStackSize = size;  
 }
 size_t getDefaultStackSize() noexcept {
-    return defaultStackSize * 4;
+    return defaultStackSize;
 }
 }  // namespace os
 }  // namesapce microhal
