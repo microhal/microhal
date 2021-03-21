@@ -150,10 +150,14 @@ CREATE_SET_CLEAR_FUNCTION(SPI6LPEN)
 #endif
 
 static uint32_t SPIFrequency(uint8_t number) {
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_APB2
     if (number == 2 || number == 3) {
         return APB1::frequency();
     }
     return APB2::frequency();
+#else
+    return APB1::frequency();
+#endif
 }
 }  // namespace ClockManager
 }  // namespace microhal
