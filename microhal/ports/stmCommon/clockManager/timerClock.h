@@ -228,77 +228,7 @@ enum class TimerClockSource {
 }
 #else
 
-[[maybe_unused]] static void enableTimer(uint8_t number) {
-    if (getTimerApb(number) == 2) {
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
-        auto apb2enr = registers::rcc->apbenr2.volatileLoad();
-#else
-        auto apb2enr = registers::rcc->apb2enr.volatileLoad();
-#endif
-        switch (number) {
-            case 1:
-                ClockManagerDetail::set_TIM1EN_ifExist(apb2enr);  // equal to apb2enr.TIM1EN.set();
-                break;
-            case 8:
-                ClockManagerDetail::set_TIM8EN_ifExist(apb2enr);
-                break;
-            case 9:
-                ClockManagerDetail::set_TIM9EN_ifExist(apb2enr);
-                break;
-            case 10:
-                ClockManagerDetail::set_TIM10EN_ifExist(apb2enr);
-                break;
-            case 11:
-                ClockManagerDetail::set_TIM11EN_ifExist(apb2enr);
-                break;
-        }
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
-        registers::rcc->apbenr1.volatileStore(apb2enr);
-#else
-        registers::rcc->apb2enr.volatileStore(apb2enr);
-#endif
-    } else {
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
-        auto apb1enr = registers::rcc->apbenr1.volatileLoad();
-#else
-        auto apb1enr = registers::rcc->apb1enr.volatileLoad();
-#endif
-        switch (number) {
-            case 2:
-                ClockManagerDetail::set_TIM2EN_ifExist(apb1enr);
-                break;
-            case 3:
-                ClockManagerDetail::set_TIM3EN_ifExist(apb1enr);
-                break;
-            case 4:
-                ClockManagerDetail::set_TIM4EN_ifExist(apb1enr);
-                break;
-            case 5:
-                ClockManagerDetail::set_TIM5EN_ifExist(apb1enr);
-                break;
-            case 6:
-                ClockManagerDetail::set_TIM6EN_ifExist(apb1enr);
-                break;
-            case 7:
-                ClockManagerDetail::set_TIM7EN_ifExist(apb1enr);
-                break;
-            case 12:
-                ClockManagerDetail::set_TIM12EN_ifExist(apb1enr);
-                break;
-            case 13:
-                ClockManagerDetail::set_TIM13EN_ifExist(apb1enr);
-                break;
-            case 14:
-                ClockManagerDetail::set_TIM14EN_ifExist(apb1enr);
-                break;
-        }
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_APBENR2
-        registers::rcc->apbenr1.volatileStore(apb1enr);
-#else
-        registers::rcc->apb1enr.volatileStore(apb1enr);
-#endif
-    }
-}
+void enableTimer(uint8_t number);
 
 [[maybe_unused]] static void disableTimer(uint8_t number) {
     if (getTimerApb(number) == 2) {
