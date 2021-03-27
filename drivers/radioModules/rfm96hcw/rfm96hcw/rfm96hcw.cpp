@@ -57,11 +57,20 @@ void RFM96HCW::init() {
     m_dio0.enable();
 }
 
+void RFM96HCW::reset() {
+    m_resetGpio.set();
+    std::this_thread::sleep_for(1ms);
+    m_resetGpio.reset();
+    std::this_thread::sleep_for(5ms);
+}
+
 //--------------------------------------------------------------------------
 //                           Generic configuration
 //--------------------------------------------------------------------------
 RFM96HCW::Error RFM96HCW::setMode(Mode mode) {
-    return spi.modifyBitsInRegister(RegOpMode, static_cast<uint8_t>(mode), 0b0001'1100);
+    auto status = spi.modifyBitsInRegister(RegOpMode, static_cast<uint8_t>(mode), 0b0001'1100);
+    inTransmitMode = mode == Mode::Transmitter;
+    return status;
 }
 
 Result<RFM96HCW::Mode, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::getMode() {
@@ -150,7 +159,7 @@ RFM96HCW::Error RFM96HCW::triggerRssiMeasurement() {
 }
 microhal::Result<bool, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::rssiReady() {
     auto rssiConfig = spi.readRegister(RegRssiConfig);
-    return {rssiConfig.error(), rssiConfig & 0b10};
+    return {rssiConfig.error(), bool(rssiConfig & 0b10)};
 }
 microhal::Result<int_fast8_t, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::getRssi() {
     auto rssi = spi.readRegister(RegRssiValue);
@@ -217,12 +226,13 @@ RFM96HCW::Error RFM96HCW::sendPacket(uint8_t destinationAddress, gsl::span<uint8
             }
         }
     }
+    inTransmitMode = true;
     setMode(Mode::Transmitter);
-    if (!txSendRxReceivedSemaphore.wait(100ms)) {
+    if (!txSendSemaphore.wait(300ms)) {
 #ifdef _MICROHAL_RFM96_USE_DIAGNOSTIC
         diagChannel << lock << MICROHAL_NOTICE << "Unable to send packet, semaphore timeout." << unlock;
 #endif
-        return Error::Unknown;
+        return Error::Timeout;
     }
     return Error::None;
 }
@@ -234,7 +244,7 @@ microhal::Result<int_fast8_t, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::
 
 microhal::Result<int_fast8_t, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::readPacket_to(uint8_t &address, gsl::span<uint8_t> data,
                                                                                               std::chrono::milliseconds timeout) {
-    if (txSendRxReceivedSemaphore.wait(timeout)) {
+    if (rxReceivedSemaphore.wait(timeout)) {
         uint8_t length = 0;
         fifoRead_to(&length, 1);
         if (length <= fifoSize && length >= 1) {
@@ -243,7 +253,7 @@ microhal::Result<int_fast8_t, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::
             return length - 1;
         }
     }
-    return Error::Unknown;
+    return Error::Timeout;
 }
 
 RFM96HCW::Error RFM96HCW::configurePacketMode(PacketLength packetLengthMode, uint_fast8_t packetLength, uint16_t preambleSize, uint16_t bitRate,
@@ -307,7 +317,7 @@ microhal::Result<uint_fast8_t, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW:
 
 microhal::Result<bool, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::isSyncWordEnabled() {
     auto syncConfig = spi.readRegister(RegSyncConfig);
-    return {syncConfig.error(), syncConfig.value() & 0b1000'0000};
+    return {syncConfig.error(), bool(syncConfig.value() & 0b1000'0000)};
 }
 
 microhal::Result<uint8_t, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::nodeAddress() {
@@ -326,7 +336,7 @@ RFM96HCW::Error RFM96HCW::disableCRC() {
 }
 microhal::Result<bool, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::isCRCEnabled() {
     auto packetConfig1 = spi.readRegister(RegPacketConfig1);
-    return {packetConfig1.error(), packetConfig1.value() & 1 << 4};
+    return {packetConfig1.error(), bool(packetConfig1.value() & 1 << 4)};
 }
 //--------------------------------------------------------------------------
 //                           AES functions
@@ -338,7 +348,7 @@ RFM96HCW::Error RFM96HCW::disableAES() {
 }
 microhal::Result<bool, RFM96HCW::Error, RFM96HCW::Error::None> RFM96HCW::isAESEnabled() {
     auto packetConfig = spi.readRegister(RegPacketConfig2);
-    return {packetConfig.error(), packetConfig.value() & 0b1};
+    return {packetConfig.error(), bool(packetConfig.value() & 0b1)};
 }
 RFM96HCW::Error RFM96HCW::setAESkey(const std::array<uint8_t, 16> &key) {
     return spi.writeMultipleRegisters(key, RegAesKey1, RegAesKey2, RegAesKey3, RegAesKey4, RegAesKey5, RegAesKey6, RegAesKey7, RegAesKey8, RegAesKey9,
@@ -430,5 +440,8 @@ void RFM96HCW::dumpConfiguration() {
 #endif
 
 void RFM96HCW::irqDIO0Func() {
-    txSendRxReceivedSemaphore.giveFromISR();
+    if (inTransmitMode)
+        txSendSemaphore.giveFromISR();
+    else
+        rxReceivedSemaphore.giveFromISR();
 }

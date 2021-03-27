@@ -371,15 +371,16 @@ class RFM96HCW {
 
  private:
     microhal::SPIDevice spi;
-    microhal::GPIO &m_resetGpio;
     microhal::ExternalInterrupt m_dio0;
+    microhal::GPIO &m_resetGpio;
     uint_fast8_t maxPacketLen = fifoSize;  // this depend on mode so it can't be const
     int_fast8_t lbtThreshold = -90;
 
  public:
-    microhal::os::Semaphore txSendRxReceivedSemaphore;  // semaphore has dual function depending on packet reception/transmission:
-                                                        // during packet transmission this semaphore indicates transmission completion
-                                                        // during packet reception this semaphore indicates that packet is ready for read from FIFO
+    microhal::os::Semaphore txSendSemaphore;
+    microhal::os::Semaphore rxReceivedSemaphore;
+    volatile bool inTransmitMode = false;
+
     void irqDIO0Func();
     microhal::Slot_0<RFM96HCW, &RFM96HCW::irqDIO0Func> irq0Slot;
 };
