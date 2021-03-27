@@ -27,7 +27,7 @@
 
 #include <ports/stmCommon/rtc_v2/rtc.h>
 #include <cassert>
-#include _MICROHAL_INCLUDE_PORT_DEVICE
+#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -440,8 +440,7 @@ RTC::Interrupt RTC::getInterruptFlag() {
 }
 
 bool RTC::enableNVICInterrupt(uint32_t priority) {
-    NVIC_SetPriority(RTC_TAMP_IRQn, priority);
-    NVIC_EnableIRQ(RTC_TAMP_IRQn);
+    enableRTCInterrupt(priority);
     return true;
 }
 //------------------------------------------------------------------------------
@@ -477,7 +476,7 @@ void RTC::enableWriteProtection() {
     registers::rtc->wpr.volatileStore(key);
 }
 
-extern "C" void RTC_TAMP_IRQHandler(void) {
+extern "C" void RTC_IRQHandler(void) {
     RTC::interrupt.emit();
 }
 

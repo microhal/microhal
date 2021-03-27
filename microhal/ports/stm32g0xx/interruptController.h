@@ -33,6 +33,9 @@
 namespace microhal {
 namespace stm32g0xx {
 
+void enableRTCInterrupt(uint32_t priority);
+void disableRTCInterrupt();
+
 void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority);
 void disableTimerInterrupt(uint8_t timerNumber);
 
