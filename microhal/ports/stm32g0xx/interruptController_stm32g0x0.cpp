@@ -26,8 +26,10 @@
  */
 
 #include "interruptController.h"
+
 #include <array>
 #include <bitset>
+#include <cassert>
 #include "nvic_stm32g0x0.h"
 
 namespace microhal {
@@ -60,17 +62,24 @@ static constexpr std::array<IRQn_Type, 17> timerIrq = {TIM1_CC_IRQn,   HardFault
                                                        HardFault_IRQn, TIM14_IRQn,     TIM15_IRQn,     TIM16_IRQn,     TIM17_IRQn};
 
 void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority) {
+    assert(timerNumber > 0);
+    assert(timerNumber < timerIrq.size());
+
     if (timerNumber == 1) {
         TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[0] = 1;
     } else if (timerNumber == 3 || timerNumber == 4) {
         TIM3_4_IRQHandlerFlags[timerNumber] = 1;
     }
-    IRQn_Type irq = timerIrq[timerNumber];
+    IRQn_Type irq = timerIrq[timerNumber - 1];
+    assert(irq != HardFault_IRQn);
     NVIC_SetPriority(irq, priority);
     NVIC_EnableIRQ(irq);
 }
 
 void disableTimerInterrupt(uint8_t timerNumber) {
+    assert(timerNumber > 0);
+    assert(timerNumber < timerIrq.size());
+
     if (timerNumber == 1) {
         TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[0] = 0;
         if (TIM1_BRK_UP_TRG_COM_IRQHandlerFlags.none()) NVIC_DisableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
@@ -78,11 +87,12 @@ void disableTimerInterrupt(uint8_t timerNumber) {
         TIM3_4_IRQHandlerFlags[timerNumber] = 0;
         if (TIM3_4_IRQHandlerFlags.none()) NVIC_DisableIRQ(TIM3_TIM4_IRQn);
     } else {
-        NVIC_DisableIRQ(timerIrq[timerNumber]);
+        NVIC_DisableIRQ(timerIrq[timerNumber - 1]);
     }
 }
 
 void enableI2CInterrupt(uint8_t i2cNumber) {
+    assert(i2cNumber > 0);
     if (i2cNumber == 1) {
         NVIC_EnableIRQ(I2C1_IRQn);
     } else {
@@ -92,6 +102,7 @@ void enableI2CInterrupt(uint8_t i2cNumber) {
 }
 
 void disableI2CInterrupt(uint8_t i2cNumber) {
+    assert(i2cNumber > 0);
     if (i2cNumber == 1) {
         NVIC_DisableIRQ(I2C1_IRQn);
     } else {
@@ -101,6 +112,7 @@ void disableI2CInterrupt(uint8_t i2cNumber) {
 }
 
 void enableSPIInterrupt(uint8_t spiNumber) {
+    assert(spiNumber > 0);
     if (spiNumber == 1) {
         NVIC_EnableIRQ(SPI1_IRQn);
     } else {
@@ -110,6 +122,7 @@ void enableSPIInterrupt(uint8_t spiNumber) {
 }
 
 void disableSPIInterrupt(uint8_t spiNumber) {
+    assert(spiNumber > 0);
     if (spiNumber == 1) {
         NVIC_DisableIRQ(SPI1_IRQn);
     } else {
@@ -119,6 +132,7 @@ void disableSPIInterrupt(uint8_t spiNumber) {
 }
 
 void enableUSARTInterrupt(uint8_t usartNumber) {
+    assert(usartNumber > 0);
     if (usartNumber == 1) {
         NVIC_EnableIRQ(USART1_IRQn);
     } else if (usartNumber == 2) {
@@ -130,6 +144,7 @@ void enableUSARTInterrupt(uint8_t usartNumber) {
 }
 
 void disableUSARTInterrupt(uint8_t usartNumber) {
+    assert(usartNumber > 0);
     if (usartNumber == 1) {
         NVIC_DisableIRQ(USART1_IRQn);
     } else if (usartNumber == 1) {

@@ -89,18 +89,23 @@ static const std::array<const registers::TIM *, 14> timers = {
 Timer *Timer::tim[8] = {nullptr};
 
 Timer::Timer(registers::TIM *addr) : timer(*addr) {
-    if (tim[getNumber()] != nullptr) std::terminate();
-    tim[getNumber()] = this;
+    if (tim[getNumber() - 1] != nullptr) std::terminate();
+    tim[getNumber() - 1] = this;
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enableTimer(getNumber() + 1, ClockManager::PowerMode::Normal);
+    ClockManager::enableTimer(getNumber(), ClockManager::PowerMode::Normal);
 #else
-    ClockManager::enableTimer(getNumber() + 1);
+    ClockManager::enableTimer(getNumber());
 #endif
 }
 
 Timer::~Timer() {
     disableInterrupt();
-    tim[getNumber()] = nullptr;
+    tim[getNumber() - 1] = nullptr;
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::disableTimer(getNumber(), ClockManager::PowerMode::Normal);
+#else
+    ClockManager::disableTimer(getNumber());
+#endif
 }
 
 void Timer::enableInterupt(uint32_t priority) {
@@ -113,20 +118,20 @@ void Timer::disableInterrupt() {
 }
 
 uint32_t Timer::getTimerClockSourceFrequency() const {
-    return ClockManager::TimerFrequency(getNumber() + 1);
+    return ClockManager::TimerFrequency(getNumber());
 }
 uint32_t Timer::getTimerCounterFrequency() const {
-    return ClockManager::TimerFrequency(getNumber() + 1) / getPrescaler();
+    return ClockManager::TimerFrequency(getNumber()) / getPrescaler();
 }
 
 uint32_t Timer::getTickPeriod() const {
-    uint32_t timerFrequency = ClockManager::TimerFrequency(getNumber() + 1);
+    uint32_t timerFrequency = ClockManager::TimerFrequency(getNumber());
     return (uint64_t{1000'000'000} * getPrescaler()) / timerFrequency;
 }
 
 uint8_t Timer::getNumber() const {
     for (size_t i = 0; i < timers.size(); i++) {
-        if (timers[i] == &timer) return i;
+        if (timers[i] == &timer) return i + 1;
     }
     std::terminate();
 }
