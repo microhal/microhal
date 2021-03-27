@@ -33,11 +33,27 @@
 namespace microhal {
 namespace stm32g0xx {
 
-std::bitset<5> TIM1_BRK_UP_TRG_COM_IRQHandlerFlags = 0;
-std::bitset<5> TIM3_4_IRQHandlerFlags = 0;
-std::bitset<5> I2C2_3_IRQHandlerFlags = 0;
-std::bitset<5> SPI2_3_IRQHandlerFlags = 0;
-std::bitset<8> USART3_4_5_6_IRQHandlerFlags = 0;
+extern "C" {
+void TIM1_BRK_IRQHandler(void);
+void TIM1_UP_IRQHandler(void);
+void TIM1_TRG_COM_IRQHandler(void);
+void TIM3_IRQHandler(void);
+void TIM4_IRQHandler(void);
+void I2C2_IRQHandler(void);
+void I2C3_IRQHandler(void);
+void SPI2_IRQHandler(void);
+void SPI3_IRQHandler(void);
+void USART3_IRQHandler(void);
+void USART4_IRQHandler(void);
+void USART5_IRQHandler(void);
+void USART6_IRQHandler(void);
+}
+
+static std::bitset<5> TIM1_BRK_UP_TRG_COM_IRQHandlerFlags = 0;
+static std::bitset<5> TIM3_4_IRQHandlerFlags = 0;
+static std::bitset<5> I2C2_3_IRQHandlerFlags = 0;
+static std::bitset<5> SPI2_3_IRQHandlerFlags = 0;
+static std::bitset<8> USART3_4_5_6_IRQHandlerFlags = 0;
 
 static constexpr std::array<IRQn_Type, 17> timerIrq = {TIM1_CC_IRQn,   HardFault_IRQn, TIM3_TIM4_IRQn, TIM3_TIM4_IRQn, HardFault_IRQn, TIM6_IRQn,
                                                        TIM7_IRQn,      HardFault_IRQn, HardFault_IRQn, HardFault_IRQn, HardFault_IRQn, HardFault_IRQn,

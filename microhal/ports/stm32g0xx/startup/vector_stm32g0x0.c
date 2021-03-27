@@ -110,7 +110,7 @@ void (*const vectors[])(void) __attribute__((section(".vectors"), used)) = {
     PendSV_Handler,                       // 0x38 Pendable request for system service
     SysTick_Handler,                      // 0x3C System tick timer
     WWDG_IRQHandler,                      // Window WatchDog
-    Reserved_Handler,                     // PVD through EXTI Line detection
+    Reserved_Handler,                     // Reserved
     RTC_TAMP_IRQHandler,                  // RTC and TAMP interrupts (combined EXTI lines 19 & 21) 0x48
     FLASH_IRQHandler,                     // FLASH
     RCC_IRQHandler,                       // RCC

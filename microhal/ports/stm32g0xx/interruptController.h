@@ -30,22 +30,6 @@
 
 #include <cstdint>
 
-extern "C" {
-void TIM1_BRK_IRQHandler(void);
-void TIM1_UP_IRQHandler(void);
-void TIM1_TRG_COM_IRQHandler(void);
-void TIM3_IRQHandler(void);
-void TIM4_IRQHandler(void);
-void I2C2_IRQHandler(void);
-void I2C3_IRQHandler(void);
-void SPI2_IRQHandler(void);
-void SPI3_IRQHandler(void);
-void USART3_IRQHandler(void);
-void USART4_IRQHandler(void);
-void USART5_IRQHandler(void);
-void USART6_IRQHandler(void);
-}
-
 namespace microhal {
 namespace stm32g0xx {
 
