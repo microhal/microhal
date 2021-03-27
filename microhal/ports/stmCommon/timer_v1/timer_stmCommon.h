@@ -12,13 +12,11 @@
 #include "../registers/timerRegisters_v1.h"
 #include "../stmCommonDefines.h"
 #include "gsl/span"
-#include "ports/stmCommon/clockManager/timerClock.h"
 #include "signalSlot/signalSlot.h"
 
-#include _MICROHAL_INCLUDE_PORT_DEVICE
 #include _MICROHAL_INCLUDE_PORT_CONFIG
 
-#ifndef MICROHAL_USE_TIMER_SIGNAL
+#if !defined(MICROHAL_USE_TIMER_SIGNAL) || MICROHAL_USE_TIMER_SIGNAL > 2
 #error MICROHAL_USE_TIMER_SIGNAL have to be defined, possible values 0, 1, 2. 0 - timer signals disabled, 1 - one signal per timer, 2 - signals per timer
 #endif
 
@@ -158,22 +156,15 @@ class Timer {
         CombinedResetAndTrigger
     };
 
+#if MICROHAL_USE_TIMER_SIGNAL > 0
     Signal<void> signal1 = {};
-    Signal<void> signal2 = {};
-
-    Timer(registers::TIM *addr) : timer(*addr) {
-        if (tim[getNumber()] != nullptr) std::terminate();
-        tim[getNumber()] = this;
-#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enableTimer(getNumber() + 1, ClockManager::PowerMode::Normal);
-#else
-        ClockManager::enableTimer(getNumber() + 1);
 #endif
-    }
-    ~Timer() {
-        disableInterrupt();
-        tim[getNumber()] = nullptr;
-    }
+#if MICROHAL_USE_TIMER_SIGNAL == 2
+    Signal<void> signal2 = {};
+#endif
+
+    Timer(registers::TIM *addr);
+    ~Timer();
 
     /**
      * @brief This function enable timer.
@@ -204,6 +195,23 @@ class Timer {
     void setMode(Mode mode) {
         auto cr1 = timer.cr1.volatileLoad();
         cr1.CMS = static_cast<uint32_t>(mode);
+        timer.cr1.volatileStore(cr1);
+    }
+
+    /**
+     * When one pulse mode is enabled counter stops counting at the next update event (clearing the bit CEN)
+     */
+    void enableOnePulseMode() {
+        auto cr1 = timer.cr1.volatileLoad();
+        cr1.OPM.set();
+        timer.cr1.volatileStore(cr1);
+    }
+    /**
+     * When one pulse mode is disabled counter is not stopped at update event
+     */
+    void disableOnePulseMode() {
+        auto cr1 = timer.cr1.volatileLoad();
+        cr1.OPM.set();
         timer.cr1.volatileStore(cr1);
     }
 
@@ -287,13 +295,10 @@ class Timer {
 
     uint32_t maxCounterValue() const { return 0xFFFF; }
 
-    uint32_t getTimerClockSourceFrequency() const { return ClockManager::TimerFrequency(getNumber() + 1); }
-    uint32_t getTimerCounterFrequency() const { return ClockManager::TimerFrequency(getNumber() + 1) / getPrescaler(); }
+    uint32_t getTimerClockSourceFrequency() const;
+    uint32_t getTimerCounterFrequency() const;
     // one tick duration in [ns]
-    uint32_t getTickPeriod() const {
-        uint32_t timerFrequency = ClockManager::TimerFrequency(getNumber() + 1);
-        return (uint64_t{1000'000'000} * getPrescaler()) / timerFrequency;
-    }
+    uint32_t getTickPeriod() const;
 
     void configureADCSyncronizationSource(ADCSynchronizationEvent adcSync) {
         auto cr2 = timer.cr2.volatileLoad();
@@ -783,7 +788,6 @@ class Timer {
      * @return timer number form 0, in example for tim1 function will return 0;
      */
     uint8_t getNumber() const;
-    IRQn_Type getIRQn() const;
 
     void interruptFunction();
 

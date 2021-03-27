@@ -7,6 +7,8 @@
 
 #include "timer_stmCommon.h"
 #include <array>
+#include "ports/stmCommon/clockManager/timerClock.h"
+#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -86,29 +88,47 @@ static const std::array<const registers::TIM *, 14> timers = {
 
 Timer *Timer::tim[8] = {nullptr};
 
+Timer::Timer(registers::TIM *addr) : timer(*addr) {
+    if (tim[getNumber()] != nullptr) std::terminate();
+    tim[getNumber()] = this;
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::enableTimer(getNumber() + 1, ClockManager::PowerMode::Normal);
+#else
+    ClockManager::enableTimer(getNumber() + 1);
+#endif
+}
+
+Timer::~Timer() {
+    disableInterrupt();
+    tim[getNumber()] = nullptr;
+}
+
+void Timer::enableInterupt(uint32_t priority) {
+    // NVIC_ClearPendingIRQ(irq);
+    enableTimerInterrupt(getNumber(), priority);
+}
+
+void Timer::disableInterrupt() {
+    disableTimerInterrupt(getNumber());
+}
+
+uint32_t Timer::getTimerClockSourceFrequency() const {
+    return ClockManager::TimerFrequency(getNumber() + 1);
+}
+uint32_t Timer::getTimerCounterFrequency() const {
+    return ClockManager::TimerFrequency(getNumber() + 1) / getPrescaler();
+}
+
+uint32_t Timer::getTickPeriod() const {
+    uint32_t timerFrequency = ClockManager::TimerFrequency(getNumber() + 1);
+    return (uint64_t{1000'000'000} * getPrescaler()) / timerFrequency;
+}
+
 uint8_t Timer::getNumber() const {
     for (size_t i = 0; i < timers.size(); i++) {
         if (timers[i] == &timer) return i;
     }
     std::terminate();
-}
-
-IRQn_Type Timer::getIRQn() const {
-    std::array<IRQn_Type, 14> irq = {TIM1_UP_IRQn, TIM2_IRQn,      TIM3_IRQn,      TIM4_IRQn,      TIM5_IRQn,      TIM6_IRQn,      TIM7_IRQn,
-                                     TIM8_CC_IRQn, HardFault_IRQn, HardFault_IRQn, HardFault_IRQn, HardFault_IRQn, HardFault_IRQn, HardFault_IRQn};
-
-    return irq[getNumber()];
-}
-
-void Timer::enableInterupt(uint32_t priority) {
-    IRQn_Type irq = getIRQn();
-    NVIC_SetPriority(irq, priority);
-    NVIC_ClearPendingIRQ(irq);
-    NVIC_EnableIRQ(irq);
-}
-
-void Timer::disableInterrupt() {
-    NVIC_EnableIRQ(getIRQn());
 }
 
 void Timer::interruptFunction() {
