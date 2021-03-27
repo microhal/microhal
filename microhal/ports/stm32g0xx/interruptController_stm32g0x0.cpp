@@ -131,20 +131,40 @@ void disableSPIInterrupt(uint8_t spiNumber) {
     }
 }
 
-void enableUSARTInterrupt(uint8_t usartNumber) {
+void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
     assert(usartNumber > 0);
+    assert(usartNumber <= 6);
+
     if (usartNumber == 1) {
         NVIC_EnableIRQ(USART1_IRQn);
+        NVIC_SetPriority(USART1_IRQn, priority);
     } else if (usartNumber == 2) {
         NVIC_EnableIRQ(USART2_IRQn);
+        NVIC_SetPriority(USART2_IRQn, priority);
     } else {
         USART3_4_5_6_IRQHandlerFlags[usartNumber] = 1;
         NVIC_EnableIRQ(USART3_4_5_6_IRQn);
+        NVIC_SetPriority(USART3_4_5_6_IRQn, priority);
+    }
+}
+
+void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority) {
+    assert(usartNumber > 0);
+    assert(usartNumber <= 6);
+
+    if (usartNumber == 1) {
+        NVIC_SetPriority(USART1_IRQn, priority);
+    } else if (usartNumber == 2) {
+        NVIC_SetPriority(USART2_IRQn, priority);
+    } else {
+        NVIC_SetPriority(USART3_4_5_6_IRQn, priority);
     }
 }
 
 void disableUSARTInterrupt(uint8_t usartNumber) {
     assert(usartNumber > 0);
+    assert(usartNumber <= 6);
+
     if (usartNumber == 1) {
         NVIC_DisableIRQ(USART1_IRQn);
     } else if (usartNumber == 1) {

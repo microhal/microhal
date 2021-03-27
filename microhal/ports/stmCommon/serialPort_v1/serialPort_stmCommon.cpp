@@ -39,6 +39,7 @@
  * INCLUDES
  */
 #include "../stmCommonDefines.h"
+#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -106,6 +107,15 @@ bool SerialPort::setDataBits(SerialPort::DataBits dataBits) noexcept {
     }
     usart.cr1.volatileStore(cr1);
     return true;
+}
+
+void SerialPort::priority(uint32_t priority) {
+    setUSARTInterruptPriority(usart::number(&usart), priority);
+}
+
+void SerialPort::enableInterrupt(uint32_t priority) {
+    // NVIC_ClearPendingIRQ(irq);
+    enableUSARTInterrupt(usart::number(&usart), priority);
 }
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

@@ -41,15 +41,11 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include <ports/stmCommon/nvic/nvic.h>
 #include <ports/stmCommon/usart/usart.h>
 #include <cstdint>
 #include "../clockManager/usartClock.h"
 #include "../stmCommonDefines.h"
 #include "interfaces/serialPort_interface.h"
-#ifdef _MICROHAL_INCLUDE_PORT_DEVICE
-#include _MICROHAL_INCLUDE_PORT_DEVICE
-#endif
 
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
 #include "../registers/usartRegisters_v2.h"
@@ -113,7 +109,7 @@ class SerialPort : public microhal::SerialPort {
     bool setStopBits(SerialPort::StopBits stopBits) noexcept final;
     bool setDataBits(SerialPort::DataBits dataBits) noexcept final;
 
-    void priority(uint32_t priority) { NVIC_SetPriority(nvic::USARTIrq(&usart), priority); }
+    void priority(uint32_t priority);
 
     bool enableLINMode() {
         if (!usart.cr1.volatileLoad().UE.get()) {
@@ -143,12 +139,7 @@ class SerialPort : public microhal::SerialPort {
         : usart(usart) {
     }
 
-    void enableInterrupt(uint32_t priority) {
-        const auto irq = nvic::USARTIrq(&usart);
-        NVIC_SetPriority(irq, priority);
-        NVIC_ClearPendingIRQ(irq);
-        NVIC_EnableIRQ(irq);
-    }
+    void enableInterrupt(uint32_t priority);
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

@@ -42,7 +42,8 @@ void disableI2CInterrupt(uint8_t i2cNumber);
 void enableSPIInterrupt(uint8_t spiNumber);
 void disableSPIInterrupt(uint8_t spiNumber);
 
-void enableUSARTInterrupt(uint8_t usartNumber);
+void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);
+void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority);
 void disableUSARTInterrupt(uint8_t usartNumber);
 
 }  // namespace stm32g0xx
