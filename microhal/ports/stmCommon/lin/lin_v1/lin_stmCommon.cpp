@@ -29,9 +29,8 @@
 #include <ports/stmCommon/nvic/nvic.h>
 #include <ports/stmCommon/usart/usart.h>
 #include <cassert>
-#ifdef _MICROHAL_INCLUDE_PORT_DEVICE
-#include _MICROHAL_INCLUDE_PORT_DEVICE
-#endif
+#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
+
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
 #include "diagnostic/diagnostic.h"
 #endif
@@ -133,15 +132,11 @@ void LIN::enableInterrupt(uint32_t priority) {
 #ifdef MICROHAL_RTOS_FreeRTOS
     assert(priority >= configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #endif
-    auto irq = nvic::USARTIrq(&usart);
-    NVIC_SetPriority(irq, priority);
-    NVIC_ClearPendingIRQ(irq);
-    NVIC_EnableIRQ(irq);
+    enableUSARTInterrupt(usart::number(&usart), priority);
 }
 
 void LIN::disableInterrupt() {
-    auto irq = nvic::USARTIrq(&usart);
-    NVIC_DisableIRQ(irq);
+    disableUSARTInterrupt(usart::number(&usart));
 }
 
 void LIN::enable() {
@@ -208,6 +203,7 @@ LIN::Error LIN::read_to(uint8_t *data, uint_fast8_t length, std::chrono::millise
 
 void LIN::interrupt() {
     auto isr = usart.isr.volatileLoad();
+    auto cr1 = usart.cr1.volatileLoad();
 
     if (isr.LBDF) {
         // detected lin break
@@ -234,11 +230,19 @@ void LIN::interrupt() {
         registers::USART::ICR icr = {};
         icr.LBDCF.set();
         usart.icr.volatileStore(icr);
+        // enable RX not empty interrupt
+        cr1.RXNEIE.set();
+        usart.cr1.volatileStore(cr1);
     }
-    if (isr.RXNE) {
+    if (isr.RXNE && cr1.RXNEIE) {
         const uint8_t rxData = (uint32_t)usart.rdr.volatileLoad();
         rxBuffer[rxBufferIter] = rxData;
         rxBufferIter++;
+        if (rxBufferIter > int_fast8_t(sizeof(rxBuffer))) {
+            // disable RX not empty interrupt
+            cr1.RXNEIE.clear();
+            usart.cr1.volatileStore(cr1);
+        }
         if (mode == Receiver) {
             if (rxBufferIter == 2 || rxBufferIter == waitForBytes) {
                 if (rxBufferIter == waitForBytes) {

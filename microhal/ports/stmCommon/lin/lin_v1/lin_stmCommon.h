@@ -84,7 +84,7 @@ class LIN final : public lin::LIN {
     microhal::os::Semaphore txDone;
     microhal::os::Semaphore rxDone;
     uint8_t mode = 0;
-    uint8_t rxBuffer[8];
+    uint8_t rxBuffer[11];
     int_fast8_t rxBufferIter = 0;
     int_fast8_t waitForBytes = -1;
     uint8_t *txPtr = nullptr;
