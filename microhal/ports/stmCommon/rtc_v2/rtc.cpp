@@ -272,6 +272,23 @@ bool RTC::setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler) {
     registers::rtc->prer.volatileStore(prer);
     return true;
 }
+//--------------------------------------------------------------------------
+//                             time calibration
+//--------------------------------------------------------------------------
+bool RTC::subSecondCalibrate(uint16_t sync_prescaler, int16_t subsecond_ms) {
+    registers::RTC::SHIFTR shiftr;
+    shiftr = 0;
+
+    if (subsecond >= 0) {
+        shiftr.ADD1S.set();
+        shiftr.SUBFS = sync_prescaler - (subsecond_ms * sync_prescaler) / 1000;
+    } else {
+        shiftr.SUBFS = (-subsecond_ms * sync_prescaler) / 1000;
+    }
+    registers::rtc->shiftr.volatileStore(shiftr);
+
+    return true;
+}
 //------------------------------------------------------------------------------
 //                             Wakeup timer
 //------------------------------------------------------------------------------

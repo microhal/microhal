@@ -165,6 +165,10 @@ class RTC {
 #endif
     static bool setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler);
     //--------------------------------------------------------------------------
+    //                             time calibration
+    //--------------------------------------------------------------------------
+    static bool subSecondCalibrate(uint16_t sync_prescaler, int16_t subsecond_ms);
+    //--------------------------------------------------------------------------
     //                             Wakeup timer
     // Note: You need to enter configuration mode before using these functions
     //--------------------------------------------------------------------------
