@@ -37,14 +37,18 @@ extern const std::bitset<64> enhancedChecksumFlags;
 extern std::array<uint8_t, 64> linFramesDataLengths;
 
 bool Frame::isRequest(const Header &header) {
+    if (header.id() == 60) return false;
+    if (header.id() == 61) return true;
     return requestFlags[header.id()];
 }
 
 bool Frame::isEnhancedChecksum(const Header &header) {
+    if (header.id() == 60 || header.id() == 61) return false;
     return enhancedChecksumFlags[header.id()];
 }
 
 uint_fast8_t Frame::dataLength(const Header &header) {
+    if (header.id() == 60 || header.id() == 61) return 8;
     return linFramesDataLengths[header.id()];
 }
 
