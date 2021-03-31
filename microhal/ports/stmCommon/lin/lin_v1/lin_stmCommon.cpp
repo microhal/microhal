@@ -201,6 +201,13 @@ LIN::Error LIN::read_to(uint8_t *data, uint_fast8_t length, std::chrono::millise
     return status;
 }
 
+static void giveSemaphoreFromISR(os::Semaphore &semaphore) {
+    [[maybe_unused]] bool shouldYeld = semaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+    portYIELD_FROM_ISR(shouldYeld);
+#endif
+}
+
 void LIN::interrupt() {
     auto isr = usart.isr.volatileLoad();
     auto cr1 = usart.cr1.volatileLoad();
@@ -208,17 +215,17 @@ void LIN::interrupt() {
     if (isr.LBDF) {
         // detected lin break
         if (mode == Receiver) {
+            // received break during reception this is an unexpected situation,
+            // stop receiving data and give semaphore to exit receiving function
             status = Error::BreakDetected;
-            [[maybe_unused]] bool shouldYeld = rxDone.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-            portYIELD_FROM_ISR(shouldYeld);
-#endif
+            giveSemaphoreFromISR(rxDone);
         } else if (mode == Transmitter) {
+            // received break during transition this is an unexpected situation,
+            // stop transmitting data and give semaphore to exit transmitting function
+            // also switch mode to receiver
             status = Error::BreakDetected;
-            [[maybe_unused]] bool shouldYeld = txDone.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-            portYIELD_FROM_ISR(shouldYeld);
-#endif
+            mode = Receiver;
+            giveSemaphoreFromISR(txDone);
         } else if (mode == TransmitterWaitForBreak) {
             usart.tdr.volatileStore(*txPtr);
             mode = Transmitter;
@@ -250,20 +257,14 @@ void LIN::interrupt() {
                     mode = WaitForBreak;
                 }
                 status = Error::None;
-                [[maybe_unused]] bool shouldYeld = rxDone.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-                portYIELD_FROM_ISR(shouldYeld);
-#endif
+                giveSemaphoreFromISR(rxDone);
             }
         } else if (mode == Transmitter) {
             if (txPtr < txEndPtr) {
                 if (*txPtr != rxData) {
                     // detected transmission error
                     status = Error::BusConflictDetected;
-                    [[maybe_unused]] bool shouldYeld = txDone.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-                    portYIELD_FROM_ISR(shouldYeld);
-#endif
+                    giveSemaphoreFromISR(txDone);
                 } else {
                     txPtr++;
                     usart.tdr.volatileStore(*txPtr);
@@ -272,18 +273,12 @@ void LIN::interrupt() {
                 if (waitForBytes < 0) {
                     // all data transmitted
                     status = Error::None;
-                    [[maybe_unused]] bool shouldYeld = txDone.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-                    portYIELD_FROM_ISR(shouldYeld);
-#endif
+                    giveSemaphoreFromISR(txDone);
                 } else if (rxBufferIter == waitForBytes) {
                     waitForBytes = -1;
                     mode = WaitForBreak;
                     status = Error::None;
-                    [[maybe_unused]] bool shouldYeld = rxDone.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-                    portYIELD_FROM_ISR(shouldYeld);
-#endif
+                    giveSemaphoreFromISR(rxDone);
                 }
             }
         }
