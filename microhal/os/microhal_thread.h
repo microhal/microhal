@@ -17,7 +17,12 @@ namespace os {
 
 class thread : public std::thread {
  public:
-    template <typename _Callable, typename... _Args, typename = std::_Require<__not_same<_Callable>>>
+#ifdef LINUX_PORT
+    template <typename _Callable, typename... _Args>
+    explicit thread(size_t stackSize, const char* name, int priority, _Callable&& __f, _Args&&... __args)
+        : std::thread(__f, __args...), m_name(name) {}
+#else
+    template <typename _Callable, typename... _Args, typename = std::_Require<__not_same<_Callable> > >
     explicit thread(size_t stackSize, const char* name, int priority, _Callable&& __f, _Args&&... __args) {
         static_assert(std::__is_invocable<typename std::decay<_Callable>::type, typename std::decay<_Args>::type...>::value,
                       "std::thread arguments must be invocable after conversion to rvalues");
@@ -26,6 +31,12 @@ class thread : public std::thread {
         _M_start_thread(stackSize, name, priority, _S_make_state(__make_invoker(std::forward<_Callable>(__f), std::forward<_Args>(__args)...)),
                         __depend);
     }
+#endif
+
+ private:
+#ifdef LINUX_PORT
+    std::string m_name;
+#endif
 };
 
 }  // namespace os
