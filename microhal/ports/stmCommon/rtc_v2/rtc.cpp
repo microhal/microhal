@@ -262,9 +262,9 @@ bool RTC::setEpoch(time_t &time) {
 
 bool RTC::setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler) {
     assert(async_prescaler > 0);
-    assert(async_prescaler <= 128);
+    assert(async_prescaler <= asyncPrescalerMaxValue);
     assert(sync_prescaler > 0);
-    assert(sync_prescaler <= 65536);
+    assert(sync_prescaler <= syncPrescalerMaxValue);
 
     registers::RTC::PRER prer{};
     prer.PREDIV_A = async_prescaler - 1;
@@ -276,14 +276,18 @@ bool RTC::setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler) {
 //                             time calibration
 //--------------------------------------------------------------------------
 bool RTC::subSecondCalibrate(uint16_t sync_prescaler, int16_t subsecond_ms) {
+    assert(subsecond_ms < 1000 && subsecond_ms > -1000);
+    assert(sync_prescaler > 0);
+    assert(sync_prescaler <= syncPrescalerMaxValue);
+
     registers::RTC::SHIFTR shiftr;
     shiftr = 0;
 
     if (subsecond >= 0) {
         shiftr.ADD1S.set();
-        shiftr.SUBFS = sync_prescaler - (subsecond_ms * sync_prescaler) / 1000;
+        shiftr.SUBFS = sync_prescaler - (int32_t(subsecond_ms) * sync_prescaler) / 1000;
     } else {
-        shiftr.SUBFS = (-subsecond_ms * sync_prescaler) / 1000;
+        shiftr.SUBFS = (int32_t(-subsecond_ms) * sync_prescaler) / 1000;
     }
     registers::rtc->shiftr.volatileStore(shiftr);
 

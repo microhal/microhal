@@ -112,6 +112,8 @@ class RTC {
     using ResultDate = Result<Date, Error, Error::None>;
     using ResultSubsecond = Result<uint32_t, Error, Error::None>;
 
+    static constexpr const uint32_t syncPrescalerMaxValue = 65536;
+    static constexpr const uint32_t asyncPrescalerMaxValue = 128;
     static Signal<void> interrupt;
 
     //--------------------------------------------------------------------------
