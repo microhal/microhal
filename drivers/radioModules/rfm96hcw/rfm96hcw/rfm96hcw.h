@@ -385,6 +385,9 @@ class RFM96HCW {
     microhal::Slot_0<RFM96HCW, &RFM96HCW::irqDIO0Func> irq0Slot;
 };
 
+static_assert(RFM96HCW::packetSendTime_ms(8, 1) == 1000);
+static_assert(RFM96HCW::packetSendTime_ms(4800, 6) == 10);
+
 inline constexpr uint32_t operator&(RFM96HCW::InterruptFlags2 a, RFM96HCW::InterruptFlags2 b) {
     return static_cast<uint8_t>(a) & static_cast<uint8_t>(b);
 }

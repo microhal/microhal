@@ -39,7 +39,8 @@ const uint8_t poutCorrection[] = {unused, unused, 18, 14, 18};
 
 RFM96HCW::RFM96HCW(SPI &spi, GPIO &ceGpio, microhal::IOPin dio0, GPIO &resetGpio) : spi(spi, ceGpio), m_dio0(dio0), m_resetGpio(resetGpio) {
     m_dio0.connect(irq0Slot, *this, ExternalInterrupt::Trigger::OnRisingEdge);
-    this->spi.chipEnablePinDelay(40);
+    m_resetGpio.configureAsInput(GPIO::NoPull);
+    this->spi.chipEnablePinDelay(0);
 }
 
 RFM96HCW::~RFM96HCW() {
@@ -58,9 +59,11 @@ void RFM96HCW::init() {
 }
 
 void RFM96HCW::reset() {
+    m_resetGpio.configureAsOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
     m_resetGpio.set();
     std::this_thread::sleep_for(1ms);
     m_resetGpio.reset();
+    m_resetGpio.configureAsInput(GPIO::PullType::NoPull);
     std::this_thread::sleep_for(5ms);
 }
 
@@ -214,8 +217,8 @@ RFM96HCW::Error RFM96HCW::sendPacket(uint8_t destinationAddress, gsl::span<uint8
         return mode.error();
     }
 
-    fifoWrite(data.size() + 1);
-    fifoWrite(destinationAddress);
+    uint8_t sizeAndAddress[2] = {data.size() + 1, destinationAddress};
+    fifoWrite(sizeAndAddress);
     fifoWrite(data);
     if (lbt) {
         while (1) {
@@ -359,13 +362,9 @@ RFM96HCW::Error RFM96HCW::setAESkey(const std::array<uint8_t, 16> &key) {
 RFM96HCW::Error RFM96HCW::fifoWrite(uint8_t data) {
     return spi.writeRegister(RegFifo, data);
 }
+
 RFM96HCW::Error RFM96HCW::fifoWrite(gsl::span<uint8_t> data) {
-    assert(data.size() <= maxPacketLen);
-    for (auto x : data) {
-        fifoWrite(x);
-    }
-    // return spi.writeFIFORegister(RegFifo, data);
-    return Error::None;
+    return spi.writeFIFORegister(RegFifo, data);
 }
 
 RFM96HCW::Error RFM96HCW::fifoRead_to(uint8_t *data, uint_fast8_t length) {
