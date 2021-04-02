@@ -183,7 +183,7 @@ class SPI : public microhal::SPI {
 
     uint32_t speed() const final {
         const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
-        return ClockManager::SPIFrequency(getNumber()) / prescalerValues[static_cast<uint32_t>(prescaler()) >> 3];
+        return ClockManager::SPIFrequency(getNumber()) / prescalerValues[static_cast<uint32_t>(prescaler())];
     }
 
  protected:
