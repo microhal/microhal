@@ -20,7 +20,7 @@
 
 #if defined(STM32F7x9) || defined(STM32F765) || defined(STM32F765) || defined(STM32F7x8) || defined(STM32F745) || defined(STM32F745) || \
     defined(STM32F750) || defined(STM32F750) || defined(STM32F7x7) || defined(STM32F7x6) || defined(STM32F7x6) || defined(STM32F765) || \
-    defined(STM32F745) || defined(STM32F7x3) || defined(STM32F7x2) || defined(STM32F730) || defined(_MICROHAL_STM32G0XX_STM32G071xx)  // version 1
+    defined(STM32F745) || defined(STM32F7x3) || defined(STM32F7x2) || defined(STM32F730) || defined(_MICROHAL_STM32G0XX_STM32G0xx)  // version 1
 #define _MICROHAL_REGISTERS_SPI_CR1_HAS_CRCL
 #define _MICROHAL_REGISTERS_SPI_SR_HAS_CHSIDE_UDR
 #define _MICROHAL_REGISTERS_SPI_I2SCFGR_HAS_ASTRTEN
