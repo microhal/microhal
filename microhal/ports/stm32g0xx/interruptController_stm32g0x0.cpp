@@ -36,19 +36,21 @@ namespace microhal {
 namespace stm32g0xx {
 
 extern "C" {
-void TIM1_BRK_IRQHandler(void);
-void TIM1_UP_IRQHandler(void);
-void TIM1_TRG_COM_IRQHandler(void);
-void TIM3_IRQHandler(void);
-void TIM4_IRQHandler(void);
-void I2C2_IRQHandler(void);
-void I2C3_IRQHandler(void);
-void SPI2_IRQHandler(void);
-void SPI3_IRQHandler(void);
-void USART3_IRQHandler(void);
-void USART4_IRQHandler(void);
-void USART5_IRQHandler(void);
-void USART6_IRQHandler(void);
+void default_handler(void);
+
+void TIM1_BRK_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void TIM1_UP_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void TIM1_TRG_COM_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void TIM3_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void TIM4_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void I2C2_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void I2C3_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void SPI2_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void SPI3_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void USART3_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void USART4_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void USART5_IRQHandler(void) __attribute__((weak, alias("default_handler")));
+void USART6_IRQHandler(void) __attribute__((weak, alias("default_handler")));
 }
 
 static std::bitset<5> TIM1_BRK_UP_TRG_COM_IRQHandlerFlags = 0;
@@ -67,6 +69,8 @@ void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority) {
 
     if (timerNumber == 1) {
         TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[0] = 1;
+        TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[1] = 1;
+        TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[2] = 1;
     } else if (timerNumber == 3 || timerNumber == 4) {
         TIM3_4_IRQHandlerFlags[timerNumber] = 1;
     }
@@ -74,6 +78,11 @@ void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority) {
     assert(irq != HardFault_IRQn);
     NVIC_SetPriority(irq, priority);
     NVIC_EnableIRQ(irq);
+
+    if (timerNumber == 1) {
+        NVIC_SetPriority(TIM1_BRK_UP_TRG_COM_IRQn, priority);
+        NVIC_EnableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
+    }
 }
 
 void disableTimerInterrupt(uint8_t timerNumber) {
@@ -82,7 +91,12 @@ void disableTimerInterrupt(uint8_t timerNumber) {
 
     if (timerNumber == 1) {
         TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[0] = 0;
-        if (TIM1_BRK_UP_TRG_COM_IRQHandlerFlags.none()) NVIC_DisableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
+        TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[1] = 0;
+        TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[2] = 0;
+        if (TIM1_BRK_UP_TRG_COM_IRQHandlerFlags.none()) {
+            NVIC_DisableIRQ(TIM1_BRK_UP_TRG_COM_IRQn);
+            NVIC_DisableIRQ(timerIrq[timerNumber - 1]);
+        }
     } else if (timerNumber == 3 || timerNumber == 4) {
         TIM3_4_IRQHandlerFlags[timerNumber] = 0;
         if (TIM3_4_IRQHandlerFlags.none()) NVIC_DisableIRQ(TIM3_TIM4_IRQn);
@@ -175,33 +189,39 @@ void disableUSARTInterrupt(uint8_t usartNumber) {
     }
 }
 
+void default_handler(void) {
+    __asm volatile("BKPT #01");
+    while (1)
+        ;
+}
+
 //****************************************************************************//
 //                           interrupt handlers                               //
 //****************************************************************************//
 void RTC_TAMP_IRQHandler(void) {}
 
-void TIM1_BRK_UP_TRG_COM_IRQHandler(void) {
+extern "C" void TIM1_BRK_UP_TRG_COM_IRQHandler(void) {
     if (TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[0]) TIM1_BRK_IRQHandler();
     if (TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[1]) TIM1_UP_IRQHandler();
     if (TIM1_BRK_UP_TRG_COM_IRQHandlerFlags[2]) TIM1_TRG_COM_IRQHandler();
 }
 
-void TIM3_4_IRQHandler(void) {
+extern "C" void TIM3_4_IRQHandler(void) {
     if (TIM3_4_IRQHandlerFlags[3]) TIM3_IRQHandler();
     if (TIM3_4_IRQHandlerFlags[4]) TIM4_IRQHandler();
 }
 
-void I2C2_3_IRQHandler(void) {
+extern "C" void I2C2_3_IRQHandler(void) {
     if (I2C2_3_IRQHandlerFlags[2]) I2C2_IRQHandler();
     if (I2C2_3_IRQHandlerFlags[3]) I2C3_IRQHandler();
 }
 
-void SPI2_3_IRQHandler(void) {
+extern "C" void SPI2_3_IRQHandler(void) {
     if (SPI2_3_IRQHandlerFlags[2]) SPI2_IRQHandler();
     if (SPI2_3_IRQHandlerFlags[3]) SPI3_IRQHandler();
 }
 
-void USART3_4_5_6_IRQHandler(void) {
+extern "C" void USART3_4_5_6_IRQHandler(void) {
     if (USART3_4_5_6_IRQHandlerFlags[3]) USART3_IRQHandler();
     if (USART3_4_5_6_IRQHandlerFlags[4]) USART4_IRQHandler();
     if (USART3_4_5_6_IRQHandlerFlags[5]) USART5_IRQHandler();
