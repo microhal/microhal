@@ -83,7 +83,7 @@ time_t RTC::epoch() {
     tm_time.tm_isdst = 0;
     tm_time.tm_year = date.value().year - 1900;
     // tm_time.tm_yday;
-    tm_time.tm_mon = date.value().month;
+    tm_time.tm_mon = date.value().month - 1;
     tm_time.tm_mday = date.value().monthDay;
     tm_time.tm_wday = date.value().weekDay - 1;
     tm_time.tm_hour = time.value().hour;
@@ -101,13 +101,16 @@ int64_t RTC::epoch_ms(uint16_t synchronousPrescaler) {
         tm_time.tm_isdst = 0;
         tm_time.tm_year = date.value().year - 1900;
         // tm_time.tm_yday;
-        tm_time.tm_mon = date.value().month;
+        tm_time.tm_mon = date.value().month - 1;
         tm_time.tm_mday = date.value().monthDay;
         tm_time.tm_wday = date.value().weekDay - 1;
         tm_time.tm_hour = time.value().hour;
         tm_time.tm_min = time.value().minute;
         tm_time.tm_sec = time.value().second;
-        return mktime(&tm_time) * 1000 + subsecond.value();
+        int64_t time = mktime(&tm_time);
+        if (time >= 0) {
+            return time * 1000 + subsecond.value();
+        }
     }
     return -1;
 }
@@ -164,7 +167,7 @@ time_t RTC::timestampEpoch() {
     tm_time.tm_isdst = 0;
     tm_time.tm_year = currentDate.value().year - 1900;
     // tm_time.tm_yday;
-    tm_time.tm_mon = dateTimestamp.value().month;
+    tm_time.tm_mon = dateTimestamp.value().month - 1;
     tm_time.tm_mday = dateTimestamp.value().monthDay;
     tm_time.tm_wday = dateTimestamp.value().weekDay - 1;
     tm_time.tm_hour = time.value().hour;
@@ -238,11 +241,11 @@ bool RTC::setDate(const Date &date) {
 }
 
 #ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
-bool RTC::setEpoch(time_t &time) {
+bool RTC::setEpoch(const time_t &time) {
     struct tm *tm_time = gmtime(&time);
     if (tm_time) {
         RTC::Date date = {};
-        date.month = tm_time->tm_mon;
+        date.month = tm_time->tm_mon + 1;
         date.monthDay = tm_time->tm_mday;
         date.weekDay = tm_time->tm_wday + 1;
         date.year = tm_time->tm_year + 1900;
@@ -255,6 +258,17 @@ bool RTC::setEpoch(time_t &time) {
         if (RTC::setTime(tm)) {
             return RTC::setDate(date);
         }
+    }
+    return false;
+}
+
+bool RTC::setEpoch_ms(const int64_t &time, uint16_t synchronousPrescaler) {
+    assert(time >= 0);
+
+    time_t epoch = time / 1000;
+    if (setEpoch(epoch)) {
+        uint32_t subsecond = time % 1000;
+        return RTC::setSubsecond((subsecond * synchronousPrescaler) / 1000);
     }
     return false;
 }
@@ -283,6 +297,15 @@ bool RTC::subSecondCalibrate(uint16_t sync_prescaler, int16_t subsecond_ms) {
     registers::RTC::SHIFTR shiftr;
     shiftr = 0;
 
+    uint32_t timeout = 1000;
+    while (1) {
+        if (auto subsec = subsecond(); subsec && timeout) {
+            if (!(subsec.value() & 1 << 15)) break;
+        } else {
+            return false;
+        }
+        --timeout;
+    }
     if (subsecond >= 0) {
         shiftr.ADD1S.set();
         shiftr.SUBFS = sync_prescaler - (int32_t(subsecond_ms) * sync_prescaler) / 1000;

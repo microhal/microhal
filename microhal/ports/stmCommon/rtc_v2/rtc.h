@@ -163,7 +163,8 @@ class RTC {
      * @param time - number of seconds since 00:00, Jan 1 1970 UTC (POSIX time)
      * @return
      */
-    static bool setEpoch(time_t &time);
+    static bool setEpoch(const time_t &time);
+    static bool setEpoch_ms(const int64_t &time, uint16_t synchronousPrescaler);
 #endif
     static bool setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler);
     //--------------------------------------------------------------------------
