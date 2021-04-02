@@ -112,8 +112,8 @@ class RTC {
     using ResultDate = Result<Date, Error, Error::None>;
     using ResultSubsecond = Result<uint32_t, Error, Error::None>;
 
-    static constexpr const uint32_t syncPrescalerMaxValue = 65536;
-    static constexpr const uint32_t asyncPrescalerMaxValue = 128;
+    static constexpr const uint_fast16_t syncPrescalerMaxValue = 32768;
+    static constexpr const uint_fast16_t asyncPrescalerMaxValue = 128;
     static Signal<void> interrupt;
 
     //--------------------------------------------------------------------------
@@ -122,7 +122,7 @@ class RTC {
     static ResultSubsecond subsecond();
     static ResultSubsecond subsecond_ms(uint16_t synchronousPrescaler) {
         auto subsec = subsecond();
-        return {subsec.error(), (subsec.value() * 1000) / synchronousPrescaler};
+        return {subsec.error(), ((synchronousPrescaler - 1 - subsec.value()) * 1000) / synchronousPrescaler};
     }
     static ResultTime time();
     static ResultDate date();
@@ -170,7 +170,7 @@ class RTC {
     //--------------------------------------------------------------------------
     //                             time calibration
     //--------------------------------------------------------------------------
-    static bool subSecondCalibrate(uint16_t sync_prescaler, int16_t subsecond_ms);
+    static bool subSecondCalibrate(int16_t subsecond_ms);
     //--------------------------------------------------------------------------
     //                             Wakeup timer
     // Note: You need to enter configuration mode before using these functions

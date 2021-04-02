@@ -79,17 +79,20 @@ RTC::ResultDate RTC::date() {
 time_t RTC::epoch() {
     auto time = stm32g0xx::RTC::time();
     auto date = stm32g0xx::RTC::date();
-    tm tm_time;
-    tm_time.tm_isdst = 0;
-    tm_time.tm_year = date.value().year - 1900;
-    // tm_time.tm_yday;
-    tm_time.tm_mon = date.value().month - 1;
-    tm_time.tm_mday = date.value().monthDay;
-    tm_time.tm_wday = date.value().weekDay - 1;
-    tm_time.tm_hour = time.value().hour;
-    tm_time.tm_min = time.value().minute;
-    tm_time.tm_sec = time.value().second;
-    return mktime(&tm_time);
+    if (time && date) {
+        tm tm_time;
+        tm_time.tm_isdst = 0;
+        tm_time.tm_year = date.value().year - 1900;
+        // tm_time.tm_yday;
+        tm_time.tm_mon = date.value().month - 1;
+        tm_time.tm_mday = date.value().monthDay;
+        tm_time.tm_wday = date.value().weekDay - 1;
+        tm_time.tm_hour = time.value().hour;
+        tm_time.tm_min = time.value().minute;
+        tm_time.tm_sec = time.value().second;
+        return mktime(&tm_time);
+    }
+    return -1;
 }
 
 int64_t RTC::epoch_ms(uint16_t synchronousPrescaler) {
@@ -268,7 +271,7 @@ bool RTC::setEpoch_ms(const int64_t &time, uint16_t synchronousPrescaler) {
     time_t epoch = time / 1000;
     if (setEpoch(epoch)) {
         uint32_t subsecond = time % 1000;
-        return RTC::setSubsecond((subsecond * synchronousPrescaler) / 1000);
+        return RTC::setSubsecond(((subsecond * synchronousPrescaler) / 1000) - (synchronousPrescaler - 1));
     }
     return false;
 }
@@ -289,13 +292,8 @@ bool RTC::setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler) {
 //--------------------------------------------------------------------------
 //                             time calibration
 //--------------------------------------------------------------------------
-bool RTC::subSecondCalibrate(uint16_t sync_prescaler, int16_t subsecond_ms) {
+bool RTC::subSecondCalibrate(int16_t subsecond_ms) {
     assert(subsecond_ms < 1000 && subsecond_ms > -1000);
-    assert(sync_prescaler > 0);
-    assert(sync_prescaler <= syncPrescalerMaxValue);
-
-    registers::RTC::SHIFTR shiftr;
-    shiftr = 0;
 
     uint32_t timeout = 1000;
     while (1) {
@@ -306,6 +304,10 @@ bool RTC::subSecondCalibrate(uint16_t sync_prescaler, int16_t subsecond_ms) {
         }
         --timeout;
     }
+
+    registers::RTC::SHIFTR shiftr;
+    shiftr = 0;
+    uint32_t sync_prescaler = registers::rtc->prer.volatileLoad().PREDIV_S.get() + 1;
     if (subsecond >= 0) {
         shiftr.ADD1S.set();
         shiftr.SUBFS = sync_prescaler - (int32_t(subsecond_ms) * sync_prescaler) / 1000;
