@@ -52,12 +52,6 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
             }
 #endif
             busyWait();
-            // workaround, I don't know why but BSY flag is cleared in the middle of last bit. This may cause some error when other function will
-            // deassert
-            // CS pin
-            volatile uint32_t i = 100;
-            while (i--) {
-            }
         }
         return Error::None;
     }
