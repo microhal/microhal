@@ -106,6 +106,8 @@ class RTC {
     enum class TimestampOnExternalEvent { OnRisingEdge = 0b00, OnFallingEdge = 0b01, Disable };
     enum class TimestampOnTamperDetection { Enable = 0b1, Disable = 0b0 };
 
+    enum class CalibrationCyclePeriod { CalibrationPeriod_32s = 0b00, CalibrationPeriod_16s = 0b10, CalibrationPeriod_8s = 0b01 };
+
     enum class Error { None, NoData };
 
     using ResultTime = Result<Time, Error, Error::None>;
@@ -171,6 +173,7 @@ class RTC {
     //                             time calibration
     //--------------------------------------------------------------------------
     static bool subSecondCalibrate(int16_t subsecond_ms);
+    static bool smoothDigitalCalibration(CalibrationCyclePeriod calibrationPeriod, int16_t rtcclkClockCyclesToMask);
     //--------------------------------------------------------------------------
     //                             Wakeup timer
     // Note: You need to enter configuration mode before using these functions

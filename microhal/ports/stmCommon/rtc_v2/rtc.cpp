@@ -318,6 +318,21 @@ bool RTC::subSecondCalibrate(int16_t subsecond_ms) {
 
     return true;
 }
+
+bool RTC::smoothDigitalCalibration(CalibrationCyclePeriod calibrationPeriod, int16_t rtcclkClockCyclesToMask) {
+    registers::RTC::CALR calr{};
+    calr.CALW8 = static_cast<uint32_t>(calibrationPeriod) & 0b01;
+    calr.CALW16 = static_cast<uint32_t>(calibrationPeriod) & 0b10;
+    if (rtcclkClockCyclesToMask > 0) {
+        calr.CALP.set();
+        calr.CALM = 511 - rtcclkClockCyclesToMask;
+    } else {
+        calr.CALP.clear();
+        calr.CALM = rtcclkClockCyclesToMask;
+    }
+    registers::rtc->calr.volatileStore(calr);
+    return true;
+}
 //------------------------------------------------------------------------------
 //                             Wakeup timer
 //------------------------------------------------------------------------------
