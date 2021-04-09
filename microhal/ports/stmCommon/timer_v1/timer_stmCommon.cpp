@@ -151,29 +151,36 @@ void Timer::interruptFunction() {
 
 #ifdef _MICROHAL_TIM1_BASE_ADDRESS
 void TIM1_BRK_IRQHandler(void) {  // TIM1 Break
-    const Timer::Interrupt interrupts = Timer::Interrupt::Break;
     auto sr = registers::tim1->sr.volatileLoad();
-    sr.BIF.clear();
+    auto dier = registers::tim1->dier.volatileLoad();
+    uint32_t interruptEnabledAndActive = dier & sr;
+
+    if (interruptEnabledAndActive & Timer::Interrupt::Break) {
 #if MICROHAL_USE_TIMER_SIGNAL > 0
-    if (static_cast<uint32_t>(interrupts) & Timer::tim[0]->signalInterrupt1) Timer::tim[0]->signal1.emit();
+        if (static_cast<uint32_t>(Timer::Interrupt::Break) & Timer::tim[0]->signalInterrupt1) Timer::tim[0]->signal1.emit();
 #endif
 #if MICROHAL_USE_TIMER_SIGNAL == 2
-    if (static_cast<uint32_t>(interrupts) & Timer::tim[0]->signalInterrupt2) Timer::tim[0]->signal2.emit();
+        if (static_cast<uint32_t>(Timer::Interrupt::Break) & Timer::tim[0]->signalInterrupt2) Timer::tim[0]->signal2.emit();
 #endif
-    registers::tim1->sr.volatileStore(sr);
+        sr.BIF.clear();
+        registers::tim1->sr.volatileStore(sr);
+    }
 }
 
 void TIM1_UP_IRQHandler(void) {  // TIM1 Update
-    const Timer::Interrupt interrupts = Timer::Interrupt::Update;
     auto sr = registers::tim1->sr.volatileLoad();
-    sr.UIF.clear();
+    auto dier = registers::tim1->dier.volatileLoad();
+    uint32_t interruptEnabledAndActive = dier & sr;
+    if (interruptEnabledAndActive & Timer::Interrupt::Update) {
 #if MICROHAL_USE_TIMER_SIGNAL > 0
-    if (static_cast<uint32_t>(interrupts) & Timer::tim[0]->signalInterrupt1) Timer::tim[0]->signal1.emit();
+        if (static_cast<uint32_t>(interruptEnabledAndActive) & Timer::tim[0]->signalInterrupt1) Timer::tim[0]->signal1.emit();
 #endif
 #if MICROHAL_USE_TIMER_SIGNAL == 2
-    if (static_cast<uint32_t>(interrupts) & Timer::tim[0]->signalInterrupt2) Timer::tim[0]->signal2.emit();
+        if (static_cast<uint32_t>(interruptEnabledAndActive) & Timer::tim[0]->signalInterrupt2) Timer::tim[0]->signal2.emit();
 #endif
-    registers::tim1->sr.volatileStore(sr);
+        sr.UIF.clear();
+        registers::tim1->sr.volatileStore(sr);
+    }
 }
 
 void TIM1_TRG_COM_IRQHandler(void) {  // TIM1 Trigger and Commutation

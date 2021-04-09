@@ -306,6 +306,8 @@ class Timer {
         timer.cr2.volatileStore(cr2);
     }
 
+    void clearInterruptFlag(Timer::Interrupt interrupts) { timer.sr.volatileStore(~static_cast<uint32_t>(interrupts)); }
+
     class OutputCompare {
      public:
         enum class Mode {
