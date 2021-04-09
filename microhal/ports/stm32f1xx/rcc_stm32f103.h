@@ -8,6 +8,7 @@
 // Supported MCU: STM32F103
 
 #define _MICROHAL_REGISTERS_RCC_CFGR_HAS_PPRE2
+#define _MICROHAL_REGISTERS_RCC_BDCR_RTCSEL_HAS_HSE_DIV_128
 
 namespace microhal {
 namespace registers {

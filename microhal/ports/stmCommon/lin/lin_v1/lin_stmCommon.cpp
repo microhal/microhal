@@ -33,9 +33,9 @@
 
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
 #include "diagnostic/diagnostic.h"
-#endif
 
 using namespace microhal::diagnostic;
+#endif
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -152,9 +152,17 @@ void LIN::disable() {
 }
 
 void LIN::sendBreak() {
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+    auto cr1 = usart.cr1.volatileLoad();
+    cr1.SBK.set();
+    usart.cr1.volatileStore(cr1);
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
     auto rqr = usart.rqr.volatileLoad();
     rqr.SBKRQ.set();
     usart.rqr.volatileStore(rqr);
+#else
+#error USART Registers version unspecified.
+#endif
 }
 
 LIN::Error LIN::write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::milliseconds timeout) {
@@ -165,7 +173,11 @@ LIN::Error LIN::write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::mill
         this->sendBreak();
     } else {
         mode = Transmitter;
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+        usart.dr.volatileStore(*txPtr);
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
         usart.tdr.volatileStore(*txPtr);
+#endif
     }
 
     if (!txDone.wait(timeout)) return Error::Timeout;
@@ -209,10 +221,18 @@ static void giveSemaphoreFromISR(os::Semaphore &semaphore) {
 }
 
 void LIN::interrupt() {
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+    auto isr = usart.sr.volatileLoad();
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
     auto isr = usart.isr.volatileLoad();
+#endif
     auto cr1 = usart.cr1.volatileLoad();
 
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+    if (isr.LBD) {
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
     if (isr.LBDF) {
+#endif
         // detected lin break
         if (mode == Receiver) {
             // received break during reception this is an unexpected situation,
@@ -227,22 +247,35 @@ void LIN::interrupt() {
             mode = Receiver;
             giveSemaphoreFromISR(txDone);
         } else if (mode == TransmitterWaitForBreak) {
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+            usart.dr.volatileStore(*txPtr);
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
             usart.tdr.volatileStore(*txPtr);
+#endif
             mode = Transmitter;
         } else {
             mode = Receiver;
         }
         rxBufferIter = 0;
         // clear lin break interrupt
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+        isr.LBD.clear();
+        usart.sr.volatileStore(isr);
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
         registers::USART::ICR icr = {};
         icr.LBDCF.set();
         usart.icr.volatileStore(icr);
+#endif
         // enable RX not empty interrupt
         cr1.RXNEIE.set();
         usart.cr1.volatileStore(cr1);
     }
     if (isr.RXNE && cr1.RXNEIE) {
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+        const uint8_t rxData = (uint32_t)usart.dr.volatileLoad();
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
         const uint8_t rxData = (uint32_t)usart.rdr.volatileLoad();
+#endif
         rxBuffer[rxBufferIter] = rxData;
         rxBufferIter++;
         if (rxBufferIter > int_fast8_t(sizeof(rxBuffer))) {
@@ -267,7 +300,11 @@ void LIN::interrupt() {
                     giveSemaphoreFromISR(txDone);
                 } else {
                     txPtr++;
+#if defined(_MICROHAL_USE_USART_REGISTERS_V1)
+                    usart.dr.volatileStore(*txPtr);
+#elif defined(_MICROHAL_USE_USART_REGISTERS_V2)
                     usart.tdr.volatileStore(*txPtr);
+#endif
                 }
             } else {
                 if (waitForBytes < 0) {
@@ -283,7 +320,7 @@ void LIN::interrupt() {
             }
         }
     }
-}
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 
 #if MICROHAL_USE_LIN1 == 1
 extern "C" void USART1_IRQHandler(void) {

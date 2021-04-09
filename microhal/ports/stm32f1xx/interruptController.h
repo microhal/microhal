@@ -4,7 +4,7 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 13-03-2021
+ * created on: 09-04-2021
  *
  * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
@@ -25,30 +25,31 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_
-#define SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_
+#ifndef _MICROHAL_PORTS_STM32F1XX_INTERRUPTCONTROLLER_H_
+#define _MICROHAL_PORTS_STM32F1XX_INTERRUPTCONTROLLER_H_
 
-#include "../stmCommonDefines.h"
-
-#ifdef _MICROHAL_INCLUDE_PORT_DEVICE
-#include _MICROHAL_INCLUDE_PORT_DEVICE
-#endif
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
-#include "../registers/usartRegisters_v2.h"
-#define _MICROHAL_USE_USART_REGISTERS_V2
-#else
-#include "../registers/usartRegisters_v1.h"
-#define _MICROHAL_USE_USART_REGISTERS_V1
-#endif
+#include <cstdint>
 
 namespace microhal {
-namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-namespace usart {
+namespace stm32f1xx {
 
-uint_fast8_t number(const registers::USART* usart);
+void enableRTCInterrupt(uint32_t priority);
+void disableRTCInterrupt();
 
-}
-}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
+void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority);
+void disableTimerInterrupt(uint8_t timerNumber);
+
+void enableI2CInterrupt(uint8_t i2cNumber);
+void disableI2CInterrupt(uint8_t i2cNumber);
+
+void enableSPIInterrupt(uint8_t spiNumber);
+void disableSPIInterrupt(uint8_t spiNumber);
+
+void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);
+void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority);
+void disableUSARTInterrupt(uint8_t usartNumber);
+
+}  // namespace stm32f1xx
 }  // namespace microhal
 
-#endif /* SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_ */
+#endif /* _MICROHAL_PORTS_STM32F1XX_INTERRUPTCONTROLLER_H_ */

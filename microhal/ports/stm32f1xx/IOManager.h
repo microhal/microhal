@@ -64,6 +64,7 @@ class IOManager {
 
     template <int serial, SerialPinType serialType, stm32f1xx::IOPin pin>
     static void routeSerial(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::PushPull) {
+        static_assert(serial < 4, "This MCU have only 3 Serial ports.");
         static_assert(serial != 0, "Serial port numbers starts from 1.");
 
         if constexpr (serial == 1) {
@@ -102,7 +103,7 @@ class IOManager {
             stm32f1xx::GPIO gpio(pin);
             gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, pull, type);
         }
-    }  // namespace stm32f1xx
+    }
 
     static constexpr bool spiPinAssert(int number, IOPin miso, IOPin mosi, IOPin sck) {
         if (number == 1) {
@@ -186,12 +187,12 @@ class IOManager {
                     break;
                 case 2:
 #if defined(MICROHAL_USE_SPI2_POLLING) || defined(MICROHAL_USE_SPI2_INTERRUPT) || defined(MICROHAL_USE_SPI2_DMA)
-                    stm32f3xx::SPI::spi2.misoPin.__setIOPin(pin);
+                    // stm32f3xx::SPI::spi2.misoPin.__setIOPin(pin);
 #endif
                     break;
                 case 3:
 #if defined(MICROHAL_USE_SPI3_POLLING) || defined(MICROHAL_USE_SPI3_INTERRUPT) || defined(MICROHAL_USE_SPI3_DMA)
-                    stm32f3xx::SPI::spi1.misoPin.__setIOPin(pin);
+                    //  stm32f3xx::SPI::spi1.misoPin.__setIOPin(pin);
 #endif
                     break;
             }
@@ -243,7 +244,7 @@ class IOManager {
         stm32f1xx::GPIO gpio(pin);
         gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, pull, type);
     }
-};  // namespace microhal
+};
 }  // namespace stm32f1xx
 }  // namespace microhal
 #endif /* SRC_MICROHAL_PORTS_STM32F1XX_IOMANAGER_H_ */

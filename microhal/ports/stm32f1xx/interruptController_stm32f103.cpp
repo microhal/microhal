@@ -4,7 +4,7 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 13-03-2021
+ * created on: 09-04-2021
  *
  * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
@@ -25,30 +25,24 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_
-#define SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_
+#include "interruptController.h"
 
-#include "../stmCommonDefines.h"
-
-#ifdef _MICROHAL_INCLUDE_PORT_DEVICE
-#include _MICROHAL_INCLUDE_PORT_DEVICE
-#endif
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
-#include "../registers/usartRegisters_v2.h"
-#define _MICROHAL_USE_USART_REGISTERS_V2
-#else
-#include "../registers/usartRegisters_v1.h"
-#define _MICROHAL_USE_USART_REGISTERS_V1
-#endif
+#include <array>
+#include <cassert>
+#include "nvic.h"
 
 namespace microhal {
-namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-namespace usart {
+namespace stm32f1xx {
 
-uint_fast8_t number(const registers::USART* usart);
+static constexpr std::array<IRQn_Type, 5> usartIrq = {USART1_IRQn, USART2_IRQn, USART3_IRQn, UART4_IRQn, UART5_IRQn};
 
+void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
+    assert(usartNumber > 0);
+    assert(usartNumber <= 6);
+
+    NVIC_SetPriority(usartIrq[usartNumber], priority);
+    NVIC_EnableIRQ(usartIrq[usartNumber]);
 }
-}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
-}  // namespace microhal
 
-#endif /* SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_USART_USART_H_ */
+}  // namespace stm32f1xx
+}  // namespace microhal

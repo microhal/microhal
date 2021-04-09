@@ -111,23 +111,6 @@ class SerialPort : public microhal::SerialPort {
 
     void priority(uint32_t priority);
 
-    bool enableLINMode() {
-        if (!usart.cr1.volatileLoad().UE.get()) {
-            auto cr2 = usart.cr2.volatileLoad();
-            cr2.LINEN.set();
-            usart.cr2.volatileStore(cr2);
-            return true;
-        }
-        return false;
-    }
-
-    bool sendLINBreak() {
-        auto rqr = usart.rqr.volatileLoad();
-        rqr.SBKRQ.set();
-        usart.rqr.volatileStore(rqr);
-        return true;
-    }
-
  protected:
     //------------------------------------------- variables -----------------------------------------//
     registers::USART &usart;
