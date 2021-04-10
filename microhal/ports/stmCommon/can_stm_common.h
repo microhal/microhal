@@ -77,7 +77,7 @@ class CAN final : public can::CAN_Interface {
     static constexpr const Protocol supportedProtocols[] = {Protocol::v2_0A, Protocol::V2_0B};
     static constexpr const uint32_t bitRateMax = 1000000;
 #if defined(_MICROHAL_CAN_BASE_ADDRESS) || defined(_MICROHAL_CAN1_BASE_ADDRESS) || defined(_MICROHAL_CAN2_BASE_ADDRESS)
-    CAN(microhal::registers::CAN *canDevice);
+    CAN(microhal::registers::CAN *canDevice, uint32_t interruptPriority);
 
     CAN(const CAN &) = delete;             // disable copying
     CAN &operator=(const CAN &) = delete;  // disable copying

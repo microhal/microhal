@@ -60,31 +60,27 @@ diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelC
     return logChannel;
 }
 
-CAN::CAN(microhal::registers::CAN *canDevice) : can(*canDevice) {
+CAN::CAN(microhal::registers::CAN *canDevice, uint32_t interruptPriority) : can(*canDevice) {
+#ifdef HAL_RTOS_FreeRTOS
+    assert(interruptPriority >= configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+#endif
+
+    const int canNumber = getNumber();
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enableCan(getNumber(), ClockManager::PowerMode::Normal);
+    ClockManager::enableCan(canNumber, ClockManager::PowerMode::Normal);
 #else
-    microhal::ClockManager::enableCan(getNumber());
+    microhal::ClockManager::enableCan(canNumber);
 #endif
-    if (canDevice == microhal::registers::can1) {
-        objectPtr[0] = this;
-#ifdef _MICROHAL_CAN2_BASE_ADDRESS
-    } else if (canDevice == microhal::registers::can2) {
-        objectPtr[1] = this;
-#endif
-    } else {
-        std::terminate();
-    }
+
+    assert(objectPtr[canNumber - 1] == nullptr);
+    objectPtr[canNumber - 1] = this;
+
     auto ier = can.ier.volatileLoad();
     ier.enableInterrupt(Interrupt::TransmitMailboxEmpty);
     can.ier.volatileStore(ier);
-#ifndef HAL_RTOS_FreeRTOS
-    const uint32_t priority = 0;
-#else
-    const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
-#endif
-    enableInterrupt(priority);
-};
+
+    enableInterrupt(interruptPriority);
+}
 
 CAN::~CAN() {
     if ((objectPtr[0] != this) && (objectPtr[1] != this)) {
