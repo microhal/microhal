@@ -39,7 +39,6 @@
 #include "ports/stmCommon/clockManager/canClock.h"
 #include "registers/can_registers.h"
 #include "stmCommonDefines.h"
-#include _MICROHAL_INCLUDE_PORT_DEVICE
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -53,9 +52,6 @@ namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 extern "C" {
-void CAN_TX_IRQHandler();
-void CAN_RX0_IRQHandler();
-void CAN_RX1_IRQHandler();
 void CAN1_TX_IRQHandler();
 void CAN1_RX0_IRQHandler();
 void CAN1_RX1_IRQHandler();
@@ -111,6 +107,14 @@ class CAN final : public can::CAN_Interface {
     CAN &operator=(const CAN &) = delete;  // disable copying
 
     ~CAN();
+#endif
+
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    void can2StartBank(uint8_t startBank) {
+        auto fmr = can.fmr.volatileLoad();
+        fmr.CAN2SB = startBank;
+        can.fmr.volatileStore(fmr);
+    }
 #endif
 
     bool isProtocolSupported(Protocol protocol) final {
@@ -283,17 +287,10 @@ class CAN final : public can::CAN_Interface {
     // ISR related functions
     void enableInterrupt(uint32_t priority);
     void disableInterrupt();
-    IRQn_Type txIrq();
-    IRQn_Type rx0Irq();
-    IRQn_Type rx1Irq();
-    IRQn_Type sceIrq();
 
     void interruptFunction();
     void rxInterruptFunction();
 
-    friend void CAN_TX_IRQHandler();
-    friend void CAN_RX0_IRQHandler();
-    friend void CAN_RX1_IRQHandler();
     friend void CAN1_TX_IRQHandler();
     friend void CAN1_RX0_IRQHandler();
     friend void CAN1_RX1_IRQHandler();

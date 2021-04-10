@@ -7,6 +7,7 @@
 
 #include "can_stm_common.h"
 #include "diagnostic/diagnostic.h"
+#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -692,72 +693,17 @@ bool CAN::removeIdentifierList16(CAN::Filter::ID16 id) {
 }
 
 void CAN::enableInterrupt(uint32_t priority) {
-    NVIC_SetPriority(txIrq(), priority);
-    NVIC_SetPriority(rx0Irq(), priority);
-    NVIC_SetPriority(rx1Irq(), priority);
-    NVIC_SetPriority(sceIrq(), priority);
-    NVIC_EnableIRQ(txIrq());
-    NVIC_EnableIRQ(rx0Irq());
-    NVIC_EnableIRQ(rx1Irq());
+    const uint8_t number = getNumber();
+    enableCanTxInterrupt(number, priority);
+    enableCanRx0Interrupt(number, priority);
+    enableCanRx1Interrupt(number, priority);
 }
 
 void CAN::disableInterrupt() {
-    NVIC_DisableIRQ(txIrq());
-    NVIC_DisableIRQ(rx0Irq());
-    NVIC_DisableIRQ(rx1Irq());
-    NVIC_DisableIRQ(sceIrq());
-}
-
-IRQn_Type CAN::txIrq() {
-#if defined(_MICROHAL_CAN_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_TX_IRQn;
-#endif
-#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_TX_IRQn;
-#endif
-#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_TX_IRQn;
-#endif
-    std::terminate();
-}
-
-IRQn_Type CAN::rx0Irq() {
-#if defined(_MICROHAL_CAN_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_RX0_IRQn;
-#endif
-#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_RX0_IRQn;
-#endif
-#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_RX0_IRQn;
-#endif
-    std::terminate();
-}
-
-IRQn_Type CAN::rx1Irq() {
-#if defined(_MICROHAL_CAN_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_RX1_IRQn;
-#endif
-#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_RX1_IRQn;
-#endif
-#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_RX1_IRQn;
-#endif
-    std::terminate();
-}
-
-IRQn_Type CAN::sceIrq() {
-#if defined(_MICROHAL_CAN_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN_BASE_ADDRESS) return CAN_SCE_IRQn;
-#endif
-#if defined(_MICROHAL_CAN1_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN1_BASE_ADDRESS) return CAN1_SCE_IRQn;
-#endif
-#if defined(_MICROHAL_CAN2_BASE_ADDRESS)
-    if ((int)&can == _MICROHAL_CAN2_BASE_ADDRESS) return CAN2_SCE_IRQn;
-#endif
-    std::terminate();
+    const uint8_t number = getNumber();
+    disableCanTxInterrupt(number);
+    disableCanRx0Interrupt(number);
+    disableCanRx1Interrupt(number);
 }
 
 void CAN::dumpFilterConfig() {
@@ -841,32 +787,32 @@ void CAN::rxInterruptFunction() {
 //                                          IRQHandlers                                          //
 //***********************************************************************************************//
 // CAN 1
-extern "C" void CAN1_TX_IRQHandler() {
+extern "C" void CAN1_TX_IRQHandler(void) {
     CAN::objectPtr[0]->interruptFunction();
 }
 
-extern "C" void CAN1_RX0_IRQHandler() {
+extern "C" void CAN1_RX0_IRQHandler(void) {
     CAN::objectPtr[0]->rxInterruptFunction();
 }
-extern "C" void CAN1_RX1_IRQHandler() {
+extern "C" void CAN1_RX1_IRQHandler(void) {
     CAN::objectPtr[0]->rxInterruptFunction();
 }
 
-extern "C" void CAN1_SCE_IRQHandler() {}
+extern "C" void CAN1_SCE_IRQHandler(void) {}
 
-#ifdef _MICROHAL_CAN2_BASE
-extern "C" void CAN2_TX_IRQHandler() {
+#ifdef _MICROHAL_CAN2_BASE_ADDRESS
+extern "C" void CAN2_TX_IRQHandler(void) {
     CAN::objectPtr[1]->interruptFunction();
 }
 
-extern "C" void CAN2_RX0_IRQHandler() {
+extern "C" void CAN2_RX0_IRQHandler(void) {
     CAN::objectPtr[1]->rxInterruptFunction();
 }
-extern "C" void CAN2_RX1_IRQHandler() {
+extern "C" void CAN2_RX1_IRQHandler(void) {
     CAN::objectPtr[1]->rxInterruptFunction();
 }
 
-extern "C" void CAN2_SCE_IRQHandler() {}
+extern "C" void CAN2_SCE_IRQHandler(void) {}
 #endif
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
