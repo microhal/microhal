@@ -77,31 +77,7 @@ class CAN final : public can::CAN_Interface {
     static constexpr const Protocol supportedProtocols[] = {Protocol::v2_0A, Protocol::V2_0B};
     static constexpr const uint32_t bitRateMax = 1000000;
 #if defined(_MICROHAL_CAN_BASE_ADDRESS) || defined(_MICROHAL_CAN1_BASE_ADDRESS) || defined(_MICROHAL_CAN2_BASE_ADDRESS)
-    CAN(microhal::registers::CAN *canDevice) : can(*canDevice) {
-#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enableCan(getNumber(), ClockManager::PowerMode::Normal);
-#else
-        microhal::ClockManager::enableCan(getNumber());
-#endif
-        if (canDevice == microhal::registers::can1) {
-            objectPtr[0] = this;
-#ifdef _MICROHAL_CAN2_BASE_ADDRESS
-        } else if (canDevice == microhal::registers::can2) {
-            objectPtr[1] = this;
-#endif
-        } else {
-            std::terminate();
-        }
-        auto ier = can.ier.volatileLoad();
-        ier.enableInterrupt(Interrupt::TransmitMailboxEmpty);
-        can.ier.volatileStore(ier);
-#ifndef HAL_RTOS_FreeRTOS
-        const uint32_t priority = 0;
-#else
-        const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
-#endif
-        enableInterrupt(priority);
-    };
+    CAN(microhal::registers::CAN *canDevice);
 
     CAN(const CAN &) = delete;             // disable copying
     CAN &operator=(const CAN &) = delete;  // disable copying
