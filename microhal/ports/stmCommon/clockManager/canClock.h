@@ -13,23 +13,7 @@
 #include <type_traits>
 #include "apbClock.h"
 #include "clockTypes.h"
-
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
-#ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
-#endif
+#include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
@@ -76,10 +60,9 @@ CREATE_SET_CLEAR_FUNCTION(CAN2LPEN)
 [[maybe_unused]] static void enableCan(uint8_t canNumber) {
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     if (canNumber == 1) {
-        ClockManagerDetail::set_CAN1EN_ifExist(apb1enr);
-        ClockManagerDetail::set_CANEN_ifExist(apb1enr);
+        apb1enr.CAN1EN.set();
     } else {
-        ClockManagerDetail::set_CAN2EN_ifExist(apb1enr);
+        apb1enr.CAN2EN.set();
     }
     registers::rcc->apb1enr.volatileStore(apb1enr);
 }
@@ -87,9 +70,9 @@ CREATE_SET_CLEAR_FUNCTION(CAN2LPEN)
 [[maybe_unused]] static void disableCan(uint8_t canNumber) {
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     if (canNumber == 1) {
-        ClockManagerDetail::clear_CAN1EN_ifExist(apb1enr);
+        apb1enr.CAN1EN.clear();
     } else {
-        ClockManagerDetail::clear_CAN2EN_ifExist(apb1enr);
+        apb1enr.CAN2EN.clear();
     }
     registers::rcc->apb1enr.volatileStore(apb1enr);
 }
