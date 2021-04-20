@@ -319,6 +319,11 @@ bool RTC::subSecondCalibrate(int16_t subsecond_ms) {
     return true;
 }
 
+bool RTC::isSubSecondCalibratePending() {
+    auto icsr = registers::rtc->icsr.volatileLoad();
+    return icsr.SHPF;
+}
+
 bool RTC::smoothDigitalCalibration(CalibrationCyclePeriod calibrationPeriod, int16_t rtcclkClockCyclesToMask) {
     registers::RTC::CALR calr{};
     calr.CALW8 = static_cast<uint32_t>(calibrationPeriod) & 0b01;
@@ -328,10 +333,19 @@ bool RTC::smoothDigitalCalibration(CalibrationCyclePeriod calibrationPeriod, int
         calr.CALM = 511 - rtcclkClockCyclesToMask;
     } else {
         calr.CALP.clear();
-        calr.CALM = rtcclkClockCyclesToMask;
+        calr.CALM = -rtcclkClockCyclesToMask;
     }
     registers::rtc->calr.volatileStore(calr);
     return true;
+}
+
+std::pair<RTC::CalibrationCyclePeriod, int16_t> RTC::smoothDigitalCalibration() {
+    auto calr = registers::rtc->calr.volatileLoad();
+    uint32_t calibrationPeriod = calr.CALW8 ? 0b01 : 0;
+    calibrationPeriod |= calr.CALW16 ? 0b10 : 0;
+    int16_t rtcclkClockCyclesToMask = calr.CALP ? 511 - calr.CALM : -calr.CALM.get();
+
+    return {static_cast<CalibrationCyclePeriod>(calibrationPeriod), rtcclkClockCyclesToMask};
 }
 //------------------------------------------------------------------------------
 //                             Wakeup timer
@@ -468,6 +482,16 @@ bool RTC::disableAlarm(Alarm alarm) {
     return true;
 }
 
+bool RTC::isAlarmEnabled(Alarm alarm) {
+    auto cr = registers::rtc->cr.volatileLoad();
+    switch (alarm) {
+        case Alarm::A:
+            return cr.ALRAE;
+        case Alarm::B:
+            return cr.ALRBE;
+    }
+    return false;
+}
 //------------------------------------------------------------------------------
 //                             Interrupts
 //------------------------------------------------------------------------------

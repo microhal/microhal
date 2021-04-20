@@ -173,7 +173,9 @@ class RTC {
     //                             time calibration
     //--------------------------------------------------------------------------
     static bool subSecondCalibrate(int16_t subsecond_ms);
+    static bool isSubSecondCalibratePending();
     static bool smoothDigitalCalibration(CalibrationCyclePeriod calibrationPeriod, int16_t rtcclkClockCyclesToMask);
+    static std::pair<RTC::CalibrationCyclePeriod, int16_t> smoothDigitalCalibration();
     //--------------------------------------------------------------------------
     //                             Wakeup timer
     // Note: You need to enter configuration mode before using these functions
@@ -210,6 +212,7 @@ class RTC {
     static bool configureAlarm(Alarm alarm, const Date &date, const Time &time, uint16_t subsecond, uint8_t subsecondMask);
     static bool enableAlarm(Alarm alarm);
     static bool disableAlarm(Alarm alarm);
+    static bool isAlarmEnabled(Alarm alarm);
     //--------------------------------------------------------------------------
     //                             Interrupts
     //--------------------------------------------------------------------------
