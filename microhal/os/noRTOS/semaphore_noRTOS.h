@@ -19,16 +19,23 @@ class Semaphore {
     ~Semaphore() {}
 
     bool wait(std::chrono::milliseconds timeout) {
-        std::chrono::milliseconds time(0);
-        while (sem == false) {
-            if (time == (timeout * 10)) {
-                return false;
+        if (timeout == std::chrono::milliseconds::max()) {
+            // block indefinitely
+            while (sem == false) {
             }
+        } else {
+            std::chrono::microseconds time(0);
+            const std::chrono::microseconds timeoutMicrosecond = timeout;
+            while (sem == false) {
+                if (time >= timeoutMicrosecond) {
+                    return false;
+                }
 
-            time++;
-            std::this_thread::sleep_for(std::chrono::microseconds{100});
+                time += std::chrono::microseconds{100};
+                std::this_thread::sleep_for(std::chrono::microseconds{100});
+            }
+            sem = false;
         }
-        sem = false;
         return true;
     }
 
@@ -46,4 +53,4 @@ class Semaphore {
 }  // namespace os
 }  // namespace microhal
 
-#endif // _MICROHAL_SEMAPHORE_NORTOS_H_
+#endif  // _MICROHAL_SEMAPHORE_NORTOS_H_
