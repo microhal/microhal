@@ -208,6 +208,8 @@ class RFM96HCW {
         gsl::span<uint8_t> payload() const { return {m_payload, m_length}; }
         gsl::span<uint8_t> payload() { return {m_payload, m_length}; }
 
+        uint8_t airDataSize() const { return m_length + sizeof(m_length) + sizeof(m_destinationAddress); }
+
      protected:
         template <typename T>
         T *payload() {
@@ -234,6 +236,7 @@ class RFM96HCW {
     void init();
 
     void reset();
+    void chipEnablePinDelay(uint32_t delay_ns) { this->spi.chipEnablePinDelay(delay_ns); }
     //--------------------------------------------------------------------------
     //                           Generic configuration
     //--------------------------------------------------------------------------
@@ -308,7 +311,7 @@ class RFM96HCW {
     Error configurePacketMode(PacketLength packetLengthMode, uint_fast8_t packetLength, uint16_t preambleSize, uint16_t bitRate, CRCMode crcMode,
                               EncodingMode encoding);
 
-    Error configureSyncWord(gsl::span<uint8_t> syncWord, uint8_t toleartedBitErrorsInSyncWord);
+    Error configureSyncWord(gsl::span<const uint8_t> syncWord, uint8_t toleartedBitErrorsInSyncWord);
     Error enableSyncWordRecognition();
     Error disableSyncWordRecognition();
 

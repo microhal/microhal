@@ -40,7 +40,7 @@ const uint8_t poutCorrection[] = {unused, unused, 18, 14, 18};
 RFM96HCW::RFM96HCW(SPI &spi, GPIO &ceGpio, microhal::IOPin dio0, GPIO &resetGpio) : spi(spi, ceGpio), m_dio0(dio0), m_resetGpio(resetGpio) {
     m_dio0.connect(irq0Slot, *this, ExternalInterrupt::Trigger::OnRisingEdge);
     m_resetGpio.configureAsInput(GPIO::NoPull);
-    this->spi.chipEnablePinDelay(0);
+    chipEnablePinDelay(30);
 }
 
 RFM96HCW::~RFM96HCW() {
@@ -217,7 +217,7 @@ RFM96HCW::Error RFM96HCW::sendPacket(uint8_t destinationAddress, gsl::span<uint8
         return mode.error();
     }
 
-    uint8_t sizeAndAddress[2] = {data.size() + 1, destinationAddress};
+    uint8_t sizeAndAddress[2] = {uint8_t(data.size() + 1), destinationAddress};
     fifoWrite(sizeAndAddress);
     fifoWrite(data);
     if (lbt) {
@@ -270,7 +270,7 @@ RFM96HCW::Error RFM96HCW::configurePacketMode(PacketLength packetLengthMode, uin
     return error;
 }
 
-RFM96HCW::Error RFM96HCW::configureSyncWord(gsl::span<uint8_t> syncWord, uint8_t toleartedBitErrorsInSyncWord) {
+RFM96HCW::Error RFM96HCW::configureSyncWord(gsl::span<const uint8_t> syncWord, uint8_t toleartedBitErrorsInSyncWord) {
     assert(syncWord.size() < 9);
     assert(toleartedBitErrorsInSyncWord < 8);
 
