@@ -19,7 +19,11 @@
 namespace microhal {
 namespace ClockManager {
 
-#ifdef _MICROHAL_CLOCKMANAGER_HAS_ADC_CLOCK_COURCE
+#ifdef _MICROHAL_REGISTERS_RCC_CCIPR_HAS_ADCSEL
+#define _MICROHAL_CLOCKMANAGER_HAS_ADC_CLOCK_SOURCE
+#endif
+
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_ADC_CLOCK_SOURCE
 enum class AdcClockSource { SYSCLK = 0b00, HSI16 = 0b10, PLLP = 0b01 };
 #endif
 
@@ -213,7 +217,7 @@ inline void disableADC(uint16_t adcNumber) {
 #endif
 }
 
-#ifdef _MICROHAL_CLOCKMANAGER_HAS_ADC_CLOCK_COURCE
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_ADC_CLOCK_SOURCE
 [[maybe_unused]] inline void ADCClockSource(uint8_t number, AdcClockSource clockSource) {
     if (number == 1) {
         auto ccipr = registers::rcc->ccipr.volatileLoad();
@@ -236,7 +240,7 @@ inline void disableADC(uint16_t adcNumber) {
 #endif
 
 [[maybe_unused]] inline uint32_t ADCFrequency([[maybe_unused]] uint8_t number) {
-#ifdef _MICROHAL_CLOCKMANAGER_HAS_ADC_CLOCK_COURCE
+#ifdef _MICROHAL_CLOCKMANAGER_HAS_ADC_CLOCK_SOURCE
     const AdcClockSource clockSource = ADCClockSource(number);
     switch (clockSource) {
         case AdcClockSource::HSI16:
