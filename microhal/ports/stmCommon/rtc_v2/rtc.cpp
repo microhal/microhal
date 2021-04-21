@@ -293,7 +293,7 @@ bool RTC::setPrescaler(uint16_t async_prescaler, uint16_t sync_prescaler) {
 //                             time calibration
 //--------------------------------------------------------------------------
 bool RTC::subSecondCalibrate(int16_t subsecond_ms) {
-    assert(subsecond_ms < 1000 && subsecond_ms > -1000);
+    assert(subsecond_ms <= 1000 && subsecond_ms >= -1000);
 
     uint32_t timeout = 1000;
     while (1) {
@@ -325,6 +325,7 @@ bool RTC::isSubSecondCalibratePending() {
 }
 
 bool RTC::smoothDigitalCalibration(CalibrationCyclePeriod calibrationPeriod, int16_t rtcclkClockCyclesToMask) {
+    assert(rtcclkClockCyclesToMask >= -511 && rtcclkClockCyclesToMask <= 511);
     registers::RTC::CALR calr{};
     calr.CALW8 = static_cast<uint32_t>(calibrationPeriod) & 0b01;
     calr.CALW16 = static_cast<uint32_t>(calibrationPeriod) & 0b10;
