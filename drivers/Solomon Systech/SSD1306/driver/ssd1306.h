@@ -30,29 +30,73 @@
 
 #include <cstdint>
 
+#include <thread>
 #include "I2CDevice/I2CDevice.h"
+#include "SPIDevice/SPIDevice.h"
 #include "color.h"
 #include "display.h"
 #include "gsl/span"
 #include "point.h"
 
-class SSD1306 : public microhal::graphics::Display {
+namespace ssd1306 {
+
+class SPIInterface {
+ public:
+    using Error = microhal::SPI::Error;
+
+    SPIInterface(microhal::SPI &spi, microhal::GPIO &cs, microhal::GPIO &DC) : spi(spi), cs(cs), dataCommandSelect(DC) {}
+
+    bool writeCMD(uint8_t cmd);
+    bool writeData(gsl::span<uint8_t> data);
+
+ private:
+    microhal::SPI &spi;
+    microhal::GPIO &cs;
+    microhal::GPIO &dataCommandSelect;  // when low -> command, when high -> data
+
+    void delay();
+};
+
+class I2CInterface {
  public:
     using Error = microhal::I2C::Error;
+    enum PossibleAddress : microhal::I2C::DeviceAddress { Address_0x78 = 0x78, Address_0x7A = 0x7A };
+
+    I2CInterface(microhal::I2C &i2c, PossibleAddress address) : i2c(i2c, address) {}
+
+    void writeData(gsl::span<uint8_t> data);
+    bool writeCMD(uint8_t cmd);
+
+ private:
+    microhal::I2CDevice i2c;
+};
+
+template <class Interface>
+class SSD1306 : public microhal::graphics::Display {
+ public:
     using Point = microhal::graphics::Point;
     using Color = microhal::graphics::Color;
-    enum PossibleAddress : microhal::I2C::DeviceAddress { Address_0x78 = 0x78, Address_0x7A = 0x7A };
-    static constexpr uint_fast8_t width = 128;
-    static constexpr uint_fast8_t height = 32;
 
-    SSD1306(microhal::I2C &i2c, PossibleAddress address) : i2c(i2c, address) {}
+    enum class MemoryAddressingMode {  // see datasheet: 10.1.3 Set Memory Addressing Mode (20h)
+        PageAddressingMode = 0b10,
+        HorizontalAddressingMode = 0b00,
+        VerticalAddressingMode = 0b01
+    };
+
+    static constexpr uint_fast8_t width = 128;
+    static constexpr uint_fast8_t height = 64;
+
+    // SSD1306(microhal::I2C &i2c, PossibleAddress address) : i2c(i2c, address) {}
+    /// SSD1306(microhal::I2C &i2c, PossibleAddress address) : i2c(i2c, address) {}
+
+    SSD1306(microhal::SPI &spi, microhal::GPIO &cs, microhal::GPIO &DC) : interface(spi, cs, DC) {}
 
     void reset();
     bool init();
     void fill(Color color);
 
     bool setPixel(Point position, Color color) final;
-    void redraw();
+    void redraw() { writeData(framebuffer); }
 
     void setContrast(uint8_t contrast) {
         sendCMD(0x81);
@@ -62,7 +106,7 @@ class SSD1306 : public microhal::graphics::Display {
     void displayOn() { sendCMD(0xAF); }
 
  private:
-    microhal::I2CDevice i2c;
+    Interface interface;
     std::array<uint8_t, width * height / 8> framebuffer;
 
     void setDisplayOffset(uint8_t offset) {
@@ -70,7 +114,25 @@ class SSD1306 : public microhal::graphics::Display {
         sendCMD(offset);
     }
 
-    bool sendCMD(uint8_t cmd);
+    void setCOMPins(uint8_t comPinsConfig) {
+        sendCMD(0xDA);
+        sendCMD(comPinsConfig);
+    }
+
+    void setMemoryAddressingMode(MemoryAddressingMode mode) {
+        sendCMD(0x20);
+        sendCMD(static_cast<uint8_t>(mode));
+    }
+
+    void setStartLine(uint8_t startLine) { sendCMD(0x40 | startLine); }
+
+    bool sendCMD(uint8_t cmd) { return interface.writeCMD(cmd); }
+    bool writeData(gsl::span<uint8_t> data) { return interface.writeData(data); }
 };
+
+using SSD1306_SPI = SSD1306<SPIInterface>;
+using SSD1306_I2C = SSD1306<I2CInterface>;
+
+}  // namespace ssd1306
 
 #endif /* _MICROHAL_SSD1306_H_ */

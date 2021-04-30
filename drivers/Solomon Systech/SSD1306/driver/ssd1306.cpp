@@ -33,12 +33,46 @@
 
 using namespace microhal::diagnostic;
 
+namespace ssd1306 {
+
 uint16_t colorToValue(microhal::graphics::Color color) {
     if (color.r || color.g || color.b) return 1;
     return 0;
 }
 
-bool SSD1306::setPixel(Point position, Color color) {
+bool SPIInterface::writeCMD(uint8_t cmd) {
+    dataCommandSelect.reset();
+    cs.reset();
+    delay();
+    spi.write(cmd, true);
+    delay();
+    cs.set();
+    return true;
+}
+
+bool SPIInterface::writeData(gsl::span<uint8_t> data) {
+    dataCommandSelect.set();
+    cs.reset();
+    spi.write(data.data(), data.size(), true);
+    cs.set();
+    return true;
+}
+
+void SPIInterface::delay() {
+    std::this_thread::sleep_for(std::chrono::milliseconds{1});
+}
+
+void I2CInterface::writeData(gsl::span<uint8_t> data) {
+    i2c.write(0x40, data);
+}
+
+bool I2CInterface::writeCMD(uint8_t cmd) {
+    i2c.write(0x80, cmd);
+    return true;
+}
+
+template <class Interface>
+bool SSD1306<Interface>::setPixel(Point position, Color color) {
     if (position.x > width || position.y > height) return false;
     if (colorToValue(color)) {
         framebuffer[position.x + (position.y / 8 * width)] |= 1 << position.y % 8;
@@ -48,14 +82,16 @@ bool SSD1306::setPixel(Point position, Color color) {
     return true;
 }
 
-void SSD1306::fill(Color color) {
+template <class Interface>
+void SSD1306<Interface>::fill(Color color) {
     if (colorToValue(color))
         framebuffer.fill(0xFF);
     else
         framebuffer.fill(0x00);
 }
 
-void SSD1306::reset() {
+template <class Interface>
+void SSD1306<Interface>::reset() {
     //    rst.set();
     //    std::this_thread::sleep_for(std::chrono::milliseconds{1});
     //    rst.reset();
@@ -64,18 +100,18 @@ void SSD1306::reset() {
     //    std::this_thread::sleep_for(std::chrono::milliseconds{50});
 }
 
-bool SSD1306::init() {
+template <class Interface>
+bool SSD1306<Interface>::init() {
     reset();
 
     displayOff();
-    sendCMD(0x00);
-    sendCMD(0x10);
-    sendCMD(0x40);
-    sendCMD(0x20);  // page addressing mode
-    sendCMD(0x00);
+    //    sendCMD(0x00);
+    //    sendCMD(0x10);
+    setStartLine(0);
+    setMemoryAddressingMode(MemoryAddressingMode::HorizontalAddressingMode);
     setContrast(0x01);
     sendCMD(0xA1);
-    sendCMD(0xC0);
+    if (height == 32) sendCMD(0xC0);
     sendCMD(0xA8);
     sendCMD(0x3F);
     sendCMD(0xD5);
@@ -85,16 +121,12 @@ bool SSD1306::init() {
 
     if (height == 64) {
         setDisplayOffset(0);
-        sendCMD(0xDA);
-        sendCMD(0x12);
-    }
-    if (height == 32) {
+        setCOMPins(0x12);
+    } else if (height == 32) {
         setDisplayOffset(32);
-        sendCMD(0xDA);
-        sendCMD(0x02);
+        setCOMPins(0x02);
     } else {
-        sendCMD(0xDA);
-        sendCMD(0x02);
+        setCOMPins(0x02);
     }
     sendCMD(0xDB);
     sendCMD(0x40);
@@ -109,11 +141,9 @@ bool SSD1306::init() {
     return true;
 }
 
-void SSD1306::redraw() {
-    i2c.write(0x40, framebuffer);
-}
+template void SSD1306<SPIInterface>::reset();
+template bool SSD1306<SPIInterface>::init();
+template bool SSD1306<SPIInterface>::setPixel(Point position, Color color);
+template void SSD1306<SPIInterface>::fill(Color color);
 
-bool SSD1306::sendCMD(uint8_t cmd) {
-    i2c.write(0x80, cmd);
-    return true;
-}
+}  // namespace ssd1306
