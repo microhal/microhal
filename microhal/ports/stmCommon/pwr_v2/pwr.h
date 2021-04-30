@@ -40,6 +40,8 @@
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
 #endif
 
+#undef PWR
+
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
@@ -59,7 +61,13 @@ class PWR {
     enum class Edge { Rising = 0, Falling };
     enum class Pull { None, Up, Down };
 
-    static void init() { ClockManager::enablePWR(); }
+    static void init() {
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+        ClockManager::enablePWR(ClockManager::PowerMode::Normal);
+#else
+        ClockManager::enablePWR();
+#endif
+    }
 
     static void configureWakeup(WakeupPin pinNumber, Edge edge);
     static void enableWakeup(WakeupPin pinNumber);

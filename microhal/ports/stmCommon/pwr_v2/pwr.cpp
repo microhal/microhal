@@ -77,21 +77,25 @@ void PWR::configurePin(IOPin pin, Pull pull) {
         configuerPinPullUpDown(pucr, pdcr, pin, pull);
         registers::pwr->pdcrd.volatileStore(pdcr);
         registers::pwr->pucrd.volatileStore(pucr);
+    }
 #if defined(_MICROHAL_GPIOE_BASE_ADDRESS)
-    } else if (pin.port == IOPin::PortE) {
+    else if (pin.port == IOPin::PortE) {
         auto pdcr = registers::pwr->pdcre.volatileLoad();
         auto pucr = registers::pwr->pucre.volatileLoad();
         configuerPinPullUpDown(pucr, pdcr, pin, pull);
         registers::pwr->pdcre.volatileStore(pdcr);
         registers::pwr->pucre.volatileStore(pucr);
+    }
 #endif
-    } else if (pin.port == IOPin::PortF) {
+#if defined(_MICROHAL_GPIOF_BASE_ADDRESS)
+    else if (pin.port == IOPin::PortF) {
         auto pdcr = registers::pwr->pdcrf.volatileLoad();
         auto pucr = registers::pwr->pucrf.volatileLoad();
         configuerPinPullUpDown(pucr, pdcr, pin, pull);
         registers::pwr->pdcrf.volatileStore(pdcr);
         registers::pwr->pucrf.volatileStore(pucr);
     }
+#endif
 }
 
 void PWR::enablePullConfiguration() {

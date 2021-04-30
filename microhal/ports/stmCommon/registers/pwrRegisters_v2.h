@@ -509,7 +509,8 @@ struct PWR {
     VolatileRegister<PDCRx, AccessType::ReadWrite> pdcrc; /*!< Power Port C pull-down control register	Address offset: 0x34 */
     VolatileRegister<PUCRx, AccessType::ReadWrite> pucrd; /*!< Power Port D pull-up control register	Address offset: 0x38 */
     VolatileRegister<PDCRx, AccessType::ReadWrite> pdcrd; /*!< Power Port D pull-down control register	Address offset: 0x3C */
-    uint32_t reserved1[2];                                /*!< Reserved register	Address offset: 0x40 */
+    VolatileRegister<PUCRx, AccessType::ReadWrite> pucre; /*!< Power Port E pull-up control register	Address offset: 0x40 */
+    VolatileRegister<PDCRx, AccessType::ReadWrite> pdcre; /*!< Power Port E pull-down control register	Address offset: 0x44 */
     VolatileRegister<PUCRx, AccessType::ReadWrite> pucrf; /*!< Power Port F pull-up control register	Address offset: 0x48 */
     VolatileRegister<PDCRx, AccessType::ReadWrite> pdcrf; /*!< Power Port F pull-down control register	Address offset: 0x4C */
 };
