@@ -30,6 +30,7 @@
 #define _MICROHAL_INCLUDE_PORT_CONFIG "microhalPortConfig_stm32f3xx.h"
 #define _MICROHAL_INCLUDE_PORT_IOMANAGER "ports/stm32f3xx/IOManager_stm32f3xx.h"
 #define _MICROHAL_INCLUDE_PORT_GPIO "ports/stm32f3xx/gpio_stm32f3xx.h"
+#define _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER "ports/stm32f3xx/interruptController.h"
 #elif defined(MCU_TYPE_STM32F4XX)
 #define _MICROHAL_ACTIVE_PORT_NAMESPACE stm32f4xx
 #define _MICROHAL_INCLUDE_PORT_DEVICE "ports/stm32f4xx/device/stm32f4xx.h"
@@ -37,6 +38,7 @@
 #define _MICROHAL_INCLUDE_PORT_CONFIG "microhalPortConfig_stm32f4xx.h"
 #define _MICROHAL_INCLUDE_PORT_IOMANAGER "ports/stm32f4xx/IOManager_stm32f4xx.h"
 #define _MICROHAL_INCLUDE_PORT_GPIO "ports/stm32f4xx/gpio_stm32f4xx.h"
+#define _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER "ports/stm32f4xx/interruptController.h"
 #elif defined(MCU_TYPE_STM32G0XX)
 #define _MICROHAL_ACTIVE_PORT_NAMESPACE stm32g0xx
 #define _MICROHAL_INCLUDE_PORT_DEVICE "ports/stm32g0xx/nvic.h"
