@@ -35,7 +35,7 @@ namespace bsp {
 static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
 
 namespace sdCard {
-static microhal::SPI &spi = microhal::stm32f4xx::SPI::spi1;
+extern microhal::SPI &spi;
 extern microhal::GPIO &cs;
 }  // namespace sdCard
 

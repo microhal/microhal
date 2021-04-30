@@ -35,11 +35,14 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 namespace bsp {
-stm32f4xx::GPIO cs_stm({IOPin::PortA, 15}, stm32f4xx::GPIO::Direction::Output);
+// stm32f4xx::GPIO cs_stm({IOPin::PortA, 15}, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO cs_stm({IOPin::PortB, 2}, stm32f4xx::GPIO::Direction::Output);
 
 namespace sdCard {
+microhal::stm32f4xx::SPI_dma &spi1 = microhal::stm32f4xx::SPI_dma::create<1, {IOPin::PortA, 6}, {IOPin::PortA, 7}, {IOPin::PortA, 5}>();
+microhal::SPI &spi = spi1;
 microhal::GPIO &cs = cs_stm;
-}
+}  // namespace sdCard
 
 bool init() {
     bsp::debugPort.clear();
@@ -50,8 +53,8 @@ bool init() {
     bsp::debugPort.open(microhal::SerialPort::ReadWrite);
     bsp::debugPort.setBaudRate(microhal::SerialPort::Baud115200);
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
-    stm32f4xx::SPI::spi1.enable();
+    sdCard::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
+    sdCard::spi1.enable();
 
     return true;
 }
@@ -75,16 +78,16 @@ void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
+    IOManager::routeSerial<2, Txd, {stm32f4xx::IOPin::PortA, 2}>();
+    IOManager::routeSerial<2, Rxd, {stm32f4xx::IOPin::PortA, 3}>();
 
-    IOManager::routeSPI<1, SCK, IOPin::PortA, 5>();
-    IOManager::routeSPI<1, MISO, IOPin::PortA, 6>();
-    IOManager::routeSPI<1, MOSI, IOPin::PortA, 7>();
+    //    IOManager::routeSPI<1, SCK, {IOPin::PortA, 5}>();
+    //    IOManager::routeSPI<1, MISO, {IOPin::PortA, 6}>();
+    //    IOManager::routeSPI<1, MOSI, {IOPin::PortA, 7}>();
 
     TaskHandle_t xHandle = NULL;
 
-    xTaskCreate(run_main, "main", 11.5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
+    xTaskCreate(run_main, "main", 5 * 1024, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }

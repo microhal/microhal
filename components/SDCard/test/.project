@@ -28,7 +28,7 @@
 		<link>
 			<name>FreeRTOS</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/third-party/FreeRTOS/FreeRTOS/Source</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/third-party/FreeRTOS-Kernel</locationURI>
 		</link>
 		<link>
 			<name>SDCard</name>
