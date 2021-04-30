@@ -75,10 +75,15 @@ bool Display::drawLineWidth(Point begin, Point end, uint_fast16_t width, Color c
     return true;
 }
 
-bool Display::drawTriangle(Point v1, Point v2, Point v3, Color color) {
-    drawLine(v1, v2, color);
-    drawLine(v2, v3, color);
-    drawLine(v1, v3, color);
+bool Display::drawTriangle(const Triangle& triangle) {
+    if (triangle.visible()) {
+        Point v1, v2, v3;
+        triangle.getCoordinates_to(v1, v2, v3);
+        const Color color = triangle.color();
+        drawLine(v1, v2, color);
+        drawLine(v2, v3, color);
+        drawLine(v1, v3, color);
+    }
     return true;
 }
 

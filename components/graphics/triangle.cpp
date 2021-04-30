@@ -4,9 +4,8 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 06-04-2019
  *
- * @copyright Copyright (c) 2019, Pawel Okas
+ * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,41 +24,14 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_GRAPHICS_DISPLAY_H_
-#define _MICROHAL_GRAPHICS_DISPLAY_H_
-
-#include <cmath>
-#include <cstdint>
-#include "color.h"
-#include "display.h"
-#include "point.h"
-#include "triangle.h"
+#include <triangle.h>
 
 namespace microhal {
 namespace graphics {
 
-class Display {
- public:
-    virtual ~Display() {}
+Triangle::Triangle(Point a, Point b, Point c, Color color) : a(a), b(b), c(c), m_color(color) {}
 
-    virtual bool setPixel(Point, Color color) = 0;
-    virtual bool drawLine(Point begin, Point end, Color color);
-    bool drawLineWidth(Point begin, Point end, uint_fast16_t width, Color color);
-    bool drawRectangle(Point begin, Point end, Color);
-    virtual bool drawFilledRectangle(Point begin, Point end, Color);
-    bool drawCircle(Point center, uint16_t radius, Color);
-    bool drawFilledCircle(Point center, uint16_t radius, Color);
-    bool drawTriangle(const Triangle& triangle);
-    bool drawRoundedRectangle(Point begin, Point end, uint16_t radius, Color);
-    bool drawFilledRoundedRectangle(Point begin, Point end, uint16_t radius, Color color);
-    virtual bool drawBitmap(Point begin, size_t width, size_t height, Color bitmap[]);
+Triangle::~Triangle() {}
 
- private:
-    void drawCircle_helper(Point center, int x, int y, Color color, uint8_t parts);
-    void drawFilledCircle_helper(Point center, uint16_t x, uint16_t y, Color color);
-    void drawPartialCircle(Point center, uint16_t radius, Color, uint8_t parts);
-};
 }  // namespace graphics
 }  // namespace microhal
-
-#endif /* _MICROHAL_GRAPHICS_DISPLAY_H_ */
