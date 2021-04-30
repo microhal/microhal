@@ -83,13 +83,21 @@ LIN::LIN(registers::USART &usart) : usart(usart) {
         std::terminate();
 #endif
     }
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::enableUSART(usartNumber, ClockManager::PowerMode::Normal);
+#else
     ClockManager::enableUSART(usartNumber);
+#endif
 }
 
 LIN::~LIN() {
     const auto usartNumber = usart::number(&usart);
     disableInterrupt();
+#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
+    ClockManager::disableUSART(usartNumber, ClockManager::PowerMode::Normal | ClockManager::PowerMode::Sleep);
+#else
     ClockManager::disableUSART(usartNumber);
+#endif
 #if MICROHAL_USE_LIN1 == 1
     if (usartNumber == 1) lin1 = nullptr;
 #endif
