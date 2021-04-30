@@ -77,8 +77,8 @@ RTC::ResultDate RTC::date() {
 
 #ifdef MICROHAL_RTC_ENABLE_POSIX_EPOCH
 time_t RTC::epoch() {
-    auto time = stm32g0xx::RTC::time();
-    auto date = stm32g0xx::RTC::date();
+    auto time = RTC::time();
+    auto date = RTC::date();
     if (time && date) {
         tm tm_time;
         tm_time.tm_isdst = 0;
@@ -96,9 +96,9 @@ time_t RTC::epoch() {
 }
 
 int64_t RTC::epoch_ms(uint16_t synchronousPrescaler) {
-    auto subsecond = stm32g0xx::RTC::subsecond_ms(synchronousPrescaler);
-    auto time = stm32g0xx::RTC::time();
-    auto date = stm32g0xx::RTC::date();
+    auto subsecond = RTC::subsecond_ms(synchronousPrescaler);
+    auto time = RTC::time();
+    auto date = RTC::date();
     if (subsecond && time && date) {
         tm tm_time;
         tm_time.tm_isdst = 0;

@@ -30,6 +30,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <utility>
 #include "../registers/rtcRegisters_v2.h"
 #include "../stmCommonDefines.h"
 #include "ports/stmCommon/clockManager/rtcClock.h"
