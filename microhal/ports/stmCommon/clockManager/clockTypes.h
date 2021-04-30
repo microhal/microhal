@@ -18,6 +18,10 @@ namespace ClockManager {
 using Frequency = uint32_t;
 enum class PowerMode { Normal = 0b1, Sleep = 0b10 };
 
+constexpr PowerMode operator|(PowerMode a, PowerMode b) {
+    return static_cast<PowerMode>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+}
+
 static constexpr bool isEnabled(PowerMode mode, PowerMode flag) {
     using enumType = std::underlying_type<PowerMode>::type;
     if (static_cast<enumType>(mode) & static_cast<enumType>(flag)) return true;
