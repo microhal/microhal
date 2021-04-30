@@ -12,6 +12,7 @@
 #include "diagnostic/diagnostic.h"
 #include "fatFsStatusToString.h"
 #include "ff.h"
+#include "ffconf.h"
 #include "ports/manager/hardware.h"
 
 using namespace microhal;
@@ -128,19 +129,19 @@ BYTE convertFileFlagsFromPOSIXToFatFs(int flags) {
     if ((flags & 0b11) == O_RDWR) fatFsMode |= FA_READ | FA_WRITE;
     if (flags & _FAPPEND) fatFsMode |= FA_OPEN_APPEND; /* append (writes guaranteed at the end) */
     if (flags & _FMARK) {                              /* internal; mark during gc() */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FMARK, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FMARK, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FDEFER) { /* internal; defer for next gc pass */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FDEFER, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FDEFER, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FASYNC) { /* signal pgrp when data ready */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FASYNC, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FASYNC, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FSHLOCK) { /* BSD flock() shared lock present */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FSHLOCK, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FSHLOCK, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FEXLOCK) { /* BSD flock() exclusive lock present */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FEXLOCK, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FEXLOCK, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FTRUNC) { /* open with truncation */
     }
@@ -153,26 +154,26 @@ BYTE convertFileFlagsFromPOSIXToFatFs(int flags) {
             else if (flags & _FTRUNC)           /* open with truncation */
                 fatFsMode |= FA_CREATE_ALWAYS;  // create new file, if file exist all existing data will be truncated
             else {
-                diagChannel << lock << MICROHAL_ERROR << "i: _FTRUNC, flags value: " << toHex(flags) << unlock;
+                diagChannel << lock << MICROHAL_ERROR << "i: _FTRUNC, flags value: " << toHex((uint32_t)flags) << unlock;
             }
         }
     } else {
         fatFsMode |= FA_OPEN_EXISTING;
     }
     if (flags & _FNBIO) { /* non blocking I/O (sys5 style) */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNBIO, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNBIO, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FSYNC) { /* do all writes synchronously */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FSYNC, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FSYNC, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FNONBLOCK) { /* non blocking I/O (POSIX style) */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNONBLOCK, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNONBLOCK, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FNDELAY) { /* non blocking I/O (4.2 style) */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNDELAY, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNDELAY, flags value: " << toHex((uint32_t)flags) << unlock;
     }
     if (flags & _FNOCTTY) { /* don't assign a ctty on this open */
-        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNOCTTY, flags value: " << toHex(flags) << unlock;
+        diagChannel << lock << MICROHAL_WARNING << "Unsupported file option: _FNOCTTY, flags value: " << toHex((uint32_t)flags) << unlock;
     }
 
     return fatFsMode;
@@ -183,9 +184,12 @@ extern "C" int _open_r(struct _reent *r, const char *pathname, int flags, int mo
                 << " mode: " << (int32_t)mode << unlock;
     for (size_t i = 0; i < MICROHAL_FATFS_MAXFILES_IN_USE; i++) {
         if (fileTable[i].isOpen) continue;
-        if (f_open(&fileTable[i].fp, pathname, convertFileFlagsFromPOSIXToFatFs(flags)) == FR_OK) {
+        if (auto result = f_open(&fileTable[i].fp, pathname, convertFileFlagsFromPOSIXToFatFs(flags)); result == FR_OK) {
             fileTable[i].isOpen = true;
             return i + 3;
+        } else {
+            diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs open error: " << printFatFSResult(result) << unlock;
+            return -1;
         }
     }
     return -1;
@@ -387,7 +391,7 @@ void ff_memfree(void *mblock /* Pointer to the memory block to free (nothing to 
 
 #endif
 
-#if _FS_REENTRANT
+#if FF_FS_REENTRANT
 /*------------------------------------------------------------------------*/
 /* Create a Synchronization Object
 /*------------------------------------------------------------------------*/
@@ -395,9 +399,9 @@ void ff_memfree(void *mblock /* Pointer to the memory block to free (nothing to 
 /  synchronization object, such as semaphore and mutex. When a 0 is returned,
 /  the f_mount() function fails with FR_INT_ERR.
 */
-extern "C" int ff_cre_syncobj(              /* 1:Function succeeded, 0:Could not create the sync object */
-                              BYTE vol,     /* Corresponding volume (logical drive number) */
-                              _SYNC_t *sobj /* Pointer to return the created sync object */
+extern "C" int ff_cre_syncobj(                /* 1:Function succeeded, 0:Could not create the sync object */
+                              BYTE vol,       /* Corresponding volume (logical drive number) */
+                              FF_SYNC_t *sobj /* Pointer to return the created sync object */
 ) {
     int ret;
     *sobj = xSemaphoreCreateMutex(); /* FreeRTOS */
@@ -414,8 +418,8 @@ extern "C" int ff_cre_syncobj(              /* 1:Function succeeded, 0:Could not
 /  the f_mount() function fails with FR_INT_ERR.
 */
 
-extern "C" int ff_del_syncobj(             /* 1:Function succeeded, 0:Could not delete due to any error */
-                              _SYNC_t sobj /* Sync object tied to the logical drive to be deleted */
+extern "C" int ff_del_syncobj(               /* 1:Function succeeded, 0:Could not delete due to any error */
+                              FF_SYNC_t sobj /* Sync object tied to the logical drive to be deleted */
 ) {
     vSemaphoreDelete(sobj); /* FreeRTOS */
     return 1;
@@ -428,11 +432,11 @@ extern "C" int ff_del_syncobj(             /* 1:Function succeeded, 0:Could not 
 /  When a 0 is returned, the file function fails with FR_TIMEOUT.
 */
 
-extern "C" int ff_req_grant(             /* 1:Got a grant to access the volume, 0:Could not get a grant */
-                            _SYNC_t sobj /* Sync object to wait */
+extern "C" int ff_req_grant(               /* 1:Got a grant to access the volume, 0:Could not get a grant */
+                            FF_SYNC_t sobj /* Sync object to wait */
 ) {
     int ret;
-    ret = (int)(xSemaphoreTake(sobj, _FS_TIMEOUT) == pdTRUE); /* FreeRTOS */
+    ret = (int)(xSemaphoreTake(sobj, FF_FS_TIMEOUT) == pdTRUE); /* FreeRTOS */
 
     return ret;
 }
@@ -443,7 +447,7 @@ extern "C" int ff_req_grant(             /* 1:Got a grant to access the volume, 
 /* This function is called on leaving file functions to unlock the volume.
  */
 
-extern "C" void ff_rel_grant(_SYNC_t sobj /* Sync object to be signaled */
+extern "C" void ff_rel_grant(FF_SYNC_t sobj /* Sync object to be signaled */
 ) {
     xSemaphoreGive(sobj); /* FreeRTOS */
 }

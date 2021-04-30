@@ -22,7 +22,6 @@ class SDCardDisk final : public Disk {
     SDCardDisk(Sd& sd) : sdCard(sd) {}
 
     DSTATUS initialize();
-    // DSTATUS status() { return _status; }
     DRESULT read(BYTE* buff, DWORD sector, UINT count);
     DRESULT write(const BYTE* buff, DWORD sector, UINT count);
     DRESULT ioctl(BYTE cmd, void* buff);
