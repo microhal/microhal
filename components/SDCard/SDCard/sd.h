@@ -31,12 +31,12 @@
 #define SD_H_
 
 #include <experimental/optional>
-#include "byteswap.h"
 #include "crc/crc16.h"
 #include "crc/crc7.h"
 #include "diagnostic/diagnostic.h"
 #include "microhal.h"
 #include "ports/manager/hardware.h"
+#include "utils/byteswap.h"
 #include "utils/packed.h"
 
 class Sd final {
@@ -164,7 +164,7 @@ class Sd final {
     };
 
     Sd(microhal::SPI &spi, GPIO &chipSelect) noexcept : spi(spi), cs(chipSelect) {
-        cs.setDirectionOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
+        cs.configureAsOutput(GPIO::OutputType::PushPull, GPIO::PullType::NoPull);
         cs.set();
     }
     ~Sd();
