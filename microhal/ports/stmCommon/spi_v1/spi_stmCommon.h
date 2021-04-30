@@ -88,6 +88,8 @@ class SPI : public microhal::SPI {
         Prescaler128,       //!< Prescaler128
         Prescaler256,       //!< Prescaler256
     } Prescaler;
+
+    enum class FIFOLevel { Empty = 0b00, Quoter = 0b01, Half = 0b10, Full = 0b11 };
     //---------------------------------------- functions ----------------------------------------//
     bool setMode(Mode mode) final {
         const uint32_t modeFlags[] = {0b00, 0b01, 0b10, 0b11};
@@ -205,7 +207,10 @@ class SPI : public microhal::SPI {
         while (spi.sr.volatileLoad().BSY) {
         }
     }
-
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+    FIFOLevel txFifoLevel() const { return static_cast<FIFOLevel>(spi.sr.volatileLoad().FTLVL.get()); }
+    FIFOLevel rxFifoLevel() const { return static_cast<FIFOLevel>(spi.sr.volatileLoad().FRLVL.get()); }
+#endif
     Prescaler findClosestPrescaler(uint32_t prescaler);
 
     void enableGlobalInterrupt(uint32_t priority) {

@@ -42,6 +42,17 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
     writePtr = (uint8_t *)data;
     writeEnd = ((uint8_t *)data) + len;
 
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+    // we have transmit fifo, lets fill fifo before enabling interrupt
+    do {
+        if (txFifoLevel() != FIFOLevel::Full) {
+            spi.dr.volatileStore_8bit(*writePtr);
+            writePtr++;
+        } else {
+            break;
+        }
+    } while (writePtr != writeEnd - 1);
+#endif
     enableInterrupt(Interrupt::TransmitterEmpty);
     if (semaphore.wait(std::chrono::milliseconds::max())) {
         // this is last transaction on SPI bus, so we need to wait until last byte will be send before we exit from function because someone could
