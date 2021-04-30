@@ -103,8 +103,8 @@ GPS::Result<GPS::RMC> GPS::decodeRMC(string_view message) {
             rmc.date = decodeDate(strings[9]);
             rmc.magneticVariation = decodeMagneticVariation(strings[10], strings[11]);
             rmc.positioningMode = decodePositioningMode(strings[12]);
+            return {1, rmc};
         }
-        return {1, rmc};
     }
     return {0, rmc};
 }
@@ -129,8 +129,8 @@ GPS::Result<GPS::VTG> GPS::decodeVTG(string_view message) {
             vtg.groundSpeedKnots = stringToFloat(strings[5]);
             vtg.groundSpeedKm = stringToFloat(strings[7]);
             vtg.positioningMode = decodePositioningMode(strings[9]);
+            return {1, vtg};
         }
-        return {1, vtg};
     }
     return {0, vtg};
 }
@@ -160,8 +160,8 @@ GPS::Result<GPS::GGA> GPS::decodeGGA(string_view message) {
             gga.geoidSeparation = stringToFloat(strings[11]);
             gga.dgpsAge = NAN;
             gga.dgpsStationId = NAN;
+            return {1, gga};
         }
-        return {1, gga};
     }
     return {0, gga};
 }
@@ -194,8 +194,8 @@ GPS::Result<GPS::GSA> GPS::decodeGSA(string_view message) {
             gsa.hdop = stringToFloat(strings[16]);
             gsa.vdop = stringToFloat(strings[17]);
             gsa.gnssSystemId = decodeGNSSSystemId(strings[18]);
+            return {1, gsa};
         }
-        return {1, gsa};
     }
     return {0, gsa};
 }
@@ -225,8 +225,8 @@ GPS::Result<GPS::GLL> GPS::decodeGLL(string_view message) {
             gll.time = decodeTime(strings[5]);
             gll.dataValid = strings[6] == "A"sv ? true : false;
             gll.positioningMode = decodePositioningMode(strings[7]);
+            return {1, gll};
         }
-        return {1, gll};
     }
     return {0, gll};
 }
@@ -250,8 +250,8 @@ GPS::Result<GPS::TXT> GPS::decodeTXT(string_view message) {
             std::from_chars(strings[2].data(), strings[2].data() + strings[2].size(), txt.messageNumber, 10);
             txt.messageType = decodeMessageType(strings[3]);
             txt.messageText = strings[4];
+            return {1, txt};
         }
-        return {1, txt};
     }
     return {0, txt};
 }
@@ -293,16 +293,18 @@ GPS::Date GPS::decodeDate(string_view datestr) {
  * @return latitude as float number or NaN if an error occurred
  */
 float GPS::decodeLatitude(string_view latitudeString, string_view northOrSouth) {
-    string_view degreesStr = latitudeString.substr(0, 2);
-    string_view minutesStr = latitudeString.substr(2);
+    if (latitudeString.length() >= 2) {
+        string_view degreesStr = latitudeString.substr(0, 2);
+        string_view minutesStr = latitudeString.substr(2);
 
-    uint_fast8_t latitudeDegree;
-    if (auto [ptr, ec] = std::from_chars(degreesStr.data(), degreesStr.data() + degreesStr.size(), latitudeDegree, 10); ec != std::errc()) {
-        return NAN;
+        uint_fast8_t latitudeDegree;
+        if (auto [ptr, ec] = std::from_chars(degreesStr.data(), degreesStr.data() + degreesStr.size(), latitudeDegree, 10); ec == std::errc()) {
+            float latitude = (stringToFloat(minutesStr) / 60.0f) + latitudeDegree;
+            if (northOrSouth.compare("S") == 0) latitude *= -1.0f;
+            return latitude;
+        }
     }
-    float latitude = (stringToFloat(minutesStr) / 60.0f) + latitudeDegree;
-    latitude *= northOrSouth.compare("N") ? 1.0f : -1.0f;
-    return latitude;
+    return NAN;
 }
 /**
  *
@@ -311,18 +313,20 @@ float GPS::decodeLatitude(string_view latitudeString, string_view northOrSouth) 
  * @return longitude as float or NaN if an error occurred
  */
 float GPS::decodeLongitude(string_view longitudeString, string_view eastOrWest) {
-    string_view longitudeDegreesStr = longitudeString.substr(0, 3);
-    string_view longitudeMinutesStr = longitudeString.substr(4);
+    if (longitudeString.length() >= 3) {
+        string_view longitudeDegreesStr = longitudeString.substr(0, 3);
+        string_view longitudeMinutesStr = longitudeString.substr(3);
 
-    uint_fast8_t longitudeDegrees;
-    uint_fast16_t longitudeMinutes;
-    if (auto [ptr, ec] = std::from_chars(longitudeDegreesStr.data(), longitudeDegreesStr.data() + longitudeDegreesStr.size(), longitudeDegrees, 10);
-        ec != std::errc()) {
-        return NAN;
+        uint_fast8_t longitudeDegrees;
+        if (auto [ptr, ec] =
+                std::from_chars(longitudeDegreesStr.data(), longitudeDegreesStr.data() + longitudeDegreesStr.size(), longitudeDegrees, 10);
+            ec == std::errc()) {
+            float longitude = (stringToFloat(longitudeMinutesStr) / 60.0f) + longitudeDegrees;
+            if (eastOrWest.compare("W") == 0) longitude *= -1.0f;
+            return longitude;
+        }
     }
-    float longitude = (stringToFloat(longitudeMinutesStr) / 60.0f) + longitudeDegrees;
-    longitude *= eastOrWest.compare("E") ? 1.0f : -1.0f;
-    return longitude;
+    return NAN;
 }
 
 float GPS::decodeMagneticVariation(string_view magneticVariation, string_view eastOrWest) {
@@ -376,14 +380,17 @@ uint_fast8_t GPS::checksum(string_view message) {
 
 bool GPS::isChecksumValid(string_view message) {
     auto checksumBegin = message.find('*');
-    string_view checksumStr = message.substr(checksumBegin + 1, 2);
-    string_view checksumData = message.substr(1, checksumBegin - 1);
+    if (checksumBegin + 2 <= message.size()) {
+        string_view checksumStr = message.substr(checksumBegin + 1, 2);
+        string_view checksumData = message.substr(1, checksumBegin - 1);
 
-    uint8_t expectedChecksum;
-    if (!checksumStr.empty()) {
-        if (auto [ptr, ec] = std::from_chars(checksumStr.data(), checksumStr.data() + checksumStr.size(), expectedChecksum, 16); ec == std::errc()) {
-            auto calculatedChecksum = checksum(checksumData);
-            return calculatedChecksum == expectedChecksum;
+        uint8_t expectedChecksum;
+        if (!checksumStr.empty()) {
+            if (auto [ptr, ec] = std::from_chars(checksumStr.data(), checksumStr.data() + checksumStr.size(), expectedChecksum, 16);
+                ec == std::errc()) {
+                auto calculatedChecksum = checksum(checksumData);
+                return calculatedChecksum == expectedChecksum;
+            }
         }
     }
     return false;
