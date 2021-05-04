@@ -5,7 +5,7 @@
  *
  * @authors    Pawel Okas
  *
- * @copyright Copyright (c) 2014-2020, Pawel Okas
+ * @copyright Copyright (c) 2014-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -84,7 +84,7 @@ class GPIOPort {
     microhal::registers::GPIO &gpio;
 };
 
-class GPIOCommonBase : public microhal::GPIO {
+class GPIO : public microhal::GPIO {
  public:
     /**
      * @brief Possible pin speed
@@ -107,11 +107,29 @@ class GPIOCommonBase : public microhal::GPIO {
     } PinConfiguration;
     static_assert(sizeof(PinConfiguration) == 4, "");
 
+    enum class AlternateFunction : uint8_t {
+        AF0 = 0,
+        AF1 = 1,
+        AF2 = 2,
+        AF3 = 3,
+        AF4 = 4,
+        AF5 = 5,
+        AF6 = 6,
+        AF7 = 7,
+        AF8 = 8,
+        AF9,
+        AF10,
+        AF11,
+        AF12,
+        AF13,
+        AF14,
+        AF15
+    };
+
  public:
     using Port = IOPin::Port;
-    using GPIO = microhal::registers::GPIO;
     //--------------------------------------- constructors --------------------------------------//
-    constexpr GPIOCommonBase(IOPin pin) : port(reinterpret_cast<microhal::registers::GPIO *>(pin.port)), pinNo(pin.pin) {}
+    constexpr GPIO(IOPin pin) : port(reinterpret_cast<microhal::registers::GPIO *>(pin.port)), pinNo(pin.pin) {}
     /**
      * @brief Constructor of GPIO class
      *
@@ -121,12 +139,12 @@ class GPIOCommonBase : public microhal::GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    constexpr GPIOCommonBase(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
+    constexpr GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
         : port(reinterpret_cast<microhal::registers::GPIO *>(pin.port)), pinNo(pin.pin) {
         pinInitialize(PinConfiguration{dir, type, pull, speed});
     }
 
-    virtual ~GPIOCommonBase() {}
+    virtual ~GPIO() {}
 
     bool set() final {
         port.setMask(1 << pinNo);
@@ -193,15 +211,7 @@ class GPIOCommonBase : public microhal::GPIO {
         dir |= direction << pinNo;  // set new configuration
         port.setDirection(dir);
     }
-};
 
-template <typename Enum>
-class GPIOCommon : public GPIOCommonBase {
- public:
-    using GPIOCommonBase::GPIOCommonBase;
-
- protected:
-    using AlternateFunction = Enum;
     /**
      *
      * @param function

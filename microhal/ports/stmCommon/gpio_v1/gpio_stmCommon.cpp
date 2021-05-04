@@ -32,7 +32,7 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
-void GPIOCommonBase::pinInitialize(PinConfiguration config) {
+void GPIO::pinInitialize(PinConfiguration config) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
     ClockManager::enableGPIO(port.getGpioHandle(), ClockManager::PowerMode::Normal);
 #else
@@ -56,7 +56,7 @@ void GPIOCommonBase::pinInitialize(PinConfiguration config) {
     setSpeed(config.speed);
 }
 
-bool GPIOCommonBase::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
+bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
     dir = static_cast<Direction>((port.getDirection() >> pinNo) & 0b1);
     pull = static_cast<PullType>((port.getPullConfig() >> (2 * pinNo)) & 0b11);
     return true;

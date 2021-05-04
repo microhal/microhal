@@ -49,7 +49,7 @@ class IOManager {
     static void routeTimer(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
         constexpr IOPin pin(port, pinNr);
         GPIO gpio(pin);
-        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::Timer_1_2, stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::PushPull);
+        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::AF1, stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::PushPull);
     }
 
     template <int serialNumber, SerialPinType serialPinType, stm32f4xx::IOPin pin>
@@ -251,7 +251,7 @@ class IOManager {
         static_assert((i2cNumber != 3 || i2cType != SCL || (port == IOPin::PortA && pinNr == 8)), "I2C3 SCL can be connected only to: PortA.8.");
 
         GPIO gpio(pin);
-        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::I2C, pull, type);
+        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::AF4, pull, type);
     }
 
     template <USBPinType usbPinType, IOPin::Port port, IOPin::Pin pinNr>
@@ -270,7 +270,7 @@ class IOManager {
         }
 
         GPIO gpio(pin);
-        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::USB, pull, type, GPIO::Speed::HighSpeed);
+        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::AF10, pull, type, GPIO::Speed::HighSpeed);
     }
 
     template <int dacNumber, IOPin::Port port, IOPin::Pin pinNr>
@@ -325,7 +325,7 @@ class IOManager {
             }
         }
         GPIO gpio(pin);
-        gpio.setAlternateFunction(GPIO::AlternateFunction::CAN1_2_TIM12_13_14);
+        gpio.setAlternateFunction(GPIO::AlternateFunction::AF9);
     }
 };  // namespace stm32f4xx
 
