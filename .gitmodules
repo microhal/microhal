@@ -13,3 +13,6 @@
 [submodule "third-party/FreeRTOS-Kernel"]
 	path = third-party/FreeRTOS-Kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "microhal/core/microhal-crc"]
+	path = microhal/core/microhal-crc
+	url = https://github.com/microHAL/microhal-crc.git
