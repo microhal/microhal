@@ -310,7 +310,7 @@ bool Sd::init() {
             result = false;
         }
     }
-    // diagnostic::diagChannel << diagnostic::lock << MICROHAL_DEBUG << "sd init result: " << result << diagnostic::unlock;
+    diagnostic::diagChannel << diagnostic::lock << MICROHAL_DEBUG << "sd init result: " << result << diagnostic::unlock;
     return result;
 }
 
@@ -360,7 +360,7 @@ std::experimental::optional<Sd::CSD> Sd::readCSD() {
             readDataPacket(&tmp, sizeof(tmp));
             diagChannel << lock << Debug << endl << "------ RAW CSD structure content ------" << toHex(tmp, sizeof(tmp)) << unlock;
             // checking CRC
-            uint8_t crc = CRC7::calculate(tmp, sizeof(tmp) - 1, 0);
+            uint8_t crc = CRC7<>::calculate(tmp, sizeof(tmp) - 1);
             if (((crc << 1) | 1) == tmp[15]) {
                 // crc and always one math
                 if (tmp[0] == 0) {
@@ -403,6 +403,7 @@ bool Sd::readCID() {
         }
     }
     cs.set();
+    return true;
 }
 
 bool Sd::setBlockSize(uint32_t blockSize) {
@@ -437,7 +438,7 @@ Sd::DataResponse Sd::readDataResponse(std::chrono::milliseconds timeout) {
 }
 
 bool Sd::writeDataPacket(const gsl::not_null<const void *> data_ptr, uint8_t dataToken, uint16_t blockSize) {
-    const uint16_t crc = convertEndiannessIfRequired(microhal::CRC16::calculate(data_ptr.get(), blockSize, 0x0000), Endianness::Big);
+    const uint16_t crc = convertEndiannessIfRequired(microhal::CRC16_XMODEM<>::calculate((uint8_t *)data_ptr.get(), blockSize), Endianness::Big);
     // write 0xFE to signalizes start of data transmission
     if (spi.write(dataToken, false) != SPI::Error::None) return false;
     // write data
@@ -695,7 +696,7 @@ Sd::ReadDataError Sd::readDataPacket(const gsl::not_null<void *> data_ptr, uint1
         spi.read(&crc, sizeof(crc), 0xFF);
         crc = convertEndiannessIfRequired(crc, Endianness::Big);
         // check crc
-        const uint16_t crc_calculated = CRC16::calculate(data_ptr.get(), size, 0);
+        const uint16_t crc_calculated = CRC16_XMODEM<>::calculate((uint8_t *)data_ptr.get(), size);
         if (crc_calculated == crc) {
             error = ReadDataError::None;
         } else {

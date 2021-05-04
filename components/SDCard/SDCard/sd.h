@@ -31,9 +31,9 @@
 #define SD_H_
 
 #include <experimental/optional>
-#include "crc/crc16.h"
-#include "crc/crc7.h"
 #include "diagnostic/diagnostic.h"
+#include "gsl/gsl"
+#include "microhal-crc.hpp"
 #include "microhal.h"
 #include "ports/manager/hardware.h"
 #include "utils/byteswap.h"
@@ -221,7 +221,7 @@ class Sd final {
               crcAndEndBit(crc) {}
 
         void calculateCRC() {
-            crcAndEndBit = microhal::CRC7::calculate(&startBitTransmissionBitAndCommandIndex, 5, 0) << 1;
+            crcAndEndBit = microhal::CRC7<>::calculate(&startBitTransmissionBitAndCommandIndex, 5) << 1;
             crcAndEndBit |= 0x01;
         }
 
