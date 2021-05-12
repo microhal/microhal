@@ -108,8 +108,11 @@ struct PLL {
 
         static float PFrequency() { return VCOOutputFrequency() / P(); }
         static float QFrequency() { return VCOOutputFrequency() / Q(); }
+#ifdef _MICROHAL_REGISTERS_RCC_PLLCFGR_HAS_R
         static float RFrequency() { return VCOOutputFrequency() / R(); }
+#endif
 
+#if defined(_MICROHAL_REGISTERS_RCC_PLLCFGR_HAS_R) && defined(_MICROHAL_REGISTERS_RCC_PLLCFGR_HAS_ENABLE_OUTPUT)
         static void enableROutput() {
             auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
             pllcfgr.PLLREN.set();
@@ -120,7 +123,9 @@ struct PLL {
             pllcfgr.PLLREN.clear();
             registers::rcc->pllcfgr.volatileStore(pllcfgr);
         }
+#endif
 
+#if defined(_MICROHAL_REGISTERS_RCC_PLLCFGR_HAS_ENABLE_OUTPUT)
         static void enablePOutput() {
             auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
             pllcfgr.PLLPEN.set();
@@ -142,6 +147,7 @@ struct PLL {
             pllcfgr.PLLQEN.clear();
             registers::rcc->pllcfgr.volatileStore(pllcfgr);
         }
+#endif
 
         static bool N(uint32_t n) noexcept {
             if (n < nDividerMinValue || n > nDividerMaxValue) return false;
@@ -175,6 +181,7 @@ struct PLL {
             return true;
         }
 
+#ifdef _MICROHAL_REGISTERS_RCC_PLLCFGR_HAS_R
         static bool R(uint32_t r) noexcept {
             if (r < rDividerMinValue || r > rDividerMaxValue) return false;
             auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
@@ -182,6 +189,7 @@ struct PLL {
             registers::rcc->pllcfgr.volatileStore(pllcfgr);
             return true;
         }
+#endif
 
      private:
         static float VCOOutputFrequency() noexcept { return inputFrequency() * N(); }
@@ -195,7 +203,9 @@ struct PLL {
 #endif
         }
         static uint32_t Q() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLQ + qDividerRegisterCorrectionValue; }
+#ifdef _MICROHAL_REGISTERS_RCC_PLLCFGR_HAS_R
         static uint32_t R() noexcept { return registers::rcc->pllcfgr.volatileLoad().PLLR + rDividerRegisterCorrectionValue; }
+#endif
     };
 
 #if defined(RCC_CR_PLLI2SON)
