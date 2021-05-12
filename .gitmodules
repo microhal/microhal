@@ -16,3 +16,6 @@
 [submodule "microhal/core/microhal-crc"]
 	path = microhal/core/microhal-crc
 	url = https://github.com/microHAL/microhal-crc.git
+[submodule "microhal/microhal-os"]
+	path = microhal/microhal-os
+	url = https://github.com/microHAL/microhal-os.git
