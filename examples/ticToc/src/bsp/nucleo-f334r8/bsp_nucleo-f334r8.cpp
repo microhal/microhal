@@ -33,12 +33,19 @@
 using namespace microhal;
 using namespace stm32f3xx;
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return debugPort.write((const char *)buf, nbyte);
+}
+
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f3xx::IOPin::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f3xx::IOPin::PortA, 3>();
+    IOManager::routeSerial<2, Txd, {stm32f3xx::IOPin::PortA, 2}>();
+    IOManager::routeSerial<2, Rxd, {stm32f3xx::IOPin::PortA, 3}>();
 
     debugPort.open(IODevice::ReadWrite);
     debugPort.setBaudRate(stm32f3xx::SerialPort::Baud115200);

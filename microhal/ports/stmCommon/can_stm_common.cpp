@@ -6,6 +6,7 @@
  */
 
 #include "can_stm_common.h"
+#include <cassert>
 #include "diagnostic/diagnostic.h"
 #include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 

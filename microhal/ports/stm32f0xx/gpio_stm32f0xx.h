@@ -6,9 +6,8 @@
  *
  * @authors    Pawel Okas
  * created on: 02-08-2018
- * last modification: 02-08-2018
  *
- * @copyright Copyright (c) 2018, Pawel Okas
+ * @copyright Copyright (c) 2018-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,33 +26,4 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_GPIO_STM32F0XX_H_
-#define _MICROHAL_PORTS_GPIO_STM32F0XX_H_
-/* **************************************************************************************************************************************************
- * INCLUDES
- */
-#include <cstdint>
 #include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
-
-namespace microhal {
-namespace stm32f0xx {
-
-namespace gpio_detail {
-/**
- *
- */
-typedef enum : uint8_t {
-    Serial = 0x01,  //!< Serial
-    I2C = 0x01,     //!< I2C
-} AlternateFunction;
-}  // namespace gpio_detail
-
-/* **************************************************************************************************************************************************
- * CLASS
- */
-using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
-
-}  // namespace stm32f0xx
-}  // namespace microhal
-
-#endif  // _MICROHAL_PORTS_GPIO_STM32F0XX_H_

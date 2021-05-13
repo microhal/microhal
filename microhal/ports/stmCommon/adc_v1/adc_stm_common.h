@@ -260,6 +260,7 @@ class Adc final {
 
     void configureOversampling(OversamplingRatio ovsr, OversamplingShift ovss);
 
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_CFGR2
     bool enableOversampling() {
         if (isEnabled() == false) {
             auto cfgr2 = adc.cfgr2.volatileLoad();
@@ -279,6 +280,7 @@ class Adc final {
         }
         return false;
     }
+#endif
 
     //================= Common channel configuration functions =================
 #ifdef _MICROHAL_REGISTERS_ADC_SMPR_HAS_SMPSEL
@@ -461,6 +463,7 @@ class Adc final {
         registers::adc12Common->ccr.volatileStore(ccr);
     }
 
+#ifdef _MICROHAL_REGISTERS_ADC_COMMON_CCR_HAS_PRESC
     static bool prescaler(uint32_t divider) {
         static constexpr std::array<uint16_t, 12> dividers = {1, 2, 4, 6, 8, 10, 12, 16, 32, 64, 128, 256};
         const auto found = std::find(dividers.begin(), dividers.end(), divider);
@@ -471,6 +474,7 @@ class Adc final {
         registers::adc12Common->ccr.volatileStore(ccr);
         return true;
     }
+#endif
 
 #if defined(_MICROHAL_INCLUDE_PORT_DMA)
     void initDMA(uint16_t *data, size_t len);

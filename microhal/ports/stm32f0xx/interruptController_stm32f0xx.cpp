@@ -1,22 +1,19 @@
 /**
- * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief
  *
  * @authors    Pawel Okas
- * created on: 18-11-2016
- * last modification: <DD-MM-YYYY>
+ * created on: 09-04-2021
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * 	   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- * 	      documentation and/or other materials provided with the distribution.
+ *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
  *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
  *        software without specific prior written permission.
  *
@@ -28,34 +25,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "bsp.h"
-#include "microhal.h"
+#include "interruptController.h"
 
-using namespace microhal;
-using namespace stm32f4xx;
+#include <array>
+#include <cassert>
+//#include "nvic.h"
+#include "device/stm32f0xx.h"
 
-extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
-    (void)r;     // suppress warning
-    (void)file;  // suppress warning
+namespace microhal {
+namespace stm32f0xx {
 
-    return bsp::serialPortA.write((const char *)buf, nbyte);
+static constexpr std::array<IRQn_Type, 2> usartIrq = {USART1_IRQn, USART2_IRQn};
+
+void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
+    assert(usartNumber > 0);
+    assert(usartNumber <= 2);
+
+    NVIC_SetPriority(usartIrq[usartNumber], priority);
+    NVIC_EnableIRQ(usartIrq[usartNumber]);
 }
 
-void hardwareConfig(void) {
-    Core::fpu_enable();
-
-    SysTick_Config(168000000 / 1000);
-}
-
-namespace bsp {
-void init() {
-    IOManager::routeSerial<2, Txd, {stm32f4xx::IOPin::PortA, 2}>();
-    IOManager::routeSerial<2, Rxd, {stm32f4xx::IOPin::PortA, 3}>();
-}
-}  // namespace bsp
-
-uint64_t SysTick_time = 0;
-
-extern "C" void SysTick_Handler(void) {
-    SysTick_time++;
-}
+}  // namespace stm32f0xx
+}  // namespace microhal

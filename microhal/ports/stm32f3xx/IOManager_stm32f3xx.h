@@ -93,7 +93,7 @@ class IOManager {
                               "Serial3 Rxd can be connected only to: PortB.8, PortB.11, PortC.11.");
         }
         stm32f3xx::GPIO gpio(pin);
-        gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::Serial, pull, type);
+        gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::AF7, pull, type);
     }
 
     template <int spiNumber, SpiPinType spiType, stm32f3xx::IOPin pin>
@@ -103,9 +103,9 @@ class IOManager {
 
         stm32f3xx::GPIO gpio(pin);
         if (spiNumber == 3) {
-            gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::SPI_3, pull, type);
+            gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::AF6, pull, type);
         } else if (spiNumber == 2) {
-            gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::SPI_2, pull, type);
+            gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::AF5, pull, type);
         } else if (spiNumber == 1) {
             if ((pin.pin == 11) || (pin.pin == 12) || (pin.pin == 13)) {
                 gpio.setAlternateFunction(stm32f3xx::GPIO::AlternateFunction::AF6, pull, type);
@@ -123,9 +123,9 @@ class IOManager {
 
         stm32f3xx::GPIO::AlternateFunction af = [](IOPin mosi, IOPin miso, IOPin sck) {
             if (number == 3) {
-                return stm32f3xx::GPIO::AlternateFunction::SPI_3;
+                return stm32f3xx::GPIO::AlternateFunction::AF6;
             } else if (number == 2) {
-                return stm32f3xx::GPIO::AlternateFunction::SPI_2;
+                return stm32f3xx::GPIO::AlternateFunction::AF5;
             } else if (number == 1) {
                 if ((mosi.pin == 11) || (mosi.pin == 12) || (mosi.pin == 13) || (miso.pin == 11) || (miso.pin == 12) || (miso.pin == 13) ||
                     (sck.pin == 11) || (sck.pin == 12) || (sck.pin == 13)) {
@@ -317,7 +317,7 @@ class IOManager {
         }
 
         stm32f3xx::GPIO gpio(pin);
-        gpio.setAlternateFunction(GPIO::AlternateFunction::CAN_TIM1_TIM15);
+        gpio.setAlternateFunction(GPIO::AlternateFunction::AF9);
     }
 
  private:

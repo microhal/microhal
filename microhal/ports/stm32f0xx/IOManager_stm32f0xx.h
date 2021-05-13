@@ -67,7 +67,7 @@ class IOManager {
         }
 
         stm32f0xx::GPIO gpio(pin);
-        gpio.setAlternateFunction(GPIO::AlternateFunction::Serial, pull, type);
+        gpio.setAlternateFunction(GPIO::AlternateFunction::AF1, pull, type);
     }
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
@@ -82,7 +82,7 @@ class IOManager {
 		static_assert( (i2cNumber != 1 || i2cType != SCL || ((port == IOPin::PortF && pinNr == 1))), "I2C1 SCL can be connected only to: PortF.1.");
         // clang-format on
         stm32f0xx::GPIO gpio(pin);
-        gpio.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, pull, type);
+        gpio.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::AF1, pull, type);
     }
 
     static constexpr bool spiPinAssert(int number, IOPin miso, IOPin mosi, IOPin sck) {
@@ -106,8 +106,8 @@ class IOManager {
         (void)miso;
         GPIO gpioMosi(mosi);
         GPIO gpioSck(sck);
-        gpioMosi.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, GPIO::NoPull, mosiType);
-        gpioSck.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, GPIO::NoPull, sckType);
+        gpioMosi.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::AF1, GPIO::NoPull, mosiType);
+        gpioSck.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::AF1, GPIO::NoPull, sckType);
     }
 
  private:

@@ -4,7 +4,6 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 26-03-2021
  *
  * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
@@ -25,13 +24,13 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_STM32F3XX_INTERRUPTCONTROLLER_H_
-#define _MICROHAL_PORTS_STM32F3XX_INTERRUPTCONTROLLER_H_
+#ifndef _MICROHAL_PORTS_STM32F0XX_INTERRUPTCONTROLLER_H_
+#define _MICROHAL_PORTS_STM32F0XX_INTERRUPTCONTROLLER_H_
 
 #include <cstdint>
 
 namespace microhal {
-namespace stm32f4xx {
+namespace stm32f0xx {
 
 void enableCanTxInterrupt(uint8_t number, uint32_t priority);
 void enableCanRx0Interrupt(uint8_t number, uint32_t priority);
@@ -57,7 +56,7 @@ void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);
 void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority);
 void disableUSARTInterrupt(uint8_t usartNumber);
 
-}  // namespace stm32f4xx
+}  // namespace stm32f0xx
 }  // namespace microhal
 
-#endif /* _MICROHAL_PORTS_STM32F3XX_INTERRUPTCONTROLLER_H_ */
+#endif /* _MICROHAL_PORTS_STM32F0XX_INTERRUPTCONTROLLER_H_ */

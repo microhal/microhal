@@ -38,15 +38,15 @@ extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t 
     (void)r;     // suppress warning
     (void)file;  // suppress warning
 
-    return bsp::debugPort.write((const char *)buf, nbyte);
+    return debugPort.write((const char *)buf, nbyte);
 }
 
 void hardwareConfig(void) {
     Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<3, Txd, stm32f4xx::IOPin::PortD, 8>();
-    IOManager::routeSerial<3, Rxd, stm32f4xx::IOPin::PortD, 9>();
+    IOManager::routeSerial<3, Txd, {stm32f4xx::IOPin::PortD, 8}>();
+    IOManager::routeSerial<3, Rxd, {stm32f4xx::IOPin::PortD, 9}>();
 
     debugPort.setDataBits(stm32f4xx::SerialPort::Data8);
     debugPort.setStopBits(stm32f4xx::SerialPort::OneStop);

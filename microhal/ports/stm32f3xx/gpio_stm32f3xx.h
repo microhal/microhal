@@ -36,38 +36,4 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_GPIO_STM32F3XX_H_
-#define _MICROHAL_PORTS_GPIO_STM32F3XX_H_
-/* **************************************************************************************************************************************************
- * INCLUDES
- */
-#include <cstdint>
 #include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
-/* **************************************************************************************************************************************************
- * CLASS
- */
-namespace microhal {
-namespace stm32f3xx {
-
-namespace gpio_detail {
-typedef enum : uint8_t {
-    AF2 = 0x02,     //! TIM1, TIM3, TIM15, TIM16
-    AF4 = 0x04,     //!< I2C, TIM1
-    Serial = 0x07,  //!< Serial
-    AF5 = 0x05,
-    AF6 = 0x06,
-    SPI_2 = 0x05,
-    SPI_3 = 0x06,
-    // I2C = 0x04,  //!< I2C
-    CAN_TIM1_TIM15 = 0x09,
-    AF10 = 0x0A,
-    AF11 = 0x0B
-} AlternateFunction;
-}
-
-using GPIO = GPIOCommon<gpio_detail::AlternateFunction>;
-
-}  // namespace stm32f3xx
-}  // namespace microhal
-
-#endif  // _MICROHAL_PORTS_GPIO_STM32F3XX_H_

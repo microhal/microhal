@@ -42,7 +42,7 @@
 #include "../../stmCommonDefines.h"
 #include "gsl/span"
 #include "lin/lin.h"
-#include "os/microhal_semaphore.h"
+#include "microhal_semaphore.h"
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
 #include "../../registers/usartRegisters_v2.h"
 #else

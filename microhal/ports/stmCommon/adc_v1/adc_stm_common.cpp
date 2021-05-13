@@ -168,12 +168,14 @@ void Adc::setSamplingSequence(uint_fast8_t sequenceLength, uint_fast8_t sequence
 #endif
 }
 
+#ifdef _MICROHAL_REGISTERS_ADC_HAS_CFGR2
 void Adc::configureOversampling(OversamplingRatio ovsr, OversamplingShift ovss) {
     auto cfgr2 = adc.cfgr2.volatileLoad();
     cfgr2.OVSR = static_cast<uint32_t>(ovsr);
     cfgr2.OVSS = static_cast<uint32_t>(ovss);
     adc.cfgr2.volatileStore(cfgr2);
 }
+#endif
 
 #ifdef _MICROHAL_REGISTERS_ADC_SMPR_HAS_SMPSEL
 bool Adc::configureSamplingTime(SamplingTime selection1, SamplingTime selection2) {

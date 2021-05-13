@@ -18,8 +18,6 @@ enum class RTCClock {
     HSE_div_32,
 #elif defined(_MICROHAL_REGISTERS_RCC_BDCR_RTCSEL_HAS_HSE_DIV_128)
     HSE_div_128
-#else
-#error HSE_div has to be defined inside rcc definition file. Probably mcu is not specified
 #endif
 };
 
