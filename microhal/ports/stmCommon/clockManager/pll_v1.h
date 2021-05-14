@@ -24,77 +24,28 @@ struct PLL {
         HSI = 0,
 #else
         HSIDiv2 = 0,
+#define _MICROHAL_PLL_CLOCKSOURCE_HAS_HSIDiv2
 #endif
+#ifdef _MICROHAL_REGISTERS_RCC_CRGR2_HAS_PREDIV1SRC
+#define _MICROHAL_PLL_CLOCKSOURCE_HAS_HSEDiv
+#define _MICROHAL_PLL_CLOCKSOURCE_HAS_PLL2Div
+        HSEDiv = 0b01,
+        PLL2Div = 0b11
+#else
         HSE = 1,
 #ifdef MCU_TYPE_STM32F1XX
         HSEDiv2 = 0b11
 #endif
+#endif
     };
 
-    static ClockSource clockSource(ClockSource source) noexcept {
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
-        auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
-        pllcfgr.PLLSRC =
-            static_cast<typename std::underlying_type<ClockSource>::type>(source);  // fixme (pokas) maybe bit banding will be faster solution
-        registers::rcc->pllcfgr.volatileStore(pllcfgr);
-        return source;
-#else
-        auto cfgr = registers::rcc->cfgr.volatileLoad();
-        cfgr.PLLSRC =
-            static_cast<typename std::underlying_type<ClockSource>::type>(source);  // fixme (pokas) maybe bit banding will be faster solution
-#ifdef MCU_TYPE_STM32F1XX
-        cfgr.PLLXTPRE = source == ClockSource::HSEDiv2 ? 1 : 0;
-#endif
-        registers::rcc->cfgr.volatileStore(cfgr);
-        return source;
-#endif
-    }
+    static ClockSource clockSource(ClockSource source) noexcept;
+    static ClockSource clockSource() noexcept;
 
-    static ClockSource clockSource() noexcept {
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
-        return static_cast<ClockSource>(registers::rcc->pllcfgr.volatileLoad().PLLSRC.get());
-#else
-#ifdef MCU_TYPE_STM32F1XX
-        auto cfgr = registers::rcc->cfgr.volatileLoad();
-        uint32_t clkSource = cfgr.PLLSRC | (cfgr.PLLXTPRE << 1);
-        return static_cast<ClockSource>(clkSource);
-#else
-        return static_cast<ClockSource>(registers::rcc->cfgr.volatileLoad().PLLSRC.get());
-#endif
-#endif
-    }
+    static void divider(uint16_t m);
+    static uint32_t divider();
 
-#ifndef MCU_TYPE_STM32F1XX
-    static void divider(uint16_t m) {
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
-        if (m < 2 || m > 63)
-            while (1) {
-            }
-        auto pllcfgr = registers::rcc->pllcfgr.volatileLoad();
-        pllcfgr.PLLM = m;
-        registers::rcc->pllcfgr.volatileStore(pllcfgr);
-#else
-        if (m < 1 || m > 17)
-            while (1) {
-            }
-        auto cfgr2 = registers::rcc->cfgr2.volatileLoad();
-        cfgr2.PREDIV = m - 1;
-        registers::rcc->cfgr2.volatileStore(cfgr2);
-#endif
-    }
-
-    static uint32_t divider() {
-#ifdef _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
-        return registers::rcc->pllcfgr.volatileLoad().PLLM;
-#else
-        return registers::rcc->cfgr2.volatileLoad().PREDIV + 1;
-#endif
-    }
-#else
-    static constexpr uint32_t divider() { return 1; }
-#endif
     static float inputFrequency();
-
     static uint32_t frequency(uint32_t frequency_Hz);
 
     static void enable() noexcept {
@@ -115,9 +66,43 @@ struct PLL {
 
     static float PLLCLKFrequency() { return VCOOutputFrequency(); }
 
- private:
-    static uint32_t PLLMUL() noexcept;
-    static bool PLLMUL(uint32_t mul) noexcept;
+    static uint32_t multiplier() noexcept;
+    static bool multiplier(uint32_t mul) noexcept;
+};
+
+struct PLL2 {
+    static uint32_t inputFrequency();
+    static uint32_t frequency(uint32_t frequency_Hz);
+    static void enable() noexcept;
+    static void disable() noexcept;
+    static bool isEnabled() noexcept { return registers::rcc->cr.volatileLoad().PLL2ON; }
+
+    static bool isReady() noexcept { return registers::rcc->cr.volatileLoad().PLL2RDY; }
+
+    static float VCOOutputFrequency() noexcept;
+
+    static float frequency() { return VCOOutputFrequency(); }
+
+    static uint16_t divider();
+    static void divider(uint16_t m);
+    static uint32_t multiplier() noexcept;
+    static bool multiplier(uint32_t mul) noexcept;
+};
+
+struct PLL3 {
+    static uint32_t inputFrequency();
+    static uint32_t frequency(uint32_t frequency_Hz);
+    static void enable() noexcept;
+    static void disable() noexcept;
+
+    static bool isEnabled() noexcept { return registers::rcc->cr.volatileLoad().PLL3ON; }
+
+    static bool isReady() noexcept { return registers::rcc->cr.volatileLoad().PLL3RDY; }
+
+    static float VCOOutputFrequency() noexcept;
+    static float PLLCLKFrequency() { return VCOOutputFrequency(); }
+
+    static bool multiplier(uint32_t mul) noexcept;
 };
 
 }  // namespace ClockManager
