@@ -16,7 +16,7 @@
 #include "clockTypes.h"
 #include "rcc_register_select.h"
 
-#if defined(STM32F102) || defined(STM32F107) || defined(STM32F103) || defined(STM32F101) || defined(STM32F100)
+#if defined(MCU_TYPE_STM32F1XX)
 #include "../registers/gpio_v2.h"
 #else
 #include "../registers/gpio_v1.h"

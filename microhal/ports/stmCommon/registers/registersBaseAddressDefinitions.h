@@ -11,8 +11,15 @@
 #if defined(STM32F051x8)
 #define STM32F0x1
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f0x1.h"
-#elif defined(STM32F103)
+#elif defined(MCU_TYPE_STM32F1XX)
+
+#include "ports/stm32f1xx/mcuDefines.h"
+#if defined(STM32F103)
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f103.h"
+#elif defined(_MICROHAL_STM32F1XX_STM32F107xx)
+#include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f107.h"
+#endif
+
 #elif defined(STM32F334x8)
 #define STM32F3x4
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f3x4.h"
