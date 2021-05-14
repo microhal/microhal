@@ -33,6 +33,15 @@
 namespace microhal {
 namespace stm32f1xx {
 
+void enableCanTxInterrupt(uint8_t canNumber, uint32_t priority);
+void enableCanRx0Interrupt(uint8_t canNumber, uint32_t priority);
+void enableCanRx1Interrupt(uint8_t canNumber, uint32_t priority);
+void enableCanSceInterrupt(uint8_t canNumber, uint32_t priority);
+void disableCanTxInterrupt(uint8_t canNumber);
+void disableCanRx0Interrupt(uint8_t canNumber);
+void disableCanRx1Interrupt(uint8_t canNumber);
+void disableCanSceInterrupt(uint8_t canNumber);
+
 void enableRTCInterrupt(uint32_t priority);
 void disableRTCInterrupt();
 
@@ -48,6 +57,12 @@ void disableSPIInterrupt(uint8_t spiNumber);
 void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);
 void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority);
 void disableUSARTInterrupt(uint8_t usartNumber);
+
+void enableUSBInterrupt(uint32_t priority);
+void disableUSBInterrupt();
+
+void enableUSBWakeupInterrupt(uint32_t priority);
+void disableUSBWakeupInterrupt();
 
 }  // namespace stm32f1xx
 }  // namespace microhal

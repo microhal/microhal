@@ -40,8 +40,8 @@ void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
     assert(usartNumber > 0);
     assert(usartNumber <= 6);
 
-    NVIC_SetPriority(usartIrq[usartNumber], priority);
-    NVIC_EnableIRQ(usartIrq[usartNumber]);
+    NVIC_SetPriority(usartIrq[usartNumber - 1], priority);
+    NVIC_EnableIRQ(usartIrq[usartNumber - 1]);
 }
 
 }  // namespace stm32f1xx
