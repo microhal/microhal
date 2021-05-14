@@ -64,7 +64,7 @@ class IOManager {
 
     template <int serial, SerialPinType serialType, stm32f1xx::IOPin pin>
     static void routeSerial(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::PushPull) {
-        static_assert(serial < 4, "This MCU have only 3 Serial ports.");
+        static_assert(serial < 6, "This MCU have only 5 Serial ports.");
         static_assert(serial != 0, "Serial port numbers starts from 1.");
 
         if constexpr (serial == 1) {
