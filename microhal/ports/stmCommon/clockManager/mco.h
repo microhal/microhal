@@ -13,23 +13,7 @@
 #include <type_traits>
 #include "ahbClock.h"
 #include "clockTypes.h"
-
-#ifdef MCU_TYPE_STM32F0XX
-#include "ports/stm32f0xx/RCC_2.h"
-#endif
-#ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
-#endif
-#ifdef MCU_TYPE_STM32F3XX
-#include "ports/stm32f3xx/rcc_3x4.h"
-#endif
-#ifdef MCU_TYPE_STM32F4XX
-#ifdef STM32F411xE
-#include "ports/stm32f4xx/rcc_411.h"
-#else
-#include "ports/stm32f4xx/rcc_407.h"
-#endif
-#endif
+#include "rcc_register_select.h"
 
 namespace microhal {
 namespace ClockManager {
@@ -72,7 +56,21 @@ struct MCO2 {
 };
 #endif
 struct MCO1 {
+#ifdef MCU_TYPE_STM32F1XX
+    enum class ClockSource : uint32_t {
+        NoClock = 0,
+        SYSCLK = 0b0100,
+        HSI = 0b0101,
+        HSE = 0b0110,
+        PLL = 0b0111,
+        PLL2 = 0b1000,
+        PLL3 = 0b1001,
+        XT1 = 0b1010,
+        PLL3ForEth = 0b1011
+    };
+#else
     enum class ClockSource : uint32_t { HSI = 0, LSE = 0b01, HSE = 0b10, PLL = 0b11 };
+#endif
     /**
      *
      * @param clk - Microcontroller clock output source
@@ -85,13 +83,17 @@ struct MCO1 {
         cfgr.MCO1 = static_cast<uint32_t>(clk);
         registers::rcc->cfgr.volatileStore(cfgr);
     }
-    static ClockSource clockSource() { return static_cast<ClockSource>(registers::rcc->cfgr.volatileLoad().MCO1); }
+
+    static ClockSource clockSource() { return static_cast<ClockSource>(registers::rcc->cfgr.volatileLoad().MCO1.get()); }
+
+#ifdef _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE
     static uint32_t prescaler() {
         uint32_t mcoPre = registers::rcc->cfgr.volatileLoad().MCO1PRE;
         // if prescaler is disabled return prescaler value equal one
         if (mcoPre & 0b100) return 1;
         return (mcoPre & 0b11) + 2;
     }
+
     /**
      *
      * @param prescaler - Microcontroller clock output prescaler, allowed values: 1, 2, 3, 4, 5
@@ -109,6 +111,7 @@ struct MCO1 {
         registers::rcc->cfgr.volatileStore(cfgr);
         return true;
     }
+#endif
 };
 
 }  // namespace ClockManager
