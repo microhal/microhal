@@ -87,6 +87,11 @@ void disableCanSceInterrupt(uint8_t canNumber) {
     NVIC_DisableIRQ(canSceIrq[canNumber - 1]);
 }
 
+void enableEthernet(uint32_t priority) {
+    NVIC_SetPriority(ETH_IRQn, priority);
+    NVIC_EnableIRQ(ETH_IRQn);
+}
+
 void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
     assert(usartNumber > 0);
     assert(usartNumber <= 6);

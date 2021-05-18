@@ -42,6 +42,8 @@ void disableCanRx0Interrupt(uint8_t canNumber);
 void disableCanRx1Interrupt(uint8_t canNumber);
 void disableCanSceInterrupt(uint8_t canNumber);
 
+void enableEthernet(uint32_t priority);
+
 void enableRTCInterrupt(uint32_t priority);
 void disableRTCInterrupt();
 
