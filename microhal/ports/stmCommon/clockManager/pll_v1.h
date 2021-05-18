@@ -33,8 +33,10 @@ struct PLL {
         PLL2Div = 0b11
 #else
         HSE = 1,
+#define _MICROHAL_PLL_CLOCKSOURCE_HAS_HSE
 #ifdef MCU_TYPE_STM32F1XX
         HSEDiv2 = 0b11
+#define _MICROHAL_PLL_CLOCKSOURCE_HAS_HSEDiv2
 #endif
 #endif
     };
@@ -70,6 +72,7 @@ struct PLL {
     static bool multiplier(uint32_t mul) noexcept;
 };
 
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_CFGR2
 struct PLL2 {
     static uint32_t inputFrequency();
     static uint32_t frequency(uint32_t frequency_Hz);
@@ -104,6 +107,7 @@ struct PLL3 {
 
     static bool multiplier(uint32_t mul) noexcept;
 };
+#endif
 
 }  // namespace ClockManager
 }  // namespace microhal

@@ -64,6 +64,7 @@ PLL::ClockSource PLL::clockSource() noexcept {
 #endif  // _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
 }
 
+#if defined(_MICROHAL_REGISTERS_RCC_HAS_PLLCFGR) || defined(_MICROHAL_REGISTERS_RCC_HAS_CFGR2)
 void PLL::divider(uint16_t m) {
 #ifdef _MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
     if (m < 2 || m > 63)
@@ -87,6 +88,7 @@ uint32_t PLL::divider() {
     return registers::rcc->cfgr2.volatileLoad().PREDIV1 + 1;
 #endif  //_MICROHAL_REGISTERS_RCC_HAS_PLLCFGR
 }
+#endif
 
 float PLL::inputFrequency() {
     switch (clockSource()) {
@@ -100,11 +102,15 @@ float PLL::inputFrequency() {
 #endif
 #ifdef _MICROHAL_PLL_CLOCKSOURCE_HAS_HSE
         case ClockSource::HSE:
-            return HSE::frequency() / divider();
+            return HSE::frequency();
 #endif
 #ifdef _MICROHAL_PLL_CLOCKSOURCE_HAS_HSEDiv
         case ClockSource::HSEDiv:
             return HSE::frequency() / divider();
+#endif
+#ifdef _MICROHAL_PLL_CLOCKSOURCE_HAS_HSEDiv2
+        case ClockSource::HSEDiv2:
+            return HSE::frequency() / 2;
 #endif
 #ifdef _MICROHAL_PLL_CLOCKSOURCE_HAS_PLL2Div
         case ClockSource::PLL2Div:
@@ -176,6 +182,7 @@ bool PLL::multiplier(uint32_t mul) noexcept {
 //------------------------------------------------------------------------------
 //                                 PLL2
 //------------------------------------------------------------------------------
+#ifdef _MICROHAL_REGISTERS_RCC_HAS_CFGR2
 uint16_t PLL2::divider() {
     const auto cfgr2 = registers::rcc->cfgr2.volatileLoad();
     return cfgr2.PREDIV2.get() + 1;
@@ -265,6 +272,7 @@ bool PLL3::multiplier(uint32_t mul) noexcept {
     }
     return false;
 }
+#endif
 
 }  // namespace ClockManager
 }  // namespace microhal
