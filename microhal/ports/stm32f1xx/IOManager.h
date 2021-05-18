@@ -210,6 +210,15 @@ class IOManager {
         gpio.setAlternateFunctionOutput(alternateFunction, pull, type);
     }
 
+    template <stm32f1xx::IOPin mcoPin>
+    static void routeMCO() {
+        static_assert(mcoPin == IOPin{IOPin::PortA, 8}, "USB1 DP can be connected only to: PortA.12.");
+
+        stm32f1xx::GPIO mcoGpio(mcoPin);
+        mcoGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                           stm32f1xx::GPIO::OutputType::PushPull);
+    }
+
     template <stm32f1xx::IOPin dmPin, stm32f1xx::IOPin dpPin>
     static void routeUSB() {
         static_assert(dmPin == IOPin{IOPin::PortA, 11}, "USB1 DM can be connected only to: PortA.11.");
@@ -219,6 +228,40 @@ class IOManager {
         dmGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
         stm32f1xx::GPIO dpGpio(dpPin);
         dpGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+    }
+
+    template <stm32f1xx::IOPin rxd0, stm32f1xx::IOPin rxd1, stm32f1xx::IOPin rxd2, stm32f1xx::IOPin rxd3, stm32f1xx::IOPin rxClk,
+              stm32f1xx::IOPin rxDv, stm32f1xx::IOPin rxEr, stm32f1xx::IOPin txd0, stm32f1xx::IOPin txd1, stm32f1xx::IOPin txd2,
+              stm32f1xx::IOPin txd3, stm32f1xx::IOPin txClk, stm32f1xx::IOPin txEn, stm32f1xx::IOPin crs, stm32f1xx::IOPin mdio, stm32f1xx::IOPin mdc,
+              stm32f1xx::IOPin col>
+    static void routeMII() {
+        stm32f1xx::GPIO mdcGpio(mdc);
+        mdcGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                           stm32f1xx::GPIO::OutputType::PushPull);
+
+        stm32f1xx::GPIO txd2Gpio(txd2);
+        txd2Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                            stm32f1xx::GPIO::OutputType::PushPull);
+
+        stm32f1xx::GPIO mdioGpio(mdio);
+        mdioGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                            stm32f1xx::GPIO::OutputType::PushPull);
+
+        stm32f1xx::GPIO txEnGpio(txEn);
+        txEnGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                            stm32f1xx::GPIO::OutputType::PushPull);
+
+        stm32f1xx::GPIO txd0Gpio(txd0);
+        txd0Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                            stm32f1xx::GPIO::OutputType::PushPull);
+
+        stm32f1xx::GPIO txd1Gpio(txd1);
+        txd1Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                            stm32f1xx::GPIO::OutputType::PushPull);
+
+        stm32f1xx::GPIO txd3Gpio(txd3);
+        txd3Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::Serial, stm32f1xx::GPIO::NoPull,
+                                            stm32f1xx::GPIO::OutputType::PushPull);
     }
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>

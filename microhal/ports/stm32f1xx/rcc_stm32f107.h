@@ -90,7 +90,7 @@ struct RCC {
             microhal::Bitfield<uint32_t, 17, 1> PLLXTPRE; /*!< HSE divider for PLL entry */
             microhal::Bitfield<uint32_t, 18, 4> PLLMUL;   /*!< PLL Multiplication Factor */
             microhal::Bitfield<uint32_t, 22, 1> OTGFSPRE; /*!< USB OTG FS prescaler */
-            microhal::Bitfield<uint32_t, 24, 4> MCO;      /*!< Microcontroller clock output */
+            microhal::Bitfield<uint32_t, 24, 4> MCO1;     /*!< Microcontroller clock output */
         };
 
         operator uint32_t() const { return raw; }
