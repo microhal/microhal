@@ -43,151 +43,152 @@
  */
 
 #include "mainMenu.h"
-#include "IODevice.h"
+#include "IODevice/IODevice.h"
 
 #include <list>
+#include <string_view>
+
+using namespace std::literals;
 
 namespace microhal {
-
-void MainMenu::goBack(int count){
-  for(int c = 0 ; c < count ; ++c){
-    if(activeMenu.size() > 1){
-      activeMenu.pop_back();
-    } else
-      break;
-  }
+void MainMenu::goBack(int count) {
+    for (int c = 0; c < count; ++c) {
+        if (activeMenu.size() > 1) {
+            activeMenu.pop_back();
+        } else
+            break;
+    }
 }
 
 void MainMenu::processCommand(std::list<char*>& words) {
+    int visitedFolders = 0;
+    SubMenu* activeSubMenu;  // active SubMenu
 
-  int visitedFolders = 0;
-  SubMenu* activeSubMenu;	// active SubMenu
+    while (!words.empty()) {
+        /* Searching the tree, getting words from string */
+        activeSubMenu = activeMenu.back();
+        /* SubMenu branches searching */
 
-  while (!words.empty()) {
-    /* Searching the tree, getting words from string */
-    activeSubMenu = activeMenu.back();
-    /* SubMenu branches searching */
-
-    if (!strcmp("exit", words.front())) {
-      /* Returning to root folder */
-      while(activeMenu.size() > 1)
-        activeMenu.pop_back();
-      return;
-    }
-    if(!strcmp("..", words.front())) {
-      /* Switching menu */
-      if(activeMenu.size() > 1)
-        activeMenu.pop_back();
-      return;
-    }
-    if (!strcmp("help", words.front())) {
-      /* There is a compare match, switching active menu */
-      port.write("\n");
-      port.write(activeSubMenu->help);
-      goBack(visitedFolders);
-      return;
-    }
-
-    for (std::list<MenuItem*>::iterator it = activeSubMenu->items.begin();
-        it != activeSubMenu->items.end(); ++it) {
-      if (!strcmp((*it)->name, words.front())) {
-        /* There is a compare match, switching active menu */
-        words.pop_front();
-        if ((*it)->hasChildrens()) {
-          ++visitedFolders;
-          activeMenu.push_back(static_cast<SubMenu*>(*it));
-        } else {
-          (*it)->command(words, port);
-          goBack(visitedFolders);  // after visiting menu going to last visited folder
-          return;
+        if (!strcmp("exit", words.front())) {
+            /* Returning to root folder */
+            while (activeMenu.size() > 1)
+                activeMenu.pop_back();
+            return;
         }
-        break;
-      }
+        if (!strcmp("..", words.front())) {
+            /* Switching menu */
+            if (activeMenu.size() > 1) activeMenu.pop_back();
+            return;
+        }
+        if (!strcmp("help", words.front())) {
+            /* There is a compare match, switching active menu */
+            port.write("\n");
+            port.write(activeSubMenu->help);
+            goBack(visitedFolders);
+            return;
+        }
+        if ("ls"sv == std::string_view{words.front()}) {
+            std::list<char*> list;
+            showCommands(list, 0);
+            return;
+        }
 
-      if (it
-          == (--(std::list<MenuItem*>::iterator) activeSubMenu->items.end())) {
-        port.write("\tno such command...");
-        goBack(visitedFolders);
-        return;
-      }
+        for (std::list<MenuItem*>::iterator it = activeSubMenu->items.begin(); it != activeSubMenu->items.end(); ++it) {
+            if (!strcmp((*it)->name, words.front())) {
+                /* There is a compare match, switching active menu */
+                words.pop_front();
+                if ((*it)->hasChildrens()) {
+                    ++visitedFolders;
+                    activeMenu.push_back(static_cast<SubMenu*>(*it));
+                } else {
+                    (*it)->command(words, port);
+                    goBack(visitedFolders);  // after visiting menu going to last visited folder
+                    return;
+                }
+                break;
+            }
+
+            if (it == (--(std::list<MenuItem*>::iterator)activeSubMenu->items.end())) {
+                port.write("\tno such command...");
+                goBack(visitedFolders);
+                return;
+            }
+        }
     }
-  }
 }
 
-int MainMenu::showCommands(std::list<char*> &words, int maxAppend) {
+int MainMenu::showCommands(std::list<char*>& words, int maxAppend) {
+    SubMenu* pSubMenu = activeMenu.back();
+    std::list<char*>::iterator itLastWord = words.end();
+    --itLastWord;
 
-  SubMenu* pSubMenu = activeMenu.back();
-  std::list<char*>::iterator itLastWord = words.end();
-  --itLastWord;
+    bool foundCommand = false;
 
-  bool foundCommand = false;
-
-  /* Just show commands */
-  if (words.empty()) {
+    /* Just show commands */
+    if (words.empty()) {
+        for (std::list<MenuItem*>::iterator it = pSubMenu->items.begin(); it != pSubMenu->items.end(); ++it) {
+            port.write("\n\t");
+            port.write((*it)->name);
+        }
+        return -1;
+    } else if (pSubMenu->hasChildrens() && (words.size() > 1)) {
+        /* Searching catalogs  */
+        for (auto word = words.begin(); word != itLastWord; ++word) {
+            /* Checking whether the element is SubMenu or MenuItem */
+            foundCommand = false;
+            for (std::list<MenuItem*>::iterator it = pSubMenu->items.begin(); it != pSubMenu->items.end(); ++it) {
+                if (!strcmp((*it)->name, (*word))) {
+                    foundCommand = true;
+                    pSubMenu = static_cast<SubMenu*>(*it);
+                    if (!pSubMenu->hasChildrens()) {
+                        port.write("\tit is a function, not a subfolder...");
+                        return -1;
+                    }
+                    break;
+                }
+            }
+            if (!foundCommand) {
+                port.write("\tno such subfolder...");
+                return -1;
+            }
+        }
+    }
+    /* Processing and appending letters, pSubMenu is the current subfolder */
+    /* Counting how many candidates has the same prefix */
+    int samePrefixCnt = 0;
+    int appendedChars;
+    for (std::list<MenuItem*>::iterator it = pSubMenu->items.begin(); it != pSubMenu->items.end(); it++) {
+        if (!strncmp(*itLastWord, (*it)->name, strlen(*itLastWord))) {
+            ++samePrefixCnt;
+        }
+    }
+    /* Show candidates with the same prefix */
     for (std::list<MenuItem*>::iterator it = pSubMenu->items.begin(); it != pSubMenu->items.end(); ++it) {
-      port.write("\n\t");
-      port.write((*it)->name);
+        if (!strncmp(*itLastWord, (*it)->name, strlen(*itLastWord))) {
+            if (1 == samePrefixCnt) {
+                /* Append letters */
+                appendedChars = strlen((*it)->name) - strlen(*itLastWord);
+                strncpy((*itLastWord), (*it)->name, maxAppend);
+                return appendedChars;
+            } else if (samePrefixCnt > 1) {
+                port.write("\n\t\t ");
+                port.write((*it)->name);
+            }
+        }
     }
     return -1;
-  } else if (pSubMenu->hasChildrens() && (words.size() > 1)) {
-    /* Searching catalogs  */
-    for (auto word = words.begin(); word != itLastWord; ++word) {
-      /* Checking whether the element is SubMenu or MenuItem */
-      foundCommand = false;
-      for (std::list<MenuItem*>::iterator it = pSubMenu->items.begin(); it != pSubMenu->items.end(); ++it) {
-
-        if (!strcmp((*it)->name, (*word))) {
-          foundCommand = true;
-          pSubMenu = static_cast<SubMenu*>(*it);
-          if (!pSubMenu->hasChildrens()) {
-            port.write("\tit is a function, not a subfolder...");
-            return -1;
-          }
-          break;
-        }
-      }
-      if (!foundCommand) {
-        port.write("\tno such subfolder...");
-        return -1;
-      }
-    }
-  }
-  /* Processing and appending letters, pSubMenu is the current subfolder */
-  /* Counting how many candidates has the same prefix */
-  int samePrefixCnt = 0;
-  int appendedChars;
-  for (std::list<MenuItem*>::iterator it = pSubMenu->items.begin(); it != pSubMenu->items.end(); it++) {
-    if (!strncmp(*itLastWord, (*it)->name, strlen(*itLastWord))) {
-      ++samePrefixCnt;
-    }
-  }
-  /* Show candidates with the same prefix */
-  for (std::list<MenuItem*>::iterator it = pSubMenu->items.begin(); it != pSubMenu->items.end(); ++it) {
-    if (!strncmp(*itLastWord, (*it)->name, strlen(*itLastWord))) {
-      if (1 == samePrefixCnt) {
-        /* Append letters */
-        appendedChars = strlen((*it)->name) - strlen(*itLastWord);
-        strncpy((*itLastWord), (*it)->name, maxAppend);
-        return appendedChars;
-      } else if (samePrefixCnt > 1) {
-        port.write("\n\t\t ");
-        port.write((*it)->name);
-      }
-    }
-  }
-  return -1;
 }
 
 void MainMenu::drawPrompt() {
-  port.write("\n\r");
-  std::list<SubMenu*>::iterator it = activeMenu.begin();
-  ++it;
-  for (; it != activeMenu.end(); ++it) {
+    port.write("\n\r");
+    std::list<SubMenu*>::iterator it = activeMenu.begin();
+    ++it;
+    for (; it != activeMenu.end(); ++it) {
+        port.write("> ");
+        port.write((*it)->name);
+        port.write(" ");
+    }
     port.write("> ");
-    port.write((*it)->name);
-    port.write(" ");
-  }
-  port.write("> ");
 }
 
 }  // namespace microhal
@@ -206,4 +207,3 @@ void MainMenu::drawPrompt() {
  * components
  * @}
  */
-

@@ -45,7 +45,7 @@
 #ifndef MAINMENU_H_
 #define MAINMENU_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include "menuItem.h"
 #include "serialPort.h"
 #include "string.h"
@@ -116,7 +116,7 @@ class MainMenu : public SubMenu {
     MainMenu(IODevice& port, const char* helpText) : SubMenu((char*)0, helpText), port(port) { activeMenu.push_back(this); }
 };
 
-} /* namespace hal */
+}  // namespace microhal
 
 #endif /* MAINMENU_H_ */
 

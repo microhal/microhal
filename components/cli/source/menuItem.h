@@ -45,7 +45,7 @@
 #ifndef _CLI_MENUITEM_H_
 #define _CLI_MENUITEM_H_
 
-#include "IODevice.h"
+#include "IODevice/IODevice.h"
 #include <list>
 
 namespace microhal {

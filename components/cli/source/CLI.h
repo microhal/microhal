@@ -45,10 +45,10 @@
 #ifndef CLI_H_
 #define CLI_H_
 
-#include <stdint.h>
-#include <stdio.h>
+//#include <stdint.h>
+//#include <stdio.h>
 #include <string.h>
-#include "IODevice.h"
+#include "IODevice/IODevice.h"
 #include "mainMenu.h"
 
 namespace microhal {

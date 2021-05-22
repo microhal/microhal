@@ -45,9 +45,9 @@
 #ifndef _CLI_SUBMENU_H_
 #define _CLI_SUBMENU_H_
 
-#include "menuItem.h"
-#include "IODevice.h"
 #include <list>
+#include "IODevice/IODevice.h"
+#include "menuItem.h"
 
 namespace microhal {
 
@@ -56,51 +56,43 @@ class MainMenu;
  * @brief Provides sub-folder functionalities.
  */
 class SubMenu : public MenuItem {
-  friend MainMenu;
+    friend MainMenu;
 
  public:
-  /**
-   * @brief Constructs sub folder of given name and default help description.
-   * @param name - sub folder name.
-   * @param help - default help description.
-   */
-  SubMenu(const char *name, const char *help)
-      : MenuItem(name, help) {
-  }
+    /**
+     * @brief Constructs sub folder of given name and default help description.
+     * @param name - sub folder name.
+     * @param help - default help description.
+     */
+    SubMenu(const char* name, const char* help) : MenuItem(name, help) {}
 
-  /**
-   * @brief Adds an MenuItem into sub folder.
-   * @param item - MenuItem reference which should be added into sub folder.
-   */
-  inline void addItem(MenuItem& item) {
-    items.push_back(&item);
-  }
+    /**
+     * @brief Adds an MenuItem into sub folder.
+     * @param item - MenuItem reference which should be added into sub folder.
+     */
+    inline void addItem(MenuItem& item) { items.push_back(&item); }
 
-  /**
-   * @brief Adds an SubMenu into sub folder.
-   * @param item - SubMenu reference which should be added into sub folder.
-   */
-  inline void addItem(SubMenu& item) {
-    items.push_back(&item);
-  }
+    /**
+     * @brief Adds an SubMenu into sub folder.
+     * @param item - SubMenu reference which should be added into sub folder.
+     */
+    inline void addItem(SubMenu& item) { items.push_back(&item); }
 
-  /**
-   * @brief	Function for recognition whether it has children list or not.
-   * @return True
-   */
+    /**
+     * @brief	Function for recognition whether it has children list or not.
+     * @return True
+     */
 
-  virtual inline bool hasChildrens(void){
-	  return true;
-  }
+    bool hasChildrens(void) final { return true; }
 
  private:
-  /**
-   * @brief List of object in sub folder.
-   */
-  std::list<MenuItem*> items;
+    /**
+     * @brief List of object in sub folder.
+     */
+    std::list<MenuItem*> items;
 };
 
-} /* namespace hal */
+}  // namespace microhal
 
 #endif /* _CLI_SUBMENU_H_ */
 
