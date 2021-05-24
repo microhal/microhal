@@ -12,7 +12,7 @@
 #include "ports/stm32f0xx/RCC_2.h"
 #endif
 #ifdef MCU_TYPE_STM32F1XX
-#include "ports/stm32f1xx/rcc_stm32f103.h"
+#include "ports/stm32f1xx/rcc_stm32f1xx.h"
 #endif
 #ifdef MCU_TYPE_STM32F3XX
 #include "ports/stm32f3xx/rcc_3x4.h"
