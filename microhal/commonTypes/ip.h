@@ -1,21 +1,19 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
+ * @copyright  Pawel Okas
  * @version    $Id$
- * @brief    Example of a project that incorporates CLI module.
+ * @brief
  *
- * @authors    Kubaszek Mateusz <mathir.km.microhal@gmail.com>
- * created on: <23-01-2016>
- * last modification: <24-01-2016>
+ * @authors    Pawel Okas
  *
- * @copyright Copyright (c) 2015, microHAL
+ * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *        2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- *           documentation and/or other materials provided with the distribution.
+ *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
  *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
  *        software without specific prior written permission.
  *
@@ -27,41 +25,26 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * @defgroup microHAL
- * @{
- */
+#ifndef _MICROHAL_COMMONTYPES_IP_H_
+#define _MICROHAL_COMMONTYPES_IP_H_
 
-/**
- * @defgroup components
- * @{
- */
+#include <cstdint>
 
-/**
- * @defgroup cli
- * @{
- */
+namespace microhal {
 
-#include "microhal.h"
-#include "menuItem.h"
+class IP {
+ public:
+    IP(uint8_t ip1, uint8_t ip2, uint8_t ip3, uint8_t ip4) : ip{ip4, ip3, ip2, ip1} {}
+    IP() = default;
+    uint8_t ip[4];
 
-namespace microhal{
+    uint32_t asUint32_t() const { return *reinterpret_cast<const uint32_t*>(ip); }
+};
 
+inline bool operator==(const IP lhs, const IP rhs) {
+    return lhs.asUint32_t() == rhs.asUint32_t();
 }
 
-/**
- * example
- * @}
- */
+}  // namespace microhal
 
-/**
- * cli
- * @}
- */
-
-/**
- * components
- * @}
- */
-
-
+#endif /* _MICROHAL_COMMONTYPES_IP_H_ */

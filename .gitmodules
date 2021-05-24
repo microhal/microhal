@@ -22,3 +22,6 @@
 [submodule "components/hostComm"]
 	path = components/hostComm
 	url = https://github.com/microHAL/hostComm.git
+[submodule "components/cli"]
+	path = components/cli
+	url = https://github.com/microHAL/component-cli.git

@@ -5,10 +5,8 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 01-01-2018
- * last modification: 01-01-2018
  *
- * @copyright Copyright (c) 2018, Pawel Okas
+ * @copyright Copyright (c) 2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -27,25 +25,50 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_MICROHALCONFIG_H_
-#define _MICROHAL_MICROHALCONFIG_H_
-/* **************************************************************************************************************************************************
- * INCLUDES
- */
+#ifndef _MICROHAL_COMMONTYPES_ENUMMAP_H_
+#define _MICROHAL_COMMONTYPES_ENUMMAP_H_
 
-// clang-format off
-//***********************************************************************************************//
-//                                    Diagnostic configuration                                   //
-//***********************************************************************************************//
-#define MICROHAL_DIAGNOSTIC_TEXT_VISIBLE		// when defined message text is printed in diagnostic channel messages
-#define MICROHAL_DIAGNOSTIC_LOG_LEVEL Debug		// Set compile time log level for embedded diagnostic channel (diagChannel)
-												// Emergency -> highest log priority
-												// Alert
-												// Critical
-												// Error
-												// Warning
-												// Notice
-												// Informational
-												// Debug  -> lowest log priority
-// clang-format on
-#endif  // _MICROHAL_MICROHALCONFIG_H_
+#include <algorithm>
+#include <array>
+#include <system_error>
+#include <utility>
+
+namespace microhal {
+
+template <typename Key, typename Value, size_t size>
+struct EnumMap : public std::array<std::pair<Key, Value>, size> {
+    using key_t = Key;
+    using value_t = Value;
+
+    struct EnumMapKeyResult {
+        Key key;
+        std::errc ec;
+    };
+
+    struct EnumMapValueResult {
+        Value value;
+        std::errc ec;
+    };
+
+    [[nodiscard]] constexpr EnumMapValueResult at(Key key) const noexcept {
+        const auto found = std::find_if(EnumMap::begin(), EnumMap::end(), [key](const auto &v) { return v.first == key; });
+        if (found != EnumMap::end()) {
+            return {found->second, std::errc()};
+        }
+        return {{}, std::errc::invalid_argument};
+    }
+
+    [[nodiscard]] constexpr EnumMapKeyResult keyFor(Value value) const noexcept {
+        const auto found = std::find_if(EnumMap::begin(), EnumMap::end(), [value](const auto &v) { return v.second == value; });
+        if (found != EnumMap::end()) {
+            return {found->first, std::errc()};
+        }
+        return {{}, std::errc::invalid_argument};
+    }
+
+    constexpr ~EnumMap() = default;
+};
+
+}  // namespace microhal
+
+#endif /* _MICROHAL_COMMONTYPES_ENUMMAP_H_ */
