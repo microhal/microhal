@@ -151,8 +151,8 @@ class SPI : public microhal::SPI {
         SPI::Error error = SPI::Error::Unknown;
         struct spi_ioc_transfer tr;
         memset(&tr, 0, sizeof(tr));
-        tr.tx_buf = (unsigned long)dataWrite;
-        tr.rx_buf = (unsigned long)dataRead;
+        tr.tx_buf = reinterpret_cast<unsigned long>(dataWrite);
+        tr.rx_buf = reinterpret_cast<unsigned long>(dataRead);
         tr.len = readWriteLength;
         tr.delay_usecs = 0;
         tr.speed_hz = 0;
