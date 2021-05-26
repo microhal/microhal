@@ -40,13 +40,13 @@ class CyclicBuffer {
     constexpr CyclicBuffer(T *const data, size_t size) noexcept : dataTab(data), size(size), writePos(0), readPos(0), count(0) {}
     inline bool append(T data) noexcept __attribute__((always_inline)) {
         if (isFull() == false) {
-        	append_unsafe(data);
+            append_unsafe(data);
             return true;
         }
         return false;
     }
     inline void append_unsafe(T data) noexcept __attribute__((always_inline)) {
-        count++;
+        count = count + 1;
         writePos = (writePos + 1) % size;
         dataTab[writePos] = data;
     }
@@ -58,14 +58,14 @@ class CyclicBuffer {
 
             if (firstPart >= size) {
                 memcpy(dataTab + writePos + 1, data, size * sizeof(T));
-                writePos += size;
+                writePos = writePos + size;
             } else {
                 memcpy(dataTab + writePos + 1, data, firstPart * sizeof(T));
                 memcpy(dataTab, data + firstPart, (size - firstPart) * sizeof(T));
                 writePos = size - firstPart - 1;
             }
 
-            count += size;
+            count = count + size;
             return size;
         }
         return 0;
@@ -78,14 +78,14 @@ class CyclicBuffer {
 
             if (firstPart >= size) {
                 memcpy(data, dataTab + readPos + 1, size * sizeof(T));
-                readPos += size;
+                readPos = readPos + size;
             } else {
                 memcpy(data, dataTab + readPos + 1, firstPart * sizeof(T));
                 memcpy(data + firstPart, dataTab, (size - firstPart) * sizeof(T));
                 readPos = size - firstPart - 1;
             }
 
-            count -= size;
+            count = count - size;
             return size;
         }
         return 0;
@@ -94,40 +94,39 @@ class CyclicBuffer {
     /**
      * This function return pointer to begin of data that can be read and size of data in one memory chunk
      */
-    inline size_t getContinousPart(const T* &begin) const noexcept {
-    	// calculate end address
-    	/*const T **/ begin = getDataPointer();
-    	const T * end = &dataTab[size];
-    	size_t continousPart = end - begin;
-    	if (continousPart > getLength()) continousPart = getLength();
-    	return continousPart;
+    inline size_t getContinousPart(const T *&begin) const noexcept {
+        // calculate end address
+        /*const T **/ begin = getDataPointer();
+        const T *end = &dataTab[size];
+        size_t continousPart = end - begin;
+        if (continousPart > getLength()) continousPart = getLength();
+        return continousPart;
     }
 
-    inline size_t getEmptyContinousPart(const T* &begin) const noexcept {
-    	// calculate end address
-    	/*const T **/
-    	if (isFull()) return 0;
+    inline size_t getEmptyContinousPart(const T *&begin) const noexcept {
+        // calculate end address
+        /*const T **/
+        if (isFull()) return 0;
 
-    	size_t tmp_writePos = (writePos + 1) % size;
-    	begin = &dataTab[tmp_writePos];
+        size_t tmp_writePos = (writePos + 1) % size;
+        begin = &dataTab[tmp_writePos];
 
-    	const T * end = &dataTab[size];
-    	size_t continousPart = end - begin;
+        const T *end = &dataTab[size];
+        size_t continousPart = end - begin;
 
-    	if (continousPart > getFreeSpace()) continousPart = getFreeSpace();
-    	return continousPart;
+        if (continousPart > getFreeSpace()) continousPart = getFreeSpace();
+        return continousPart;
     }
 
     inline void updateReadPointer(size_t pos) noexcept {
-    	readPos = (readPos + pos) % size;
-    	count -= pos;
+        readPos = (readPos + pos) % size;
+        count = count - pos;
     }
 
     inline void updateWritePointer(size_t pos) noexcept {
-    	writePos = (writePos + pos) % size;
-    	count += pos;
+        writePos = (writePos + pos) % size;
+        count = count + pos;
     }
-
 
     inline T get(void) noexcept __attribute__((always_inline)) {
         if (isNotEmpty()) {
@@ -136,7 +135,7 @@ class CyclicBuffer {
         return 0;
     }
     inline T get_unsafe(void) noexcept __attribute__((always_inline)) {
-        count--;
+        count = count - 1;
         readPos = (readPos + 1) % size;
         return dataTab[readPos];
     }
@@ -178,7 +177,7 @@ class CyclicBuffer {
             positions = getFreeSpace();
         }
         writePos = (writePos + positions) % size;
-        count += positions;
+        count = count + positions;
         return positions;
     }
 

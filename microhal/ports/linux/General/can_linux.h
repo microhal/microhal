@@ -24,7 +24,10 @@ class CAN final : public can::CAN_Interface {
 
     CAN(std::string_view canName);
     ~CAN();
-    bool isProtocolSupported(Protocol protocol) final{};
+    bool isProtocolSupported(Protocol protocol) final {
+        // todo implement
+        return false;
+    }
 
     bool transmit(const Message &message) final;
     bool receive(Message &message) final;
@@ -41,11 +44,11 @@ class CAN final : public can::CAN_Interface {
     bool setMode(CAN::Mode mode);
 
  private:
-    int socketHandle;
-    std::vector<can_filter> filters;
+    int socketHandle{};
+    std::vector<can_filter> filters{};
     uint32_t transmitErrors = 0;
     uint32_t receiveErrors = 0;
-};
+};  // namespace linux
 
 }  // namespace linux
 }  // namespace microhal

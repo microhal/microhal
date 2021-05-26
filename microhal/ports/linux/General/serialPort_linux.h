@@ -34,6 +34,9 @@ namespace linux {
  */
 class SerialPort : public microhal::SerialPort {
  public:
+    SerialPort(const microhal::linux::SerialPort &) = delete;
+    void operator=(const microhal::linux::SerialPort &) = delete;
+
     static std::vector<std::string> getSerialPortList();
 
     std::string_view getPortName() const { return portName; }
@@ -125,9 +128,9 @@ class SerialPort : public microhal::SerialPort {
 
  private:
     //------------------------------------------- variables -----------------------------------------//
-    struct termios tio;
+    struct termios tio {};
     int tty_fd = 0;
-    const char *portName;
+    const char *portName{};
 };
 
 }  // namespace linux

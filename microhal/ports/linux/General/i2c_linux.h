@@ -101,7 +101,7 @@ class I2C : public microhal::I2C {
     bool addSlave(microhal::I2CSlave &) final { std::terminate(); }
 
  private:
-    int file;
+    int file{};
 };
 
 }  // namespace linux

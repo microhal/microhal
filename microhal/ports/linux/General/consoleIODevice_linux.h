@@ -125,25 +125,15 @@ class console_IODevice : public IODevice {
      *  \param [in] c reference to place where read character will be stored.
      *  \return ture if read was successful, false otherwise
      */
-    bool getChar(char &c) noexcept final {
-        if (1 == read(&c, 1)) {
-            return true;
-        }
-        return false;
-    }
+    bool getChar(char &c) noexcept final { return 1 == read(&c, 1); }
 
     /**
      *  \brief Write single character to console
      *
      *  \param [in] c character to write
-     *  \return ture if write was successful, false otherwise
+     *  \return true if write was successful, false otherwise
      */
-    bool putChar(char c) noexcept final {
-        if (1 == write(&c, 1)) {
-            return true;
-        }
-        return false;
-    }
+    bool putChar(char c) noexcept final { return 1 == write(&c, 1); }
 
     /**
      *  \brief Write data to console
@@ -157,30 +147,23 @@ class console_IODevice : public IODevice {
     /**
      *  \brief Clear input buffer
      */
-    void flushInput(void) {
-        // if(nullptr != inputConsole) {
-        inputBuffer.flush();
-        //}
-    }
+    void flushInput(void) { inputBuffer.flush(); }
 
     /**
      *  \brief Inject character into input buffer - for tests only
      *
      *  \param [in] c character to inject
-     *  \return ture if injection was successful, false otherwise
+     *  \return true if injection was successful, false otherwise
      */
     bool addCharToInput(char c) { return inputBuffer.append(c); }
 
  private:
-    std::atomic<bool> runReadingThread;
-    std::thread readingThread;
+    std::jthread readingThread{};
+    OpenMode mode = OpenMode::NotOpen;
+    std::mutex inputBufferMutex{};
+    CyclicBuffer_data<uint8_t, 128> inputBuffer{};
 
-    // HANDLE inputConsole;
-    // HANDLE outputConsole;
-
-    CyclicBuffer_data<uint8_t, 128> inputBuffer;
-
-    void procThread(void);
+    void procThread();
     void startReadingThread(void);
     void stopReadingThread(void);
 };
