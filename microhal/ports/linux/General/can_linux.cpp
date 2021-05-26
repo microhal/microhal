@@ -16,16 +16,15 @@
 #include <cstring>
 #include "diagnostic/diagnostic.h"
 
-bool operator==(const can_filter &a, const can_filter &b) {
-    if (a.can_id != b.can_id) return false;
-    if (a.can_mask != b.can_mask) return false;
-    return true;
-}
+using namespace microhal::diagnostic;
+
+bool operator==(const can_filter &a, const can_filter &b);
 
 namespace microhal {
 namespace linux {
 
-using namespace diagnostic;
+canid_t convertCanId(const CAN::Message::ID &id);
+can_filter makeCanFilter(const can::Filter &flt);
 
 CAN::CAN(std::string_view canName) {
     socketHandle = socket(PF_CAN, SOCK_RAW, CAN_RAW);
@@ -40,7 +39,7 @@ CAN::CAN(std::string_view canName) {
         memset(&addr, 0, sizeof(addr));
         addr.can_family = AF_CAN;
         addr.can_ifindex = ifr.ifr_ifindex;
-        if (bind(socketHandle, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+        if (bind(socketHandle, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr)) != 0) {
             diagChannel << MICROHAL_ERROR << "Unable to bind socket." << endl;
         }
         // Set the filter rules
@@ -173,3 +172,9 @@ bool CAN::setMode(CAN::Mode mode) {
 
 }  // namespace linux
 }  // namespace microhal
+
+bool operator==(const can_filter &a, const can_filter &b) {
+    if (a.can_id != b.can_id) return false;
+    if (a.can_mask != b.can_mask) return false;
+    return true;
+}
