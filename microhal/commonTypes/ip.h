@@ -28,6 +28,7 @@
 #ifndef _MICROHAL_COMMONTYPES_IP_H_
 #define _MICROHAL_COMMONTYPES_IP_H_
 
+#include <utils/byteswap.h>
 #include <cstdint>
 
 namespace microhal {
@@ -39,6 +40,7 @@ class IP {
     uint8_t ip[4];
 
     uint32_t asUint32_t() const { return *reinterpret_cast<const uint32_t*>(ip); }
+    uint32_t asUint32_tNetworkEndianness() const { return byteswap(*reinterpret_cast<const uint32_t*>(ip)); }
 };
 
 inline bool operator==(const IP lhs, const IP rhs) {
