@@ -40,9 +40,7 @@ namespace communication {
 CanOverHostcomm::CanOverHostcomm(microhal::IODevice &hostcommPort, microhal::IODevice &log, const char *logHeader)
     : hostComm(hostcommPort, log, logHeader) {
     hostComm.incommingPacket.connect(proceedPacket_slot, *this);
-    os::setDefaultStackSize(1800);
     hostComm.startHostCommThread();
-    os::setDefaultStackSize(520);
 }
 
 CanOverHostcomm::~CanOverHostcomm() {
