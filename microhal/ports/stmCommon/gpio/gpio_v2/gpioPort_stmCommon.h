@@ -1,7 +1,7 @@
 /**
  * @license    BSD 3-Clause
  * @version    $Id$
- * @brief      GPIO port driver for:
+ * @brief      GPIO port driver for: STM32F102, STM32F107, STM32F103, STM32F101, STM32F100
  *
  * @authors    Pawel Okas
  *
@@ -24,11 +24,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_STMCOMMON_GPIOPORT_V1_H_
-#define _MICROHAL_STMCOMMON_GPIOPORT_V1_H_
+#ifndef _MICROHAL_STMCOMMON_GPIOPORT_V2_H_
+#define _MICROHAL_STMCOMMON_GPIOPORT_V2_H_
 
-#include "../registers/gpio_v1.h"
-#include "../stmCommonDefines.h"
+#include "../../stmCommonDefines.h"
+#include "ports/stmCommon/registers/gpio_v2.h"
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -44,33 +44,58 @@ class GPIOPort {
     constexpr GPIOPort(microhal::registers::GPIO *gpio) : gpio(*gpio) {}
 
     uint16_t get() const { return (uint32_t)gpio.idr.volatileLoad(); }
-    uint16_t getOdr() const { return gpio.odr.volatileLoad(); }
+    uint16_t getOdr() const { return (uint32_t)gpio.odr.volatileLoad(); }
     void set(uint16_t value) { gpio.odr.volatileStore(value); }
     void setMask(uint16_t bitsToSet) { gpio.bsrr.volatileStore(bitsToSet); }
-    void resetMask(uint16_t bitsToReset) {
-#ifdef _MICROHAL_GPIO_REGISTER_HAS_BRR
-        gpio.brr.volatileStore(bitsToReset);
-#else
-        gpio.bsrr.volatileStore(bitsToReset << 16);
-#endif
-    }
+    void resetMask(uint16_t bitsToReset) { gpio.brr.volatileStore(bitsToReset); }
     void setResetMask(uint16_t values, uint16_t mask) {
         uint32_t toSet = values & mask;
         uint32_t toReset = (~values) & mask;
         registers::GPIO::BSRR bsrr;
-        bsrr.BS = toSet;
+        bsrr.BSR = toSet;
         bsrr.BR = toReset;
         gpio.bsrr.volatileStore(bsrr);
     }
 
-    uint16_t getDirection() const { return (uint32_t)gpio.otyper.volatileLoad(); }
-    void setDirection(uint16_t direction) { gpio.otyper.volatileStore(direction); }
-    uint32_t getPullConfig() const { return gpio.pupdr.volatileLoad(); }
-    void setPullConfig(uint32_t pullConfig) { gpio.pupdr.volatileStore(pullConfig); }
-    uint32_t getSpeed() const { return gpio.ospeedr.volatileLoad(); }
-    void setSpeed(uint32_t speed) { gpio.ospeedr.volatileStore(speed); }
+    /**
+     *
+     * @param pinNumber from 0 to 15
+     * @param configuration 4 bit configuration value 0b0000xxyy, where xx are CNF bits and yy are MODE bits.
+     */
+    void configurePin(uint8_t pinNumber, uint8_t configuration) {
+        if (pinNumber < 8) {
+            auto crl = gpio.crl.volatileLoad();
+            crl &= ~(0b1111 << (pinNumber * 4));
+            crl |= configuration << (pinNumber * 4);
+            gpio.crl.volatileStore(crl);
+        } else {
+            auto crh = gpio.crh.volatileLoad();
+            crh &= ~(0b1111 << ((pinNumber - 8) * 4));
+            crh |= configuration << ((pinNumber - 8) * 4);
+            gpio.crh.volatileStore(crh);
+        }
+    }
+    /**
+     *
+     * @param pinNumber from 0 to 15
+     * @return
+     */
+    uint8_t getPinConfiguration(uint8_t pinNumber) const {
+        if (pinNumber < 8) {
+            auto crl = gpio.crl.volatileLoad();
+            uint32_t tmp = crl;
+            tmp >>= pinNumber * 4;
+            return tmp & 0b1111;
+        } else {
+            auto crh = gpio.crh.volatileLoad();
+            uint32_t tmp = crh;
+            tmp >>= (pinNumber - 8) * 4;
+            return tmp & 0b1111;
+        }
+    }
 
-    microhal::registers::GPIO &getGpioHandle() { return gpio; }
+    void enableClock();
+    void disableClock();
 
  private:
     microhal::registers::GPIO &gpio;
@@ -79,4 +104,4 @@ class GPIOPort {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif /* _MICROHAL_STMCOMMON_GPIOPORT_V1_H_ */
+#endif /* _MICROHAL_STMCOMMON_GPIOPORT_V2_H_ */

@@ -34,9 +34,9 @@
 #include <gpio/gpio_interface.h>
 #include <cstdint>
 #include <type_traits>
-#include "../IOPin.h"
-#include "../registers/gpio_v1.h"
-#include "../stmCommonDefines.h"
+#include "../../IOPin.h"
+#include "../../registers/gpio_v1.h"
+#include "../../stmCommonDefines.h"
 #include "gpioPort_stmCommon.h"
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE

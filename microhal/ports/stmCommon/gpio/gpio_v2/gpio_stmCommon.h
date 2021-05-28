@@ -35,8 +35,8 @@
 #include <gpio/gpio_interface.h>
 #include <cstdint>
 #include <type_traits>
-#include "../IOPin.h"
-#include "../stmCommonDefines.h"
+#include "../../IOPin.h"
+#include "../../stmCommonDefines.h"
 #include "gpioPort_stmCommon.h"
 #include "ports/stmCommon/registers/gpio_v2.h"
 

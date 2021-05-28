@@ -36,4 +36,4 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ports/stmCommon/gpio_v1/gpio_stmCommon.h"
+#include <ports/stmCommon/gpio/gpio_v1/gpio_stmCommon.h>
