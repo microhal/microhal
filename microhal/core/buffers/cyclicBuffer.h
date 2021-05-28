@@ -33,6 +33,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <span>
 
 template <class T>
 class CyclicBuffer {
@@ -103,7 +104,7 @@ class CyclicBuffer {
         return continousPart;
     }
 
-    inline size_t getEmptyContinousPart(const T *&begin) const noexcept {
+    [[deprecated]] inline size_t getEmptyContinousPart(const T *&begin) const noexcept {
         // calculate end address
         /*const T **/
         if (isFull()) return 0;
@@ -116,6 +117,19 @@ class CyclicBuffer {
 
         if (continousPart > getFreeSpace()) continousPart = getFreeSpace();
         return continousPart;
+    }
+
+    std::span<T> getEmptyContinousPart() const noexcept {
+        if (isFull()) return {};
+
+        size_t tmp_writePos = (writePos + 1) % size;
+        T *begin = &dataTab[tmp_writePos];
+
+        const T *end = &dataTab[size];
+        size_t continousPart = end - begin;
+
+        if (continousPart > getFreeSpace()) continousPart = getFreeSpace();
+        return {begin, continousPart};
     }
 
     inline void updateReadPointer(size_t pos) noexcept {
