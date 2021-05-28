@@ -6,7 +6,7 @@
  *
  * @authors    Pawel Okas
  *
- * @copyright Copyright (c) 2019-2020, Pawel Okas
+ * @copyright Copyright (c) 2019-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include <type_traits>
 #include "../IOPin.h"
 #include "../stmCommonDefines.h"
+#include "gpioPort_stmCommon.h"
 #include "ports/stmCommon/registers/gpio_v2.h"
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
@@ -48,69 +49,7 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
-class GPIOPort {
- public:
-    constexpr GPIOPort(microhal::registers::GPIO *gpio) : gpio(*gpio) {}
-
-    uint16_t get() const { return (uint32_t)gpio.idr.volatileLoad(); }
-    uint16_t getOdr() const { return (uint32_t)gpio.odr.volatileLoad(); }
-    void set(uint16_t value) { gpio.odr.volatileStore(value); }
-    void setMask(uint16_t bitsToSet) { gpio.bsrr.volatileStore(bitsToSet); }
-    void resetMask(uint16_t bitsToReset) { gpio.brr.volatileStore(bitsToReset); }
-    void setResetMask(uint16_t values, uint16_t mask) {
-        uint32_t toSet = values & mask;
-        uint32_t toReset = (~values) & mask;
-        registers::GPIO::BSRR bsrr;
-        bsrr.BSR = toSet;
-        bsrr.BR = toReset;
-        gpio.bsrr.volatileStore(bsrr);
-    }
-
-    /**
-     *
-     * @param pinNumber from 0 to 15
-     * @param configuration 4 bit configuration value 0b0000xxyy, where xx are CNF bits and yy are MODE bits.
-     */
-    void configurePin(uint8_t pinNumber, uint8_t configuration) {
-        if (pinNumber < 8) {
-            auto crl = gpio.crl.volatileLoad();
-            crl &= ~(0b1111 << (pinNumber * 4));
-            crl |= configuration << (pinNumber * 4);
-            gpio.crl.volatileStore(crl);
-        } else {
-            auto crh = gpio.crh.volatileLoad();
-            crh &= ~(0b1111 << ((pinNumber - 8) * 4));
-            crh |= configuration << ((pinNumber - 8) * 4);
-            gpio.crh.volatileStore(crh);
-        }
-    }
-    /**
-     *
-     * @param pinNumber from 0 to 15
-     * @return
-     */
-    uint8_t getPinConfiguration(uint8_t pinNumber) const {
-        if (pinNumber < 8) {
-            auto crl = gpio.crl.volatileLoad();
-            uint32_t tmp = crl;
-            tmp >>= pinNumber * 4;
-            return tmp & 0b1111;
-        } else {
-            auto crh = gpio.crh.volatileLoad();
-            uint32_t tmp = crh;
-            tmp >>= (pinNumber - 8) * 4;
-            return tmp & 0b1111;
-        }
-    }
-
-    void enableClock();
-    void disableClock();
-
- private:
-    microhal::registers::GPIO &gpio;
-};
-
-class GPIOCommonBase : public microhal::GPIO {
+class GPIO : public microhal::GPIO {
  public:
     /**
      * @brief Possible pin speed
@@ -121,9 +60,28 @@ class GPIOCommonBase : public microhal::GPIO {
         HighSpeed = 0b11     //!< HIGH_SPEED
     } Speed;
 
+    enum class AlternateFunction : uint8_t {
+        AF0 = 0,
+        AF1 = 1,
+        AF2 = 2,
+        AF3 = 3,
+        AF4 = 4,
+        AF5 = 5,
+        AF6 = 6,
+        AF7 = 7,
+        AF8 = 8,
+        AF9,
+        AF10,
+        AF11,
+        AF12,
+        AF13,
+        AF14,
+        AF15
+    };
+
  public:
     //--------------------------------------- constructors --------------------------------------//
-    constexpr GPIOCommonBase(IOPin pin) : port(reinterpret_cast<registers::GPIO *>(pin.port)), pinNo(pin.pin) {}
+    constexpr GPIO(IOPin pin) : port(reinterpret_cast<registers::GPIO *>(pin.port)), pinNo(pin.pin) {}
     /**
      * @brief Constructor of GPIO class
      *
@@ -132,13 +90,13 @@ class GPIOCommonBase : public microhal::GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    constexpr GPIOCommonBase(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
+    constexpr GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
         : port(reinterpret_cast<registers::GPIO *>(pin.port)), pinNo(pin.pin) {
         configure(dir, type, pull);
         setSpeed(speed);
     }
 
-    virtual ~GPIOCommonBase() {}
+    constexpr virtual ~GPIO() = default;
 
     bool set() final {
         port.setMask(1 << pinNo);
@@ -180,15 +138,7 @@ class GPIOCommonBase : public microhal::GPIO {
  protected:
     GPIOPort port;
     uint8_t pinNo;
-};
 
-template <typename Enum>
-class GPIOCommon : public GPIOCommonBase {
- public:
-    using GPIOCommonBase::GPIOCommonBase;
-
- protected:
-    using AlternateFunction = Enum;
     /**
      *
      * @param function
@@ -216,6 +166,7 @@ class GPIOCommon : public GPIOCommonBase {
         port.enableClock();
         port.configurePin(pinNo, 0);
     }
+
     //----------------------------------------- friends -----------------------------------------//
     friend class IOManager;
     friend class DataBus;

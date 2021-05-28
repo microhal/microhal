@@ -6,7 +6,7 @@
  *
  * @authors    Pawel Okas
  *
- * @copyright Copyright (c) 2014-2020, Pawel Okas
+ * @copyright Copyright (c) 2014-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@ void GPIOPort::disableClock() {
     ClockManager::disableGPIO(&gpio);
 }
 
-bool GPIOCommonBase::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) {
+bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) {
     port.enableClock();
 
     if (dir == Direction::Input) {
@@ -69,7 +69,7 @@ bool GPIOCommonBase::configure(microhal::GPIO::Direction dir, microhal::GPIO::Ou
     return true;
 }
 
-bool GPIOCommonBase::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
+bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
     auto config = port.getPinConfiguration(pinNo);
     if (config & 0b11) {
         dir = Direction::Output;
