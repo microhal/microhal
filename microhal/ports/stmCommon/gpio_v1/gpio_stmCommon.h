@@ -37,6 +37,7 @@
 #include "../IOPin.h"
 #include "../registers/gpio_v1.h"
 #include "../stmCommonDefines.h"
+#include "gpioPort_stmCommon.h"
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -46,43 +47,6 @@
  */
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-
-class GPIOPort {
- public:
-    constexpr GPIOPort(microhal::registers::GPIO *gpio) : gpio(*gpio) {}
-
-    uint16_t get() const { return (uint32_t)gpio.idr.volatileLoad(); }
-    uint16_t getOdr() const { return gpio.odr.volatileLoad(); }
-    void set(uint16_t value) { gpio.odr.volatileStore(value); }
-    void setMask(uint16_t bitsToSet) { gpio.bsrr.volatileStore(bitsToSet); }
-    void resetMask(uint16_t bitsToReset) {
-#ifdef _MICROHAL_GPIO_REGISTER_HAS_BRR
-        gpio.brr.volatileStore(bitsToReset);
-#else
-        gpio.bsrr.volatileStore(bitsToReset << 16);
-#endif
-    }
-    void setResetMask(uint16_t values, uint16_t mask) {
-        uint32_t toSet = values & mask;
-        uint32_t toReset = (~values) & mask;
-        registers::GPIO::BSRR bsrr;
-        bsrr.BS = toSet;
-        bsrr.BR = toReset;
-        gpio.bsrr.volatileStore(bsrr);
-    }
-
-    uint16_t getDirection() const { return (uint32_t)gpio.otyper.volatileLoad(); }
-    void setDirection(uint16_t direction) { gpio.otyper.volatileStore(direction); }
-    uint32_t getPullConfig() const { return gpio.pupdr.volatileLoad(); }
-    void setPullConfig(uint32_t pullConfig) { gpio.pupdr.volatileStore(pullConfig); }
-    uint32_t getSpeed() const { return gpio.ospeedr.volatileLoad(); }
-    void setSpeed(uint32_t speed) { gpio.ospeedr.volatileStore(speed); }
-
-    microhal::registers::GPIO &getGpioHandle() { return gpio; }
-
- private:
-    microhal::registers::GPIO &gpio;
-};
 
 class GPIO : public microhal::GPIO {
  public:
