@@ -27,18 +27,9 @@
 
 #include "ports/stmCommon/gpio/gpio_v2/gpio_stmCommon.h"
 #if _MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 2
-#include "../../clockManager/gpioClock.h"
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
-
-void GPIOPort::enableClock() {
-    ClockManager::enableGPIO(&gpio);
-}
-
-void GPIOPort::disableClock() {
-    ClockManager::disableGPIO(&gpio);
-}
 
 bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) {
     port.enableClock();
@@ -48,9 +39,9 @@ bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType t
         port.configurePin(pinNo, cnf);
         // set pullup
         if (pull == PullType::PullUp) {
-            port.setMask(1 << pinNo);
+            port.setMask(pinMask);
         } else {
-            port.resetMask(1 << pinNo);
+            port.resetMask(pinMask);
         }
     } else {
         uint8_t cnf;
@@ -81,7 +72,7 @@ bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) c
     } else {
         dir = Direction::Input;
         if ((config & 0b1100) == 0b1000) {
-            if (port.getOdr() & 1 << pinNo) {
+            if (port.getOdr() & pinMask) {
                 pull = PullType::PullUp;
             } else {
                 pull = PullType::PullDown;
