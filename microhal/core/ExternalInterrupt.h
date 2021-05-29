@@ -59,7 +59,7 @@ class ExternalInterrupt {
     };
     //---------------------------------------- constructors -----------------------------------------//
     explicit /*constexpr*/ ExternalInterrupt(IOPin ioPin) noexcept : ioPin(ioPin) {
-        microhal::activePort::GPIO irqGpio(ioPin, microhal::GPIO::Input);
+        microhal::activePort::GPIO irqGpio(ioPin, microhal::GPIO::Direction::Input);
     }
     //------------------------------------------ functions ------------------------------------------//
     inline static void init(uint32_t priority) noexcept { activePort::ExternalInterrupt::init(priority); }

@@ -62,25 +62,25 @@ class GenericDataBus : public DataBus {
     }
 
     void setDirectionOutput() {
-        data0.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data1.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data2.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data3.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data4.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data5.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data6.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
-        data7.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::NoPull);
+        data0.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        data1.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        data2.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        data3.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        data4.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        data5.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        data6.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
+        data7.configureAsOutput(microhal::GPIO::OutputType::PushPull, microhal::GPIO::PullType::NoPull);
     }
 
     void setDirectionInput() {
-        data0.configureAsInput(microhal::GPIO::NoPull);
-        data1.configureAsInput(microhal::GPIO::NoPull);
-        data2.configureAsInput(microhal::GPIO::NoPull);
-        data3.configureAsInput(microhal::GPIO::NoPull);
-        data4.configureAsInput(microhal::GPIO::NoPull);
-        data5.configureAsInput(microhal::GPIO::NoPull);
-        data6.configureAsInput(microhal::GPIO::NoPull);
-        data7.configureAsInput(microhal::GPIO::NoPull);
+        data0.configureAsInput(microhal::GPIO::PullType::NoPull);
+        data1.configureAsInput(microhal::GPIO::PullType::NoPull);
+        data2.configureAsInput(microhal::GPIO::PullType::NoPull);
+        data3.configureAsInput(microhal::GPIO::PullType::NoPull);
+        data4.configureAsInput(microhal::GPIO::PullType::NoPull);
+        data5.configureAsInput(microhal::GPIO::PullType::NoPull);
+        data6.configureAsInput(microhal::GPIO::PullType::NoPull);
+        data7.configureAsInput(microhal::GPIO::PullType::NoPull);
     }
 
     void write8(uint8_t data) {

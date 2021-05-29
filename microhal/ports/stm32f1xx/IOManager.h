@@ -59,11 +59,12 @@ class IOManager {
             static_assert(_MICROHAL_STM32F1XX_HAS_CAN2 && canNumber == 2, "CAN 2 unavailable in this MCU.");
         }
         GPIO txGpio(txPin);
-        txGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF5, GPIO::NoPull, stm32f1xx::GPIO::PushPull);
+        txGpio.setAlternateFunctionOutput(GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
     }
 
     template <int serial, SerialPinType serialType, stm32f1xx::IOPin pin>
-    static void routeSerial(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::PushPull) {
+    static void routeSerial(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::PullType::NoPull,
+                            stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OutputType::PushPull) {
         static_assert(serial < 6, "This MCU have only 5 Serial ports.");
         static_assert(serial != 0, "Serial port numbers starts from 1.");
 
@@ -101,7 +102,7 @@ class IOManager {
         }
         if constexpr (serialType == Txd) {
             stm32f1xx::GPIO gpio(pin);
-            gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, pull, type);
+            gpio.setAlternateFunctionOutput(pull, type);
         }
     }
 
@@ -126,12 +127,13 @@ class IOManager {
         (void)miso;
         GPIO gpioMosi(mosi);
         GPIO gpioSck(sck);
-        gpioMosi.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF5, GPIO::NoPull, mosiType);
-        gpioSck.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF5, GPIO::NoPull, sckType);
+        gpioMosi.setAlternateFunctionOutput(GPIO::PullType::NoPull, mosiType);
+        gpioSck.setAlternateFunctionOutput(GPIO::PullType::NoPull, sckType);
     }
 
     template <int spiNumber, SpiPinType spiType, stm32f1xx::IOPin::Port port, stm32f1xx::IOPin::Pin pinNr>
-    static void routeSPI(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::PushPull) {
+    static void routeSPI(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::PullType::NoPull,
+                         stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OutputType::PushPull) {
         static_assert(spiNumber != 0, "SPI port numbers starts from 1.");
         static_assert(spiNumber <= 3, "STM32F1xx has only 3 SPI.");
         constexpr IOPin pin(port, pinNr);
@@ -167,14 +169,14 @@ class IOManager {
         if constexpr (spiType == MOSI || spiType == SCK) {
             stm32f1xx::GPIO gpio(pin);
             if (spiNumber == 3) {
-                gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, pull, type);
+                gpio.setAlternateFunctionOutput(pull, type);
             } else if (spiNumber == 2) {
-                gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, pull, type);
+                gpio.setAlternateFunctionOutput(pull, type);
             } else if (spiNumber == 1) {
                 if ((pinNr == 11) || (pinNr == 12) || (pinNr == 13)) {
-                    gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF6, pull, type);
+                    gpio.setAlternateFunctionOutput(pull, type);
                 } else {
-                    gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF5, pull, type);
+                    gpio.setAlternateFunctionOutput(pull, type);
                 }
             }
         }
@@ -200,14 +202,12 @@ class IOManager {
     }
 
     template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeTimer(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull,
+    static void routeTimer(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::PullType::NoPull,
                            stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OutputType::PushPull) {
         constexpr IOPin pin(port, pinNr);
 
-        GPIO::AlternateFunction alternateFunction = GPIO::AlternateFunction::AF2;
-
         stm32f1xx::GPIO gpio(pin);
-        gpio.setAlternateFunctionOutput(alternateFunction, pull, type);
+        gpio.setAlternateFunctionOutput(pull, type);
     }
 
     template <stm32f1xx::IOPin mcoPin>
@@ -215,7 +215,7 @@ class IOManager {
         static_assert(mcoPin == IOPin{IOPin::PortA, 8}, "USB1 DP can be connected only to: PortA.12.");
 
         stm32f1xx::GPIO mcoGpio(mcoPin);
-        mcoGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        mcoGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
     }
 
     template <stm32f1xx::IOPin dmPin, stm32f1xx::IOPin dpPin>
@@ -224,9 +224,9 @@ class IOManager {
         static_assert(dpPin == IOPin{IOPin::PortA, 12}, "USB1 DP can be connected only to: PortA.12.");
 
         stm32f1xx::GPIO dmGpio(dmPin);
-        dmGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        dmGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
         stm32f1xx::GPIO dpGpio(dpPin);
-        dpGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        dpGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
     }
 
     template <stm32f1xx::IOPin rxd0, stm32f1xx::IOPin rxd1, stm32f1xx::IOPin rxd2, stm32f1xx::IOPin rxd3, stm32f1xx::IOPin rxClk,
@@ -235,29 +235,30 @@ class IOManager {
               stm32f1xx::IOPin col>
     static void routeMII() {
         stm32f1xx::GPIO mdcGpio(mdc);
-        mdcGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        mdcGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
 
         stm32f1xx::GPIO txd2Gpio(txd2);
-        txd2Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        txd2Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
 
         stm32f1xx::GPIO mdioGpio(mdio);
-        mdioGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        mdioGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
 
         stm32f1xx::GPIO txEnGpio(txEn);
-        txEnGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        txEnGpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
 
         stm32f1xx::GPIO txd0Gpio(txd0);
-        txd0Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        txd0Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
 
         stm32f1xx::GPIO txd1Gpio(txd1);
-        txd1Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        txd1Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
 
         stm32f1xx::GPIO txd3Gpio(txd3);
-        txd3Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
+        txd3Gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::PullType::NoPull, stm32f1xx::GPIO::OutputType::PushPull);
     }
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeI2C(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::NoPull, stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OpenDrain) {
+    static void routeI2C(stm32f1xx::GPIO::PullType pull = stm32f1xx::GPIO::PullType::NoPull,
+                         stm32f1xx::GPIO::OutputType type = stm32f1xx::GPIO::OutputType::OpenDrain) {
         constexpr IOPin pin(port, pinNr);
 
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
@@ -277,7 +278,7 @@ class IOManager {
         // stm32f0xx::GPIO gpio(pin);
         // gpio.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::I2C, pull, type);
         stm32f1xx::GPIO gpio(pin);
-        gpio.setAlternateFunctionOutput(stm32f1xx::GPIO::AlternateFunction::AF0, pull, type);
+        gpio.setAlternateFunctionOutput(pull, type);
     }
 };
 }  // namespace stm32f1xx

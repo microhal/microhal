@@ -35,7 +35,7 @@ bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType t
     port.enableClock();
 
     if (dir == Direction::Input) {
-        uint8_t cnf = pull == PullType::NoPull ? 0b0100 : 0b1000;
+        const uint_fast8_t cnf = pull == PullType::NoPull ? 0b0100 : 0b1000;
         port.configurePin(pinNo, cnf);
         // set pullup
         if (pull == PullType::PullUp) {
@@ -44,7 +44,7 @@ bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType t
             port.resetMask(pinMask);
         }
     } else {
-        uint8_t cnf;
+        uint_fast8_t cnf;
         switch (type) {
             case OutputType::OpenDrain:
                 cnf = 0b0100 | MediumSpeed;
@@ -61,7 +61,7 @@ bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType t
 }
 
 bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
-    auto config = port.getPinConfiguration(pinNo);
+    const auto config = port.getPinConfiguration(pinNo);
     if (config & 0b11) {
         dir = Direction::Output;
         if (config & 0b0100)

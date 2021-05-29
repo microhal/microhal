@@ -1,14 +1,12 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  Pawel Okas
  * @version    $Id$
  * @brief      GPIO interface
  *
  * @authors    Pawel Okas
  * created on: 11-09-2018
- * last modification: 11-09-2018
  *
- * @copyright Copyright (c) 2018-2020, Pawel Okas
+ * @copyright Copyright (c) 2018-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -41,26 +39,26 @@ namespace microhal {
  */
 class GPIO {
  public:
-    typedef enum {
+    enum class Direction {
         Input = 0,  //!< Configure as input
         Output = 1  //!< Configure as output
-    } Direction;
+    };
     /**
      * Possible pin output types
      */
-    typedef enum {
+    enum class OutputType {
         PushPull = 0,      //!< Push pull output
         OpenDrain = 1,     //!< Open drain output
         OpenCollector = 2  //!< Open collector output
-    } OutputType;
+    };
     /**
      * Possible pull type
      */
-    typedef enum {
+    enum class PullType {
         NoPull = 0,   //!< No pull up or down resistors enabled
         PullUp = 1,   //!< Pull up resistor active
         PullDown = 2  //!< Pull down resistor active
-    } PullType;
+    };
 
     // disable copying
     GPIO() = default;
@@ -69,40 +67,65 @@ class GPIO {
 
     virtual ~GPIO() = default;
 
-    /** Set pin to high state */
-    virtual bool set() = 0;
-    /** Set pin to low state */
-    virtual bool reset() = 0;
-    /** Set pin to opposite state */
-    void toggle() { get() ? reset() : set(); }
+    /** Set pin to high state
+     * @return Operation state
+     * @return Negative value if an error occurred.
+     * @retval 1 on success
+     */
+    virtual int set() noexcept = 0;
+    /** Set pin to low state
+     * @return Operation state
+     * @return Negative value if an error occurred.
+     * @retval 1 on success
+     */
+    virtual int reset() noexcept = 0;
+    /** Set pin to opposite state
+     * @return Operation state
+     * @return Negative value if an error occurred.
+     * @retval 1 on success
+     */
+    int toggle() noexcept {
+        const auto state = get();
+        if (state < 0) return state;  // error occurred
+        return (state == 0) ? set() : reset();
+    }
     /**
      * @brief Get actual pin state
      * @return Current pin state
-     * @retval true if pin is in high state
-     * @retval false if pin is in low state
+     * @return Negative value if an error occurred.
+     * @retval > 0 if pin is in high state
+     * @retval 0 if pin is in low state
      */
-    virtual bool get() const = 0;
+    virtual int get() const noexcept = 0;
     /**
      * @brief Get output state, this can be used with @ref get method to check if pin is shorted to ground or power lines.
      * @return Programmed pin state, set by @ref set or @ref reset methods
-     * @retval true if pin should be in high state
-     * @retval false if pin should be in low state
+     * @return Negative value if an error occurred.
+     * @retval > 0 if pin should be in high state
+     * @retval 0 if pin should be in low state
      */
-    virtual bool getOutputState() const = 0;
+    virtual int getOutputState() const noexcept = 0;
     /**
      * @brief Check if pin is set as high
      *
-     * @retval true - if pin is high
-     * @retval false - if pin is low
+     * @retval 1 - if pin is high
+     * @retval 0 - if pin is low
+     * @retval < 0 - if an error occurred
      */
-    bool isSet() { return get(); }
+    int isSet() const noexcept { return get(); }
     /**
      * @brief Check if pin is set as low
      *
-     * @retval true - if pin is low
-     * @retval false - if pin is high
+     * @retval 1 - if pin is low
+     * @retval 0 - if pin is high
+     * @retval < 0 - if an error occurred
      */
-    bool isReset() const { return !get(); }
+    int isReset() const noexcept {
+        const auto state = get();
+        if (state < 0) return state;
+        if (state > 0) return 0;
+        return 1;
+    }
     /**
      * @brief Check if pin is configured as output
      *

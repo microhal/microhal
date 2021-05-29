@@ -71,7 +71,7 @@ class GPIO : public microhal::GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    constexpr GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
+    constexpr GPIO(IOPin pin, Direction dir, PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull, Speed speed = Speed::HighSpeed)
         : port(reinterpret_cast<registers::GPIO *>(pin.port)), pinMask(1 << pin.pin), pinNo(pin.pin) {
         configure(dir, type, pull);
         setSpeed(speed);
@@ -79,21 +79,21 @@ class GPIO : public microhal::GPIO {
 
     constexpr virtual ~GPIO() = default;
 
-    bool set() final {
+    int set() noexcept final {
         port.setMask(pinMask);
-        return true;
+        return 1;
     }
-    bool reset() final {
+    int reset() noexcept final {
         port.resetMask(pinMask);
-        return true;
+        return 1;
     }
     /** This function read pin state*/
-    bool get() const final {
-        uint16_t io = port.get();
+    int get() const noexcept final {
+        const uint16_t io = port.get();
         return io & pinMask;
     }
 
-    bool getOutputState() const final {
+    int getOutputState() const noexcept final {
         uint16_t io = port.getOdr();
         return io & pinMask;
     }
@@ -128,7 +128,7 @@ class GPIO : public microhal::GPIO {
      * @param type
      * @param speed
      */
-    void setAlternateFunctionOutput(PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed) {
+    void setAlternateFunctionOutput(PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull, Speed speed = Speed::HighSpeed) {
         port.enableClock();
         uint8_t cnf;
         switch (type) {

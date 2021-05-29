@@ -19,19 +19,19 @@ class GPIO : public microhal::GPIO {
     virtual ~GPIO();
 
     /** Set pin to high state */
-    bool set() final {
+    int set() noexcept final {
         state = true;
-        return true;
+        return 1;
     }
     /** Set pin to low state */
-    bool reset() final {
+    int reset() noexcept final {
         state = false;
-        return true;
+        return 1;
     }
 
-    bool get() const final { return state; }
+    int get() const noexcept final { return state; }
 
-    bool getOutputState() const { return state; }
+    int getOutputState() const noexcept { return state; }
 
  private:
     bool state = 0;
