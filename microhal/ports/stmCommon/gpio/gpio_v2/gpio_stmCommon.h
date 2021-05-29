@@ -70,6 +70,7 @@ class GPIO : public microhal::GPIO {
      * @param dir - direction of port
      * @param pull - pull up setting
      * @param type - output type setting
+     * @param speed - pin speed
      */
     constexpr GPIO(IOPin pin, Direction dir, PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull, Speed speed = Speed::HighSpeed)
         : port(reinterpret_cast<registers::GPIO *>(pin.port)), pinMask(1 << pin.pin), pinNo(pin.pin) {
@@ -103,17 +104,7 @@ class GPIO : public microhal::GPIO {
      *
      * @param speed - pin speed
      */
-    bool setSpeed(Speed speed) {
-        auto config = port.getPinConfiguration(pinNo);
-        if (config & 0b11) {
-            config &= ~0b11;  // clean mode
-            config |= speed;
-            port.configurePin(pinNo, config);
-            return true;
-        }
-        return false;
-    }
-
+    bool setSpeed(Speed speed);
     bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const final;
 
  protected:
@@ -123,26 +114,11 @@ class GPIO : public microhal::GPIO {
 
     /**
      *
-     * @param function
      * @param pull
      * @param type
      * @param speed
      */
-    void setAlternateFunctionOutput(PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull, Speed speed = Speed::HighSpeed) {
-        port.enableClock();
-        uint8_t cnf;
-        switch (type) {
-            case OutputType::OpenCollector:
-                return;
-            case OutputType::OpenDrain:
-                cnf = 0b1100 | speed;
-                break;
-            case OutputType::PushPull:
-                cnf = 0b1000 | speed;
-                break;
-        }
-        port.configurePin(pinNo, cnf);
-    }
+    void setAlternateFunctionOutput(PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull, Speed speed = Speed::HighSpeed);
 
     void configureAsAnalogInput() {
         port.enableClock();

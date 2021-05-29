@@ -31,6 +31,17 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
+bool GPIO::setSpeed(Speed speed) {
+    auto config = port.getPinConfiguration(pinNo);
+    if (config & 0b11) {
+        config &= ~0b11;  // clean mode
+        config |= speed;
+        port.configurePin(pinNo, config);
+        return true;
+    }
+    return false;
+}
+
 bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) {
     port.enableClock();
 
@@ -84,6 +95,23 @@ bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) c
     return true;
 }
 
+void GPIO::setAlternateFunctionOutput(PullType pull, OutputType type, Speed speed) {
+    port.enableClock();
+    uint_fast8_t cnf;
+    switch (type) {
+        case OutputType::OpenCollector:
+            return;
+        case OutputType::OpenDrain:
+            cnf = 0b1100 | speed;
+            break;
+        case OutputType::PushPull:
+            cnf = 0b1000 | speed;
+            break;
+    }
+    port.configurePin(pinNo, cnf);
+}
+
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
+
 #endif  //_MICROHAL_PORT_STM_GPIO_DRIVER_VERSION == 2
