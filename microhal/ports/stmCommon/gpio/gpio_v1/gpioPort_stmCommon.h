@@ -63,8 +63,10 @@ class GPIOPort {
         gpio.bsrr.volatileStore(bsrr);
     }
 
-    uint16_t getDirection() const { return (uint32_t)gpio.otyper.volatileLoad(); }
-    void setDirection(uint16_t direction) { gpio.otyper.volatileStore(direction); }
+    uint32_t getMode() const { return (uint32_t)gpio.moder.volatileLoad(); }
+    // void setDirection(uint16_t direction) { gpio.otyper.volatileStore(direction); }
+    uint16_t getOutputType() const { return (uint32_t)gpio.otyper.volatileLoad(); }
+    void setOutputType(uint16_t direction) { gpio.otyper.volatileStore(direction); }
     uint32_t getPullConfig() const { return gpio.pupdr.volatileLoad(); }
     void setPullConfig(uint32_t pullConfig) { gpio.pupdr.volatileStore(pullConfig); }
     uint32_t getSpeed() const { return gpio.ospeedr.volatileLoad(); }

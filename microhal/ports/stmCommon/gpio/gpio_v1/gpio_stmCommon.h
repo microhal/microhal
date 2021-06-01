@@ -103,34 +103,32 @@ class GPIO : public microhal::GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    constexpr GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
+    constexpr GPIO(IOPin pin, Direction dir, PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull, Speed speed = Speed::HighSpeed)
         : port(reinterpret_cast<microhal::registers::GPIO *>(pin.port)), pinNo(pin.pin) {
-        pinInitialize(PinConfiguration{dir, type, pull, speed});
+        pinInitialize(static_cast<uint8_t>(dir), type, pull, speed);
     }
 
-    virtual ~GPIO() {}
-
-    bool set() final {
+    int set() noexcept final {
         port.setMask(1 << pinNo);
-        return true;
+        return 1;
     }
-    bool reset() final {
+    int reset() noexcept final {
         port.resetMask(1 << pinNo);
-        return true;
+        return 1;
     }
     /** This function read pin state*/
-    bool get() const final {
+    int get() const noexcept final {
         uint16_t io = port.get();
         return io & (1 << pinNo);
     }
 
-    bool getOutputState() const final {
+    int getOutputState() const noexcept final {
         uint16_t odr = port.getOdr();
         return odr & (1 << pinNo);
     }
 
     bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
-        pinInitialize(PinConfiguration{dir, type, pull, MediumSpeed});
+        pinInitialize(static_cast<uint8_t>(dir), type, pull, MediumSpeed);
         return true;
     }
 
@@ -142,8 +140,8 @@ class GPIO : public microhal::GPIO {
      */
     void setPullType(PullType pullType) {
         auto pupdr = port.getPullConfig();
-        pupdr &= ~(0b11 << (pinNo * 2));   // clear old configuration
-        pupdr |= pullType << (pinNo * 2);  // set new configuration
+        pupdr &= ~(0b11 << (pinNo * 2));                          // clear old configuration
+        pupdr |= static_cast<uint16_t>(pullType) << (pinNo * 2);  // set new configuration
         port.setPullConfig(pupdr);
     }
     //----------------------------- not portable functions
@@ -162,18 +160,25 @@ class GPIO : public microhal::GPIO {
     GPIOPort port;
     uint8_t pinNo;
 
-    void pinInitialize(PinConfiguration configuration);
+    void pinInitialize(uint8_t mode, OutputType outputType, PullType pull, Speed speed);
 
     /**
      * This function set pin direction.
      *
      * @param direction - pin direction
      */
-    void setDirection(Direction direction) {
-        uint16_t dir = port.getDirection();
-        dir &= ~(1 << pinNo);       // clear old configuration
-        dir |= direction << pinNo;  // set new configuration
-        port.setDirection(dir);
+    void setOutputType(OutputType outputType) {
+        uint16_t dir = port.getOutputType();
+        dir &= ~(1 << pinNo);                               // clear old configuration
+        dir |= static_cast<uint16_t>(outputType) << pinNo;  // set new configuration
+        port.setOutputType(dir);
+    }
+
+    Direction getDirection() const {
+        uint32_t mode = port.getMode();
+        mode >>= (2 * pinNo);
+        mode &= 0b11;
+        return static_cast<Direction>(mode);
     }
 
     /**
@@ -183,16 +188,15 @@ class GPIO : public microhal::GPIO {
      * @param type
      * @param speed
      */
-    void setAlternateFunction(AlternateFunction function, PullType pull = NoPull, OutputType type = PushPull, Speed speed = HighSpeed)
-        __attribute__((always_inline)) {
+    void setAlternateFunction(AlternateFunction function, PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull,
+                              Speed speed = HighSpeed) {
         // 0x02 in mode enable alternate function
-        pinInitialize(PinConfiguration{static_cast<uint8_t>(0x02 | (static_cast<std::underlying_type_t<AlternateFunction>>(function) << 4)), type,
-                                       pull, speed});
+        pinInitialize(static_cast<uint8_t>(0x02U | (static_cast<std::underlying_type_t<AlternateFunction>>(function) << 4)), type, pull, speed);
     }
 
-    void setAnalogFunction(PullType pull = NoPull, Speed speed = HighSpeed) __attribute__((always_inline)) {
+    void setAnalogFunction(PullType pull = PullType::NoPull, Speed speed = HighSpeed) {
         // 0x03 in mode enable analog function
-        pinInitialize(PinConfiguration{static_cast<uint8_t>(0x03), 0x00, pull, speed});
+        pinInitialize(0x03U, OutputType::PushPull, pull, speed);
     }
     //----------------------------------------- friends -----------------------------------------//
     friend class IOManager;

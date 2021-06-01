@@ -32,7 +32,7 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
-void GPIO::pinInitialize(PinConfiguration config) {
+void GPIO::pinInitialize(uint8_t mode, OutputType outputType, PullType pull, Speed speed) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
     ClockManager::enableGPIO(port.getGpioHandle(), ClockManager::PowerMode::Normal);
 #else
@@ -40,24 +40,25 @@ void GPIO::pinInitialize(PinConfiguration config) {
 #endif
 
     auto afr = port.getGpioHandle().afr[pinNo / 8].volatileLoad();
-    afr &= ~(0b1111 << ((pinNo % 8) * 4));                    // clear old configuration
-    afr |= ((0xF0 & config.mode) >> 4) << ((pinNo % 8) * 4);  // set new configuration
+    afr &= ~(0b1111 << ((pinNo % 8) * 4));             // clear old configuration
+    afr |= ((0xF0 & mode) >> 4) << ((pinNo % 8) * 4);  // set new configuration
     port.getGpioHandle().afr[pinNo / 8].volatileStore(afr);
 
     // set mode -> config.mode is split to 2 part 4MSB bit
     //      contain alternate function and 4LSB bit contain mode
     auto moder = port.getGpioHandle().moder.volatileLoad();
-    moder &= ~((0b11) << (pinNo * 2));             // clear old configuration
-    moder |= (0x03 & config.mode) << (pinNo * 2);  // set new configuration
+    moder &= ~((0b11) << (pinNo * 2));      // clear old configuration
+    moder |= (0x03 & mode) << (pinNo * 2);  // set new configuration
     port.getGpioHandle().moder.volatileStore(moder);
     // set type
-    setDirection(static_cast<Direction>(config.type));
-    setPullType(static_cast<PullType>(config.pull));
-    setSpeed(config.speed);
+    setOutputType(outputType);
+    setPullType(pull);
+    setSpeed(speed);
 }
 
 bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
-    dir = static_cast<Direction>((port.getDirection() >> pinNo) & 0b1);
+    otype = getOutputType();
+    dir = getDirection();
     pull = static_cast<PullType>((port.getPullConfig() >> (2 * pinNo)) & 0b11);
     return true;
 }
