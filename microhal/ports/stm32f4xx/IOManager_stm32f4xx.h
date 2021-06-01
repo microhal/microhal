@@ -46,16 +46,18 @@ class IOManager {
  public:
     IOManager();
     template <int serial, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeTimer(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
+    static void routeTimer(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::PullType::NoPull,
+                           stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OutputType::PushPull) {
         constexpr IOPin pin(port, pinNr);
         GPIO gpio(pin);
-        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::AF1, stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::PushPull);
+        gpio.setAlternateFunction(stm32f4xx::GPIO::AlternateFunction::AF1, stm32f4xx::GPIO::PullType::NoPull, stm32f4xx::GPIO::OutputType::PushPull);
     }
 
     template <int serialNumber, SerialPinType serialPinType, stm32f4xx::IOPin pin>
-    static void routeSerial(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
+    static void routeSerial(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::PullType::NoPull,
+                            stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OutputType::PushPull) {
         static_assert(serialNumber != 0, "Serial Port numbers starts from 1.");
-        static_assert(serialNumber <= 3, "STM32F4XX family have up to 3 Serial Ports.");
+        static_assert(serialNumber <= 6, "STM32F4XX family have up to 6 Serial Ports.");
         auto af = stm32f4xx::GPIO::AlternateFunction::AF0;
 
         if constexpr (serialNumber == 1) {
@@ -97,6 +99,19 @@ class IOManager {
                 af = stm32f4xx::GPIO::AlternateFunction::AF8;
             }
         }
+        if constexpr (serialNumber == 6) {
+            static_assert(_MICROHAL_STM32F4XX_HAS_USART6 && serialNumber == 6, "Serial Port 6 unavailable in this MCU.");
+            if constexpr (serialPinType == Rxd) {
+                static_assert(pin == IOPin{IOPin::PortA, 12} || pin == IOPin{IOPin::PortC, 7},
+                              "Serial Port 3 Rxd can be connected only to: PortA.12, PortC.7");
+                af = stm32f4xx::GPIO::AlternateFunction::AF8;
+            }
+            if constexpr (serialPinType == Txd) {
+                static_assert(pin == IOPin{IOPin::PortA, 11} || pin == IOPin{IOPin::PortC, 6},
+                              "Serial Port 3 Txd can be connected only to: PortA.11, PortC.6");
+                af = stm32f4xx::GPIO::AlternateFunction::AF8;
+            }
+        }
 
         stm32f4xx::GPIO gpio(pin);
         gpio.setAlternateFunction(af, pull, type);
@@ -122,7 +137,8 @@ class IOManager {
     }
 
     template <int spiNumber, SpiPinType spiPinType, stm32f4xx::IOPin pin>
-    static void routeSPI(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
+    static void routeSPI(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::PullType::NoPull,
+                         stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OutputType::PushPull) {
         static_assert(spiNumber != 0, "SPI numbers starts from 1.");
         static_assert(spiNumber <= 6, "STM32F4XX family have up to 6 SPIs.");
         auto af = stm32f4xx::GPIO::AlternateFunction::AF0;
@@ -233,7 +249,8 @@ class IOManager {
     }
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeI2C(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OpenDrain) {
+    static void routeI2C(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::PullType::NoPull,
+                         stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OutputType::OpenDrain) {
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
         static_assert(i2cNumber <= 3, "STM32F4xx has only 3 I2C.");
 
@@ -255,7 +272,8 @@ class IOManager {
     }
 
     template <USBPinType usbPinType, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeUSB(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::PushPull) {
+    static void routeUSB(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::PullType::NoPull,
+                         stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OutputType::PushPull) {
         constexpr IOPin pin(port, pinNr);
         static_assert((usbPinType != OTG_FS_SOF || (port == IOPin::PortA && pinNr == 8)), "USB Fast Speed SOF pin can be connected only to PortA.8");
         static_assert((usbPinType != OTG_FS_VBUS || (port == IOPin::PortA && pinNr == 9)),
@@ -265,8 +283,8 @@ class IOManager {
         static_assert((usbPinType != OTG_FS_DP || (port == IOPin::PortA && pinNr == 12)), "USB Fast Speed DP pin can be connected only to PortA.12");
 
         if (usbPinType == OTG_FS_ID) {
-            pull = stm32f4xx::GPIO::PullUp;
-            type = GPIO::OpenDrain;
+            pull = stm32f4xx::GPIO::PullType::PullUp;
+            type = GPIO::OutputType::OpenDrain;
         }
 
         GPIO gpio(pin);
@@ -274,7 +292,8 @@ class IOManager {
     }
 
     template <int dacNumber, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeDAC(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OpenDrain) {
+    static void routeDAC(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::PullType::NoPull,
+                         stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OutputType::OpenDrain) {
         constexpr IOPin pin(port, pinNr);
         static_assert((dacNumber != 1 || (port == IOPin::PortA && pinNr == 4)), "DAC 1 can be connected only to: PortA.4.");
         static_assert((dacNumber != 2 || (port == IOPin::PortA && pinNr == 5)), "DAC 2 can be connected only to: PortA.5.");
@@ -284,7 +303,8 @@ class IOManager {
     }
 
     template <int adcNumber, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeADC(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::NoPull, stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OpenDrain) {
+    static void routeADC(stm32f4xx::GPIO::PullType pull = stm32f4xx::GPIO::PullType::NoPull,
+                         stm32f4xx::GPIO::OutputType type = stm32f4xx::GPIO::OutputType::OpenDrain) {
         constexpr IOPin pin(port, pinNr);
         GPIO gpio(pin);
         gpio.setAnalogFunction();
