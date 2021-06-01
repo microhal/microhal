@@ -99,8 +99,8 @@ class SerialPort : public microhal::SerialPort {
     static SerialPort &Serial8;
 #endif
 
-    bool open(OpenMode mode) noexcept override = 0;
-    bool isOpen(void) const noexcept final { return usart.cr1.volatileLoad().UE; }
+    int open(OpenMode mode) noexcept override = 0;
+    int isOpen(void) const noexcept final { return usart.cr1.volatileLoad().UE; }
     void close() noexcept final { usart.cr1.volatileStore(0); }
 
     bool setBaudRate(uint32_t baudRate) noexcept final;

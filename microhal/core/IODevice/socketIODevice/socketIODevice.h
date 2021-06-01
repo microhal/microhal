@@ -39,17 +39,17 @@ class SocketIODevice : public IODevice {
     SocketIODevice(int &&socket);
     ~SocketIODevice();
 
-    bool open(OpenMode mode) noexcept final;
+    int open(OpenMode mode) noexcept final;
 
     void close() noexcept final;
 
-    bool isOpen() const noexcept final { return mode != OpenMode::NotOpen; };
+    int isOpen() const noexcept final { return mode != OpenMode::NotOpen; };
 
-    size_t read(char *buffer, size_t length) noexcept final;
+    ssize_t read(char *buffer, size_t length) noexcept final;
 
-    size_t availableBytes() const noexcept final { return receiveBuffer.getLength(); }
+    ssize_t availableBytes() const noexcept final { return receiveBuffer.getLength(); }
 
-    size_t write(const char *data, size_t length) noexcept final;
+    ssize_t write(const char *data, size_t length) noexcept final;
 
  private:
     int sockfd{};

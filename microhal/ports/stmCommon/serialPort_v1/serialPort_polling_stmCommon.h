@@ -74,7 +74,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
     static SerialPort_polling Serial8;
 #endif
 
-    bool open(OpenMode mode) noexcept {
+    int open(OpenMode mode) noexcept {
         if (isOpen() || (mode > 0x03)) return false;
         auto cr1 = usart.cr1.volatileLoad();
         cr1 |= (mode << 2);
@@ -88,7 +88,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      * @param c
      * @return
      */
-    bool putChar(char c) noexcept final {
+    int putChar(char c) noexcept final {
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
         while (!(usart.isr.volatileLoad().TXE)) {
         }
@@ -105,7 +105,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      *
      * @return
      */
-    bool getChar(char &c) noexcept final {
+    int getChar(char &c) noexcept final {
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
         while (!(usart.isr.volatileLoad().RXNE)) {
         }
@@ -123,7 +123,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      * @param[in] maxSize - number of bytes to copy.
      * @return number of bytes that was copy to buffer.
      */
-    size_t write(const char *data, size_t length) noexcept final {
+    ssize_t write(const char *data, size_t length) noexcept final {
         size_t writeByte = 0;
 
         for (; writeByte < length; writeByte++) {
@@ -140,7 +140,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      * @param[in] maxSize - size of data to copy.
      * @return number of bytes stored in data buffer.
      */
-    size_t read(char *data, size_t length, std::chrono::milliseconds timeout) noexcept final {
+    ssize_t read(char *data, size_t length, std::chrono::milliseconds timeout) noexcept final {
         (void)timeout;
         size_t tmp = length;
         while (length--) {
@@ -171,7 +171,7 @@ class SerialPort_polling : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPort {
      */
     size_t outputQueueSize() const noexcept final { return 1; }
 
-    size_t availableBytes() const noexcept final {
+    ssize_t availableBytes() const noexcept final {
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
         if ((usart.isr.volatileLoad().RXNE)) {
 #else

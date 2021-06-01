@@ -47,7 +47,7 @@ bool VirtualIODevice::disconnect(VirtualIODevice &receiver) {
     return false;
 }
 
-bool VirtualIODevice::open(OpenMode mode) noexcept {
+int VirtualIODevice::open(OpenMode mode) noexcept {
     if (mode == OpenMode::NotOpen) {
         this->mode = mode;
         return true;
@@ -61,14 +61,14 @@ bool VirtualIODevice::open(OpenMode mode) noexcept {
     return false;
 }
 
-size_t VirtualIODevice::read(char *buffer, size_t length) noexcept {
+ssize_t VirtualIODevice::read(char *buffer, size_t length) noexcept {
     if (mode == OpenMode::ReadOnly || mode == OpenMode::ReadWrite) {
         return receiveBuffer.read(buffer, length);
     }
     return 0;
 }
 
-size_t VirtualIODevice::write(const char *data, size_t length) noexcept {
+ssize_t VirtualIODevice::write(const char *data, size_t length) noexcept {
     if (mode == OpenMode::WriteOnly || mode == OpenMode::ReadWrite) {
         return device->receiveBuffer.write(data, length);
     }

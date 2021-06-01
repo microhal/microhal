@@ -18,7 +18,7 @@ class IODeviceNull : public microhal::IODevice {
 
     ~IODeviceNull() {}
 
-    bool open(OpenMode mode __attribute__((unused))) noexcept final { return false; }
+    int open(OpenMode mode __attribute__((unused))) noexcept final { return false; }
     /**
      *
      */
@@ -27,36 +27,36 @@ class IODeviceNull : public microhal::IODevice {
      *
      * @return
      */
-    bool isOpen() const noexcept final { return false; }
+    int isOpen() const noexcept final { return false; }
     /**
      *
      * @param[out] buffer
      * @param[in] length
      * @retval
      */
-    size_t read(char *buffer __attribute__((unused)), size_t length __attribute__((unused))) noexcept final { return 0; }
+    ssize_t read(char *buffer __attribute__((unused)), size_t length __attribute__((unused))) noexcept final { return 0; }
     /**
      *
      */
-    size_t availableBytes(void) const noexcept final { return 0; }
+    ssize_t availableBytes(void) const noexcept final { return 0; }
     /**
      *
      * @return
      */
-    bool getChar(char &c __attribute__((unused))) noexcept final { return false; }
+    int getChar(char &c __attribute__((unused))) noexcept final { return false; }
     /**
      *
      * @param[in] c
      * @return
      */
-    bool putChar(char c __attribute__((unused))) noexcept final { return true; }
+    int putChar(char c __attribute__((unused))) noexcept final { return true; }
     /**
      *
      * @param[in] data - pointer to data buffer
      * @param[in] length - length of data to write
      * @return number of bytes that was copy to buffer.
      */
-    size_t write(const char *data __attribute__((unused)), size_t length __attribute__((unused))) noexcept final { return length; }
+    ssize_t write(const char *data __attribute__((unused)), size_t length __attribute__((unused))) noexcept final { return length; }
 };
 
 extern IODeviceNull nullIODevice;

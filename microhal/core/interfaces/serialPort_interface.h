@@ -145,12 +145,12 @@ class SerialPort : public microhal::IODevice {
 
     bool open(OpenMode mode, uint32_t baudRate, DataBits dataBits = Data8, StopBits stopBits = OneStop, Parity parity = NoParity) noexcept;
     // IODevice functions
-    virtual bool open(OpenMode mode) noexcept = 0;
+    virtual int open(OpenMode mode) noexcept = 0;
     //    void close() noexcept override = 0;
     //    bool isOpen() const noexcept override = 0;
 
-    virtual size_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) = 0;
-    size_t read(char *buffer, size_t length) noexcept override { return read(buffer, length, std::chrono::milliseconds::zero()); }
+    virtual ssize_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) = 0;
+    ssize_t read(char *buffer, size_t length) noexcept override { return read(buffer, length, std::chrono::milliseconds::zero()); }
     //    virtual size_t readLine(char *buffer, size_t maxLength) noexcept {
     //        (void)buffer;
     //        (void)maxLength;
@@ -173,7 +173,7 @@ class SerialPort : public microhal::IODevice {
 
     virtual size_t inputQueueSize() const noexcept = 0;
     virtual size_t outputQueueSize() const noexcept = 0;
-    virtual size_t availableBytes() const noexcept = 0;
+    virtual ssize_t availableBytes() const noexcept = 0;
 
     virtual bool waitForWriteFinish(std::chrono::milliseconds timeout) const noexcept = 0;
     virtual bool clear(SerialPort::Direction dir = AllDirections) noexcept = 0;

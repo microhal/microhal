@@ -47,7 +47,7 @@ SocketIODevice::~SocketIODevice() {
     ::close(sockfd);
 }
 
-bool SocketIODevice::open(OpenMode mode) noexcept {
+int SocketIODevice::open(OpenMode mode) noexcept {
     if (!isOpen()) {
         if (mode == OpenMode::ReadOnly || mode == OpenMode::ReadWrite) {
             readThread = std::jthread(&SocketIODevice::readThreadFunction, this);
@@ -62,14 +62,14 @@ void SocketIODevice::close() noexcept {
     mode = OpenMode::NotOpen;
 }
 
-size_t SocketIODevice::read(char *buffer, size_t length) noexcept {
+ssize_t SocketIODevice::read(char *buffer, size_t length) noexcept {
     if (mode == OpenMode::ReadOnly || mode == OpenMode::ReadWrite) {
         return receiveBuffer.read(buffer, length);
     }
     return 0;
 }
 
-size_t SocketIODevice::write(const char *data, size_t length) noexcept {
+ssize_t SocketIODevice::write(const char *data, size_t length) noexcept {
     auto status = send(sockfd, data, length, 0);
     if (status < 0) {
 #ifdef MICROHAL_SOCKETIODEVICE_USE_DIAGNOSTIC

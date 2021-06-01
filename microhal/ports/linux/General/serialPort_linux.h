@@ -41,7 +41,7 @@ class SerialPort : public microhal::SerialPort {
 
     std::string_view getPortName() const { return portName; }
 
-    bool open(OpenMode mode) noexcept final;
+    int open(OpenMode mode) noexcept final;
     /**
      * @brief This function check is serial port open. When port is open function
      * return true in other cases return false;
@@ -49,7 +49,7 @@ class SerialPort : public microhal::SerialPort {
      * @retval true if port is open
      * @retval false if port is close
      */
-    bool isOpen(void) const noexcept final { return (tty_fd != 0); }
+    int isOpen(void) const noexcept final { return (tty_fd != 0); }
     /**
      * @brief This function close serial port
      */
@@ -64,13 +64,13 @@ class SerialPort : public microhal::SerialPort {
      *
      * @return
      */
-    bool getChar(char &c) noexcept final { return ::read(tty_fd, &c, 1); }
+    int getChar(char &c) noexcept final { return ::read(tty_fd, &c, 1); }
     /**
      *
      * @param c
      * @return
      */
-    bool putChar(char c) noexcept final { return ::write(tty_fd, &c, 1); }
+    int putChar(char c) noexcept final { return ::write(tty_fd, &c, 1); }
     /**
      * @brief This function write data to transmit buffer and start sending it.
      *
@@ -79,7 +79,7 @@ class SerialPort : public microhal::SerialPort {
      *
      * @return number of bytes sent.
      */
-    size_t write(const char *data, size_t length) noexcept final;
+    ssize_t write(const char *data, size_t length) noexcept final;
     /**
      * @brief This function read data from serial port.
      *
@@ -88,7 +88,7 @@ class SerialPort : public microhal::SerialPort {
      *
      * @return number of read data.
      */
-    size_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept final;
+    ssize_t read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept final;
 
     size_t inputQueueSize() const noexcept final {
         return 0;  // todo
@@ -101,7 +101,7 @@ class SerialPort : public microhal::SerialPort {
      *
      * @return number of bytes in receive buffer.
      */
-    size_t availableBytes(void) const noexcept final {
+    ssize_t availableBytes(void) const noexcept final {
         int bytes;
 
         ioctl(tty_fd, FIONREAD, &bytes);

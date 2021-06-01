@@ -65,7 +65,7 @@ class console_IODevice : public IODevice {
      *  	 which is testing console input for any character - it is stored in buffer.
      *  	 All reads are performed throught that buffer.
      */
-    bool open(OpenMode mode) noexcept final;
+    int open(OpenMode mode) noexcept final;
 
     /**
      *  \brief Close console
@@ -80,7 +80,7 @@ class console_IODevice : public IODevice {
      *
      *  \return true if console is opened at least one direction, false otherwise
      */
-    bool isOpen() const noexcept final;
+    int isOpen() const noexcept final;
 
     /**
      *  \brief Read from console
@@ -94,7 +94,7 @@ class console_IODevice : public IODevice {
      *  		specified by @ref length.
      *
      */
-    size_t read(char *buffer, size_t length) noexcept final;
+    ssize_t read(char *buffer, size_t length) noexcept final;
 
     /**
      *  \brief Get number of characters in input buffer
@@ -102,7 +102,7 @@ class console_IODevice : public IODevice {
      *  \return Number of characters avaliable to read
      *
      */
-    size_t availableBytes(void) const noexcept final { return inputBuffer.getLength(); }
+    ssize_t availableBytes(void) const noexcept final { return inputBuffer.getLength(); }
 
     /**
      *  \brief Read line from console
@@ -125,7 +125,7 @@ class console_IODevice : public IODevice {
      *  \param [in] c reference to place where read character will be stored.
      *  \return ture if read was successful, false otherwise
      */
-    bool getChar(char &c) noexcept final { return 1 == read(&c, 1); }
+    int getChar(char &c) noexcept final { return 1 == read(&c, 1); }
 
     /**
      *  \brief Write single character to console
@@ -133,7 +133,7 @@ class console_IODevice : public IODevice {
      *  \param [in] c character to write
      *  \return true if write was successful, false otherwise
      */
-    bool putChar(char c) noexcept final { return 1 == write(&c, 1); }
+    int putChar(char c) noexcept final { return 1 == write(&c, 1); }
 
     /**
      *  \brief Write data to console
@@ -142,7 +142,7 @@ class console_IODevice : public IODevice {
      *  \param [in] length number of characters to write
      *  \return number of characters successfully written
      */
-    size_t write(const char *data, size_t length) noexcept final;
+    ssize_t write(const char *data, size_t length) noexcept final;
 
     /**
      *  \brief Clear input buffer

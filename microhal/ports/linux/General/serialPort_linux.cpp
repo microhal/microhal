@@ -26,7 +26,7 @@ std::vector<std::string> SerialPort::getSerialPortList() {
     return result;
 }
 
-bool SerialPort::open(OpenMode mode) noexcept {
+int SerialPort::open(OpenMode mode) noexcept {
     int openParam = O_NONBLOCK;
     switch (mode) {
         case WriteOnly:
@@ -69,7 +69,7 @@ bool SerialPort::open(OpenMode mode) noexcept {
     return false;
 }
 
-size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept {
+ssize_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds timeout) noexcept {
     if (timeout == timeout.zero()) {
         // no timeout
         tio.c_cc[VMIN] = 0;
@@ -90,7 +90,7 @@ size_t SerialPort::read(char *buffer, size_t length, std::chrono::milliseconds t
     }
 }
 
-size_t SerialPort::write(const char *data, size_t length) noexcept {
+ssize_t SerialPort::write(const char *data, size_t length) noexcept {
     ssize_t len = ::write(tty_fd, data, length);
     if (len >= 0)
         return len;

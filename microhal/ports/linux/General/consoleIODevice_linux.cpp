@@ -26,7 +26,7 @@ console_IODevice::~console_IODevice() {
     endwin(); /* End curses mode		  */
 }
 
-bool console_IODevice::open(OpenMode mode) noexcept {
+int console_IODevice::open(OpenMode mode) noexcept {
     if (isOpen()) {  // should be first properly close
         return false;
     }
@@ -83,11 +83,11 @@ void console_IODevice::close() noexcept {
     mode = OpenMode::NotOpen;
 }
 
-bool console_IODevice::isOpen() const noexcept {
+int console_IODevice::isOpen() const noexcept {
     return mode != OpenMode::NotOpen;
 }
 
-size_t console_IODevice::read(char *buffer, size_t length) noexcept {
+ssize_t console_IODevice::read(char *buffer, size_t length) noexcept {
     if (mode == OpenMode::ReadWrite || mode == OpenMode::ReadOnly) {
         std::lock_guard<std::mutex> g(inputBufferMutex);
 
@@ -128,7 +128,7 @@ size_t console_IODevice::read(char *buffer, size_t length) noexcept {
 //	return count;
 //}
 
-size_t console_IODevice::write(const char *data, size_t length) noexcept {
+ssize_t console_IODevice::write(const char *data, size_t length) noexcept {
     size_t bytesWritten = 0;
     if (mode == OpenMode::ReadWrite || mode == OpenMode::WriteOnly) {
         if (waddnstr(stdscr, data, length) != ERR) {

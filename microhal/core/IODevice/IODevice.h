@@ -70,13 +70,13 @@ class IODevice {
     IODevice() : mutex() {}
 #endif
 
-    virtual ~IODevice() {}
+    virtual ~IODevice() = default;
     /**
      *
      * @param mode
      * @retval
      */
-    virtual bool open(OpenMode mode) noexcept = 0;
+    virtual int open(OpenMode mode) noexcept = 0;
     /**
      *
      */
@@ -85,42 +85,42 @@ class IODevice {
      *
      * @return
      */
-    virtual bool isOpen() const noexcept = 0;
+    virtual int isOpen() const noexcept = 0;
     /**
      *
      * @param[out] buffer
      * @param[in] length
      * @retval
      */
-    virtual size_t read(char *buffer, size_t length) noexcept = 0;
+    virtual ssize_t read(char *buffer, size_t length) noexcept = 0;
     /**
      *
      */
-    virtual size_t availableBytes() const noexcept = 0;
+    virtual ssize_t availableBytes() const noexcept = 0;
     /**
      *
      * @return
      */
-    virtual bool getChar(char &c) noexcept { return read(&c, 1) == 1; }
+    virtual int getChar(char &c) noexcept { return read(&c, 1) == 1; }
     /**
      *
      * @param[in] c
      * @return
      */
-    virtual bool putChar(char c) noexcept { return write(&c, 1) == 1; }
+    virtual int putChar(char c) noexcept { return write(&c, 1) == 1; }
     /**
      *
      * @param[in] data - pointer to data buffer
      * @param[in] length - length of data to write
      * @return number of bytes that was copy to buffer.
      */
-    virtual size_t write(const char *data, size_t length) noexcept = 0;
+    virtual ssize_t write(const char *data, size_t length) noexcept = 0;
     /**
      *
      * @param[in] data - pointer to text buffer.
      * @return number of bytes that was copy to buffer.
      */
-    size_t write(const char *data) noexcept {
+    ssize_t write(const char *data) noexcept {
         if (data != nullptr) {
             size_t len = strlen(data);
             return write(data, len);
@@ -129,7 +129,7 @@ class IODevice {
         }
     }
 
-    size_t write(string_view string) { return write(string.data(), string.length()); }
+    ssize_t write(string_view string) { return write(string.data(), string.length()); }
 };
 
 }  // namespace microhal
