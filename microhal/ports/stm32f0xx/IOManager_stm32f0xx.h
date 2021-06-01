@@ -50,7 +50,8 @@ class IOManager {
     IOManager() = delete;
 
     template <int serial, SerialPinType serialType, stm32f0xx::IOPin::Port port, stm32f0xx::IOPin::Pin pinNr>
-    static void routeSerial(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::NoPull, stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::PushPull) {
+    static void routeSerial(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::PullType::NoPull,
+                            stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::OutputType::PushPull) {
         constexpr IOPin pin(port, pinNr);
 
         if constexpr (serial == 1) {
@@ -71,7 +72,8 @@ class IOManager {
     }
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeI2C(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::NoPull, stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::OpenDrain) {
+    static void routeI2C(stm32f0xx::GPIO::PullType pull = stm32f0xx::GPIO::PullType::NoPull,
+                         stm32f0xx::GPIO::OutputType type = stm32f0xx::GPIO::OutputType::OpenDrain) {
         IOPin pin(port, pinNr);
 
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
@@ -106,8 +108,8 @@ class IOManager {
         (void)miso;
         GPIO gpioMosi(mosi);
         GPIO gpioSck(sck);
-        gpioMosi.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::AF1, GPIO::NoPull, mosiType);
-        gpioSck.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::AF1, GPIO::NoPull, sckType);
+        gpioMosi.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::AF1, GPIO::PullType::NoPull, mosiType);
+        gpioSck.setAlternateFunction(stm32f0xx::GPIO::AlternateFunction::AF1, GPIO::PullType::NoPull, sckType);
     }
 
  private:

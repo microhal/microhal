@@ -43,7 +43,7 @@ GPIO::~GPIO() {
     }
 }
 
-bool GPIO::set() {
+int GPIO::set() noexcept {
     char buf[100];
     sprintf(buf, "/sys/class/gpio/gpio%" PRIuFAST16 "/value", pin.pin);
     auto fd = ::open(buf, O_WRONLY);
@@ -56,10 +56,10 @@ bool GPIO::set() {
                                           << microhal::diagnostic::unlock;
         std::terminate();
     }
-    return true;
+    return 1;
 }
 
-bool GPIO::reset() {
+int GPIO::reset() noexcept {
     char buf[100];
     sprintf(buf, "/sys/class/gpio/gpio%" PRIuFAST16 "/value", pin.pin);
     auto fd = open(buf, O_WRONLY);
@@ -72,10 +72,10 @@ bool GPIO::reset() {
                                           << microhal::diagnostic::unlock;
         std::terminate();
     }
-    return true;
+    return 1;
 }
 
-bool GPIO::get() const {
+int GPIO::get() const noexcept {
     char buf[100];
     sprintf(buf, "/sys/class/gpio/gpio%" PRIuFAST16 "/value", pin.pin);
 

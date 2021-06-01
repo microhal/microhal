@@ -64,7 +64,8 @@ class IOManager {
     IOManager() = delete;
 
     template <int serial, SerialPinType serialType, stm32f3xx::IOPin pin>
-    static void routeSerial(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::PushPull) {
+    static void routeSerial(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::PullType::NoPull,
+                            stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OutputType::PushPull) {
         static_assert(serial < 4, "This MCU have only 3 Serial ports.");
         static_assert(serial != 0, "Serial port numbers starts from 1.");
 
@@ -97,7 +98,8 @@ class IOManager {
     }
 
     template <int spiNumber, SpiPinType spiType, stm32f3xx::IOPin pin>
-    static void routeSPI(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::PushPull) {
+    static void routeSPI(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::PullType::NoPull,
+                         stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OutputType::PushPull) {
         static_assert(spiNumber != 0, "SPI port numbers starts from 1.");
         static_assert(spiNumber <= 3, "STM32F3xx has only 3 SPI.");
 
@@ -136,9 +138,9 @@ class IOManager {
             }
         }(mosi, miso, sck);
 
-        gpioMiso.setAlternateFunction(af, GPIO::NoPull, GPIO::PushPull);
-        gpioMosi.setAlternateFunction(af, GPIO::NoPull, mosiType);
-        gpioSck.setAlternateFunction(af, GPIO::NoPull, sckType);
+        gpioMiso.setAlternateFunction(af, GPIO::PullType::NoPull, GPIO::OutputType::PushPull);
+        gpioMosi.setAlternateFunction(af, GPIO::PullType::NoPull, mosiType);
+        gpioSck.setAlternateFunction(af, GPIO::PullType::NoPull, sckType);
     }
 
     static constexpr bool spiPinAssert(int number, IOPin miso, IOPin mosi, IOPin sck) {
@@ -172,7 +174,8 @@ class IOManager {
     }
 
     template <int i2cNumber, i2cPinType i2cType, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeI2C(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull, stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OpenDrain) {
+    static void routeI2C(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::PullType::NoPull,
+                         stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OutputType::OpenDrain) {
         static_assert(i2cNumber != 0, "I2C port numbers starts from 1.");
         static_assert(i2cNumber <= 3, "STM32F3xx has only 3 I2C.");
         constexpr IOPin pin(port, pinNr);
@@ -199,7 +202,7 @@ class IOManager {
     }
 
     template <int adcNumber, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeADC(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull) {
+    static void routeADC(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::PullType::NoPull) {
         static_assert(adcNumber != 0, "ADC numbers starts from 1.");
         static_assert(adcNumber <= 2, "STM32F3xx has only 2 ADC.");
         constexpr IOPin pin(port, pinNr);
@@ -240,7 +243,7 @@ class IOManager {
     }
 
     template <int TimerNumber, int channel, IOPin::Port port, IOPin::Pin pinNr>
-    static void routeTimer(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::NoPull,
+    static void routeTimer(stm32f3xx::GPIO::PullType pull = stm32f3xx::GPIO::PullType::NoPull,
                            stm32f3xx::GPIO::OutputType type = stm32f3xx::GPIO::OutputType::PushPull) {
         constexpr IOPin pin(port, pinNr);
 

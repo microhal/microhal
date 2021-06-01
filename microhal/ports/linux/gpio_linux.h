@@ -56,28 +56,22 @@ class GPIO : public microhal::GPIO {
      * @param pull - pull up setting
      * @param type - output type setting
      */
-    GPIO(IOPin pin, Direction dir, PullType pull = NoPull, OutputType type = PushPull);
-    ~GPIO();
+    GPIO(IOPin pin, Direction dir, PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull);
+    ~GPIO() override;
     //------------------------------------ static functions -------------------------------------//
     /** This function set pin to high state.
      *
-     * @param port - port name
-     * @param pin - pin number
      */
-    bool set() final;
+    int set() noexcept final;
     /** This function set pin to low state.
      *
-     * @param port - port name
-     * @param pin - pin number
      */
-    bool reset() final;
+    int reset() noexcept final;
     /** This function read pin state
      *
-     * @param port - port name
-     * @param pin - pin number
      * @return
      */
-    bool get() const final;
+    int get() const noexcept final;
     /** This function set pin direction.
      *
      * @param port - port name
