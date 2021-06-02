@@ -10,7 +10,8 @@
 //                          STM32F429, STM32F469, STM32F411, STM32F413, STM32F412, STM32F401, STM32F427, STM32F405, STM32F446, STM32F410, STM32F217,
 //                          STM32F215
 
-#if defined(STM32F102) || defined(STM32F107) || defined(STM32F101) || defined(STM32F103) || defined(STM32F101)  // version 1
+#if defined(STM32F102) || defined(_MICROHAL_STM32F1XX_STM32F107xx) || defined(STM32F101) || defined(_MICROHAL_STM32F1XX_STM32F103xx) || \
+    defined(STM32F101)  // version 1
 #define _MICROHAL_REGISTERS_ADC_CR1_HAS_DUALMOD
 #define _MICROHAL_REGISTERS_ADC_CR2_VERSION1
 #endif
