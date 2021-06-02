@@ -61,7 +61,7 @@ diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelC
     return logChannel;
 }
 
-CAN::CAN(microhal::registers::CAN *canDevice, uint32_t interruptPriority) : can(*canDevice) {
+CAN::CAN(microhal::registers::CAN *const canDevice, uint32_t interruptPriority) : can(*canDevice) {
 #ifdef HAL_RTOS_FreeRTOS
     assert(interruptPriority >= configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 #endif
