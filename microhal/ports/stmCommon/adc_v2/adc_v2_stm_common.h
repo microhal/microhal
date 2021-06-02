@@ -290,8 +290,8 @@ class Adc final {
         return true;
     }
 
-    constexpr Channel getTemperatureSensorChannel() const { return Channel16; }
-    constexpr Channel getInteranlReferenceChannel() const { return Channel17; }
+    constexpr static Channel getTemperatureSensorChannel() { return Channel16; }
+    constexpr static Channel getInteranlReferenceChannel() { return Channel17; }
     static float voltageToTemperatureInCelsius(float voltage) {
         constexpr const float v25 = 1.43f;
         constexpr const float avgSlope = 4.3f / 1000.0f;
