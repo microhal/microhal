@@ -34,7 +34,102 @@
 namespace microhal {
 namespace stm32f1xx {
 
+static constexpr std::array<IRQn_Type, 8> timer1Irq = {TIM1_BRK_IRQn, TIM1_UP_IRQn, TIM1_TRG_COM_IRQn};
+static constexpr std::array<IRQn_Type, 8> timer8Irq = {TIM8_BRK_IRQn, TIM8_UP_IRQn, TIM8_TRG_COM_IRQn};
+static constexpr std::array<IRQn_Type, 8> timerIrq = {TIM1_CC_IRQn, TIM2_IRQn, TIM3_IRQn, TIM4_IRQn, TIM5_IRQn, TIM6_IRQn, TIM7_IRQn, TIM8_CC_IRQn};
+
 static constexpr std::array<IRQn_Type, 5> usartIrq = {USART1_IRQn, USART2_IRQn, USART3_IRQn, UART4_IRQn, UART5_IRQn};
+
+void enableCanTxInterrupt(uint8_t canNumber, uint32_t priority) {
+    assert(canNumber > 0);
+    assert(canNumber <= 2);
+
+    NVIC_SetPriority(USB_HP_CAN1_TX_IRQn, priority);
+    NVIC_EnableIRQ(USB_HP_CAN1_TX_IRQn);
+}
+void enableCanRx0Interrupt(uint8_t canNumber, uint32_t priority) {
+    assert(canNumber > 0);
+    assert(canNumber <= 2);
+
+    NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, priority);
+    NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
+}
+
+void enableCanRx1Interrupt(uint8_t canNumber, uint32_t priority) {
+    assert(canNumber > 0);
+    assert(canNumber <= 2);
+
+    NVIC_SetPriority(CAN1_RX1_IRQn, priority);
+    NVIC_EnableIRQ(CAN1_RX1_IRQn);
+}
+
+void enableCanSceInterrupt(uint8_t canNumber, uint32_t priority) {
+    assert(canNumber > 0);
+    assert(canNumber <= 2);
+
+    NVIC_SetPriority(CAN1_SCE_IRQn, priority);
+    NVIC_EnableIRQ(CAN1_SCE_IRQn);
+}
+
+void disableCanTxInterrupt(uint8_t canNumber) {
+    NVIC_DisableIRQ(USB_HP_CAN1_TX_IRQn);
+}
+
+void disableCanRx0Interrupt(uint8_t canNumber) {
+    NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
+}
+
+void disableCanRx1Interrupt(uint8_t canNumber) {
+    NVIC_DisableIRQ(CAN1_RX1_IRQn);
+}
+
+void disableCanSceInterrupt(uint8_t canNumber) {
+    NVIC_DisableIRQ(CAN1_SCE_IRQn);
+}
+
+void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority) {
+    assert(timerNumber > 0);
+    assert(timerNumber < timerIrq.size());
+
+    IRQn_Type irq = timerIrq[timerNumber - 1];
+    assert(irq != HardFault_IRQn);
+    NVIC_SetPriority(irq, priority);
+    NVIC_EnableIRQ(irq);
+
+    if (timerNumber == 1) {
+        for (auto irq : timer1Irq) {
+            NVIC_SetPriority(irq, priority);
+            NVIC_EnableIRQ(irq);
+        }
+    }
+
+    if (timerNumber == 8) {
+        for (auto irq : timer8Irq) {
+            NVIC_SetPriority(irq, priority);
+            NVIC_EnableIRQ(irq);
+        }
+    }
+}
+
+void disableTimerInterrupt(uint8_t timerNumber) {
+    assert(timerNumber > 0);
+    assert(timerNumber < timerIrq.size());
+
+    IRQn_Type irq = timerIrq[timerNumber - 1];
+    assert(irq != HardFault_IRQn);
+    NVIC_DisableIRQ(irq);
+
+    if (timerNumber == 1) {
+        for (auto irq : timer1Irq) {
+            NVIC_DisableIRQ(irq);
+        }
+    }
+    if (timerNumber == 8) {
+        for (auto irq : timer8Irq) {
+            NVIC_DisableIRQ(irq);
+        }
+    }
+}
 
 void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
     assert(usartNumber > 0);
