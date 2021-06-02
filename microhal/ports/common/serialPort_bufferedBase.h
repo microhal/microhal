@@ -80,7 +80,7 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
      * @param c
      * @return
      */
-    bool putChar(char c) noexcept final {
+    int putChar(char c) noexcept final {
         atomicSectionBegin();
         if (txBuffer.append(c)) {
             atomicSectionEnd();
@@ -94,7 +94,7 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
      *
      * @return
      */
-    bool getChar(char &c) noexcept final {
+    int getChar(char &c) noexcept final {
         if (rxBuffer.isNotEmpty()) {
             atomicSectionBegin();
             c = rxBuffer.get();
@@ -110,7 +110,7 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
      * @param[in] maxSize - number of bytes to copy.
      * @return number of bytes that was copy to buffer.
      */
-    size_t write(const char *data, size_t length) noexcept final {
+    ssize_t write(const char *data, size_t length) noexcept final {
         atomicSectionBegin();
         size_t writeByte = txBuffer.write(data, length);
         atomicSectionEnd();
@@ -126,7 +126,7 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
      * @param[in] maxSize - size of data to copy.
      * @return number of bytes stored in data buffer.
      */
-    size_t read(char *data, size_t length, std::chrono::milliseconds timeout) final {
+    ssize_t read(char *data, size_t length, std::chrono::milliseconds timeout) final {
         updateRxBuffer();
         auto len = rxBuffer.read(data, length);
         if (len < length && timeout != std::chrono::milliseconds::zero()) {
@@ -187,7 +187,7 @@ class SerialPort_BufferedBase : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SerialPo
 
     size_t inputQueueSize() const noexcept final { return rxBuffer.getSize(); }
     size_t outputQueueSize() const noexcept final { return txBuffer.getSize(); }
-    size_t availableBytes() const noexcept override { return rxBuffer.getLength(); }
+    ssize_t availableBytes() const noexcept override { return rxBuffer.getLength(); }
 
  protected:
     CyclicBuffer<char> rxBuffer;
