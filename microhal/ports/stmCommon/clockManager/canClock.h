@@ -61,9 +61,12 @@ CREATE_SET_CLEAR_FUNCTION(CAN2LPEN)
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     if (canNumber == 1) {
         apb1enr.CAN1EN.set();
-    } else {
+    }
+#ifdef _MICROHAL_CAN2_BASE_ADDRESS
+    else {
         apb1enr.CAN2EN.set();
     }
+#endif
     registers::rcc->apb1enr.volatileStore(apb1enr);
 }
 
@@ -71,9 +74,12 @@ CREATE_SET_CLEAR_FUNCTION(CAN2LPEN)
     auto apb1enr = registers::rcc->apb1enr.volatileLoad();
     if (canNumber == 1) {
         apb1enr.CAN1EN.clear();
-    } else {
+    }
+#ifdef _MICROHAL_CAN2_BASE_ADDRESS
+    else {
         apb1enr.CAN2EN.clear();
     }
+#endif
     registers::rcc->apb1enr.volatileStore(apb1enr);
 }
 
