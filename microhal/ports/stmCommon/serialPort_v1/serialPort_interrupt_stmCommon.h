@@ -90,7 +90,7 @@ class SerialPort_interrupt : public common::SerialPort_BufferedBase<SerialPort_i
     static SerialPort_interrupt Serial8;
 #endif
     //--------------------------------------------- functions ---------------------------------------//
-    bool open(OpenMode mode) noexcept;
+    int open(OpenMode mode) noexcept;
 
  private:
     //------------------------------------------- variables -----------------------------------------//

@@ -113,7 +113,7 @@ SerialPort_interrupt::SerialPort_interrupt(registers::USART &usart, char *const 
     enableInterrupt(priority);
 }
 
-bool SerialPort_interrupt::open(OpenMode mode) noexcept {
+int SerialPort_interrupt::open(OpenMode mode) noexcept {
     if (isOpen() || (mode > 0x03)) return false;
     auto cr1 = usart.cr1.volatileLoad();
     cr1 |= mode << 2;
