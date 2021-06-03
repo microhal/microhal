@@ -34,11 +34,12 @@
 #include <cstdint>
 #include "can/canInterface.h"
 #include "can/canMessage.h"
+#include "canFilter_stmCommon.h"
 #include "gsl/span"
 #include "microhal_semaphore.h"
 #include "ports/stmCommon/clockManager/canClock.h"
-#include "registers/can_registers.h"
-#include "stmCommonDefines.h"
+#include "ports/stmCommon/registers/can_registers.h"
+#include "ports/stmCommon/stmCommonDefines.h"
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -61,14 +62,12 @@ void CAN2_RX1_IRQHandler();
 }
 
 class CAN final : public can::CAN_Interface {
-    enum class FilterMode { Mask16bit = 0, Mask32bit, List16bit, List32bit };
     enum Fifo { Fifo0, Fifo1 };
 
  public:
     using Message = can::Message;
     using Interrupt = microhal::registers::CAN::IER::Interrupt;
     using TxMailbox = microhal::registers::CAN::TxMailBox;
-    using Filter = microhal::registers::CAN::FilterRegister;
     using RxMailbox = microhal::registers::CAN::FIFOMailBox;
     enum Error { None = 0, Stuff, Form, Acknowledgment, BitRecessive, BitDominant, Crc, SoftwareSet };
     enum class Mode { Normal, Loopback, Silent, LoopbackAndSilent };
@@ -83,14 +82,6 @@ class CAN final : public can::CAN_Interface {
     CAN &operator=(const CAN &) = delete;  // disable copying
 
     ~CAN();
-#endif
-
-#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
-    void can2StartBank(uint8_t startBank) {
-        auto fmr = can.fmr.volatileLoad();
-        fmr.CAN2SB = startBank;
-        can.fmr.volatileStore(fmr);
-    }
 #endif
 
     bool isProtocolSupported(Protocol protocol) final {
@@ -164,10 +155,6 @@ class CAN final : public can::CAN_Interface {
     uint32_t receiveErrorCount() const final { return can.esr.volatileLoad().REC; }
     uint32_t transmitErrorCount() const final { return can.esr.volatileLoad().TEC; }
 
-    bool addFilter(const can::Filter &filter) final;
-    bool removeFilter(const can::Filter &filter) final;
-    void removeAllFilters();
-
     uint_fast8_t emptyTxMailboxCount() const {
         auto tsr = can.tsr.volatileLoad();
         uint_fast8_t count = 0;
@@ -186,10 +173,13 @@ class CAN final : public can::CAN_Interface {
 #endif
         }
     }
-    void dumpFilterConfig();
+
+    bool addFilter(const can::Filter &filter) final { return flt.addFilter(filter); }
+    bool removeFilter(const can::Filter &filter) final { return flt.removeFilter(filter); }
 
  private:
     microhal::registers::CAN &can;
+    stm32f1xx::CANFilter flt;
     static CAN *objectPtr[2];
     mutable microhal::os::Semaphore txFinish = {};
     mutable bool txWait = false;
@@ -218,47 +208,6 @@ class CAN final : public can::CAN_Interface {
         // while (can.msr.volatileLoad().INAK == 1) {
         // }
     }
-
-    // Filter functions
-    Filter &findInactiveFilter(FilterMode mode);
-
-    bool addIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask);
-    bool addIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask);
-    bool addIdentifierList32(CAN::Filter::ID32 id);
-    bool addIdentifierList16(CAN::Filter::ID16 id);
-    bool removeIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask);
-    bool removeIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask);
-    bool removeIdentifierList32(CAN::Filter::ID32 id);
-    bool removeIdentifierList16(CAN::Filter::ID16 id);
-    FilterMode getFilterMode(uint_fast8_t filterNumber) const;
-    static FilterMode getFilterMode(microhal::registers::CAN::FS1R fs1r, microhal::registers::CAN::FM1R fm1r, uint_fast8_t filterNumber);
-
-    void activateFilterInitMode() {
-        auto fmr = can.fmr.volatileLoad();
-        fmr.FINIT = 1;
-        can.fmr.volatileStore(fmr);
-    }
-    void deactivateFilterInitMode() {
-        auto fmr = can.fmr.volatileLoad();
-        fmr.FINIT = 0;
-        can.fmr.volatileStore(fmr);
-    }
-    void activateFilter(uint_fast8_t filterNumber) {
-        auto fa1r = can.fa1r.volatileLoad();
-        fa1r |= 1 << filterNumber;
-        can.fa1r.volatileStore(fa1r);
-    }
-    void deactivateFilter(uint_fast8_t filterNumber) {
-        auto fa1r = can.fa1r.volatileLoad();
-        fa1r &= ~(1 << filterNumber);
-        can.fa1r.volatileStore(fa1r);
-    }
-    bool isFilterActive(uint_fast8_t filterNumber) {
-        auto fa1r = can.fa1r.volatileLoad();
-        return isFilterActive(fa1r, filterNumber);
-    }
-    static bool isFilterActive(microhal::registers::CAN::FA1R fa1r, uint_fast8_t filterNumber) { return fa1r.isFilterActive(filterNumber); }
-    void setFilterMode(uint_fast8_t filterNumber, FilterMode filterMode);
 
     // ISR related functions
     void enableInterrupt(uint32_t priority);

@@ -1,26 +1,41 @@
-/*
- * can_stm32f4xx.cpp
+/**
+ * @license    BSD 3-Clause
+ * @version    $Id$
+ * @brief
  *
- *  Created on: Apr 2, 2019
- *      Author: pokas
+ * @authors    Pawel Okas
+ *
+ * @copyright Copyright (c) 2021, Pawel Okas
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ *        documentation and/or other materials provided with the distribution.
+ *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+ *        software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "can_stm_common.h"
 #include <cassert>
+#include "canFilter_stmCommon.h"
 #include "diagnostic/diagnostic.h"
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 using namespace diagnostic;
-
-CAN *CAN::objectPtr[2] = {nullptr, nullptr};
-
-static void mailboxToMessage(CAN::RxMailbox &mailbox, can::Message &message);
+using namespace registers;
 
 template <diagnostic::LogLevel level, bool B>
-diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, CAN::Filter::ID32 id) {
+diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, CANFilter::FilterRegister::ID32 id) {
     if (!id.ide)
         logChannel << "CAN Standard ID: " << id.stid;
     else
@@ -31,7 +46,7 @@ diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelC
 }
 
 template <diagnostic::LogLevel level, bool B>
-diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, CAN::Filter::ID16 id) {
+diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, CANFilter::FilterRegister::ID16 id) {
     if (!id.ide)
         logChannel << "CAN Standard ID: " << id.stid;
     else
@@ -42,18 +57,18 @@ diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelC
 }
 
 template <diagnostic::LogLevel level, bool B>
-diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, CAN::FilterMode filterMode) {
+diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelChannel<level, B> logChannel, CANFilter::FilterMode filterMode) {
     switch (filterMode) {
-        case CAN::FilterMode::List16bit:
+        case CANFilter::FilterMode::List16bit:
             logChannel << "List 16 bit";
             break;
-        case CAN::FilterMode::List32bit:
+        case CANFilter::FilterMode::List32bit:
             logChannel << "List 32 bit";
             break;
-        case CAN::FilterMode::Mask16bit:
+        case CANFilter::FilterMode::Mask16bit:
             logChannel << "Mask 16 bit";
             break;
-        case CAN::FilterMode::Mask32bit:
+        case CANFilter::FilterMode::Mask32bit:
             logChannel << "Mask 32 bit";
             break;
     }
@@ -61,198 +76,8 @@ diagnostic::LogLevelChannel<level, B> operator<<(microhal::diagnostic::LogLevelC
     return logChannel;
 }
 
-CAN::CAN(microhal::registers::CAN *const canDevice, uint32_t interruptPriority) : can(*canDevice) {
-#ifdef HAL_RTOS_FreeRTOS
-    assert(interruptPriority >= configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
-#endif
-
-    const int canNumber = getNumber();
-#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::enableCan(canNumber, ClockManager::PowerMode::Normal);
-#else
-    microhal::ClockManager::enableCan(canNumber);
-#endif
-
-    assert(objectPtr[canNumber - 1] == nullptr);
-    objectPtr[canNumber - 1] = this;
-
-    auto ier = can.ier.volatileLoad();
-    ier.enableInterrupt(Interrupt::TransmitMailboxEmpty);
-    can.ier.volatileStore(ier);
-
-    enableInterrupt(interruptPriority);
-}
-
-CAN::~CAN() {
-    if ((objectPtr[0] != this) && (objectPtr[1] != this)) {
-        return;
-    }
-    initializationRequest();  // This will wait until ongoing transmission will be finished
-    disableInterrupt();
-    auto ier = can.ier.volatileLoad();
-    ier.disableInterrupt(Interrupt::TransmitMailboxEmpty);
-    can.ier.volatileStore(ier);
-    if (objectPtr[0] == this) objectPtr[0] = nullptr;
-    if (objectPtr[1] == this) objectPtr[1] = nullptr;
-#if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-    ClockManager::disableCan(getNumber(), ClockManager::PowerMode::Normal);
-#else
-    ClockManager::disableCan(getNumber());
-#endif
-}
-
-uint32_t CAN::setBaudrate(uint32_t baudrate) {
-    initializationRequest();
-    if (baudrate > bitRateMax) baudrate = bitRateMax;
-    uint32_t frequency = ClockManager::CANFrequency(getNumber());
-    auto btr = can.btr.volatileLoad();
-    uint32_t brp = frequency / (baudrate * ((btr.TS1 + 1) + (btr.TS2 + 1)));
-    if (brp > 0) {
-        brp -= 1;
-    }
-    brp = brp > 0x1FF ? 0x1FF : brp;
-    btr.BRP = brp;
-    can.btr.volatileStore(btr);
-    exitInitializationMode();
-    return getBaudrate();
-}
-
-uint32_t CAN::getBaudrate() {
-    uint32_t frequency = ClockManager::CANFrequency(getNumber());
-    auto btr = can.btr.volatileLoad();
-    uint32_t brp = btr.BRP + 1;
-    uint32_t ts1 = btr.TS1 + 1;
-    uint32_t ts2 = btr.TS2 + 1;
-    return frequency / (brp * (ts1 + ts2));
-}
-
-bool CAN::transmit(const Message &message) {
-    auto mailbox_no = getEmptyMailboxNumber();
-    if (mailbox_no >= 0) {
-        TxMailbox &mailbox = can.txMailBox[mailbox_no];
-        auto tir = mailbox.tir.volatileLoad();
-
-        tir.IDE = message.getID().isExtended();
-        if (message.isExtendedID()) {
-            tir.EXID = message.getID().getID();
-        } else if (message.isStandardID()) {
-            tir.STID = message.getID().getID();
-        } else {
-            return false;
-        }
-        auto data = message.getData();
-        tir.RTR = message.isRemoteFrame() ? 1 : 0;
-
-        auto tdtr = mailbox.tdtr.volatileLoad();
-
-        tdtr.DLC = data.size_bytes();
-        // put data into mailbox
-        if (data.size()) {
-            CAN::TxMailbox::TDLxR tdlr;
-            tdlr = *reinterpret_cast<const uint32_t *>(data.data());
-            mailbox.tdlr.volatileStore(tdlr);
-        }
-        if (data.size() > 4) {
-            CAN::TxMailbox::TDHxR tdhr;
-            tdhr = *reinterpret_cast<const uint32_t *>(data.data() + sizeof(uint32_t));
-            mailbox.tdhr.volatileStore(tdhr);
-        }
-        tdtr.TGT = 0;
-        // Request transmission
-        tir.TXRQ = 1;
-
-        mailbox.tdtr.volatileStore(tdtr);
-        mailbox.tir.volatileStore(tir);
-        return true;
-    }
-    return false;
-}
-
-bool CAN::receive(Message &message) {
-    auto rf0r = can.rf0r.volatileLoad();
-    auto rf1r = can.rf1r.volatileLoad();
-
-    if (rf0r.mesagesCount()) {
-        mailboxToMessage(can.fifoMailBox[0], message);
-        rf0r.releaseMessage();
-        can.rf0r.volatileStore(rf0r);
-        return true;
-    }
-    if (rf1r.mesagesCount()) {
-        mailboxToMessage(can.fifoMailBox[1], message);
-        rf1r.releaseMessage();
-        can.rf1r.volatileStore(rf1r);
-        return true;
-    }
-
-    return false;
-}
-
-void CAN::setMode(Mode mode) {
-    initializationRequest();
-    auto btr = can.btr.volatileLoad();
-    switch (mode) {
-        case Mode::Normal:
-            btr.SILM = 0;
-            btr.LBKM = 0;
-            break;
-        case Mode::Loopback:
-            btr.SILM = 0;
-            btr.LBKM = 1;
-            break;
-        case Mode::Silent:
-            btr.SILM = 1;
-            btr.LBKM = 0;
-            break;
-        case Mode::LoopbackAndSilent:
-            btr.SILM = 1;
-            btr.LBKM = 1;
-            break;
-    };
-    can.btr.volatileStore(btr);
-    exitInitializationMode();
-}
-
-void CAN::sleepMode(Sleep sleepMode) {
-    initializationRequest();
-    auto mcr = can.mcr.volatileLoad();
-    switch (sleepMode) {
-        case Sleep::Sleep:
-            mcr.AWUM = 0;
-            mcr.SLEEP = 1;
-            break;
-        case Sleep::Wakeup:
-            mcr.AWUM = 0;
-            mcr.SLEEP = 0;
-            break;
-        case Sleep::AutoWakeup:
-            mcr.AWUM = 1;
-            break;
-    }
-    can.mcr.volatileStore(mcr);
-    exitInitializationMode();
-}
-
-static void mailboxToMessage(CAN::RxMailbox &mailbox, can::Message &message) {
-    auto rir = mailbox.rir.volatileLoad();
-    if (rir.IDE) {
-        message.setExtendedID(rir.EXID);
-    } else {
-        message.setStandardID(rir.STID);
-    }
-    uint_fast8_t size = mailbox.rdtr.volatileLoad().DLC;
-    if (rir.RTR) {
-        message.setRemoteRequest(size);
-    } else if (size) {
-        uint8_t data[8];
-        *reinterpret_cast<uint32_t *>(data) = mailbox.rdlr.volatileLoad();
-        *reinterpret_cast<uint32_t *>(&data[4]) = mailbox.rdhr.volatileLoad();
-        message.setDataFrame({data, size});
-    }
-}
-
-CAN::Filter::ID32 makeID32(CAN::Message::ID id, bool isRemoteRequest) {
-    CAN::Filter::ID32 id32 = {};
+CANFilter::FilterRegister::ID32 makeID32(CANFilter::Message::ID id, bool isRemoteRequest) {
+    CANFilter::FilterRegister::ID32 id32 = {};
     if (id.isExtended()) {
         id32.ide = 1;
         id32.exid = id.getID();
@@ -265,8 +90,8 @@ CAN::Filter::ID32 makeID32(CAN::Message::ID id, bool isRemoteRequest) {
     return id32;
 }
 
-CAN::Filter::ID16 makeID16(CAN::Message::ID id, bool isRemoteRequest) {
-    CAN::Filter::ID16 id16 = {};
+CANFilter::FilterRegister::ID16 makeID16(CANFilter::Message::ID id, bool isRemoteRequest) {
+    CANFilter::FilterRegister::ID16 id16 = {};
     if (id.isExtended()) {
         id16.ide = 1;
         id16.setExtendedId(id.getID());
@@ -278,13 +103,34 @@ CAN::Filter::ID16 makeID16(CAN::Message::ID id, bool isRemoteRequest) {
     return id16;
 }
 
-CAN::FilterMode CAN::getFilterMode(uint_fast8_t filterNumber) const {
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+void CANFilter::can2StartBank(uint_fast8_t startBank) {
+    auto fmr = canFilter->fmr.volatileLoad();
+    fmr.CAN2SB = startBank;
+    canFilter->fmr.volatileStore(fmr);
+}
+#endif
+
+void CANFilter::activateFilterInitMode() {
+    using namespace registers;
+    auto fmr = canFilter->fmr.volatileLoad();
+    fmr.FINIT = 1;
+    canFilter->fmr.volatileStore(fmr);
+}
+void CANFilter::deactivateFilterInitMode() {
+    using namespace registers;
+    auto fmr = canFilter->fmr.volatileLoad();
+    fmr.FINIT = 0;
+    canFilter->fmr.volatileStore(fmr);
+}
+
+CANFilter::FilterMode CANFilter::getFilterMode(uint_fast8_t filterNumber) const {
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
     return getFilterMode(fs1r, fm1r, filterNumber);
 }
 
-CAN::FilterMode CAN::getFilterMode(registers::CAN::FS1R fs1r, registers::CAN::FM1R fm1r, uint_fast8_t filterNumber) {
+CANFilter::FilterMode CANFilter::getFilterMode(registers::CANFilter::FS1R fs1r, registers::CANFilter::FM1R fm1r, uint_fast8_t filterNumber) {
     uint32_t fsr = fs1r;
     uint32_t fmr = fm1r;
     FilterMode filterMode = static_cast<FilterMode>(((fsr >> filterNumber) & 0b1) | (((fmr >> filterNumber) & 0b1) << 1));
@@ -296,9 +142,9 @@ CAN::FilterMode CAN::getFilterMode(registers::CAN::FS1R fs1r, registers::CAN::FM
  * @param filterNumber depending on MCU can be form 0 to 13 or from 0 to 27
  * @param filterMode
  */
-void CAN::setFilterMode(uint_fast8_t filterNumber, FilterMode filterMode) {
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
+void CANFilter::setFilterMode(uint_fast8_t filterNumber, FilterMode filterMode) {
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
     switch (filterMode) {
         case FilterMode::List16bit:
             fm1r |= 1 << filterNumber;
@@ -317,11 +163,11 @@ void CAN::setFilterMode(uint_fast8_t filterNumber, FilterMode filterMode) {
             fs1r |= 1 << filterNumber;
             break;
     }
-    can.fs1r.volatileStore(fs1r);
-    can.fm1r.volatileStore(fm1r);
+    canFilter->fs1r.volatileStore(fs1r);
+    canFilter->fm1r.volatileStore(fm1r);
 }
 
-bool CAN::addFilter(const can::Filter &filter) {
+bool CANFilter::addFilter(const can::Filter &filter) {
     /* We have 4 possibilities to add filter into filter list. We can devide this possibilities into 2 basic group:
      * 1. Identifier List - it require exact match of incoming message, no bit masking is apply. One filter register can hold two 32 bit filter ID or
      *    four 16 bit filter ID.
@@ -374,7 +220,7 @@ bool CAN::addFilter(const can::Filter &filter) {
     return false;
 }
 
-bool CAN::removeFilter(const can::Filter &filter) {
+bool CANFilter::removeFilter(const can::Filter &filter) {
     constexpr const uint32_t exid_0_14 = 0b0111'1111'1111'1111;
     using Match = can::Filter::Match;
     const auto filterMatch = filter.getMatchType();
@@ -412,25 +258,30 @@ bool CAN::removeFilter(const can::Filter &filter) {
     return false;
 }
 
-void CAN::removeAllFilters() {
+void CANFilter::removeAllFilters() {
     activateFilterInitMode();
-    microhal::registers::CAN::FA1R fa1r;
+    microhal::registers::CANFilter::FA1R fa1r;
     fa1r = 0;
-    can.fa1r.volatileStore(fa1r);
+    canFilter->fa1r.volatileStore(fa1r);
     deactivateFilterInitMode();
 }
 
-bool CAN::addIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask) {
-    auto fa1r = can.fa1r.volatileLoad();
-    for (size_t filterNumber = 0; filterNumber < can.filterRegister.size(); filterNumber++) {
+bool CANFilter::addIdentifierMask32(FilterRegister::ID32 id, FilterRegister::ID32 mask) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t filterNumber = begin; filterNumber < end; filterNumber++) {
+#else
+    for (size_t filterNumber = 0; filterNumber < canFilter->filterRegister.size(); filterNumber++) {
+#endif
         if (!isFilterActive(fa1r, filterNumber)) {
-            Filter &filter = can.filterRegister[filterNumber];
+            FilterRegister &filter = canFilter->filterRegister[filterNumber];
             filter.identifierMask.id.volatileStore(id);
             filter.identifierMask.mask.volatileStore(mask);
             activateFilterInitMode();
             setFilterMode(filterNumber, FilterMode::Mask32bit);
             fa1r.activateFilter(filterNumber);
-            can.fa1r.volatileStore(fa1r);
+            canFilter->fa1r.volatileStore(fa1r);
             deactivateFilterInitMode();
             return true;
         }
@@ -438,13 +289,18 @@ bool CAN::addIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask) {
     return false;
 }
 
-bool CAN::addIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask) {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
-    for (size_t i = 0; i < can.filterRegister.size(); i++) {
+bool CANFilter::addIdentifierMask16(FilterRegister::ID16 id, FilterRegister::ID16 mask) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t i = begin; i < end; i++) {
+#else
+    for (size_t i = 0; i < canFilter->filterRegister.size(); i++) {
+#endif
         if (isFilterActive(fa1r, i) && getFilterMode(fs1r, fm1r, i) == FilterMode::Mask16bit) {
-            Filter &filter = can.filterRegister[i];
+            FilterRegister &filter = canFilter->filterRegister[i];
             auto identifierMask0 = filter.identifierMask16bit[0].volatileLoad();
             auto identifierMask1 = filter.identifierMask16bit[1].volatileLoad();
             if (identifierMask0.id == identifierMask1.id && identifierMask0.mask == identifierMask1.mask) {
@@ -459,10 +315,14 @@ bool CAN::addIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask) {
         }
     }
     // At this point we was unable to find Mask16Bit register with space for filter. We have to find unused filter register
-    for (size_t i = 0; i < can.filterRegister.size(); i++) {
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    for (size_t i = begin; i < end; i++) {
+#else
+    for (size_t i = 0; i < canFilter->filterRegister.size(); i++) {
+#endif
         if (!isFilterActive(fa1r, i)) {
-            Filter &filter = can.filterRegister[i];
-            Filter::IdentifierMask16Bit identifierMask;
+            FilterRegister &filter = canFilter->filterRegister[i];
+            FilterRegister::IdentifierMask16Bit identifierMask;
             identifierMask.id = id;
             identifierMask.mask = mask;
             filter.identifierMask16bit[0].volatileStore(identifierMask);
@@ -470,7 +330,7 @@ bool CAN::addIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask) {
             activateFilterInitMode();
             setFilterMode(i, FilterMode::Mask16bit);
             fa1r.activateFilter(i);
-            can.fa1r.volatileStore(fa1r);
+            canFilter->fa1r.volatileStore(fa1r);
             deactivateFilterInitMode();
             return true;
         }
@@ -478,13 +338,18 @@ bool CAN::addIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask) {
     return false;
 }
 
-bool CAN::addIdentifierList32(CAN::Filter::ID32 id) {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
-    for (size_t i = 0; i < can.filterRegister.size(); i++) {
+bool CANFilter::addIdentifierList32(FilterRegister::ID32 id) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t i = begin; i < end; i++) {
+#else
+    for (size_t i = 0; i < canFilter->filterRegister.size(); i++) {
+#endif
         if (isFilterActive(fa1r, i) && getFilterMode(fs1r, fm1r, i) == FilterMode::List32bit) {
-            Filter &filter = can.filterRegister[i];
+            FilterRegister &filter = canFilter->filterRegister[i];
             auto id0 = filter.identifierList[0].volatileLoad();
             auto id1 = filter.identifierList[1].volatileLoad();
             if (id0 == id1) {
@@ -497,30 +362,39 @@ bool CAN::addIdentifierList32(CAN::Filter::ID32 id) {
         }
     }
     // unable to find partially empty filter register. Try to assign completly new filter register
-    for (size_t i = 0; i < can.filterRegister.size(); i++) {
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    for (size_t i = begin; i < end; i++) {
+#else
+    for (size_t i = 0; i < canFilter->filterRegister.size(); i++) {
+#endif
         if (!isFilterActive(fa1r, i)) {
-            Filter &filter = can.filterRegister[i];
+            FilterRegister &filter = canFilter->filterRegister[i];
             filter.identifierList[0].volatileStore(id);
             filter.identifierList[1].volatileStore(id);
             activateFilterInitMode();
             setFilterMode(i, FilterMode::List32bit);
             fa1r.activateFilter(i);
-            can.fa1r.volatileStore(fa1r);
+            canFilter->fa1r.volatileStore(fa1r);
             deactivateFilterInitMode();
             return true;
         }
     }
     return false;
-}
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 
-bool CAN::addIdentifierList16(CAN::Filter::ID16 id) {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
-    for (size_t i = 0; i < can.filterRegister.size(); i++) {
+bool CANFilter::addIdentifierList16(FilterRegister::ID16 id) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t i = begin; i < end; i++) {
+#else
+    for (size_t i = 0; i < canFilter->filterRegister.size(); i++) {
+#endif
         if (isFilterActive(fa1r, i) && getFilterMode(fs1r, fm1r, i) == FilterMode::List16bit) {
-            Filter &filter = can.filterRegister[i];
-            Filter::IdentifierList16Bit list0 = filter.identifierList16bit[0].volatileLoad();
+            FilterRegister &filter = canFilter->filterRegister[i];
+            FilterRegister::IdentifierList16Bit list0 = filter.identifierList16bit[0].volatileLoad();
             if (list0.id0 == list0.id1) {
                 // second register is empty, we can assign our filter there
                 list0.id1 = id;
@@ -529,7 +403,7 @@ bool CAN::addIdentifierList16(CAN::Filter::ID16 id) {
                 deactivateFilterInitMode();
                 return true;
             }
-            Filter::IdentifierList16Bit list1 = filter.identifierList16bit[1].volatileLoad();
+            FilterRegister::IdentifierList16Bit list1 = filter.identifierList16bit[1].volatileLoad();
             if (list0.id0 == list1.id0 || list0.id0 == list1.id1) {
                 if (list0.id0 == list1.id0) {
                     list1.id0 = id;
@@ -544,10 +418,14 @@ bool CAN::addIdentifierList16(CAN::Filter::ID16 id) {
         }
     }
     // unable to find partially empty filter register. Try to assign completly new filter register
-    for (size_t i = 0; i < can.filterRegister.size(); i++) {
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    for (size_t i = begin; i < end; i++) {
+#else
+    for (size_t i = 0; i < canFilter->filterRegister.size(); i++) {
+#endif
         if (!isFilterActive(fa1r, i)) {
-            Filter &filter = can.filterRegister[i];
-            Filter::IdentifierList16Bit list;
+            FilterRegister &filter = canFilter->filterRegister[i];
+            FilterRegister::IdentifierList16Bit list;
             list.id0 = id;
             list.id1 = id;
             filter.identifierList16bit[0].volatileStore(list);
@@ -555,7 +433,7 @@ bool CAN::addIdentifierList16(CAN::Filter::ID16 id) {
             activateFilterInitMode();
             setFilterMode(i, FilterMode::List16bit);
             fa1r.activateFilter(i);
-            can.fa1r.volatileStore(fa1r);
+            canFilter->fa1r.volatileStore(fa1r);
             deactivateFilterInitMode();
             return true;
         }
@@ -563,17 +441,22 @@ bool CAN::addIdentifierList16(CAN::Filter::ID16 id) {
     return false;
 }
 
-bool CAN::removeIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask) {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
-    for (size_t filterNumber = 0; filterNumber < can.filterRegister.size(); filterNumber++) {
+bool CANFilter::removeIdentifierMask32(FilterRegister::ID32 id, FilterRegister::ID32 mask) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t filterNumber = begin; filterNumber < end; filterNumber++) {
+#else
+    for (size_t filterNumber = 0; filterNumber < canFilter->filterRegister.size(); filterNumber++) {
+#endif
         if (isFilterActive(fa1r, filterNumber) && getFilterMode(fs1r, fm1r, filterNumber) == FilterMode::Mask32bit) {
-            Filter &filter = can.filterRegister[filterNumber];
+            FilterRegister &filter = canFilter->filterRegister[filterNumber];
             if (id == filter.identifierMask.id.volatileLoad() && mask == filter.identifierMask.mask.volatileLoad()) {
                 activateFilterInitMode();
                 fa1r.deactivateFilter(filterNumber);
-                can.fa1r.volatileStore(fa1r);
+                canFilter->fa1r.volatileStore(fa1r);
                 deactivateFilterInitMode();
             }
             return true;
@@ -582,13 +465,18 @@ bool CAN::removeIdentifierMask32(CAN::Filter::ID32 id, CAN::Filter::ID32 mask) {
     return false;
 }
 
-bool CAN::removeIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask) {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
-    for (size_t filterNumber = 0; filterNumber < can.filterRegister.size(); filterNumber++) {
+bool CANFilter::removeIdentifierMask16(FilterRegister::ID16 id, FilterRegister::ID16 mask) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t filterNumber = begin; filterNumber < end; filterNumber++) {
+#else
+    for (size_t filterNumber = 0; filterNumber < canFilter->filterRegister.size(); filterNumber++) {
+#endif
         if (isFilterActive(fa1r, filterNumber) && getFilterMode(fs1r, fm1r, filterNumber) == FilterMode::Mask16bit) {
-            Filter &filter = can.filterRegister[filterNumber];
+            FilterRegister &filter = canFilter->filterRegister[filterNumber];
             auto identifierMask0 = filter.identifierMask16bit[0].volatileLoad();
             auto identifierMask1 = filter.identifierMask16bit[1].volatileLoad();
             if (id == identifierMask0.id && mask == identifierMask0.mask) {
@@ -596,7 +484,7 @@ bool CAN::removeIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask) {
                     // both filter settings are identical, we can disable this filter
                     activateFilterInitMode();
                     fa1r.deactivateFilter(filterNumber);
-                    can.fa1r.volatileStore(fa1r);
+                    canFilter->fa1r.volatileStore(fa1r);
                     deactivateFilterInitMode();
                     return true;
                 } else {
@@ -616,13 +504,19 @@ bool CAN::removeIdentifierMask16(CAN::Filter::ID16 id, CAN::Filter::ID16 mask) {
     return false;
 }
 
-bool CAN::removeIdentifierList32(CAN::Filter::ID32 id) {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
-    for (size_t filterNumber = 0; filterNumber < can.filterRegister.size(); filterNumber++) {
+bool CANFilter::removeIdentifierList32(FilterRegister::ID32 id) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t filterNumber = begin; filterNumber < end; filterNumber++) {
+#else
+    for (size_t filterNumber = 0; filterNumber < canFilter->filterRegister.size(); filterNumber++) {
+#endif
+
         if (isFilterActive(fa1r, filterNumber) && getFilterMode(fs1r, fm1r, filterNumber) == FilterMode::List32bit) {
-            Filter &filter = can.filterRegister[filterNumber];
+            FilterRegister &filter = canFilter->filterRegister[filterNumber];
             auto id0 = filter.identifierList[0].volatileLoad();
             auto id1 = filter.identifierList[1].volatileLoad();
             if (id == id0) {
@@ -630,7 +524,7 @@ bool CAN::removeIdentifierList32(CAN::Filter::ID32 id) {
                     // both filter settings are identical, we can disable this filter
                     activateFilterInitMode();
                     fa1r.deactivateFilter(filterNumber);
-                    can.fa1r.volatileStore(fa1r);
+                    canFilter->fa1r.volatileStore(fa1r);
                     deactivateFilterInitMode();
                     return true;
                 } else {
@@ -652,21 +546,26 @@ bool CAN::removeIdentifierList32(CAN::Filter::ID32 id) {
     return false;
 }
 
-bool CAN::removeIdentifierList16(CAN::Filter::ID16 id) {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
-    for (size_t filterNumber = 0; filterNumber < can.filterRegister.size(); filterNumber++) {
+bool CANFilter::removeIdentifierList16(FilterRegister::ID16 id) {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_STM_CAN_FMR_HAS_CAN2SB
+    auto [begin, end] = filterRange();
+    for (size_t filterNumber = begin; filterNumber < end; filterNumber++) {
+#else
+    for (size_t filterNumber = 0; filterNumber < canFilter->filterRegister.size(); filterNumber++) {
+#endif
         if (isFilterActive(fa1r, filterNumber) && getFilterMode(fs1r, fm1r, filterNumber) == FilterMode::List16bit) {
-            Filter &filter = can.filterRegister[filterNumber];
-            Filter::IdentifierList16Bit list0 = filter.identifierList16bit[0].volatileLoad();
-            Filter::IdentifierList16Bit list1 = filter.identifierList16bit[1].volatileLoad();
+            FilterRegister &filter = canFilter->filterRegister[filterNumber];
+            FilterRegister::IdentifierList16Bit list0 = filter.identifierList16bit[0].volatileLoad();
+            FilterRegister::IdentifierList16Bit list1 = filter.identifierList16bit[1].volatileLoad();
             if (id == list0.id0 || id == list0.id1 || id == list1.id0 || id == list1.id1) {
                 if (list0.id0 == list0.id1 && list1.id0 == list1.id1 && list1.id0 == list1.id0) {
                     // all filter settings are identical, we can disable this filter
                     activateFilterInitMode();
                     fa1r.deactivateFilter(filterNumber);
-                    can.fa1r.volatileStore(fa1r);
+                    canFilter->fa1r.volatileStore(fa1r);
                     deactivateFilterInitMode();
                     return true;
                 }
@@ -713,30 +612,16 @@ bool CAN::removeIdentifierList16(CAN::Filter::ID16 id) {
         }
     }
     return false;
-}
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 
-void CAN::enableInterrupt(uint32_t priority) {
-    const uint8_t number = getNumber();
-    enableCanTxInterrupt(number, priority);
-    enableCanRx0Interrupt(number, priority);
-    enableCanRx1Interrupt(number, priority);
-}
-
-void CAN::disableInterrupt() {
-    const uint8_t number = getNumber();
-    disableCanTxInterrupt(number);
-    disableCanRx0Interrupt(number);
-    disableCanRx1Interrupt(number);
-}
-
-void CAN::dumpFilterConfig() {
-    auto fa1r = can.fa1r.volatileLoad();
-    auto fs1r = can.fs1r.volatileLoad();
-    auto fm1r = can.fm1r.volatileLoad();
+void CANFilter::dumpFilterConfig() {
+    auto fa1r = canFilter->fa1r.volatileLoad();
+    auto fs1r = canFilter->fs1r.volatileLoad();
+    auto fm1r = canFilter->fm1r.volatileLoad();
     auto log = diagChannel << lock << MICROHAL_DEBUG;
-    for (size_t filterNumber = 0; filterNumber < can.filterRegister.size(); filterNumber++) {
+    for (size_t filterNumber = 0; filterNumber < canFilter->filterRegister.size(); filterNumber++) {
         auto filterMode = getFilterMode(fs1r, fm1r, filterNumber);
-        Filter &filter = can.filterRegister[filterNumber];
+        FilterRegister &filter = canFilter->filterRegister[filterNumber];
         log << "---------- Filter number: " << filterNumber << endl
             << "\tFilter is active: " << isFilterActive(fa1r, filterNumber) << endl
             << "\tFilter mode: " << filterMode << endl;
@@ -769,73 +654,6 @@ void CAN::dumpFilterConfig() {
     }
     log << unlock;
 }
-//***********************************************************************************************//
-//                                     interrupt functions                                       //
-//***********************************************************************************************//
-void CAN::interruptFunction() {
-    auto tsr = can.tsr.volatileLoad();
-    if (tsr.RQCP0 || tsr.RQCP1 || tsr.RQCP2) {
-        tsr.RQCP0 = 1;
-        tsr.RQCP1 = 1;
-        tsr.RQCP2 = 1;
-        can.tsr.volatileStore(tsr);
-        if (txWait && emptyTxMailboxCount() == 3) {
-            txWait = false;
-            auto shouldYeld = txFinish.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-            portYIELD_FROM_ISR(shouldYeld);
-#else
-            (void)shouldYeld;
-#endif
-        }
-    }
-}
 
-void CAN::rxInterruptFunction() {
-    auto rf0r = can.rf0r.volatileLoad();
-    auto rf1r = can.rf1r.volatileLoad();
-    if (rf0r.mesagesCount() || rf1r.mesagesCount()) {
-        auto ier = can.ier.volatileLoad();
-        ier.disableInterrupt(Interrupt::FIFO0_MessagePending | Interrupt::FIFO1_MessagePending);
-        can.ier.volatileStore(ier);
-        auto shouldYeld = dataReady.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-        portYIELD_FROM_ISR(shouldYeld);
-#else
-        (void)shouldYeld;
-#endif
-    }
-}
-//***********************************************************************************************//
-//                                          IRQHandlers                                          //
-//***********************************************************************************************//
-// CAN 1
-extern "C" void CAN1_TX_IRQHandler(void) {
-    CAN::objectPtr[0]->interruptFunction();
-}
-
-extern "C" void CAN1_RX0_IRQHandler(void) {
-    CAN::objectPtr[0]->rxInterruptFunction();
-}
-extern "C" void CAN1_RX1_IRQHandler(void) {
-    CAN::objectPtr[0]->rxInterruptFunction();
-}
-
-extern "C" void CAN1_SCE_IRQHandler(void) {}
-
-#ifdef _MICROHAL_CAN2_BASE_ADDRESS
-extern "C" void CAN2_TX_IRQHandler(void) {
-    CAN::objectPtr[1]->interruptFunction();
-}
-
-extern "C" void CAN2_RX0_IRQHandler(void) {
-    CAN::objectPtr[1]->rxInterruptFunction();
-}
-extern "C" void CAN2_RX1_IRQHandler(void) {
-    CAN::objectPtr[1]->rxInterruptFunction();
-}
-
-extern "C" void CAN2_SCE_IRQHandler(void) {}
-#endif
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
