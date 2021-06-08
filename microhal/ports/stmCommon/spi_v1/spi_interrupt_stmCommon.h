@@ -47,10 +47,10 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
  public:
     template <int number, IOPin miso, IOPin mosi, IOPin sck>
-    static SPI_interrupt &create(GPIO::OutputType mosiType = GPIO::PushPull, GPIO::OutputType sckType = GPIO::PushPull) {
+    static SPI_interrupt &create(GPIO::OutputType mosiType = GPIO::OutputType::PushPull, GPIO::OutputType sckType = GPIO::OutputType::PushPull) {
         IOManager::routeSPI<number, MISO, miso>();
-        IOManager::routeSPI<number, MOSI, mosi>(GPIO::NoPull, mosiType);
-        IOManager::routeSPI<number, SCK, sck>(GPIO::NoPull, sckType);
+        IOManager::routeSPI<number, MOSI, mosi>(GPIO::PullType::NoPull, mosiType);
+        IOManager::routeSPI<number, SCK, sck>(GPIO::PullType::NoPull, sckType);
         static_assert(IOManager::spiPinAssert(number, miso, mosi, sck), "Incorrect Pin configuration");
 
         if constexpr (number == 1) {
