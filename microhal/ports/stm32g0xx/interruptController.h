@@ -30,6 +30,8 @@
 
 #include <cstdint>
 
+#define _MICROHAL_INTERRUPT_CONTROLLER_I2C_EV_ER_COMBINED 1
+
 namespace microhal {
 namespace stm32g0xx {
 
@@ -39,7 +41,7 @@ void disableRTCInterrupt();
 void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority);
 void disableTimerInterrupt(uint8_t timerNumber);
 
-void enableI2CInterrupt(uint8_t i2cNumber);
+void enableI2CInterrupt(uint8_t i2cNumber, uint32_t priority);
 void disableI2CInterrupt(uint8_t i2cNumber);
 
 void enableSPIInterrupt(uint8_t spiNumber);

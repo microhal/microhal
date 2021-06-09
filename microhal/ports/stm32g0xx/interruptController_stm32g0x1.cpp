@@ -163,13 +163,15 @@ void disableTimerInterrupt(uint8_t timerNumber) {
     }
 }
 
-void enableI2CInterrupt(uint8_t i2cNumber) {
+void enableI2CInterrupt(uint8_t i2cNumber, uint32_t priority) {
     assert(i2cNumber > 0);
 
     if (i2cNumber == 1) {
+        NVIC_SetPriority(I2C1_IRQn, priority);
         NVIC_EnableIRQ(I2C1_IRQn);
     } else {
         I2C2_3_IRQHandlerFlags[i2cNumber] = 1;
+        NVIC_SetPriority(I2C2_I2C3_IRQn, priority);
         NVIC_EnableIRQ(I2C2_I2C3_IRQn);
     }
 }
