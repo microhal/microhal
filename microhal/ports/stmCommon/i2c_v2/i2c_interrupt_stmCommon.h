@@ -1,14 +1,12 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
  * @brief
  *
  * @authors    Pawel Okas
  * created on: 21-02-2017
- * last modification: 24-02-2017
  *
- * @copyright Copyright (c) 2017, Pawel Okas
+ * @copyright Copyright (c) 2017-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -49,13 +47,13 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 class I2C_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
  public:
 //---------------------------------------- variables ----------------------------------------//
-#ifdef MICROHAL_USE_I2C1_INTERRUPT
+#if MICROHAL_USE_I2C1_INTERRUPT == 1
     static I2C_interrupt i2c1;
 #endif
-#ifdef MICROHAL_USE_I2C2_INTERRUPT
+#if MICROHAL_USE_I2C2_INTERRUPT == 1
     static I2C_interrupt i2c2;
 #endif
-#ifdef MICROHAL_USE_I2C3_INTERRUPT
+#if MICROHAL_USE_I2C3_INTERRUPT == 1
     static I2C_interrupt i2c3;
 #endif
 
@@ -95,6 +93,9 @@ class I2C_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::I2C {
     friend void I2C2_EV_IRQHandler(void);
     friend void I2C3_ER_IRQHandler(void);
     friend void I2C3_EV_IRQHandler(void);
+    friend void I2C1_IRQHandler(void);
+    friend void I2C2_IRQHandler(void);
+    friend void I2C3_IRQHandler(void);
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

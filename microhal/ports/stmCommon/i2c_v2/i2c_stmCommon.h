@@ -59,6 +59,9 @@ void I2C2_ER_IRQHandler(void);
 void I2C2_EV_IRQHandler(void);
 void I2C3_ER_IRQHandler(void);
 void I2C3_EV_IRQHandler(void);
+void I2C1_IRQHandler(void);
+void I2C2_IRQHandler(void);
+void I2C3_IRQHandler(void);
 }
 /* ************************************************************************************************
  * CLASS

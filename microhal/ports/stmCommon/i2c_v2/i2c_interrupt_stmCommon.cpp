@@ -1,14 +1,12 @@
 /**
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
  * @brief
  *
  * @authors    Pawel Okas
  * created on: 21-02-2017
- * last modification: 24-02-2017
  *
- * @copyright Copyright (c) 2017, Pawel Okas
+ * @copyright Copyright (c) 2017-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,21 +35,22 @@
 
 #include "ports/stmCommon/clockManager/i2cClock.h"
 #include _MICROHAL_INCLUDE_PORT_DEVICE
+#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 /* ************************************************************************************************
  *                                   STATIC VARIABLES
  * ***********************************************************************************************/
-#ifdef MICROHAL_USE_I2C1_INTERRUPT
+#if MICROHAL_USE_I2C1_INTERRUPT == 1
 I2C_interrupt I2C_interrupt::i2c1(*registers::i2c1);
 I2C &I2C::i2c1 = I2C_interrupt::i2c1;
 #endif
-#ifdef MICROHAL_USE_I2C2_INTERRUPT
+#if MICROHAL_USE_I2C2_INTERRUPT == 1
 I2C_interrupt I2C_interrupt::i2c2(*registers::i2c2);
 I2C &I2C::i2c2 = I2C_interrupt::i2c2;
 #endif
-#ifdef MICROHAL_USE_I2C3_INTERRUPT
+#if MICROHAL_USE_I2C3_INTERRUPT == 1
 I2C_interrupt I2C_interrupt::i2c3(*registers::i2c3);
 I2C &I2C::i2c3 = I2C_interrupt::i2c3;
 #endif
@@ -62,31 +61,17 @@ I2C_interrupt::I2C_interrupt(registers::I2C &i2c) : I2C(i2c), transfer(), error(
 #else
     ClockManager::enableI2C(getNumber());
 #endif
-
-    switch (getNumber()) {
-        case 1:
-            NVIC_EnableIRQ(I2C1_EV_IRQn);
-            NVIC_SetPriority(I2C1_EV_IRQn, 0);
-            NVIC_EnableIRQ(I2C1_ER_IRQn);
-            NVIC_SetPriority(I2C1_ER_IRQn, 0);
-            break;
-#if defined(I2C2)
-        case 2:
-            NVIC_EnableIRQ(I2C2_EV_IRQn);
-            NVIC_SetPriority(I2C2_EV_IRQn, 0);
-            NVIC_EnableIRQ(I2C2_ER_IRQn);
-            NVIC_SetPriority(I2C2_ER_IRQn, 0);
-            break;
+#ifndef MICROHAL_RTOS_FreeRTOS
+    const uint32_t priority = 0;
+#else
+    const uint32_t priority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
 #endif
-#if defined(I2C3)
-        case 3:
-            NVIC_EnableIRQ(I2C3_EV_IRQn);
-            NVIC_SetPriority(I2C3_EV_IRQn, 0);
-            NVIC_EnableIRQ(I2C3_ER_IRQn);
-            NVIC_SetPriority(I2C3_ER_IRQn, 0);
-            break;
+#ifdef _MICROHAL_INTERRUPT_CONTROLLER_I2C_EV_ER_COMBINED
+    enableI2CInterrupt(getNumber(), priority);
+#else
+    enableEventInterrupt(priority);
+    enableErrorInterrupt(priority);
 #endif
-    }
 }
 /* ************************************************************************************************
  *                                            FUNCTIONS
@@ -143,15 +128,15 @@ I2C::Error I2C_interrupt::write(DeviceAddress deviceAddress, const uint8_t *writ
     auto cr2 = i2c.cr2.volatileLoad();
     cr2.SADD = deviceAddress;
     cr2.RD_WRN.clear();
-    cr2.AUTOEND.clear();  // allow to generate TC interrupt, in this interrupt we will swap buffers
     if (write_data_size > 255) {
         cr2.NBYTES = 255;
         cr2.RELOAD.set();
-        write_data_size -= 255;
+        transfer.bufferA.length -= 255;
+        transfer.bufferA.ptr += 255;
     } else {
         cr2.NBYTES = write_data_size;
-        cr2.RELOAD.clear();
-        write_data_size = 0;
+        cr2.RELOAD = transfer.bufferB.length != 0;
+        transfer.bufferA.length = 0;
     }
     cr2.START.set();
     i2c.cr2.volatileStore(cr2);
@@ -331,18 +316,6 @@ void I2C_interrupt::IRQFunction() {
 
     auto cr2 = i2c.cr2.volatileLoad();
     if (interrupStatus.transferComplete()) {
-        transfer.bufferA = transfer.bufferB;
-        size_t toWrite = transfer.bufferA.length;
-        if (toWrite > 255) {
-            toWrite = 255;
-            cr2.RELOAD.set();
-        } else {
-            cr2.RELOAD.clear();
-        }
-        transfer.bufferA.length -= toWrite;
-        cr2.NBYTES = toWrite;
-        cr2.AUTOEND.set();
-
         if (transfer.mode == Mode::TransmitReceive) {
             transfer.mode = Mode::Receive;
             cr2.RD_WRN.set();
@@ -351,7 +324,13 @@ void I2C_interrupt::IRQFunction() {
     }
 
     if (interrupStatus.transferCompleteReload()) {
+    transferCompletteReloadBegin:  // <------------------------ label
         size_t toWrite = transfer.bufferA.length;
+        if (toWrite == 0 && transfer.mode == Mode::TransmitDoubleBuffer) {
+            transfer.bufferA = transfer.bufferB;
+            transfer.mode = Mode::Transmit;
+            goto transferCompletteReloadBegin;
+        }
         if (toWrite > 255) {
             toWrite = 255;
             cr2.RELOAD.set();
@@ -392,32 +371,55 @@ void I2C_interrupt::IRQFunction() {
 }
 
 void I2C_interrupt::ErrorIRQFunction() {
-    auto cr2 = i2c.cr2.volatileLoad();
-    cr2.STOP.set();
-    i2c.cr2.volatileStore(cr2);
+    const auto currentError = I2C::errorCheckAndClear(&i2c, i2c.isr.volatileLoad());
+    if (currentError != Error::None) {
+        error = currentError;
+        auto cr2 = i2c.cr2.volatileLoad();
+        cr2.STOP.set();
+        i2c.cr2.volatileStore(cr2);
 
-    error = I2C::errorCheckAndClear(&i2c, i2c.isr.volatileLoad());
-    auto shouldYeld = semaphore.giveFromISR();
+        auto shouldYeld = semaphore.giveFromISR();
 #if defined(HAL_RTOS_FreeRTOS)
-    portYIELD_FROM_ISR(shouldYeld);
+        portYIELD_FROM_ISR(shouldYeld);
 #else
-    (void)shouldYeld;
+        (void)shouldYeld;
 #endif
+    }
 }
 //***********************************************************************************************//
 //                                          IRQHandlers //
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_I2C1_INTERRUPT
+#ifdef _MICROHAL_INTERRUPT_CONTROLLER_I2C_EV_ER_COMBINED
+#if MICROHAL_USE_I2C1_INTERRUPT == 1
+void I2C1_IRQHandler(void) {
+    I2C_interrupt::i2c1.IRQFunction();
+    I2C_interrupt::i2c1.ErrorIRQFunction();
+}
+#endif
+#if MICROHAL_USE_I2C2_INTERRUPT == 1
+void I2C2_IRQHandler(void) {
+    I2C_interrupt::i2c2.IRQFunction();
+    I2C_interrupt::i2c2.ErrorIRQFunction();
+}
+#endif
+#if MICROHAL_USE_I2C3_INTERRUPT == 1
+void I2C3_IRQHandler(void) {
+    I2C_interrupt::i2c3.IRQFunction();
+    I2C_interrupt::i2c3.ErrorIRQFunction();
+}
+#endif
+#else  // _MICROHAL_INTERRUPT_CONTROLLER_I2C_EV_ER_COMBINED
+#if MICROHAL_USE_I2C1_INTERRUPT == 1
 void I2C1_EV_IRQHandler(void) {
     I2C_interrupt::i2c1.IRQFunction();
 }
 #endif
-#ifdef MICROHAL_USE_I2C2_INTERRUPT
+#if MICROHAL_USE_I2C2_INTERRUPT == 1
 void I2C2_EV_IRQHandler(void) {
     I2C_interrupt::i2c2.IRQFunction();
 }
 #endif
-#ifdef MICROHAL_USE_I2C3_INTERRUPT
+#if MICROHAL_USE_I2C3_INTERRUPT == 1
 void I2C3_EV_IRQHandler(void) {
     I2C_interrupt::i2c3.IRQFunction();
 }
@@ -425,21 +427,22 @@ void I2C3_EV_IRQHandler(void) {
 //***********************************************************************************************//
 //                                         error IRQHandlers //
 //***********************************************************************************************//
-#ifdef MICROHAL_USE_I2C1_INTERRUPT
+#if MICROHAL_USE_I2C1_INTERRUPT == 1
 void I2C1_ER_IRQHandler(void) {
     I2C_interrupt::i2c1.ErrorIRQFunction();
 }
 #endif
-#ifdef MICROHAL_USE_I2C2_INTERRUPT
+#if MICROHAL_USE_I2C2_INTERRUPT == 1
 void I2C2_ER_IRQHandler(void) {
     I2C_interrupt::i2c2.ErrorIRQFunction();
 }
 #endif
-#ifdef MICROHAL_USE_I2C3_INTERRUPT
+#if MICROHAL_USE_I2C3_INTERRUPT == 1
 void I2C3_ER_IRQHandler(void) {
     I2C_interrupt::i2c3.ErrorIRQFunction();
 }
 #endif
+#endif  // _MICROHAL_INTERRUPT_CONTROLLER_I2C_EV_ER_COMBINED
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
