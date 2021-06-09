@@ -28,8 +28,8 @@
 #ifndef _MICROHAL_SSD1306_H_
 #define _MICROHAL_SSD1306_H_
 
+#include <concepts>
 #include <cstdint>
-
 #include <thread>
 #include "I2CDevice/I2CDevice.h"
 #include "SPIDevice/SPIDevice.h"
@@ -64,7 +64,7 @@ class I2CInterface {
 
     I2CInterface(microhal::I2C &i2c, PossibleAddress address) : i2c(i2c, address) {}
 
-    void writeData(gsl::span<uint8_t> data);
+    bool writeData(gsl::span<uint8_t> data);
     bool writeCMD(uint8_t cmd);
 
  private:
@@ -76,6 +76,9 @@ class SSD1306 : public microhal::graphics::Display {
  public:
     using Point = microhal::graphics::Point;
     using Color = microhal::graphics::Color;
+    using PossibleAddress = typename I2CInterface::PossibleAddress;
+
+    enum class Rotation { Rot0Deg, Rot180Deg };
 
     enum class MemoryAddressingMode {  // see datasheet: 10.1.3 Set Memory Addressing Mode (20h)
         PageAddressingMode = 0b10,
@@ -86,17 +89,18 @@ class SSD1306 : public microhal::graphics::Display {
     static constexpr uint_fast8_t width = 128;
     static constexpr uint_fast8_t height = 64;
 
-    // SSD1306(microhal::I2C &i2c, PossibleAddress address) : i2c(i2c, address) {}
-    /// SSD1306(microhal::I2C &i2c, PossibleAddress address) : i2c(i2c, address) {}
+    template <typename I = Interface>
+    requires std::same_as<I, I2CInterface> SSD1306(microhal::I2C &i2c, PossibleAddress address) : interface(i2c, address) {}
 
-    SSD1306(microhal::SPI &spi, microhal::GPIO &cs, microhal::GPIO &DC) : interface(spi, cs, DC) {}
+    template <typename I = Interface>
+    requires std::same_as<I, SPIInterface> SSD1306(microhal::SPI &spi, microhal::GPIO &cs, microhal::GPIO &DC) : interface(spi, cs, DC) {}
 
     void reset();
     bool init();
     void fill(Color color);
 
     bool setPixel(Point position, Color color) final;
-    void redraw() { writeData(framebuffer); }
+    bool redraw() { return writeData(framebuffer); }
 
     void setContrast(uint8_t contrast) {
         sendCMD(0x81);
@@ -105,8 +109,11 @@ class SSD1306 : public microhal::graphics::Display {
     void displayOff() { sendCMD(0xAE); }
     void displayOn() { sendCMD(0xAF); }
 
+    void rotation(Rotation rot) { this->rot = rot; }
+
  private:
     Interface interface;
+    Rotation rot;
     std::array<uint8_t, width * height / 8> framebuffer;
 
     void setDisplayOffset(uint8_t offset) {

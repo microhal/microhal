@@ -62,22 +62,28 @@ void SPIInterface::delay() {
     std::this_thread::sleep_for(std::chrono::milliseconds{1});
 }
 
-void I2CInterface::writeData(gsl::span<uint8_t> data) {
-    i2c.write(0x40, data);
+bool I2CInterface::writeData(gsl::span<uint8_t> data) {
+    return i2c.write(0x40, data) == I2CInterface::Error::None;
 }
 
 bool I2CInterface::writeCMD(uint8_t cmd) {
-    i2c.write(0x80, cmd);
-    return true;
+    const auto result = i2c.write(0x80, cmd);
+    if (result != microhal::I2C::Error::None) {
+        diagChannel << lock << MICROHAL_ERROR << "Unable to send CMD, error: " << microhal::I2C::toString(result) << unlock;
+    }
+    return result == I2CInterface::Error::None;
 }
 
 template <class Interface>
 bool SSD1306<Interface>::setPixel(Point position, Color color) {
     if (position.x > width || position.y > height) return false;
+    const auto bitPos = (rot == Rotation::Rot0Deg) ? (position.y % 8) : 7 - (position.y % 8);
+    const auto bytePos =
+        (rot == Rotation::Rot0Deg) ? (position.x + (position.y / 8 * width)) : framebuffer.size() - 1 - (position.x + (position.y / 8 * width));
     if (colorToValue(color)) {
-        framebuffer[position.x + (position.y / 8 * width)] |= 1 << position.y % 8;
+        framebuffer[bytePos] |= 1 << bitPos;
     } else {
-        framebuffer[position.x + (position.y / 8 * width)] &= ~(1 << position.y % 8);
+        framebuffer[bytePos] &= ~(1 << bitPos);
     }
     return true;
 }
@@ -105,8 +111,6 @@ bool SSD1306<Interface>::init() {
     reset();
 
     displayOff();
-    //    sendCMD(0x00);
-    //    sendCMD(0x10);
     setStartLine(0);
     setMemoryAddressingMode(MemoryAddressingMode::HorizontalAddressingMode);
     setContrast(0x01);
@@ -145,5 +149,10 @@ template void SSD1306<SPIInterface>::reset();
 template bool SSD1306<SPIInterface>::init();
 template bool SSD1306<SPIInterface>::setPixel(Point position, Color color);
 template void SSD1306<SPIInterface>::fill(Color color);
+
+template void SSD1306<I2CInterface>::reset();
+template bool SSD1306<I2CInterface>::init();
+template bool SSD1306<I2CInterface>::setPixel(Point position, Color color);
+template void SSD1306<I2CInterface>::fill(Color color);
 
 }  // namespace ssd1306
