@@ -2,7 +2,7 @@
  * @file
  * @license    BSD 3-Clause
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for nucleo-g071rb board
  *
  * @authors    Pawel Okas
  *
@@ -25,18 +25,18 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_BSP_NUCLEO_F411RE_BSP_H_
-#define SRC_BSP_NUCLEO_F411RE_BSP_H_
+#ifndef _NUCLEO_G071RB_BSP_H_
+#define _NUCLEO_G071RB_BSP_H_
 
 #include "microhal.h"
 
 namespace bsp {
 
-static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
+static microhal::SerialPort &debugPort = microhal::stm32g0xx::SerialPort::Serial2;
 extern microhal::SPI &spi1;
 
 bool init();
 
 }  // namespace bsp
 
-#endif /* SRC_BSP_NUCLEO_F411RE_BSP_H_ */
+#endif /* _NUCLEO_G071RB_BSP_H_ */

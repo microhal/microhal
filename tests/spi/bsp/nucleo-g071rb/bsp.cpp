@@ -2,7 +2,7 @@
  * @file
  * @license    BSD 3-Clause
  * @version    $Id$
- * @brief      board support package for nucleo-f411re board
+ * @brief      board support package for nucleo-g071rb board
  *
  * @authors    Pawel Okas
  *
@@ -27,16 +27,17 @@
 
 #include "bsp.h"
 #include "microhal.h"
-#include "nucleo_f411re_extension_v0_1_0.h"
-#include "ports/stm32f4xx/IOManager_stm32f4xx.h"
-#include "ports/stm32f4xx/clockManager.h"
-#include "ports/stm32f4xx/timer_stm32f4xx.h"
+#include "nucleo_f103rb_extension_v0_1_0.h"
+#include "ports/stm32g0xx/IOManager_stm32g0xx.h"
+#include "ports/stm32g0xx/clockManager.h"
+#include "ports/stm32g0xx/spi_stm32g0xx.h"
+#include "ports/stm32g0xx/timer_stm32g0xx.h"
 #include "ports/stmCommon/clockManager/dmaClock.h"
 
 using namespace microhal;
-using namespace microhal::stm32f4xx;
+using namespace microhal::stm32g0xx;
 
-using Timer = stm32f4xx::Timer;
+using Timer = stm32g0xx::Timer;
 
 namespace bsp {
 
@@ -54,12 +55,12 @@ void configureSerialPort(microhal::SerialPort &serial, microhal::SerialPort::Bau
 }
 
 bool init() {
-    ClockManager::enableDMA(2, ClockManager::PowerMode::Normal);
+    //   ClockManager::enableDMA(2, ClockManager::PowerMode::Normal);
     IOManager::routeSerial<2, Txd, IOPin{IOPin::PortA, 2}>();
     IOManager::routeSerial<2, Rxd, IOPin{IOPin::PortA, 3}>();
 
     configureSerialPort(debugPort, microhal::SerialPort::Baud115200);
-    spi1Detail.init(microhal::SPI::Mode0, stm32f4xx::SPI::Prescaler256);
+    spi1Detail.init(microhal::SPI::Mode0, stm32g0xx::SPI::Prescaler256);
 
     return true;
 }
@@ -95,12 +96,7 @@ static void run_main(void *) {
     main(0, nullptr);
 }
 
-extern "C" void low_level_init_0(void) {
-    stm32f4xx::Core::fpu_enable();
-}
-
 void hardwareConfig(void) {
-    //  stm32f4xx::Core::fpu_enable();
     // ClockManager::HSE::enableBypas();
     // ClockManager::HSE::enable();
     // while (!ClockManager::HSE::isReady()) {
@@ -116,7 +112,7 @@ void hardwareConfig(void) {
 
     TaskHandle_t xHandle = NULL;
 
-    xTaskCreate(run_main, "main", 1000, NULL, tskIDLE_PRIORITY, &xHandle);
+    xTaskCreate(run_main, "main", 500, NULL, tskIDLE_PRIORITY, &xHandle);
 
     vTaskStartScheduler();
 }

@@ -25,14 +25,20 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "CppUTest/CommandLineTestRunner.h"
 #include "bsp.h"
 
-int main() {
+using namespace std::literals;
+
+int main(int argc, char **argv) {
     bsp::init();
 
     bsp::debugPort.write("\n\r----------------------- SPI Test -----------------------\n\r");
 
+    RUN_ALL_TESTS(0, argv);
+
     while (1) {
+        std::this_thread::sleep_for(1s);
     }
 
     return 0;

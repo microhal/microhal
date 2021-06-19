@@ -1,4 +1,4 @@
-/* ========================================================================================================================== *//**
+/* ========================================================================================================================== */ /**
  @license    BSD 3-Clause
  @copyright  microHAL
  @version    $Id$
@@ -24,16 +24,18 @@
  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- *//* ========================================================================================================================== */
+ */ /* ==========================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             */
 
 #ifndef MICROHALPORTCONFIG_H_
 #define MICROHALPORTCONFIG_H_
 
 #include <cstdint>
+// clang-format off
 //***********************************************************************************************//
 //                                       MCU Specification                                       //
 //***********************************************************************************************//
-
+#define _MICROHAL_STM32F103RB
 //***********************************************************************************************//
 //                                     Hardware Configuration                                    //
 //***********************************************************************************************//
@@ -42,30 +44,53 @@ static constexpr uint32_t externalClockFrequency = 8000000;  // this is HSE freq
 static constexpr bool externalLSEPresent = false;
 static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
+//***********************************************************************************************//
 //                                       configure interfaces                                    //
 //***********************************************************************************************//
 //***********************************************************************************************//
+
+//***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT 0  // available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
-//						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
-//						 MICROHAL_USE_SERIAL_PORTx_DMA
-#define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 8
-#define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
+// =================== Serial port 1 ===================
+#define MICROHAL_USE_SERIAL_PORT1_ /* available settings are:                                                              \
+                                       * MICROHAL_USE_SERIAL_PORTx_POLLING                                                    \
+                                       * MICROHAL_USE_SERIAL_PORTx_INTERRUPT                                                  \
+                                       * MICROHAL_USE_SERIAL_PORTx_INTERRUPT_DMA -> receiving via interrupt, transmit via DMA \
+                                       * MICROHAL_USE_SERIAL_PORTx_DMA -> receiving and transmit using DMA                    \
+                                       */
+#define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT1_DMA_TX_STREAM 1  // Serial port 1 TX stream can be connected only to DMA2 Stream 7.
+#define MICROHAL_SERIAL_PORT1_DMA_RX_STREAM 5  // Serial port 1 RX stream can be connected to DMA2 Stream 2 or 5.
 
+// =================== Serial port 2 ===================
 #define MICROHAL_USE_SERIAL_PORT2_INTERRUPT 1
-#define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 1024
-#define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 8
+#define MICROHAL_SERIAL_PORT2_TX_BUFFER_SIZE 128
+#define MICROHAL_SERIAL_PORT2_RX_BUFFER_SIZE 16
+#define MICROHAL_SERIAL_PORT2_DMA_TX_STREAM 6  // Serial port 2 TX stream can be connected only to DMA1 Stream 6.
+#define MICROHAL_SERIAL_PORT2_DMA_RX_STREAM 5  // Serial port 2 RX stream can be connected only to DMA1 Stream 5.
 
-#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT 0
-#define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 256
-#define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 256
+// =================== Serial port 3 ===================
+//#define MICROHAL_USE_SERIAL_PORT3_INTERRUPT
+#define MICROHAL_SERIAL_PORT3_TX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT3_RX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT3_DMA_TX_STREAM 4  // Serial port 3 TX stream can be connected to DMA1 Stream 3 or 4.
+#define MICROHAL_SERIAL_PORT3_DMA_RX_STREAM 1  // Serial port 3 RX stream can be connected only to DMA1 Stream 1.
+
+// =================== Serial port 4 ===================
+//#define MICROHAL_USE_SERIAL_PORT4_INTERRUPT
+#define MICROHAL_SERIAL_PORT4_TX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT4_RX_BUFFER_SIZE 1000
+#define MICROHAL_SERIAL_PORT4_DMA_TX_STREAM 4  // Serial port 4 TX stream can be connected only to DMA1 Stream 4.
+#define MICROHAL_SERIAL_PORT4_DMA_RX_STREAM 2  // Serial port 4 RX stream can be connected only to DMA1 Stream 2
+
 //***********************************************************************************************//
 //                                        I2C configurations                                     //
 //***********************************************************************************************//
-//#define MICROHAL_USE_I2C1_POLLING		//available settings are MICROHAL_USE_I2Cx_POLLING
-//						 MICROHAL_USE_I2Cx_INTERRUPT
-//						 MICROHAL_USE_I2Cx_DMA
+//#define MICROHAL_USE_I2C1_POLLING		// available settings are MICROHAL_USE_I2Cx_POLLING
+                                        // MICROHAL_USE_I2Cx_INTERRUPT
+                                        // MICROHAL_USE_I2Cx_DMA
 #define MICROHAL_I2C1_DMA_RX_STREAM 0  // possible streams are 0 and 5
 #define MICROHAL_I2C1_DMA_TX_STREAM 6  // possible streams are 6 and 7
 
@@ -79,18 +104,16 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                        SPI configurations                                     //
 //***********************************************************************************************//
-#define MICROHAL_USE_SPI1_INTERRUPT 1  // available settings are MICROHAL_USE_SPIx_POLLING
+#define MICROHAL_USE_SPI1_INTERRUPT 1			//available settings are MICROHAL_USE_SPIx_POLLING
 //						 MICROHAL_USE_SPIx_INTERRUPT
 //						 MICROHAL_USE_SPIx_DMA
 #define MICROHAL_SPI1_DMA_RX_STREAM 2  // possible streams are 0 and 2 this options are valid only when MICROHAL_USE_SPIx_DMA is defined
 #define MICROHAL_SPI1_DMA_TX_STREAM 5  // possible streams are 3 and 5
 
-#define MICROHAL_USE_SPI2_DMA 0
-#define MICROHAL_SPI2_DMA_RX_STREAM 3
-#define MICROHAL_SPI2_DMA_TX_STREAM 4
+//#define MICROHAL_USE_SPI2_POLLING
 // SPI 2 DMA can be connected only to stream 3 and 4
 
-#define MICROHAL_USE_SPI3_DMA 0
+//#define MICROHAL_USE_SPI3_POLLING
 #define MICROHAL_SPI3_DMA_RX_STREAM 0  // possible streams are 0 and 2
 #define MICROHAL_SPI3_DMA_TX_STREAM 7  // possible streams are 5 and 7
 
@@ -104,11 +127,6 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 
 //#define MICROHAL_USE_SPI6_DMA
 // SPI 6 DMA can be connected only to stream 5 and 6
-//***********************************************************************************************//
-//                                        LIN configurations                                     //
-//***********************************************************************************************//
-#define MICROHAL_USE_LIN1 0
 
-#define MICROHAL_USE_TIMER_SIGNAL 0
-
+// clang-format on
 #endif /* MICROHALPORTCONFIG_H_ */
