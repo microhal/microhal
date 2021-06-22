@@ -26,29 +26,39 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>FreeRTOS</name>
+			<name>src/third-party/FreeRTOS</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/third-party/FreeRTOS-Kernel</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/third-party/FreeRTOS-Kernel</locationURI>
 		</link>
 		<link>
-			<name>SDCard</name>
+			<name>src/SDCard</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/SDCard</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/SDCard</locationURI>
 		</link>
 		<link>
-			<name>catch</name>
+			<name>src/tests</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/third-party/Catch</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/tests</locationURI>
 		</link>
 		<link>
-			<name>gsl</name>
+			<name>src/bsp</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/third-party/gsl</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/bsp</locationURI>
 		</link>
 		<link>
-			<name>microhal</name>
+			<name>src/third-party/cpputest</name>
 			<type>2</type>
-			<locationURI>PARENT-3-PROJECT_LOC/microhal</locationURI>
+			<locationURI>PARENT-5-PROJECT_LOC/third-party/cpputest</locationURI>
+		</link>
+		<link>
+			<name>src/third-party/gsl</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/third-party/gsl</locationURI>
+		</link>
+		<link>
+			<name>src/third-party/microhal</name>
+			<type>2</type>
+			<locationURI>PARENT-5-PROJECT_LOC/microhal</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

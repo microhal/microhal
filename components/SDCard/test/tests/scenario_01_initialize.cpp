@@ -28,7 +28,7 @@
  */
 
 #include <bsp.h>
-#include "catch.hpp"
+#include "CppUTest/TestHarness.h"
 #include "diagnostic/diagnostic.h"
 #include "sd.h"
 
@@ -36,38 +36,37 @@ using namespace microhal;
 using namespace microhal::diagnostic;
 using namespace std::literals::chrono_literals;
 
-SCENARIO("Detect SD cart type and read all card parameters.", "[initialize]") {
+TEST_GROUP(SDCardTest){};
+
+TEST(SDCardTest, TestSDCardCRC) {
     {
         uint8_t data[5] = {0b0100'0000, 0x00, 0x00, 0x00, 0x00};
-        CHECK(microhal::CRC7::calculate(data, sizeof(data), 0) == 0b1001010);
+        CHECK_EQUAL(0b1001010, microhal::CRC7<>::calculate(data, sizeof(data)));
     }
     {
         uint8_t data[5] = {0b0101'0001, 0x00, 0x00, 0x00, 0x00};
-        CHECK(microhal::CRC7::calculate(data, sizeof(data), 0) == 0b0101010);
+        CHECK_EQUAL(0b0101010, microhal::CRC7<>::calculate(data, sizeof(data)));
     }
     {
         uint8_t data[5] = {0b0001'0001, 0x00, 0x00, 0x09, 0x00};
-        CHECK(microhal::CRC7::calculate(data, sizeof(data), 0) == 0b0110011);
+        CHECK_EQUAL(0b0110011, microhal::CRC7<>::calculate(data, sizeof(data)));
     }
-
     {
         std::array<uint8_t, 512> data;
         data.fill(0xFF);
-        uint16_t crc_calculated = CRC16::calculate(data.data(), data.size(), 0);
-        CHECK(crc_calculated == 0x7FA1);
+        uint16_t crc_calculated = CRC16_XMODEM<>::calculate(data.data(), data.size());
+        CHECK_EQUAL(0x7FA1, crc_calculated);
     }
-    GIVEN("Unknown SD card") {
-        Sd sdCard(bsp::sdCard::spi, bsp::sdCard::cs);
-        WHEN("Card was initialized successfully.") {
-            REQUIRE(sdCard.init());
-            THEN("We can check card type") {
-                REQUIRE(sdCard.getCardType() != Sd::CardType::Unknown);
-                AND_THEN("We can read card capacity") {
-                    REQUIRE(sdCard.readCSD());
-                    REQUIRE(sdCard.getCardCapacity() > (uint64_t)0);
-                    CAPTURE(sdCard.getCardCapacity());
-                }
-            }
-        }
-    }
+}
+
+TEST(SDCardTest, DetectSDcardTypeAndReadAllCardParameters) {
+    Sd sdCard(bsp::sdCard::spi, bsp::sdCard::cs);
+
+    CHECK(sdCard.init());
+
+    CHECK(sdCard.getCardType() != Sd::CardType::Unknown);
+
+    CHECK(sdCard.readCSD().has_value());
+    CHECK(sdCard.getCardCapacity() > (uint64_t)0);
+    // CAPTURE(sdCard.getCardCapacity());
 }

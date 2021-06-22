@@ -26,20 +26,19 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "i2c.h"
-#include "microhal.h"
-
 #include "bsp.h"
+#include "microhal.h"
+#include "nucleo_f103rb_extension_v0_1_0.h"
 
 using namespace microhal;
 using namespace stm32f4xx;
 
 namespace bsp {
 // stm32f4xx::GPIO cs_stm({IOPin::PortA, 15}, stm32f4xx::GPIO::Direction::Output);
-stm32f4xx::GPIO cs_stm({IOPin::PortB, 2}, stm32f4xx::GPIO::Direction::Output);
+stm32f4xx::GPIO cs_stm(con1::a::cs, stm32f4xx::GPIO::Direction::Output);
 
 namespace sdCard {
-microhal::stm32f4xx::SPI_dma &spi1 = microhal::stm32f4xx::SPI_dma::create<1, {IOPin::PortA, 6}, {IOPin::PortA, 7}, {IOPin::PortA, 5}>();
+microhal::stm32f4xx::SPI_dma &spi1 = microhal::stm32f4xx::SPI_dma::create<1, con1::a::miso, con1::a::mosi, con1::a::sck>();
 microhal::SPI &spi = spi1;
 microhal::GPIO &cs = cs_stm;
 }  // namespace sdCard
