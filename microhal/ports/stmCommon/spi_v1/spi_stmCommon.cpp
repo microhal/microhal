@@ -13,6 +13,8 @@
 #if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1                                      // Check if driver is compatible with selected MCU
 #if ENABLED_ANY_SPI(POLLING) || ENABLED_ANY_SPI(INTERRUPT) || ENABLED_ANY_SPI(DMA)  // Check if driver is enabled in microhal port config
 
+#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
+
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
@@ -27,7 +29,12 @@ SPI::Prescaler SPI::findClosestPrescaler(uint32_t prescaler) {
             bestPos = i;
         }
     }
-    return static_cast<Prescaler>(bestPos << 3);
+    return static_cast<Prescaler>(bestPos);
+}
+
+void SPI::enableGlobalInterrupt(uint32_t priority) {
+    const auto spiNumber = getNumber();
+    enableSPIInterrupt(spiNumber, priority);
 }
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

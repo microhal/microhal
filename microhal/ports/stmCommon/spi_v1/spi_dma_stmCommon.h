@@ -44,6 +44,15 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 extern "C" {
+void DMA1_Channel0_IRQHandler(void);
+void DMA1_Channel1_IRQHandler(void);
+void DMA1_Channel2_IRQHandler(void);
+void DMA1_Channel3_IRQHandler(void);
+void DMA1_Channel4_IRQHandler(void);
+void DMA1_Channel5_IRQHandler(void);
+void DMA1_Channel6_IRQHandler(void);
+void DMA1_channel7_IRQHandler(void);
+
 void DMA1_Stream0_IRQHandler(void);
 void DMA1_Stream2_IRQHandler(void);
 void DMA1_Stream3_IRQHandler(void);
@@ -62,17 +71,22 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
  public:
     //---------------------------------------- variables ----------------------------------------//
     template <int number, IOPin miso, IOPin mosi, IOPin sck>
-    static SPI_dma &create(GPIO::OutputType mosiType = GPIO::PushPull, GPIO::OutputType sckType = GPIO::PushPull) {
+    static SPI_dma &create(GPIO::OutputType mosiType = GPIO::OutputType::PushPull, GPIO::OutputType sckType = GPIO::OutputType::PushPull) {
         IOManager::routeSPI<number, MISO, miso>();
-        IOManager::routeSPI<number, MOSI, mosi>(GPIO::NoPull, mosiType);
-        IOManager::routeSPI<number, SCK, sck>(GPIO::NoPull, sckType);
+        IOManager::routeSPI<number, MOSI, mosi>(GPIO::PullType::NoPull, mosiType);
+        IOManager::routeSPI<number, SCK, sck>(GPIO::PullType::NoPull, sckType);
         static_assert(IOManager::spiPinAssert(number, miso, mosi, sck), "Incorrect Pin configuration");
         if constexpr (number == 1) {
             static_assert(MICROHAL_USE_SPI1_DMA == 1 && number == 1,
                           "You have to define 'MICROHAL_USE_SPI1_DMA 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI1_DMA == 1
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
+            static SPI_dma _spi1(*microhal::registers::spi1, *DMA::dma1, DMA::dma1->channel[MICROHAL_SPI1_DMA_RX_STREAM - 1],
+                                 DMA::dma1->channel[MICROHAL_SPI1_DMA_TX_STREAM - 1], miso);
+#else
             static SPI_dma _spi1(*microhal::registers::spi1, *DMA::dma2, DMA::dma2->stream[MICROHAL_SPI1_DMA_RX_STREAM],
                                  DMA::dma2->stream[MICROHAL_SPI1_DMA_TX_STREAM], miso);
+#endif
             spi1 = &_spi1;
             return *spi1;
 #endif
@@ -81,49 +95,74 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             static_assert(MICROHAL_USE_SPI2_DMA == 1 && number == 2,
                           "You have to define 'MICROHAL_USE_SPI2_DMA 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI2_DMA == 1
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
+            static SPI_dma _spi2(*microhal::registers::spi2, *DMA::dma1, DMA::dma1->channel[MICROHAL_SPI2_DMA_RX_STREAM - 1],
+                                 DMA::dma1->channel[MICROHAL_SPI2_DMA_TX_STREAM - 1], miso);
+#else
             static SPI_dma _spi2(*microhal::registers::spi2, *DMA::dma1, DMA::dma1->stream[3], DMA::dma1->stream[4], miso);
+#endif
             spi2 = &_spi2;
             return *spi2;
-#endif
+#endif  // MICROHAL_USE_SPI2_DMA == 1
         }
         if constexpr (number == 3) {
             static_assert(MICROHAL_USE_SPI3_DMA == 1 && number == 3,
                           "You have to define 'MICROHAL_USE_SPI3_DMA 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI3_DMA == 1
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
+            static SPI_dma _spi3(*microhal::registers::spi3, *DMA::dma1, DMA::dma1->channel[MICROHAL_SPI3_DMA_RX_STREAM - 1],
+                                 DMA::dma1->channel[MICROHAL_SPI3_DMA_TX_STREAM - 1], miso);
+#else   // _MICROHAL_DMA_HAS_CHANNELS
             static SPI_dma _spi3(*microhal::registers::spi3, *DMA::dma1, DMA::dma1->stream[MICROHAL_SPI3_DMA_RX_STREAM],
                                  DMA::dma1->stream[MICROHAL_SPI3_DMA_TX_STREAM], miso);
+#endif  //_MICROHAL_DMA_HAS_CHANNELS
             spi3 = &_spi3;
             return *spi3;
-#endif
+#endif  // MICROHAL_USE_SPI3_DMA == 1
         }
         if constexpr (number == 4) {
             static_assert(MICROHAL_USE_SPI4_DMA == 1 && number == 4,
                           "You have to define 'MICROHAL_USE_SPI4_DMA 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI4_DMA == 1
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
+            static SPI_dma _spi4(*microhal::registers::spi4, *DMA::dma1, DMA::dma1->channel[MICROHAL_SPI4_DMA_RX_STREAM - 1],
+                                 DMA::dma1->channel[MICROHAL_SPI4_DMA_TX_STREAM - 1], miso);
+#else   // _MICROHAL_DMA_HAS_CHANNELS
             static SPI_dma _spi4(*microhal::registers::spi4, *DMA::dma2, DMA::dma2->stream[MICROHAL_SPI4_DMA_RX_STREAM],
                                  DMA::dma2->stream[MICROHAL_SPI4_DMA_TX_STREAM], miso);
+#endif  //_MICROHAL_DMA_HAS_CHANNELS
             spi4 = &_spi4;
             return *spi4;
-#endif
+#endif  // MICROHAL_USE_SPI4_DMA == 1
         }
         if constexpr (number == 5) {
             static_assert(MICROHAL_USE_SPI5_DMA == 1 && number == 5,
                           "You have to define 'MICROHAL_USE_SPI5_DMA 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI5_DMA == 1
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
+            static SPI_dma _spi5(*microhal::registers::spi5, *DMA::dma1, DMA::dma1->channel[MICROHAL_SPI5_DMA_RX_STREAM - 1],
+                                 DMA::dma1->channel[MICROHAL_SPI5_DMA_TX_STREAM - 1], miso);
+#else   // _MICROHAL_DMA_HAS_CHANNELS
             static SPI_dma _spi5(*microhal::registers::spi5, *DMA::dma2, DMA::dma2->stream[MICROHAL_SPI5_DMA_RX_STREAM],
                                  DMA::dma2->stream[MICROHAL_SPI5_DMA_TX_STREAM], miso);
+#endif  //_MICROHAL_DMA_HAS_CHANNELS
             spi5 = &_spi5;
             return *spi5;
-#endif
+#endif  // MICROHAL_USE_SPI5_DMA == 1
         }
         if constexpr (number == 6) {
             static_assert(MICROHAL_USE_SPI6_DMA == 1 && number == 6,
                           "You have to define 'MICROHAL_USE_SPI3_DMA 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI6_DMA == 1
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
+            static SPI_dma _spi6(*microhal::registers::spi6, *DMA::dma1, DMA::dma1->channel[MICROHAL_SPI6_DMA_RX_STREAM - 1],
+                                 DMA::dma1->channel[MICROHAL_SPI6_DMA_TX_STREAM - 1], miso);
+#else   // _MICROHAL_DMA_HAS_CHANNELS
             static SPI_dma _spi6(*microhal::registers::spi6, *DMA::dma2, DMA::dma2->stream[5], DMA::dma2->stream[6], miso);
+#endif  //_MICROHAL_DMA_HAS_CHANNELS
             spi6 = &_spi6;
             return *spi6;
-#endif
+#endif  // MICROHAL_USE_SPI6_DMA == 1
         }
         std::terminate();
     }
@@ -133,7 +172,7 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     SPI::Error writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) final {
         return writeRead(dataWrite, dataRead, readWriteLength, readWriteLength);
     }
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
     void setDMAStreamPriority(DMA::Channel::Priority rxPriority, DMA::Channel::Priority txPriority) {
 #else
     void setDMAStreamPriority(DMA::Stream::Priority rxPriority, DMA::Stream::Priority txPriority) {
@@ -143,7 +182,7 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     }
 
  private:
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
     using DMAInterrupt = DMA::Channel::Interrupt;
     using DMAMemoryIncrementMode = DMA::Channel::MemoryIncrementMode;
 #else
@@ -172,24 +211,24 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     //---------------------------------------- variables ----------------------------------------//
     os::Semaphore semaphore;
     DMA::DMA &dma;
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
     DMA::Channel &rxStream;
     DMA::Channel &txStream;
 #else
     DMA::Stream &rxStream;
     DMA::Stream &txStream;
 #endif
-    //--------------------------------------- constructors --------------------------------------//
-#if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX)
+//--------------------------------------- constructors --------------------------------------//
+#ifdef _MICROHAL_DMA_HAS_CHANNELS
     SPI_dma(registers::SPI &spi, DMA::DMA &dma, DMA::Channel &rxStream, DMA::Channel &txStream, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin)
 #else
     SPI_dma(registers::SPI &spi, DMA::DMA &dma, DMA::Stream &rxStream, DMA::Stream &txStream, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin)
 #endif
         : SPI(spi, misoPin), semaphore(), dma(dma), rxStream(rxStream), txStream(txStream) {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enableSPI(getNumber(), ClockManager::PowerMode::Normal);
+        ClockManager::enableSPI(getNumber() + 1, ClockManager::PowerMode::Normal);
 #else
-        ClockManager::enableSPI(getNumber());
+        ClockManager::enableSPI(getNumber() + 1);
 #endif
 #if defined(HAL_RTOS_FreeRTOS)
         enableGlobalInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
@@ -206,6 +245,15 @@ class SPI_dma : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 
     static inline void IRQfunction(SPI_dma &object, registers::SPI *spi);
     //----------------------------------------- friends -----------------------------------------//
+    friend void DMA1_Channel0_IRQHandler(void);
+    friend void DMA1_Channel1_IRQHandler(void);
+    friend void DMA1_Channel2_IRQHandler(void);
+    friend void DMA1_Channel3_IRQHandler(void);
+    friend void DMA1_Channel4_IRQHandler(void);
+    friend void DMA1_Channel5_IRQHandler(void);
+    friend void DMA1_Channel6_IRQHandler(void);
+    friend void DMA1_channel7_IRQHandler(void);
+
     friend void DMA1_Stream0_IRQHandler(void);
     friend void DMA1_Stream2_IRQHandler(void);
     friend void DMA1_Stream3_IRQHandler(void);

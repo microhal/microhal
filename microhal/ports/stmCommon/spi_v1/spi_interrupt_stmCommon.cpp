@@ -38,6 +38,8 @@ SPI_interrupt *SPI_interrupt::spi6;
 #endif
 
 SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
+    if (len == 0) return Error::None;
+
     readPtr = nullptr;
     writePtr = (uint8_t *)data;
     writeEnd = ((uint8_t *)data) + len;
@@ -51,17 +53,16 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
         } else {
             break;
         }
-    } while (writePtr != writeEnd - 1);
+        if (last == false && writePtr == writeEnd) {
+            return Error::None;  // all data fit into fifo, return success
+        }
+    } while (writePtr != writeEnd);
 #endif
     enableInterrupt(Interrupt::TransmitterEmpty);
     if (semaphore.wait(std::chrono::milliseconds::max())) {
         // this is last transaction on SPI bus, so we need to wait until last byte will be send before we exit from function because someone could
         // change CS signal to high when we will sending last byte
         if (last) {
-#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-            while (spi.sr.volatileLoad().FTLVL) {
-            }
-#endif
             busyWait();
         }
         return Error::None;
@@ -70,28 +71,14 @@ SPI::Error SPI_interrupt::write(const void *data, size_t len, bool last) {
 }
 
 SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
-    writePtr = nullptr;
-    writeEnd = nullptr;
+    if (len == 0) return Error::None;
+
+    writePtr = &write;
+    writeEnd = &write;
     readPtr = static_cast<uint8_t *>(data);
     readEnd = static_cast<uint8_t *>(data) + len;
-    writeData = write;
 
-#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-    while (spi.sr.volatileLoad().FTLVL) {
-    }
-#endif
-    busyWait();
-#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-    size_t i = spi.sr.volatileLoad().FRLVL;
-    do {
-        for (; i > 0; i--) {
-            spi.dr.volatileLoad();
-        }
-        i = spi.sr.volatileLoad().FRLVL;
-    } while (i);
-#else
-    spi.dr.volatileLoad();
-#endif
+    clearRxFifo();
 
     enableInterrupt(Interrupt::ReceiverNotEmpty);
 
@@ -101,29 +88,40 @@ SPI::Error SPI_interrupt::read(void *data, size_t len, uint8_t write) {
 }
 
 SPI::Error SPI_interrupt::writeRead(void *dataRead, const void *dataWrite, size_t readWriteLength) {
+    if (readWriteLength == 0) return Error::None;
+
     readPtr = static_cast<uint8_t *>(dataRead);
     readEnd = static_cast<uint8_t *>(dataRead) + readWriteLength;
     writePtr = static_cast<const uint8_t *>(dataWrite);
     writeEnd = static_cast<const uint8_t *>(dataWrite) + readWriteLength;
 
-#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-    while (spi.sr.volatileLoad().FTLVL) {
-    }
-#endif
-    busyWait();
-#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
-    for (size_t i = spi.sr.volatileLoad().FRLVL; i > 0; i--) {
-        spi.dr.volatileLoad();
-    }
-#else
-    spi.dr.volatileLoad();
-#endif
+    clearRxFifo();
 
     enableInterrupt(Interrupt::TransmitterEmpty | Interrupt::ReceiverNotEmpty);
 
     if (semaphore.wait(std::chrono::milliseconds::max())) return Error::None;
     return Error::Timeout;
 }
+
+void SPI_interrupt::clearRxFifo() {
+    busyWait();
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+    while (rxFifoLevel() != FIFOLevel::Empty) {
+        spi.dr.volatileLoad_8bit();
+    }
+#else
+    spi.dr.volatileLoad();
+#endif
+}
+
+static inline void giveSemaphoreFromIsr(os::Semaphore &semaphore) __attribute__((always_inline));
+void giveSemaphoreFromIsr(os::Semaphore &semaphore) {
+    [[maybe_unused]] bool shouldYeld = semaphore.giveFromISR();
+#if defined(HAL_RTOS_FreeRTOS)
+    portYIELD_FROM_ISR(shouldYeld);
+#endif
+}
+
 //***********************************************************************************************//
 //                                     interrupt functions //
 //***********************************************************************************************//
@@ -132,39 +130,40 @@ void SPI_interrupt::IRQfunction() {
     auto cr2 = spi.cr2.volatileLoad();
 
     if ((readPtr != nullptr) && (sr.RXNE)) {
-        *readPtr++ = (uint32_t)spi.dr.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+        *readPtr = (uint32_t)spi.dr.volatileLoad_8bit();
+#else
+        *readPtr = (uint32_t)spi.dr.volatileLoad();
+#endif
+        readPtr++;
         if (readPtr == readEnd) {
             readPtr = nullptr;
-            auto cr2 = spi.cr2.volatileLoad();
-            cr2.RXNEIE.clear();  // fixme maybe bitband
-            spi.cr2.volatileStore(cr2);
-            [[maybe_unused]] bool shouldYeld = semaphore.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-            portYIELD_FROM_ISR(shouldYeld);
+            disableInterrupt(Interrupt::ReceiverNotEmpty);
+            giveSemaphoreFromIsr(semaphore);
+        } else if (writePtr == writeEnd && writePtr != nullptr) {
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+            spi.dr.volatileStore_8bit(*writePtr);
+#else
+            spi.dr.volatileStore(*writePtr);
 #endif
-        } else if (writePtr == nullptr && writeEnd == nullptr) {
-            spi.dr.volatileStore_8bit(writeData);
         }
     }
-    if (cr2.TXEIE) {
-        if ((writePtr != nullptr) && (sr.TXE)) {
-            spi.dr.volatileStore_8bit(*writePtr++);
-            if (writePtr == writeEnd) {
-                writePtr = nullptr;
-                auto cr2 = spi.cr2.volatileLoad();
-                cr2.TXEIE.clear();  // fixme maybe bitband
-                spi.cr2.volatileStore(cr2);
-                if (readPtr == nullptr) {
-                    [[maybe_unused]] bool shouldYeld = semaphore.giveFromISR();
-#if defined(HAL_RTOS_FreeRTOS)
-                    portYIELD_FROM_ISR(shouldYeld);
+    if (cr2.TXEIE && sr.TXE) {  // transmitter empty interrupt enabled and active
+        if (writePtr != writeEnd) {
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+            spi.dr.volatileStore_8bit(*writePtr);
+#else
+            spi.dr.volatileStore(*writePtr);
 #endif
-                }
+            writePtr++;
+        }
+        if (writePtr == writeEnd) {
+            writePtr = nullptr;
+            writeEnd = nullptr;
+            disableInterrupt(Interrupt::TransmitterEmpty);
+            if (readPtr == nullptr) {
+                giveSemaphoreFromIsr(semaphore);
             }
-        } else {
-            auto cr2 = spi.cr2.volatileLoad();
-            cr2.TXEIE.clear();  // fixme maybe bitband
-            spi.cr2.volatileStore(cr2);
         }
     }
 }

@@ -26,7 +26,6 @@
 #include "../stmCommonDefines.h"
 #include "interfaces/spi_interface.h"
 #include _MICROHAL_INCLUDE_PORT_GPIO
-#include _MICROHAL_INCLUDE_PORT_DEVICE
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -45,7 +44,10 @@ void SPI6_IRQHandler(void);
 }
 
 namespace spiDetail {
-enum class Interrupt { TransmitterEmpty = 0b01, ReceiverNotEmpty = 0b10 };
+enum class Interrupt : uint32_t {
+    TransmitterEmpty = decltype(registers::SPI::CR2::TXEIE)::bitfieldMask,
+    ReceiverNotEmpty = decltype(registers::SPI::CR2::RXNEIE)::bitfieldMask
+};
 
 constexpr Interrupt operator|(Interrupt a, Interrupt b) {
     uint32_t tmp = static_cast<uint32_t>(a) | static_cast<uint32_t>(b);
@@ -176,7 +178,7 @@ class SPI : public microhal::SPI {
      * @return speed value that was set, this is closest value that was possible to set with current bus speed.
      */
     uint32_t speed(uint32_t speed) final {
-        auto freq = ClockManager::SPIFrequency(getNumber());
+        auto freq = ClockManager::SPIFrequency(getNumber() + 1);
         auto requiredPrescaler = freq / speed;
         prescaler(findClosestPrescaler(requiredPrescaler));
 
@@ -185,7 +187,7 @@ class SPI : public microhal::SPI {
 
     uint32_t speed() const final {
         const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
-        return ClockManager::SPIFrequency(getNumber()) / prescalerValues[static_cast<uint32_t>(prescaler())];
+        return ClockManager::SPIFrequency(getNumber() + 1) / prescalerValues[static_cast<uint32_t>(prescaler())];
     }
 
  protected:
@@ -201,9 +203,31 @@ class SPI : public microhal::SPI {
         : spi(spi), misoPin(misoPin) {
     }
 
+    void enableInterrupt(Interrupt interrupt) {
+        auto cr2 = spi.cr2.volatileLoad();
+        if ((interrupt & Interrupt::TransmitterEmpty) == Interrupt::TransmitterEmpty) {
+            cr2.TXEIE.set();  // fixme maybe bitband
+        }
+        if ((interrupt & Interrupt::ReceiverNotEmpty) == Interrupt::ReceiverNotEmpty) {
+            cr2.RXNEIE.set();  // fixme maybe bitband
+        }
+        spi.cr2.volatileStore(cr2);
+    }
+
+    void disableInterrupt(Interrupt interrupts) {
+        auto cr2 = spi.cr2.volatileLoad();
+        cr2 &= ~static_cast<uint32_t>(interrupts);
+        spi.cr2.volatileStore(cr2);
+    }
+
     void busyWait() {
+#ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
+        while (txFifoLevel() != FIFOLevel::Empty) {
+        }
+#else
         while (!(spi.sr.volatileLoad().TXE)) {
         }
+#endif
         while (spi.sr.volatileLoad().BSY) {
         }
     }
@@ -213,49 +237,20 @@ class SPI : public microhal::SPI {
 #endif
     Prescaler findClosestPrescaler(uint32_t prescaler);
 
-    void enableGlobalInterrupt(uint32_t priority) {
-        NVIC_EnableIRQ(irq());
-        NVIC_SetPriority(irq(), priority);
-    }
+    void enableGlobalInterrupt(uint32_t priority);
 
     uint8_t getNumber() const {
-        if (&spi == registers::spi1) return 1;
-        if (&spi == registers::spi2) return 2;
+        if (&spi == registers::spi1) return 0;
+        if (&spi == registers::spi2) return 1;
 #ifdef _MICROHAL_SPI3_BASE_ADDRESS
-        if (&spi == registers::spi3) return 3;
-#endif
-        std::terminate();
-    }
-
-    IRQn_Type irq() {
-        if (&spi == registers::spi1) return SPI1_IRQn;
-#if defined(SPI2)
-        else if (&spi == registers::spi2)
-            return SPI2_IRQn;
-#endif
-#if defined(SPI3)
-        else if (&spi == registers::spi3)
-            return SPI3_IRQn;
-#endif
-#if defined(SPI4)
-        else if (&spi == registers::spi4)
-            return SPI4_IRQn;
-#endif
-#if defined(SPI5)
-        else if (&spi == registers::spi5)
-            return SPI5_IRQn;
-#endif
-#if defined(SPI6)
-        else if (&spi == registers::spi6)
-            return SPI6_IRQn;
+        if (&spi == registers::spi3) return 2;
 #endif
         std::terminate();
     }
 
     void clearErrorFlags(Error error) {
         if ((error & Error::Overrun) == Error::Overrun) {
-            spi.dr.volatileLoad();
-            // spi.sr.volatileLoad();
+            spi.dr.volatileLoad_8bit();
         }
         auto sr = spi.sr.volatileLoad();
         if ((error & Error::Crc) == Error::Crc) {
