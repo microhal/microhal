@@ -30,12 +30,12 @@
 
 #include <concepts>
 #include <cstdint>
+#include <span>
 #include <thread>
 #include "I2CDevice/I2CDevice.h"
 #include "SPIDevice/SPIDevice.h"
 #include "color.h"
 #include "display.h"
-#include "gsl/span"
 #include "point.h"
 
 namespace ssd1306 {
