@@ -25,13 +25,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_STM32G0XX_SPI_STM32G0XX_H_
-#define _MICROHAL_PORTS_STM32G0XX_SPI_STM32G0XX_H_
-
 /* ************************************************************************************************
  * INCLUDES
  */
+#include "ports/stmCommon/spi_v1/spi_dma_stmCommon.h"
 #include "ports/stmCommon/spi_v1/spi_interrupt_stmCommon.h"
 #include "ports/stmCommon/spi_v1/spi_polling_stmCommon.h"
-
-#endif /* _MICROHAL_PORTS_STM32G0XX_SPI_STM32G0XX_H_ */
