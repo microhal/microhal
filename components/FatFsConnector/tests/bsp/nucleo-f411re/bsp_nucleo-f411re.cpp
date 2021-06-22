@@ -26,8 +26,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "i2c.h"
 #include "microhal.h"
+#include "nucleo_f103rb_extension_v0_1_0.h"
 
 #include "bsp.h"
 
@@ -35,7 +35,11 @@ using namespace microhal;
 using namespace stm32f4xx;
 
 namespace bsp {
-stm32f4xx::GPIO sdCardCs({IOPin::PortA, 15}, stm32f4xx::GPIO::Direction::Output);
+
+microhal::stm32f4xx::SPI_dma &spi1 = microhal::stm32f4xx::SPI_dma::create<1, con1::a::miso, con1::a::mosi, con1::a::sck>();
+microhal::stm32f4xx::SPI &sdCardSpi = spi1;
+stm32f4xx::GPIO sdCardCs(con1::a::cs);
+/// microhal::GPIO &cs = sdCardCs;
 
 bool init() {
     bsp::debugPort.clear();
@@ -46,8 +50,8 @@ bool init() {
     bsp::debugPort.open(microhal::SerialPort::ReadWrite);
     bsp::debugPort.setBaudRate(microhal::SerialPort::Baud115200);
 
-    stm32f4xx::SPI::spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
-    stm32f4xx::SPI::spi1.enable();
+    spi1.init(stm32f4xx::SPI::Mode0, stm32f4xx::SPI::Prescaler128);
+    spi1.enable();
 
     return true;
 }
@@ -59,22 +63,22 @@ extern "C" int main(int, void *);
 
 static void run_main(void *) {
     const char *params[2];
-    params[0] = "L86";
+    params[0] = "";
     main(1, params);
     while (1)
         ;
+}
+
+extern "C" void low_level_init_0(void) {
+    Core::fpu_enable();
 }
 
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     Core::fpu_enable();
 
-    IOManager::routeSerial<2, Txd, stm32f4xx::IOPin::PortA, 2>();
-    IOManager::routeSerial<2, Rxd, stm32f4xx::IOPin::PortA, 3>();
-
-    IOManager::routeSPI<1, SCK, IOPin::PortA, 5>();
-    IOManager::routeSPI<1, MISO, IOPin::PortA, 6>();
-    IOManager::routeSPI<1, MOSI, IOPin::PortA, 7>();
+    IOManager::routeSerial<2, Txd, {stm32f4xx::IOPin::PortA, 2}>();
+    IOManager::routeSerial<2, Rxd, {stm32f4xx::IOPin::PortA, 3}>();
 
     TaskHandle_t xHandle = NULL;
 

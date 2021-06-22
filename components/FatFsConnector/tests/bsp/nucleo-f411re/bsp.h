@@ -5,7 +5,7 @@
  * @brief
  *
  * @authors    Pawel Okas
- * created on: 06-04-2019
+ * created on: 30-03-2019
  *
  * @copyright Copyright (c) 2019, Pawel Okas
  * All rights reserved.
@@ -26,37 +26,17 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* **************************************************************************************************************************************************
- * INCLUDES
- */
-#include "bsp.h"
-#include "diagnostic/diagnostic.h"
+#ifndef NUCLEO_F411RE_H_
+#define NUCLEO_F411RE_H_
 
-#define DOCTEST_CONFIG_IMPLEMENT
-#include "doctest.h"
+#include "microhal.h"
 
-using namespace microhal;
-using namespace diagnostic;
-using namespace std::literals;
+namespace bsp {
+static microhal::SerialPort &debugPort = microhal::stm32f4xx::SerialPort::Serial2;
+extern microhal::stm32f4xx::SPI &sdCardSpi;  // = microhal::stm32f4xx::SPI::spi1;
+extern microhal::stm32f4xx::GPIO sdCardCs;
 
-int main(int argc, char* const argv[]) {
-    int result = -1;
-
-    if (bsp::init()) {
-        bsp::debugPort.write("\n\r------------------- syscalls implementation test -------------------------\n\r");
-        diagChannel.setOutputDevice(bsp::debugPort);
-
-        diagChannel << lock << MICROHAL_INFORMATIONAL << "Starting unit tests." << endl << unlock;
-
-        doctest::Context context(argc, argv);
-        result = context.run();
-        if (context.shouldExit()) {  // important - query flags (and --exit) rely on the user doing this
-            bsp::deinit();
-            return result;  // propagate the result of the tests
-        }
-
-    } else {
-        diagChannel << lock << MICROHAL_EMERGENCY << "Unable to open communication ports." << endl << unlock;
-    }
-    return result;
-}
+bool init();
+void deinit();
+}  // namespace bsp
+#endif  // NUCLEO_F411RE_H_

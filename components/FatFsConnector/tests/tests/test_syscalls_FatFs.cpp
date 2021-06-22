@@ -1,6 +1,6 @@
+#include "CppUTest/TestHarness.h"
 #include "bsp.h"
 #include "cstdio"
-#include "doctest.h"
 #include "ff.h"
 #include "string_view"
 
@@ -46,7 +46,9 @@ extern "C" FRESULT f_lseek(FIL* fp,    /* Pointer to the file object */
     return FR_OK;
 }
 
-TEST_CASE("syscalls test fopen") {
+TEST_GROUP(FatFsFopenMockTest){};
+
+TEST(FatFsFopenMockTest, TestFopen) {
     /**
      * This test check if correct values are passed to FatFs f_open function
      */
