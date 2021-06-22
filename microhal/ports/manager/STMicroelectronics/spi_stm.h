@@ -8,9 +8,9 @@ namespace activePort = stm32f0xx;
 }
 #elif defined(MCU_TYPE_STM32F1XX)
 #include "ports/stmCommon/spi_v1/spi_stmCommon.h"
-// namespace microhal {
-// namespace activePort = stm32f1xx;
-//}
+namespace microhal {
+namespace activePort = stm32f1xx;
+}
 #elif defined(MCU_TYPE_STM32F3XX)
 #include "ports/stm32f3xx/spi_stm32f3xx.h"
 namespace microhal {
@@ -22,10 +22,10 @@ namespace microhal {
 namespace activePort = stm32f4xx;
 }
 #elif defined(MCU_TYPE_STM32G0XX)
-//#include "ports/stm32f1xx/i2c_stm32f1xx.h"
-// namespace microhal {
-// namespace activePort = stm32f1xx;
-//}
+#include "ports/stm32g0xx/spi_stm32g0xx.h"
+namespace microhal {
+namespace activePort = stm32g0xx;
+}
 #else
 #error 'MCU type must be specified.'
 #endif
