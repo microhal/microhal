@@ -105,12 +105,14 @@ void disableTimerInterrupt(uint8_t timerNumber) {
     }
 }
 
-void enableI2CInterrupt(uint8_t i2cNumber) {
+void enableI2CInterrupt(uint8_t i2cNumber, uint32_t priority) {
     assert(i2cNumber > 0);
     if (i2cNumber == 1) {
+        NVIC_SetPriority(I2C1_IRQn, priority);
         NVIC_EnableIRQ(I2C1_IRQn);
     } else {
         I2C2_3_IRQHandlerFlags[i2cNumber] = 1;
+        NVIC_SetPriority(I2C2_I2C3_IRQn, priority);
         NVIC_EnableIRQ(I2C2_I2C3_IRQn);
     }
 }
@@ -125,19 +127,21 @@ void disableI2CInterrupt(uint8_t i2cNumber) {
     }
 }
 
-void enableSPIInterrupt(uint8_t spiNumber) {
-    assert(spiNumber > 0);
-    if (spiNumber == 1) {
+void enableSPIInterrupt(uint_fast8_t spiNumber, uint32_t priority) {
+    assert(spiNumber < 3);
+    if (spiNumber == 0) {
+        NVIC_SetPriority(SPI1_IRQn, priority);
         NVIC_EnableIRQ(SPI1_IRQn);
     } else {
         SPI2_3_IRQHandlerFlags[spiNumber] = 1;
+        NVIC_SetPriority(SPI2_SPI3_IRQn, priority);
         NVIC_EnableIRQ(SPI2_SPI3_IRQn);
     }
 }
 
-void disableSPIInterrupt(uint8_t spiNumber) {
-    assert(spiNumber > 0);
-    if (spiNumber == 1) {
+void disableSPIInterrupt(uint_fast8_t spiNumber) {
+    assert(spiNumber < 3);
+    if (spiNumber == 0) {
         NVIC_DisableIRQ(SPI1_IRQn);
     } else {
         SPI2_3_IRQHandlerFlags[spiNumber] = 0;
@@ -217,8 +221,8 @@ extern "C" void I2C2_3_IRQHandler(void) {
 }
 
 extern "C" void SPI2_3_IRQHandler(void) {
-    if (SPI2_3_IRQHandlerFlags[2]) SPI2_IRQHandler();
-    if (SPI2_3_IRQHandlerFlags[3]) SPI3_IRQHandler();
+    if (SPI2_3_IRQHandlerFlags[1]) SPI2_IRQHandler();
+    if (SPI2_3_IRQHandlerFlags[2]) SPI3_IRQHandler();
 }
 
 extern "C" void USART3_4_5_6_IRQHandler(void) {

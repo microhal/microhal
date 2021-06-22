@@ -28,6 +28,7 @@
 #include <array>
 #include <bitset>
 #include <cassert>
+#include "dma_stm32g0xx.h"
 #include "interruptController.h"
 #include "nvic_stm32g0x1.h"
 
@@ -35,6 +36,8 @@ namespace microhal {
 namespace stm32g0xx {
 
 extern "C" {
+void DMA1_Channel2_3_IRQHandler(void);
+void DMA1_Channel4_5_6_7_DMAMUX_DMA2_Channel1_2_3_4_5_IRQHandler(void);
 void RTC_TAMP_IRQHandler(void);
 void RCC_CRS_IRQHandler(void);
 void UCPD1_UCPD2_USB_Handler(void);
@@ -54,6 +57,13 @@ void AES_RNG_IRQHandler(void);
 
 extern "C" {
 void default_handler(void);
+
+void DMA1_Channel2_IRQHandler(void) __attribute__((interrupt, weak, alias("default_handler")));
+void DMA1_Channel3_IRQHandler(void) __attribute__((interrupt, weak, alias("default_handler")));
+void DMA1_Channel4_IRQHandler(void) __attribute__((interrupt, weak, alias("default_handler")));
+void DMA1_Channel5_IRQHandler(void) __attribute__((interrupt, weak, alias("default_handler")));
+void DMA1_Channel6_IRQHandler(void) __attribute__((interrupt, weak, alias("default_handler")));
+void DMA1_Channel7_IRQHandler(void) __attribute__((interrupt, weak, alias("default_handler")));
 
 void RTC_IRQHandler(void) __attribute__((weak, alias("default_handler")));
 void TAMP_IRQHandler(void) __attribute__((weak, alias("default_handler")));
@@ -93,6 +103,7 @@ void FDCAN_IT0_IRQHandler(void) __attribute__((weak, alias("default_handler")));
 void FDCAN_IT1_IRQHandler(void) __attribute__((weak, alias("default_handler")));
 }
 
+static std::bitset<5> DMA1_IRQHandlerFlags = 0;
 static std::bitset<5> TIM1_BRK_UP_TRG_COM_IRQHandlerFlags = 0;
 static std::bitset<5> TIM3_4_IRQHandlerFlags = 0;
 static std::bitset<5> I2C2_3_IRQHandlerFlags = 0;
@@ -109,6 +120,31 @@ static constexpr std::array<IRQn_Type, 17> timerIrq = {TIM1_CC_IRQn,         TIM
                                                        TIM6_DAC_LPTIM1_IRQn, TIM7_LPTIM2_IRQn,    HardFault_IRQn, HardFault_IRQn, HardFault_IRQn,
                                                        HardFault_IRQn,       HardFault_IRQn,      HardFault_IRQn, TIM14_IRQn,     TIM15_IRQn,
                                                        TIM16_FDCAN_IT0_IRQn, TIM17_FDCAN_IT1_IRQn};
+
+static constexpr std::array<IRQn_Type, 7> dmaIrq = {DMA1_Channel1_IRQn,
+                                                    DMA1_Channel2_3_IRQn,
+                                                    DMA1_Channel2_3_IRQn,
+                                                    DMA1_Ch4_7_DMAMUX1_DMA2_Ch1_5_IRQn,
+                                                    DMA1_Ch4_7_DMAMUX1_DMA2_Ch1_5_IRQn,
+                                                    DMA1_Ch4_7_DMAMUX1_DMA2_Ch1_5_IRQn,
+                                                    DMA1_Ch4_7_DMAMUX1_DMA2_Ch1_5_IRQn};
+
+void enableDMA1Interrupt(uint32_t channelNumber, uint32_t priority) {
+    DMA1_IRQHandlerFlags[channelNumber] = 1;
+    NVIC_SetPriority(dmaIrq[channelNumber], priority);
+    NVIC_EnableIRQ(dmaIrq[channelNumber]);
+}
+
+void disableDMA1Interrupt(uint32_t channelNumber) {
+    DMA1_IRQHandlerFlags[channelNumber] = 0;
+    if (channelNumber == 0) {
+        NVIC_DisableIRQ(dmaIrq[channelNumber]);
+    } else if (channelNumber < 3) {
+        if (DMA1_IRQHandlerFlags[1] == 0 && DMA1_IRQHandlerFlags[2] == 0) NVIC_DisableIRQ(dmaIrq[channelNumber]);
+    } else if (DMA1_IRQHandlerFlags[3] == 0 && DMA1_IRQHandlerFlags[4] == 0 && DMA1_IRQHandlerFlags[5] == 0 && DMA1_IRQHandlerFlags[6] == 0) {
+        NVIC_DisableIRQ(dmaIrq[channelNumber]);
+    }
+}
 
 void enableRTCInterrupt(uint32_t priority) {
     RTC_TAMP_IRQHandlerFlags[0] = 1;
@@ -187,17 +223,21 @@ void disableI2CInterrupt(uint8_t i2cNumber) {
     }
 }
 
-void enableSPIInterrupt(uint8_t spiNumber) {
-    if (spiNumber == 1) {
+void enableSPIInterrupt(uint_fast8_t spiNumber, uint32_t priority) {
+    assert(spiNumber < 3);
+    if (spiNumber == 0) {
+        NVIC_SetPriority(SPI1_IRQn, priority);
         NVIC_EnableIRQ(SPI1_IRQn);
     } else {
         SPI2_3_IRQHandlerFlags[spiNumber] = 1;
+        NVIC_SetPriority(SPI2_SPI3_IRQn, priority);
         NVIC_EnableIRQ(SPI2_SPI3_IRQn);
     }
 }
 
-void disableSPIInterrupt(uint8_t spiNumber) {
-    if (spiNumber == 1) {
+void disableSPIInterrupt(uint_fast8_t spiNumber) {
+    assert(spiNumber < 3);
+    if (spiNumber == 0) {
         NVIC_DisableIRQ(SPI1_IRQn);
     } else {
         SPI2_3_IRQHandlerFlags[spiNumber] = 0;
@@ -260,6 +300,29 @@ void default_handler(void) {
 //****************************************************************************//
 //                           interrupt handlers                               //
 //****************************************************************************//
+void DMA1_Channel2_3_IRQHandler(void) {
+    const uint32_t isr1 = DMA::dma1->getIsr();
+    if ((isr1 & (0b1111 << (4 * 1))) && (DMA1_IRQHandlerFlags[1] == 1)) DMA1_Channel2_IRQHandler();
+    if ((isr1 & (0b1111 << (4 * 2))) && (DMA1_IRQHandlerFlags[2] == 1)) DMA1_Channel3_IRQHandler();
+}
+
+void DMA1_Channel4_5_6_7_DMAMUX_DMA2_Channel1_2_3_4_5_IRQHandler(void) {
+    const uint32_t isr1 = DMA::dma1->getIsr();
+    if ((isr1 & (0b1111 << (4 * 3))) && (DMA1_IRQHandlerFlags[3] == 1)) DMA1_Channel4_IRQHandler();
+    if ((isr1 & (0b1111 << (4 * 4))) && (DMA1_IRQHandlerFlags[4] == 1)) DMA1_Channel5_IRQHandler();
+    if ((isr1 & (0b1111 << (4 * 5))) && (DMA1_IRQHandlerFlags[5] == 1)) DMA1_Channel6_IRQHandler();
+    if ((isr1 & (0b1111 << (4 * 6))) && (DMA1_IRQHandlerFlags[6] == 1)) DMA1_Channel7_IRQHandler();
+
+#ifdef _MICROHAL_DMA2_BASE_ADDRESS
+    const uint32_t isr2 = DMA::dma2->getIsr();
+    if ((isr2 & (0b1111 << 0)) && (DMA2_IRQHandlerFlags[0] == 1)) DMA2_Channel1_IRQHandler();
+    if ((isr2 & (0b1111 << 1)) && (DMA2_IRQHandlerFlags[1] == 1)) DMA2_Channel2_IRQHandler();
+    if ((isr2 & (0b1111 << 2)) && (DMA2_IRQHandlerFlags[2] == 1)) DMA2_Channel3_IRQHandler();
+    if ((isr2 & (0b1111 << 3)) && (DMA2_IRQHandlerFlags[3] == 1)) DMA2_Channel4_IRQHandler();
+    if ((isr2 & (0b1111 << 4)) && (DMA2_IRQHandlerFlags[4] == 1)) DMA2_Channel5_IRQHandler();
+#endif
+}
+
 void RTC_TAMP_IRQHandler(void) {
     if (RTC_TAMP_IRQHandlerFlags[0]) RTC_IRQHandler();
     if (RTC_TAMP_IRQHandlerFlags[1]) TAMP_IRQHandler();
@@ -303,8 +366,8 @@ void I2C2_3_IRQHandler(void) {
 }
 
 void SPI2_3_IRQHandler(void) {
-    if (SPI2_3_IRQHandlerFlags[2]) SPI2_IRQHandler();
-    if (SPI2_3_IRQHandlerFlags[3]) SPI3_IRQHandler();
+    if (SPI2_3_IRQHandlerFlags[1]) SPI2_IRQHandler();
+    if (SPI2_3_IRQHandlerFlags[2]) SPI3_IRQHandler();
 }
 
 void USART2_LPUART2_IRQHandler(void) {

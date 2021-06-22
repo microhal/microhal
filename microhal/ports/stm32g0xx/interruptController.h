@@ -35,6 +35,18 @@
 namespace microhal {
 namespace stm32g0xx {
 
+/**
+ *
+ * @param channelNumber starts from 0
+ * @param priority
+ */
+void enableDMA1Interrupt(uint32_t channelNumber, uint32_t priority);
+/**
+ *
+ * @param channelNumber starts from 0: 0 -> channel1
+ */
+void disableDMA1Interrupt(uint32_t channelNumber);
+
 void enableRTCInterrupt(uint32_t priority);
 void disableRTCInterrupt();
 
@@ -44,8 +56,17 @@ void disableTimerInterrupt(uint8_t timerNumber);
 void enableI2CInterrupt(uint8_t i2cNumber, uint32_t priority);
 void disableI2CInterrupt(uint8_t i2cNumber);
 
-void enableSPIInterrupt(uint8_t spiNumber);
-void disableSPIInterrupt(uint8_t spiNumber);
+/**
+ *
+ * @param spiNumber numbering starts form 0, so spiNumber for SPI1 is equal 0
+ * @param priority
+ */
+void enableSPIInterrupt(uint_fast8_t spiNumber, uint32_t priority);
+/**
+ *
+ * @param spiNumber numbering starts form 0, so spiNumber for SPI1 is equal 0
+ */
+void disableSPIInterrupt(uint_fast8_t spiNumber);
 
 void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);
 void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority);
