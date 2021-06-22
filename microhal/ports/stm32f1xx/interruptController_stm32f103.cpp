@@ -34,6 +34,8 @@
 namespace microhal {
 namespace stm32f1xx {
 
+static constexpr std::array<IRQn_Type, 3> spiIrq = {SPI1_IRQn, SPI2_IRQn, SPI3_IRQn};
+
 static constexpr std::array<IRQn_Type, 8> timer1Irq = {TIM1_BRK_IRQn, TIM1_UP_IRQn, TIM1_TRG_COM_IRQn};
 static constexpr std::array<IRQn_Type, 8> timer8Irq = {TIM8_BRK_IRQn, TIM8_UP_IRQn, TIM8_TRG_COM_IRQn};
 static constexpr std::array<IRQn_Type, 8> timerIrq = {TIM1_CC_IRQn, TIM2_IRQn, TIM3_IRQn, TIM4_IRQn, TIM5_IRQn, TIM6_IRQn, TIM7_IRQn, TIM8_CC_IRQn};
@@ -85,6 +87,35 @@ void disableCanRx1Interrupt(uint8_t canNumber) {
 
 void disableCanSceInterrupt(uint8_t canNumber) {
     NVIC_DisableIRQ(CAN1_SCE_IRQn);
+}
+
+// void enableDMA1Interrupt(uint32_t channelNumber, uint32_t priority) {
+//    DMA1_IRQHandlerFlags[channelNumber] = 1;
+//    NVIC_SetPriority(dmaIrq[channelNumber], priority);
+//    NVIC_EnableIRQ(dmaIrq[channelNumber]);
+//}
+//
+// void disableDMA1Interrupt(uint32_t channelNumber) {
+//    DMA1_IRQHandlerFlags[channelNumber] = 0;
+//    if (channelNumber == 0) {
+//        NVIC_DisableIRQ(dmaIrq[channelNumber]);
+//    } else if (channelNumber < 3) {
+//        if (DMA1_IRQHandlerFlags[1] == 0 && DMA1_IRQHandlerFlags[2] == 0) NVIC_DisableIRQ(dmaIrq[channelNumber]);
+//    } else if (DMA1_IRQHandlerFlags[3] == 0 && DMA1_IRQHandlerFlags[4] == 0 && DMA1_IRQHandlerFlags[5] == 0 && DMA1_IRQHandlerFlags[6] == 0) {
+//        NVIC_DisableIRQ(dmaIrq[channelNumber]);
+//    }
+//}
+
+void enableSPIInterrupt(uint8_t spiNumber, uint32_t priority) {
+    assert(spiNumber < spiIrq.size());
+
+    NVIC_SetPriority(spiIrq[spiNumber], priority);
+    NVIC_EnableIRQ(spiIrq[spiNumber]);
+}
+void disableSPIInterrupt(uint8_t spiNumber) {
+    assert(spiNumber < spiIrq.size());
+
+    NVIC_DisableIRQ(spiIrq[spiNumber]);
 }
 
 void enableTimerInterrupt(uint8_t timerNumber, uint32_t priority) {
