@@ -40,8 +40,6 @@
  * available interrupt handlers:
  ******************************************************************************/
 
-#ifndef VENDOR_ATMEL
-#ifndef LINUX_PORT
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,43 +49,77 @@ extern "C" {
  | configuration
  +=============================================================================+
  */
-//#define SYSCALLS_HAVE_CLOSE_R		1
-//#define SYSCALLS_HAVE_EXECVE_R		1
-//#define SYSCALLS_HAVE_EXIT			1
-//#define SYSCALLS_HAVE_FORK_R		1
-//#define SYSCALLS_HAVE_FSTAT_R		1
-//#define SYSCALLS_HAVE_GETPID_R		1
-//#define SYSCALLS_HAVE_ISATTY_R		1
-//#define SYSCALLS_HAVE_KILL_R		1
-//#define SYSCALLS_HAVE_LINK_R		1
-//#define SYSCALLS_HAVE_LSEEK_R		1
-//#define SYSCALLS_HAVE_OPEN_R		1
-//#define SYSCALLS_HAVE_READ_R		1
-//#define SYSCALLS_HAVE_SBRK_R		1
-//#define SYSCALLS_HAVE_STAT_R		1
-//#define SYSCALLS_HAVE_TIMES_R		1
-//#define SYSCALLS_HAVE_UNLINK_R		1
-//#define SYSCALLS_HAVE_WAIT_R		1
-//#define SYSCALLS_HAVE_WRITE_R		1
+#ifndef SYSCALLS_HAVE_CLOSE_R
 #define SYSCALLS_HAVE_CLOSE_R 1
-#define SYSCALLS_HAVE_EXECVE_R 1
-#define SYSCALLS_HAVE_EXIT 1
-#define SYSCALLS_HAVE_FORK_R 1
-#define SYSCALLS_HAVE_FSTAT_R 1
-#define SYSCALLS_HAVE_GETPID_R 1
-#define SYSCALLS_HAVE_ISATTY_R 1
-#define SYSCALLS_HAVE_KILL_R 1
-#define SYSCALLS_HAVE_LINK_R 1
-#define SYSCALLS_HAVE_LSEEK_R 1
-#define SYSCALLS_HAVE_OPEN_R 1
-#define SYSCALLS_HAVE_READ_R 1
-#define SYSCALLS_HAVE_SBRK_R 1
-#define SYSCALLS_HAVE_STAT_R 1
-#define SYSCALLS_HAVE_TIMES_R 1
-#define SYSCALLS_HAVE_UNLINK_R 1
-#define SYSCALLS_HAVE_WAIT_R 1
-#define SYSCALLS_HAVE_WRITE_R 1
+#endif
 
+#ifndef SYSCALLS_HAVE_EXECVE_R
+#define SYSCALLS_HAVE_EXECVE_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_EXIT
+#define SYSCALLS_HAVE_EXIT 1
+#endif
+
+#ifndef SYSCALLS_HAVE_FORK_R
+#define SYSCALLS_HAVE_FORK_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_FSTAT_R
+#define SYSCALLS_HAVE_FSTAT_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_GETPID_R
+#define SYSCALLS_HAVE_GETPID_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_ISATTY_R
+#define SYSCALLS_HAVE_ISATTY_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_KILL_R
+#define SYSCALLS_HAVE_KILL_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_LINK_R
+#define SYSCALLS_HAVE_LINK_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_LSEEK_R
+#define SYSCALLS_HAVE_LSEEK_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_OPEN_R
+#define SYSCALLS_HAVE_OPEN_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_READ_R
+#define SYSCALLS_HAVE_READ_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_SBRK_R
+#define SYSCALLS_HAVE_SBRK_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_STAT_R
+#define SYSCALLS_HAVE_STAT_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_TIMES_R
+#define SYSCALLS_HAVE_TIMES_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_UNLINK_R
+#define SYSCALLS_HAVE_UNLINK_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_WAIT_R
+#define SYSCALLS_HAVE_WAIT_R 1
+#endif
+
+#ifndef SYSCALLS_HAVE_WRITE_R
+#define SYSCALLS_HAVE_WRITE_R 1
+#endif
 /*
  +=============================================================================+
  | includes
@@ -100,7 +132,7 @@ extern "C" {
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/types.h>
-//#include "stm32f4xx.h"
+
 /*
  +=============================================================================+
  | module variables
@@ -135,10 +167,7 @@ int native_handle_type;
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-int _close_r(struct _reent *r, int file) {
-    r = r;        // suppress warning
-    file = file;  // suppress warning
-
+int _close_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] int file) {
     return -1;
 }
 
@@ -162,12 +191,8 @@ int _close_r(struct _reent *r, int file) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-int _execve_r(struct _reent *r, const char *path, char *const argv[], char *const envp[]) {
-    r = r;        // suppress warning
-    path = path;  // suppress warning
-    argv = argv;  // suppress warning
-    envp = envp;  // suppress warning
-
+int _execve_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] const char *path, [[maybe_unused]] char *const argv[],
+              [[maybe_unused]] char *const envp[]) {
     // errno = ENOMEM;
     return -1;
 }
@@ -183,9 +208,7 @@ int _execve_r(struct _reent *r, const char *path, char *const argv[], char *cons
  * \param [in] status represents the termination status.
  */ /*-------------------------------------------------------------------------*/
 
-void _exit(int status) {
-    status = status;  // suppress warning
-
+void _exit([[maybe_unused]] int status) {
     while (1)
         ;
 }
@@ -201,9 +224,7 @@ void _exit(int status) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-pid_t _fork_r(struct _reent *r) {
-    r = r;  // suppress warning
-
+pid_t _fork_r([[maybe_unused]] struct _reent *r) {
     // errno = EAGAIN;
     return -1;
 }
@@ -223,11 +244,7 @@ pid_t _fork_r(struct _reent *r) {
  * \return 0 for success.
  */ /*-------------------------------------------------------------------------*/
 
-int _fstat_r(struct _reent *r, int file, struct stat *st) {
-    r = r;        // suppress warning
-    file = file;  // suppress warning
-    st = st;      // suppress warning
-
+int _fstat_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] int file, [[maybe_unused]] struct stat *st) {
     st->st_mode = S_IFCHR;
     return 0;
 }
@@ -243,9 +260,7 @@ int _fstat_r(struct _reent *r, int file, struct stat *st) {
  * \return 1.
  */ /*-------------------------------------------------------------------------*/
 
-pid_t _getpid_r(struct _reent *r) {
-    r = r;  // suppress warning
-
+pid_t _getpid_r([[maybe_unused]] struct _reent *r) {
     return 1;
 }
 
@@ -261,10 +276,7 @@ pid_t _getpid_r(struct _reent *r) {
  * \return 1.
  */ /*-------------------------------------------------------------------------*/
 
-int _isatty_r(struct _reent *r, int file) {
-    r = r;        // suppress warning
-    file = file;  // suppress warning
-
+int _isatty_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] int file) {
     return 1;
 }
 
@@ -281,12 +293,7 @@ int _isatty_r(struct _reent *r, int file) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-int _kill_r(struct _reent *r, pid_t pid, int signal) {
-    r = r;            // suppress warning
-    pid = pid;        // suppress warning
-    signal = signal;  // suppress warning
-
-    // errno = EINVAL;
+int _kill_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] pid_t pid, [[maybe_unused]] int signal) {
     return -1;
 }
 
@@ -304,12 +311,7 @@ int _kill_r(struct _reent *r, pid_t pid, int signal) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-int _link_r(struct _reent *r, const char *old, const char *new) {
-    r = r;      // suppress warning
-    old = old;  // suppress warning
-    new = new;  // suppress warning
-
-    // errno = EMLINK;
+int _link_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] const char *old, [[maybe_unused]] const char *new) {
     return -1;
 }
 
@@ -328,12 +330,7 @@ int _link_r(struct _reent *r, const char *old, const char *new) {
  * \return 0 for success.
  */ /*-------------------------------------------------------------------------*/
 
-off_t _lseek_r(struct _reent *r, int file, off_t offset, int whence) {
-    r = r;            // suppress warning
-    file = file;      // suppress warning
-    offset = offset;  // suppress warning
-    whence = whence;  // suppress warning
-
+off_t _lseek_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] int file, off_t offset, [[maybe_unused]] int whence) {
     return 0;
 }
 
@@ -352,12 +349,7 @@ off_t _lseek_r(struct _reent *r, int file, off_t offset, int whence) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-int _open_r(struct _reent *r, const char *pathname, int flags, int mode) {
-    r = r;                // suppress warning
-    pathname = pathname;  // suppress warning
-    flags = flags;        // suppress warning
-    mode = mode;          // suppress warning
-
+int _open_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] const char *pathname, [[maybe_unused]] int flags, [[maybe_unused]] int mode) {
     return -1;
 }
 
@@ -375,12 +367,7 @@ int _open_r(struct _reent *r, const char *pathname, int flags, int mode) {
  * \return 0 for success.
  */ /*-------------------------------------------------------------------------*/
 
-ssize_t _read_r(struct _reent *r, int file, void *buf, size_t nbyte) {
-    r = r;          // suppress warning
-    file = file;    // suppress warning
-    buf = buf;      // suppress warning
-    nbyte = nbyte;  // suppress warning
-
+ssize_t _read_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] int file, [[maybe_unused]] void *buf, [[maybe_unused]] size_t nbyte) {
     return 0;
 }
 
@@ -433,10 +420,7 @@ caddr_t _sbrk_r(struct _reent *r, int size) {
  * \return 0 for success.
  */ /*-------------------------------------------------------------------------*/
 
-int _stat_r(struct _reent *r, const char *pathname, struct stat *st) {
-    r = r;                // suppress warning
-    pathname = pathname;  // suppress warning
-
+int _stat_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] const char *pathname, [[maybe_unused]] struct stat *st) {
     st->st_mode = S_IFCHR;
     return 0;
 }
@@ -454,10 +438,7 @@ int _stat_r(struct _reent *r, const char *pathname, struct stat *st) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-int _times_r(struct _reent *r, struct tms *buf) {
-    r = r;      // suppress warning
-    buf = buf;  // suppress warning
-
+int _times_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] struct tms *buf) {
     return -1;
 }
 
@@ -474,11 +455,7 @@ int _times_r(struct _reent *r, struct tms *buf) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-int _unlink_r(struct _reent *r, const char *pathname) {
-    r = r;                // suppress warning
-    pathname = pathname;  // suppress warning
-
-    // errno = ENOENT;
+int _unlink_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] const char *pathname) {
     return -1;
 }
 
@@ -495,32 +472,17 @@ int _unlink_r(struct _reent *r, const char *pathname) {
  * \return -1 for failure.
  */ /*-------------------------------------------------------------------------*/
 
-pid_t _wait_r(struct _reent *r, int *stat_loc) {
-    r = r;                // suppress warning
-    stat_loc = stat_loc;  // suppress warning
-
+pid_t _wait_r([[maybe_unused]] struct _reent *r, [[maybe_unused]] int *stat_loc) {
     // errno = ECHILD;
     return -1;
 }
 
 #endif
 
-extern uint64_t SysTick_time;
-// int _gettimeofday( struct timeval *tv, void *tzvp )
-//{
-//   uint64_t t = SysTick_time;// SysTick->VAL; // get uptime in nanoseconds
-//   tv->tv_sec = t / 1000;  // convert to seconds
-//   tv->tv_usec = ( t % 1000 ) * 1000;  // get remaining microseconds
-//  // tv->tv_sec = 0;//t / 1000000000;  // convert to seconds
-//  // tv->tv_usec = SysTick->VAL;
-//   return 0;  // return non-zero for error
-//}
-
 #ifdef __cplusplus
 }
 #endif
-#endif  // LINUX_PORT
-#endif  // VENDOR_ATMEL
+
 /******************************************************************************
  * END OF FILE
  ******************************************************************************/
