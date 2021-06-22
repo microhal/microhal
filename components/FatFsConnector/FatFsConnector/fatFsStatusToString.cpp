@@ -22,7 +22,7 @@ const char *printFatFSResult(FRESULT result) {
         case FR_NO_PATH:
             return "Could not find the path.";
         case FR_INVALID_NAME:
-            return "he given string is invalid as the path name.";
+            return "The given string is invalid as the path name.";
         case FR_DENIED:
             return "The required access was denied";
         case FR_EXIST:
