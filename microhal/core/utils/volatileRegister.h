@@ -28,6 +28,14 @@ struct VolatileRegister {
         return tmp;
     }
 
+    T volatileLoad_8bit() const {
+        const void *ptr = &reg.raw;
+        volatile uint8_t *volatilePtr = reinterpret_cast<volatile uint8_t *>(const_cast<void *>(ptr));
+        T tmp;
+        tmp.raw = *volatilePtr;
+        return tmp;
+    }
+
  private:
     T reg;
 };
