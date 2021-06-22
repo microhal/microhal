@@ -197,4 +197,14 @@ TEST(SPILoopbackTest, TestFunctionOrder) {
         CHECK(bsp::spi1.read(rxBuff.data(), rxData.size(), 0x45) == SPI::Error::None);
         CHECK(std::all_of(rxData.begin(), rxData.end(), [](uint8_t val) { return val == 0x45; }));
     }
+
+    std::array<uint8_t, 7> write;
+    uint8_t read;
+    CHECK(bsp::spi1.write(0xFF, false) == SPI::Error::None);
+    CHECK(bsp::spi1.write(0xFF, false) == SPI::Error::None);
+    CHECK(bsp::spi1.write(write.data(), write.size(), true) == SPI::Error::None);
+    CHECK(bsp::spi1.read(read, 0xFF) == SPI::Error::None);
+    CHECK_EQUAL(read, 0xFF);
+    CHECK(bsp::spi1.read(read, 0xFF) == SPI::Error::None);
+    CHECK_EQUAL(read, 0xFF);
 }
