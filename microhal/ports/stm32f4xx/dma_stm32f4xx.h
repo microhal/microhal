@@ -13,6 +13,8 @@
 #include "device/stm32f4xx.h"
 #include "ports/stmCommon/clockManager/dmaClock.h"
 
+#define _MICROHAL_DMA_HAS_BANKS
+
 namespace microhal {
 namespace stm32f4xx {
 namespace DMA {
@@ -224,8 +226,8 @@ class DMA {
     Stream::Channel getChannelForDma2Stream7(const void *devicePtr) const;
 };
 
-static DMA *dma1[[maybe_unused]] = reinterpret_cast<DMA *>(DMA1);
-static DMA *dma2[[maybe_unused]] = reinterpret_cast<DMA *>(DMA2);
+static DMA *dma1 [[maybe_unused]] = reinterpret_cast<DMA *>(DMA1);
+static DMA *dma2 [[maybe_unused]] = reinterpret_cast<DMA *>(DMA2);
 }  // namespace DMA
 }  // namespace stm32f4xx
 }  // namespace microhal
