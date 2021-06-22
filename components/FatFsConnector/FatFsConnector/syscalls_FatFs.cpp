@@ -32,7 +32,7 @@ extern "C" int _isatty_r(struct _reent *r, int file) {
         if (file < 3) {  // file number from 0 to 2 are reserved for stdin, stdout and stderr
             return 1;
         } else if (file < (MICROHAL_FATFS_MAXFILES_IN_USE + 3)) {
-            if (fileTable[file].isOpen) {  // not a tty file
+            if (fileTable[file - 3].isOpen) {  // not a tty file
                 r->_errno = ENOTTY;
             } else {  // invalid file descriptor
                 r->_errno = EBADF;
@@ -73,10 +73,10 @@ extern "C" int _stat_r(struct _reent *r, const char *pathname, struct stat *st) 
         st->st_blksize = 512;
         st->st_nlink = 0;
         //   st->st_mtime = getTimeFromFattie(fileinfo.fdate, fileinfo.ftime);
+        return 0;
     }
 
-    st->st_mode = S_IFCHR;
-    return 0;
+    return -1;
 }
 
 extern "C" int _fstat_r(struct _reent *r, int file, struct stat *st) {
@@ -257,7 +257,7 @@ extern "C" ssize_t _read_r(struct _reent *r, int file, void *buf, size_t nbyte) 
             diagChannel << lock << MICROHAL_INFORMATIONAL << "FatFs read error: " << printFatFSResult(res) << unlock;
             return -1;
         }
-        return nbyte - count;
+        return count;
     }
     r->_errno = EBADF;
     return -1;
