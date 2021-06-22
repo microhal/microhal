@@ -6,9 +6,9 @@
  */
 
 #include "timer_stmCommon.h"
+#include <ports/stmCommon/clockManager/timerClock.h>
+#include <ports/stmCommon/interruptController/interruptController.h>
 #include <array>
-#include "ports/stmCommon/clockManager/timerClock.h"
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

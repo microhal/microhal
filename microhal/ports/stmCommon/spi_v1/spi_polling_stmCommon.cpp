@@ -19,6 +19,7 @@ namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 SPI::Error SPI_polling::write(const void *data, const size_t len, bool last) {
+    uint8_t discard;
     for (size_t i = 0; i < len; i++) {
         SPI::Error error = writeNoRead(((uint8_t *)(data))[i]);
         if (error != Error::None && error != Error::Overrun) {
@@ -29,7 +30,6 @@ SPI::Error SPI_polling::write(const void *data, const size_t len, bool last) {
     if (last) {
         busyWait();
     }
-    clearErrorFlags(SPI::Error::Overrun);
     return Error::None;
 }
 
@@ -48,7 +48,7 @@ SPI::Error SPI_polling::read(void *data, size_t len, uint8_t write) {
     clearErrorFlags(error);
 #ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
     for (size_t i = spi.sr.volatileLoad().FRLVL; i > 0; i--) {
-        spi.dr.volatileLoad();
+        spi.dr.volatileLoad_8bit();
     }
 #else
     spi.dr.volatileLoad();
@@ -77,7 +77,7 @@ SPI::Error SPI_polling::writeRead(void *dataRead, const void *dataWrite, size_t 
     clearErrorFlags(error);
 #ifdef _MICROHAL_REGISTERS_SPI_SR_HAS_FRLVL
     for (size_t i = spi.sr.volatileLoad().FRLVL; i > 0; i--) {
-        spi.dr.volatileLoad();
+        spi.dr.volatileLoad_8bit();
     }
 #else
     spi.dr.volatileLoad();
@@ -87,6 +87,7 @@ SPI::Error SPI_polling::writeRead(void *dataRead, const void *dataWrite, size_t 
         error = writeRead(static_cast<const uint8_t *>(dataWrite)[i], static_cast<uint8_t *>(dataRead)[i]);
         if (error != Error::None) break;
     }
+
     return error;
 }
 
@@ -100,7 +101,7 @@ SPI::Error SPI_polling::writeNoRead(uint8_t data) {
         if (error != Error::None && error != Error::Overrun) return error;
     } while (!(sr.TXE));
 
-    spi.dr.volatileStore(data);
+    spi.dr.volatileStore_8bit(data);
 
     return error;
 }
@@ -121,7 +122,7 @@ SPI::Error SPI_polling::writeRead(uint8_t data, uint8_t &receivedData) {
         if (error != Error::None) return error;
     } while (!(sr.RXNE));
 
-    receivedData = (uint32_t)spi.dr.volatileLoad();
+    receivedData = (uint32_t)spi.dr.volatileLoad_8bit();
 
     return error;
 }

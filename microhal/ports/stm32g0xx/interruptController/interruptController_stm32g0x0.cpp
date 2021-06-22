@@ -25,12 +25,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "interruptController.h"
+#include "ports/stmCommon/interruptController/interruptController.h"
 
 #include <array>
 #include <bitset>
 #include <cassert>
-#include "nvic_stm32g0x0.h"
+#include "../nvic_stm32g0x0.h"
 
 namespace microhal {
 namespace stm32g0xx {

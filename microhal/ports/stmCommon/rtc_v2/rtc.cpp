@@ -25,9 +25,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ports/stmCommon/interruptController/interruptController.h>
 #include <ports/stmCommon/rtc_v2/rtc.h>
 #include <cassert>
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

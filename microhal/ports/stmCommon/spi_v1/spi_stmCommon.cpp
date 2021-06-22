@@ -13,7 +13,7 @@
 #if _MICROHAL_PORT_STM_SPI_DRIVER_VERSION == 1                                      // Check if driver is compatible with selected MCU
 #if ENABLED_ANY_SPI(POLLING) || ENABLED_ANY_SPI(INTERRUPT) || ENABLED_ANY_SPI(DMA)  // Check if driver is enabled in microhal port config
 
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
+#include <ports/stmCommon/interruptController/interruptController.h>
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

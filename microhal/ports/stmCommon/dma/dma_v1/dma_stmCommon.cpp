@@ -28,7 +28,7 @@
 #include "dma_stmCommon.h"
 #if _MICROHAL_PORT_STM_DMA_DRIVER_VERSION == 1
 
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
+#include <ports/stmCommon/interruptController/interruptController.h>
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

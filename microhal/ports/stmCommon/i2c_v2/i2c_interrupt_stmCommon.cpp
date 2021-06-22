@@ -35,7 +35,7 @@
 
 #include "ports/stmCommon/clockManager/i2cClock.h"
 #include _MICROHAL_INCLUDE_PORT_DEVICE
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
+#include <ports/stmCommon/interruptController/interruptController.h>
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
