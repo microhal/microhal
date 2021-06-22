@@ -21,7 +21,7 @@ TEST(FatFsRamdiskTest, ramdisk) {
     // FatFs error status into POSIX error codes
 
     CHECK(FatFs::addDisk(ramdisk, "0:"));
-    CHECK(FatFs::format("0:"));
+    CHECK(FatFs::format("0:", FatFs::Format::FAT | FatFs::Format::SFD));
 
     {
         FILE* f = fopen("file.fil", "w");
