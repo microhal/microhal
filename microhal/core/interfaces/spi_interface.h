@@ -55,7 +55,8 @@ class SPI {
     void unlock() { mutex.unlock(); }
 
     virtual uint32_t speed(uint32_t speed) = 0;
-    virtual uint32_t speed() const = 0;
+    [[nodiscard]] virtual uint32_t speed() const = 0;
+    [[nodiscard]] virtual uint32_t maxCLKFrequency() const = 0;
 
     virtual bool setMode(Mode mode) = 0;
     virtual void enable() = 0;

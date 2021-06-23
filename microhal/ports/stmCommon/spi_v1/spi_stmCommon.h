@@ -26,6 +26,7 @@
 #include "../stmCommonDefines.h"
 #include "interfaces/spi_interface.h"
 #include _MICROHAL_INCLUDE_PORT_GPIO
+#include _MICROHAL_INCLUDE_MCU_CAPABILITIES
 
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
@@ -185,10 +186,12 @@ class SPI : public microhal::SPI {
         return this->speed();
     }
 
-    uint32_t speed() const final {
+    [[nodiscard]] uint32_t speed() const final {
         const uint16_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
         return ClockManager::SPIFrequency(getNumber() + 1) / prescalerValues[static_cast<uint32_t>(prescaler())];
     }
+
+    [[nodiscard]] uint32_t maxCLKFrequency() const final { return hardwareLimits::spiMaxCLKFrequency; }
 
  protected:
     using Interrupt = spiDetail::Interrupt;
