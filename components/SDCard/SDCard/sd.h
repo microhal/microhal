@@ -171,7 +171,12 @@ class Sd final {
 
     bool init();
 
-    uint32_t setSpeed(uint32_t speed) { return spi.speed(speed); }
+    uint32_t setSpeed(uint32_t speed) {
+        const auto newSpeed = spi.speed(speed);
+        return newSpeed;
+    }
+    uint32_t getSpeed() const { return spi.speed(); }
+    uint32_t getMaxSpeed() const { return spi.maxCLKFrequency(); }
 
     CardType getCardType() const noexcept { return cardType; }
 
@@ -200,7 +205,7 @@ class Sd final {
 
     Error writeMultipleBlock(const gsl::not_null<const void *> data_ptr, uint32_t address, uint32_t blocksCount);
 
-    std::experimental::optional<CSD> readCSD();
+    std::optional<CSD> readCSD();
 
     bool readCID();
 
