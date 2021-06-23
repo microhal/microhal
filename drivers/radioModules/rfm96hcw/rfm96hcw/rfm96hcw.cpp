@@ -39,7 +39,7 @@ const uint8_t poutCorrection[] = {unused, unused, 18, 14, 18};
 
 RFM96HCW::RFM96HCW(SPI &spi, GPIO &ceGpio, microhal::IOPin dio0, GPIO &resetGpio) : spi(spi, ceGpio), m_dio0(dio0), m_resetGpio(resetGpio) {
     m_dio0.connect(irq0Slot, *this, ExternalInterrupt::Trigger::OnRisingEdge);
-    m_resetGpio.configureAsInput(GPIO::NoPull);
+    m_resetGpio.configureAsInput(GPIO::PullType::NoPull);
     chipEnablePinDelay(30);
 }
 
