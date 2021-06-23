@@ -18,8 +18,9 @@
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
+static const int32_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
+
 SPI::Prescaler SPI::findClosestPrescaler(uint32_t prescaler) {
-    const int32_t prescalerValues[] = {2, 4, 8, 16, 32, 64, 128, 256};
     uint32_t bestMatch = std::numeric_limits<uint32_t>::max();
     size_t bestPos = 0;
     for (size_t i = 0; i < sizeof(prescalerValues) / sizeof(prescalerValues[0]); i++) {
@@ -30,6 +31,13 @@ SPI::Prescaler SPI::findClosestPrescaler(uint32_t prescaler) {
         }
     }
     return static_cast<Prescaler>(bestPos);
+}
+
+SPI::Prescaler SPI::findLargerOrEqualPrescaler(uint32_t prescaler) {
+    for (size_t i = 0; i < sizeof(prescalerValues) / sizeof(prescalerValues[0]); i++) {
+        if (prescalerValues[i] >= prescaler) return static_cast<Prescaler>(i);
+    }
+    return static_cast<Prescaler>((sizeof(prescalerValues) / sizeof(prescalerValues[0])) - 1);
 }
 
 void SPI::enableGlobalInterrupt(uint32_t priority) {

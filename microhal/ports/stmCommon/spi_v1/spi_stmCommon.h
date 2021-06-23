@@ -181,7 +181,7 @@ class SPI : public microhal::SPI {
     uint32_t speed(uint32_t speed) final {
         auto freq = ClockManager::SPIFrequency(getNumber() + 1);
         auto requiredPrescaler = freq / speed;
-        prescaler(findClosestPrescaler(requiredPrescaler));
+        prescaler(findLargerOrEqualPrescaler(requiredPrescaler));
 
         return this->speed();
     }
@@ -239,6 +239,7 @@ class SPI : public microhal::SPI {
     FIFOLevel rxFifoLevel() const { return static_cast<FIFOLevel>(spi.sr.volatileLoad().FRLVL.get()); }
 #endif
     Prescaler findClosestPrescaler(uint32_t prescaler);
+    Prescaler findLargerOrEqualPrescaler(uint32_t prescaler);
 
     void enableGlobalInterrupt(uint32_t priority);
 
