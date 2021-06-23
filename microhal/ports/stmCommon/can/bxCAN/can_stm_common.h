@@ -179,7 +179,7 @@ class CAN final : public can::CAN_Interface {
 
  private:
     microhal::registers::CAN &can;
-    stm32f1xx::CANFilter flt;
+    CANFilter flt;
     static CAN *objectPtr[2];
     mutable microhal::os::Semaphore txFinish = {};
     mutable bool txWait = false;
