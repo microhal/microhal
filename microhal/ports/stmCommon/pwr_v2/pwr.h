@@ -71,8 +71,10 @@ class PWR {
 
     static void configureWakeup(WakeupPin pinNumber, Edge edge);
     static void enableWakeup(WakeupPin pinNumber);
+    static bool isWakeupEnabled(WakeupPin pinNumber);
     static void disableWakeup(WakeupPin pinNumber);
 
+    static bool getWakeupFlag(WakeupFlag flag);
     static void clearWakeupFlag(WakeupFlag flag);
 
     static void configurePin(IOPin pin, Pull pull);
