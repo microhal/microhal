@@ -14,6 +14,10 @@
 #define _MICROHAL_REGISTERS_RCC_APB1ENR_HAS_RTCAPBEN
 #define _MICROHAL_REGISTERS_RCC_APB2ENR_HAS_ADC1EN
 #define _MICROHAL_REGISTERS_RCC_BDCR_RTCSEL_HAS_HSE_DIV_32
+
+#define _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE 2
+#define _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1SEL
+
 #define _MICROHAL_REGISTERS_RCC_ICSCR_HAS_HSITRIM
 #define _MICROHAL_REGISTERS_RCC_APB2ENR_HAS_TIM14
 #define _MICROHAL_REGISTERS_RCC_CCIPR_HAS_ADCSEL
@@ -132,12 +136,12 @@ struct RCC {
     // Clock configuration register
     union CFGR {
         union {
-            microhal::Bitfield<uint32_t, 0, 3> SW;      /*!< System clock switch */
-            microhal::Bitfield<uint32_t, 3, 3> SWS;     /*!< System clock switch status */
-            microhal::Bitfield<uint32_t, 8, 4> HPRE;    /*!< AHB prescaler */
-            microhal::Bitfield<uint32_t, 12, 3> PPRE1;  /*!< APB prescaler */
-            microhal::Bitfield<uint32_t, 24, 3> MCOSEL; /*!< Microcontroller clock output */
-            microhal::Bitfield<uint32_t, 28, 3> MCOPRE; /*!< Microcontroller clock output prescaler */
+            microhal::Bitfield<uint32_t, 0, 3> SW;       /*!< System clock switch */
+            microhal::Bitfield<uint32_t, 3, 3> SWS;      /*!< System clock switch status */
+            microhal::Bitfield<uint32_t, 8, 4> HPRE;     /*!< AHB prescaler */
+            microhal::Bitfield<uint32_t, 12, 3> PPRE1;   /*!< APB prescaler */
+            microhal::Bitfield<uint32_t, 24, 3> MCO1SEL; /*!< Microcontroller clock output */
+            microhal::Bitfield<uint32_t, 28, 3> MCO1PRE; /*!< Microcontroller clock output prescaler */
         };
 
         operator uint32_t() const { return raw; }

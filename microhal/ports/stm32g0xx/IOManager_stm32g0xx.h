@@ -175,6 +175,20 @@ class IOManager {
         }
     }
 
+    template <int mcoNumber, stm32g0xx::IOPin pin>
+    static void routeMCO(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::PullType::NoPull,
+                         stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OutputType::PushPull) {
+        static_assert(mcoNumber != 0, "MCO numbers starts from 1.");
+        static_assert(mcoNumber <= 2, "STM32G0 family have up to 2 MCO pins.");
+
+        if constexpr (mcoNumber == 1) {
+            static_assert(pin == IOPin{IOPin::PortA, 8} || pin == IOPin{IOPin::PortA, 9}, "MCO1 can be connected only to: PortA.8 and PortA.9");
+        }
+
+        stm32g0xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(stm32g0xx::GPIO::AlternateFunction::AF0, pull, type);
+    }
+
     template <int serial, SerialPinType serialType, stm32g0xx::IOPin pin>
     static void routeSerial(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::PullType::NoPull,
                             stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OutputType::PushPull) {

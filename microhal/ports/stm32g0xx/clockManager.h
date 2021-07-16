@@ -34,6 +34,7 @@
 #include <ports/stmCommon/clockManager/hse.h>
 #include <ports/stmCommon/clockManager/hsi.h>
 #include <ports/stmCommon/clockManager/lse.h>
+#include <ports/stmCommon/clockManager/mco.h>
 #include <ports/stmCommon/clockManager/pll.h>
 #include <ports/stmCommon/clockManager/rtcClock.h>
 #include <ports/stmCommon/clockManager/sysclk.h>

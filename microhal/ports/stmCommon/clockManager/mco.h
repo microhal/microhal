@@ -68,6 +68,21 @@ struct MCO1 {
         XT1 = 0b1010,
         PLL3ForEth = 0b1011
     };
+#elif defined(MCU_TYPE_STM32G0XX)
+    enum class ClockSource : uint32_t {
+        NoClock = 0,
+        SYSCLK = 0b0001,
+        HSI48 = 0b0010,
+        HSI16 = 0b0011,
+        HSE = 0b0100,
+        PLLRCLK = 0b0101,
+        LSI = 0b0110,
+        LSE = 0b0111,
+        PLLPCLK = 0b1000,
+        PLLQCLK = 0b1001,
+        RTCCLK = 0b1010,
+        RTC_WAKEUP = 0b1011
+    };
 #else
     enum class ClockSource : uint32_t { HSI = 0, LSE = 0b01, HSE = 0b10, PLL = 0b11 };
 #endif
@@ -80,26 +95,41 @@ struct MCO1 {
      */
     static void clockSource(ClockSource clk) {
         auto cfgr = registers::rcc->cfgr.volatileLoad();
+#ifdef _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1SEL
+        cfgr.MCO1SEL = static_cast<uint32_t>(clk);
+#else
         cfgr.MCO1 = static_cast<uint32_t>(clk);
+#endif
         registers::rcc->cfgr.volatileStore(cfgr);
     }
 
-    static ClockSource clockSource() { return static_cast<ClockSource>(registers::rcc->cfgr.volatileLoad().MCO1.get()); }
+    static ClockSource clockSource() {
+#ifdef _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1SEL
+        return static_cast<ClockSource>(registers::rcc->cfgr.volatileLoad().MCO1SEL.get());
+#else
+        return static_cast<ClockSource>(registers::rcc->cfgr.volatileLoad().MCO1.get());
+#endif
+    }
 
 #ifdef _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE
     static uint32_t prescaler() {
-        uint32_t mcoPre = registers::rcc->cfgr.volatileLoad().MCO1PRE;
+        const uint32_t mcoPre = registers::rcc->cfgr.volatileLoad().MCO1PRE;
+#if _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE == 1
         // if prescaler is disabled return prescaler value equal one
         if (mcoPre & 0b100) return 1;
         return (mcoPre & 0b11) + 2;
+#elif _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE == 2  // second version used in STM32G0xx
+        return 1 << mcoPre;
+#endif
     }
 
+#if _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE == 1
     /**
      *
      * @param prescaler - Microcontroller clock output prescaler, allowed values: 1, 2, 3, 4, 5
      * @return true when value was set, false if prescaler parameter was unsupported value.
      */
-    static bool prescaller(uint32_t prescaler) {
+    static bool prescaler(uint32_t prescaler) {
         if (prescaler == 0 || prescaler > 5) return false;
         auto cfgr = registers::rcc->cfgr.volatileLoad();
 
@@ -111,6 +141,30 @@ struct MCO1 {
         registers::rcc->cfgr.volatileStore(cfgr);
         return true;
     }
+#elif _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE == 2
+    /**
+     * This function is used on: STM32G0xx
+     * @param prescaler - Microcontroller clock output prescaler, allowed values: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
+     * @return true when value was set, false if prescaler parameter was unsupported value.
+     */
+    static bool prescaler(uint32_t prescaler) {
+        const int32_t prescalerRegisterValue = [](uint32_t presc) -> int32_t {
+            for (uint32_t preValue = 0; preValue < 10; preValue++) {
+                if (presc == 1U << preValue) return preValue;
+            }
+            return -1;  // incorrect prescaler
+        }(prescaler);
+
+        if (prescalerRegisterValue >= 0) {
+            auto cfgr = registers::rcc->cfgr.volatileLoad();
+            cfgr.MCO1PRE = prescalerRegisterValue;
+            registers::rcc->cfgr.volatileStore(cfgr);
+            return true;
+        }
+        return false;
+    }
+#endif  // _MICROHAL_REGISTERS_RCC_CFGR_HAS_MCO1PRE == 1
+
 #endif
 };
 
