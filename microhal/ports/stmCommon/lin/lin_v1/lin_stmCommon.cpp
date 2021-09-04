@@ -28,6 +28,7 @@
 #include <ports/stmCommon/lin/lin_v1/lin_stmCommon.h>
 #include <ports/stmCommon/nvic/nvic.h>
 #include <ports/stmCommon/usart/usart.h>
+#include <algorithm>
 #include <cassert>
 #include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
@@ -45,6 +46,9 @@ LIN *LIN::lin1 = nullptr;
 #endif
 #if MICROHAL_USE_LIN2 == 1
 LIN *LIN::lin2 = nullptr;
+#endif
+#if MICROHAL_USE_LIN6 == 1
+LIN *LIN::lin6 = nullptr;
 #endif
 
 LIN::LIN(registers::USART &usart) : usart(usart) {
@@ -83,6 +87,24 @@ LIN::LIN(registers::USART &usart) : usart(usart) {
         std::terminate();
 #endif
     }
+
+    if (usartNumber == 6) {
+#if MICROHAL_USE_LIN6 == 1
+        if (lin6 != nullptr) {
+#ifdef MICROHAL_LIN_USE_DIAGNOSTIC
+            diagChannel << lock << MICROHAL_EMERGENCY << "Unable to create LIN interface, LIN6 already created." << unlock;
+#endif
+            std::terminate();
+        }
+        lin6 = this;
+#else
+#ifdef MICROHAL_LIN_USE_DIAGNOSTIC
+        diagChannel << lock << MICROHAL_EMERGENCY << "Unable to create LIN interface, LIN6 not enabled in port configuration file." << unlock;
+#endif
+        std::terminate();
+#endif
+    }
+
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
     ClockManager::enableUSART(usartNumber, ClockManager::PowerMode::Normal);
 #else
@@ -103,6 +125,9 @@ LIN::~LIN() {
 #endif
 #if MICROHAL_USE_LIN2 == 1
     if (usartNumber == 2) lin2 = nullptr;
+#endif
+#if MICROHAL_USE_LIN6 == 1
+    if (usartNumber == 6) lin6 = nullptr;
 #endif
 }
 
@@ -336,8 +361,13 @@ extern "C" void USART1_IRQHandler(void) {
 }
 #endif
 #if MICROHAL_USE_LIN2 == 1
-void USART2_IRQHandler(void) {
+extern "C" void USART2_IRQHandler(void) {
     LIN::lin2->interrupt();
+}
+#endif
+#if MICROHAL_USE_LIN6 == 1
+extern "C" void USART6_IRQHandler(void) {
+    LIN::lin6->interrupt();
 }
 #endif
 
