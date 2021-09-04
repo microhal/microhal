@@ -42,6 +42,18 @@ void disableCanRx0Interrupt(uint8_t canNumber);
 void disableCanRx1Interrupt(uint8_t canNumber);
 void disableCanSceInterrupt(uint8_t canNumber);
 
+/**
+ *
+ * @param channelNumber starts from 0
+ * @param priority
+ */
+void enableDMA1Interrupt(uint32_t channelNumber, uint32_t priority);
+/**
+ *
+ * @param channelNumber starts from 0: 0 -> channel1
+ */
+void disableDMA1Interrupt(uint32_t channelNumber);
+
 void enableEthernet(uint32_t priority);
 
 void enableRTCInterrupt(uint32_t priority);
@@ -53,7 +65,7 @@ void disableTimerInterrupt(uint8_t timerNumber);
 void enableI2CInterrupt(uint8_t i2cNumber);
 void disableI2CInterrupt(uint8_t i2cNumber);
 
-void enableSPIInterrupt(uint8_t spiNumber);
+void enableSPIInterrupt(uint8_t spiNumber, uint32_t priority);
 void disableSPIInterrupt(uint8_t spiNumber);
 
 void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);

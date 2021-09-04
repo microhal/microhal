@@ -23,10 +23,20 @@ void PWR::enableWakeup(WakeupPin pinNumber) {
     registers::pwr->cr3.volatileStore(cr3);
 }
 
+bool PWR::isWakeupEnabled(WakeupPin pinNumber) {
+    auto cr3 = registers::pwr->cr3.volatileLoad();
+    return static_cast<uint32_t>(cr3) & (1 << static_cast<unsigned>(pinNumber));
+}
+
 void PWR::disableWakeup(WakeupPin pinNumber) {
     auto cr3 = registers::pwr->cr3.volatileLoad();
     cr3 &= ~(1 << static_cast<unsigned>(pinNumber));
     registers::pwr->cr3.volatileStore(cr3);
+}
+
+bool PWR::getWakeupFlag(WakeupFlag flag) {
+    auto sr1 = registers::pwr->sr1.volatileLoad();
+    return static_cast<uint32_t>(sr1) & static_cast<uint32_t>(flag);
 }
 
 void PWR::clearWakeupFlag(WakeupFlag flag) {

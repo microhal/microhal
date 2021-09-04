@@ -10,8 +10,8 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include <array>
 #include <cstdint>
-
 #include "../utils/deviceRegister.h"
 #include "gpio.h"
 #include "gsl/span"
@@ -268,14 +268,14 @@ class SPIDevice {
      */
     template <typename ArrayType, size_t N, typename... Registers>
     SPI::Error writeMultipleRegisters(const std::array<ArrayType, N> &array, Registers... reg) {
-        static_assert(sizeof...(reg) > 1, "You are trying to write only one register, please use write function.");
-        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        static_assert(sizeof...(Registers) > 1, "You are trying to write only one register, please use write function.");
+        static_assert(sizeof...(Registers) == N, "Size of array have to be equal to number of registers.");
         static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>,
                       "Incompatible array and register types. Using this function you can write data into registers with the same type and your "
                       "array have to have the same type as registers. If you want to write multiple registers with different types please use "
                       "std::tuple instead of std::aray.");
         if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
-            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+            static_assert(sizeOfRegistersData(reg...) == N * sizeof(ArrayType), "microhal internal error.");
         }
         isContinous(reg...);
         accessCheck<Access::ReadOnly>(reg...);
@@ -308,10 +308,10 @@ class SPIDevice {
     template <typename ArrayType, size_t N, typename... Registers>
     SPI::Error readMultipleRegisters_to(std::array<ArrayType, N> &array, Registers... reg) {
         static_assert(sizeof...(reg) > 1, "You are trying to read only one register, please use write function.");
-        static_assert(sizeof...(reg) == array.size(), "Size of array have to be equal to number of registers.");
+        static_assert(sizeof...(reg) == N, "Size of array have to be equal to number of registers.");
         static_assert(std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>, "Incompatible array type with register types.");
         if constexpr (std::conjunction_v<std::is_same<ArrayType, typename Registers::Type>...>) {
-            static_assert(sizeOfRegistersData(reg...) == array.size() * sizeof(ArrayType), "microhal internal error.");
+            static_assert(sizeOfRegistersData(reg...) == N * sizeof(ArrayType), "microhal internal error.");
         }
         microhal::isContinous(reg...);
         microhal::accessCheck<Access::WriteOnly>(reg...);

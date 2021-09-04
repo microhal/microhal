@@ -14,7 +14,7 @@
 #elif defined(MCU_TYPE_STM32F1XX)
 
 #include "ports/stm32f1xx/mcuDefines.h"
-#if defined(STM32F103)
+#if defined(_MICROHAL_STM32F1XX_STM32F103xx)
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f103.h"
 #elif defined(_MICROHAL_STM32F1XX_STM32F107xx)
 #include "peripheralBaseAddressDefinitions/registersBaseAddressDefinitions_stm32f107.h"

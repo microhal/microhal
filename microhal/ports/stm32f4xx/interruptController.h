@@ -50,7 +50,7 @@ void disableTimerInterrupt(uint8_t timerNumber);
 void enableI2CInterrupt(uint8_t i2cNumber);
 void disableI2CInterrupt(uint8_t i2cNumber);
 
-void enableSPIInterrupt(uint8_t spiNumber);
+void enableSPIInterrupt(uint8_t spiNumber, uint32_t priority);
 void disableSPIInterrupt(uint8_t spiNumber);
 
 void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);

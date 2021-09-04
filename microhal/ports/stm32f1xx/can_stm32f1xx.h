@@ -29,6 +29,6 @@
 /* ************************************************************************************************
  * INCLUDES
  */
-#include "ports/stmCommon/can_stm_common.h"
+#include "ports/stmCommon/can/bxCAN/can_stm_common.h"
 
 #endif  // _MICROHAL_PORTS_CAN_STM32F1XX_H_

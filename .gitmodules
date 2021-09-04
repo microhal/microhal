@@ -25,3 +25,6 @@
 [submodule "components/cli"]
 	path = components/cli
 	url = https://github.com/microHAL/component-cli.git
+[submodule "third-party/cpputest"]
+	path = third-party/cpputest
+	url = https://github.com/cpputest/cpputest.git

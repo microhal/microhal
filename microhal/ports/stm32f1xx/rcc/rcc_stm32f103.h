@@ -84,7 +84,7 @@ struct RCC {
             microhal::Bitfield<uint32_t, 17, 1> PLLXTPRE; /*!< HSE divider for PLL entry */
             microhal::Bitfield<uint32_t, 18, 4> PLLMUL;   /*!< PLL Multiplication Factor */
             microhal::Bitfield<uint32_t, 22, 1> OTGFSPRE; /*!< USB OTG FS prescaler */
-            microhal::Bitfield<uint32_t, 24, 3> MCO;      /*!< Microcontroller clock output */
+            microhal::Bitfield<uint32_t, 24, 3> MCO1;     /*!< Microcontroller clock output */
         };
 
         operator uint32_t() const { return raw; }
@@ -460,7 +460,7 @@ struct RCC {
             microhal::Bitfield<uint32_t, 21, 1> I2C1EN;   /*!< I2C 1 clock enable */
             microhal::Bitfield<uint32_t, 22, 1> I2C2EN;   /*!< I2C 2 clock enable */
             microhal::Bitfield<uint32_t, 23, 1> USBEN;    /*!< USB clock enable */
-            microhal::Bitfield<uint32_t, 25, 1> CANEN;    /*!< CAN clock enable */
+            microhal::Bitfield<uint32_t, 25, 1> CAN1EN;   /*!< CAN clock enable */
             microhal::Bitfield<uint32_t, 27, 1> BKPEN;    /*!< Backup interface clock enable */
             microhal::Bitfield<uint32_t, 28, 1> PWREN;    /*!< Power interface clock enable */
             microhal::Bitfield<uint32_t, 29, 1> DACEN;    /*!< DAC interface clock enable */

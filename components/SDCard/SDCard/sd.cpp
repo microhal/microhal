@@ -349,8 +349,8 @@ bool Sd::initialize(bool hcs, std::chrono::milliseconds timeout) {
     return false;
 }
 
-std::experimental::optional<Sd::CSD> Sd::readCSD() {
-    std::experimental::optional<Sd::CSD> result;
+std::optional<Sd::CSD> Sd::readCSD() {
+    std::optional<Sd::CSD> result;
 
     cs.reset();
     sendCMD(CMD9{});
@@ -633,8 +633,10 @@ bool Sd::sendCMD(const Command &command) {
             spi.write(0xFF, false);
         } while (!spi.getMISOstate());
     }
-    spi.write(0xFF, true);
-    return spi.write(&command, sizeof(command), true) == microhal::SPI::Error::None;
+    uint8_t buffer[sizeof(command) + 1];
+    buffer[0] = 0xFF;
+    memcpy(&buffer[1], &command, sizeof(command));
+    return spi.write(buffer, sizeof(buffer), true) == microhal::SPI::Error::None;
 }
 
 std::experimental::optional<Sd::ResponseR1> Sd::readResponseR1(uint8_t retryCount) {

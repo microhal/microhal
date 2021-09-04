@@ -28,7 +28,12 @@
 #ifndef _MICROHAL_PORTS_STM32G0XX_MCUCAPABILITIES_H_
 #define _MICROHAL_PORTS_STM32G0XX_MCUCAPABILITIES_H_
 
+#include <cstdint>
 #include "mcuDefines.h"
+
+namespace microhal {
+namespace stm32g0xx {
+namespace hardwareLimits {
 
 #ifdef _MICROHAL_STM32G0XX_STM32G071xx
 
@@ -46,10 +51,11 @@
 
 #define _MICROHAL_STM32G0XX_HAS_RTC1 1
 
+constexpr const uint32_t spiMaxCLKFrequency = 32'000'000;  // in [Hz]
 #define _MICROHAL_STM32G0XX_HAS_SPI1 1
 #define _MICROHAL_STM32G0XX_HAS_SPI2 1
 
-#endif
+#endif  // _MICROHAL_STM32G0XX_STM32G071xx
 
 #ifdef _MICROHAL_STM32G0XX_STM32G070xx
 
@@ -67,9 +73,14 @@
 
 #define _MICROHAL_STM32G0XX_HAS_RTC1 1
 
+constexpr const uint32_t spiMaxCLKFrequency = 32'000'000;  // in [Hz]
 #define _MICROHAL_STM32G0XX_HAS_SPI1 1
 #define _MICROHAL_STM32G0XX_HAS_SPI2 1
 
-#endif
+#endif  // _MICROHAL_STM32G0XX_STM32G070xx
+
+}  // namespace hardwareLimits
+}  // namespace stm32g0xx
+}  // namespace microhal
 
 #endif /* _MICROHAL_PORTS_STM32G0XX_MCUCAPABILITIES_H_ */

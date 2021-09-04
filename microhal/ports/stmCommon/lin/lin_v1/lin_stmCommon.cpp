@@ -25,12 +25,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ports/stmCommon/interruptController/interruptController.h>
 #include <ports/stmCommon/lin/lin_v1/lin_stmCommon.h>
 #include <ports/stmCommon/nvic/nvic.h>
 #include <ports/stmCommon/usart/usart.h>
 #include <algorithm>
 #include <cassert>
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
 #include "diagnostic/diagnostic.h"

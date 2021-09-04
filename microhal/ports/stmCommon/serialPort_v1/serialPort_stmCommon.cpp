@@ -38,8 +38,8 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
+#include <ports/stmCommon/interruptController/interruptController.h>
 #include "../stmCommonDefines.h"
-#include _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {

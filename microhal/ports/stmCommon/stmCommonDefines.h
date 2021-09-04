@@ -47,7 +47,7 @@
 #define _MICROHAL_INCLUDE_PORT_CONFIG "microhalPortConfig_stm32g0xx.h"
 #define _MICROHAL_INCLUDE_PORT_IOMANAGER "ports/stm32g0xx/IOManager_stm32g0xx.h"
 #define _MICROHAL_INCLUDE_PORT_GPIO "ports/stm32g0xx/gpio_stm32g0xx.h"
-#define _MICROHAL_INCLUDE_PORT_INTERRUPT_CONTROLLER "ports/stm32g0xx/interruptController.h"
+#define _MICROHAL_INCLUDE_MCU_CAPABILITIES <ports/stm32g0xx/mcuCapabilities.h>
 #else
 #error "MCU type must be specified."
 #endif

@@ -47,10 +47,10 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
  public:
     template <int number, IOPin miso, IOPin mosi, IOPin sck>
-    static SPI_interrupt &create(GPIO::OutputType mosiType = GPIO::PushPull, GPIO::OutputType sckType = GPIO::PushPull) {
+    static SPI_interrupt &create(GPIO::OutputType mosiType = GPIO::OutputType::PushPull, GPIO::OutputType sckType = GPIO::OutputType::PushPull) {
         IOManager::routeSPI<number, MISO, miso>();
-        IOManager::routeSPI<number, MOSI, mosi>(GPIO::NoPull, mosiType);
-        IOManager::routeSPI<number, SCK, sck>(GPIO::NoPull, sckType);
+        IOManager::routeSPI<number, MOSI, mosi>(GPIO::PullType::NoPull, mosiType);
+        IOManager::routeSPI<number, SCK, sck>(GPIO::PullType::NoPull, sckType);
         static_assert(IOManager::spiPinAssert(number, miso, mosi, sck), "Incorrect Pin configuration");
 
         if constexpr (number == 1) {
@@ -138,15 +138,14 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
     uint8_t *readEnd = nullptr;
     const uint8_t *writePtr = nullptr;
     const uint8_t *writeEnd = nullptr;
-    uint8_t writeData = 0x00;
     os::Semaphore semaphore;
 
     //--------------------------------------- constructors --------------------------------------//
     SPI_interrupt(registers::SPI &spi, _MICROHAL_ACTIVE_PORT_NAMESPACE::IOPin misoPin) : SPI(spi, misoPin), semaphore() {
 #if defined(_MICROHAL_CLOCKMANAGER_HAS_POWERMODE) && _MICROHAL_CLOCKMANAGER_HAS_POWERMODE == 1
-        ClockManager::enableSPI(getNumber(), ClockManager::PowerMode::Normal);
+        ClockManager::enableSPI(getNumber() + 1, ClockManager::PowerMode::Normal);
 #else
-        ClockManager::enableSPI(getNumber());
+        ClockManager::enableSPI(getNumber() + 1);
 #endif
 #if defined(HAL_RTOS_FreeRTOS)
         enableGlobalInterrupt(configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
@@ -159,18 +158,9 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
 
     SPI_interrupt(const SPI_interrupt &);
     //---------------------------------------- functions ----------------------------------------//
-    void enableInterrupt(Interrupt interrupt) {
-        auto cr2 = spi.cr2.volatileLoad();
-        if ((interrupt & Interrupt::TransmitterEmpty) == Interrupt::TransmitterEmpty) {
-            cr2.TXEIE.set();  // fixme maybe bitband
-        }
-        if ((interrupt & Interrupt::ReceiverNotEmpty) == Interrupt::ReceiverNotEmpty) {
-            cr2.RXNEIE.set();  // fixme maybe bitband
-        }
-        spi.cr2.volatileStore(cr2);
-    }
-    //----------------------------------------- friends -----------------------------------------//
+    void clearRxFifo();
     void IRQfunction();
+    //----------------------------------------- friends -----------------------------------------//
     friend void SPI1_IRQHandler(void);
     friend void SPI2_IRQHandler(void);
     friend void SPI3_IRQHandler(void);

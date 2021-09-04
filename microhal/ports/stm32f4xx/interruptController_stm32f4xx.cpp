@@ -35,9 +35,9 @@
 namespace microhal {
 namespace stm32f4xx {
 
-void enableSPIInterrupt(uint8_t spiNumber) {
-    assert(spiNumber > 0);
-    if (spiNumber == 1) {
+void enableSPIInterrupt(uint8_t spiNumber, uint32_t priority) {
+    if (spiNumber == 0) {
+        NVIC_SetPriority(SPI1_IRQn, priority);
         NVIC_EnableIRQ(SPI1_IRQn);
     } else {
         std::terminate();
@@ -45,8 +45,7 @@ void enableSPIInterrupt(uint8_t spiNumber) {
 }
 
 void disableSPIInterrupt(uint8_t spiNumber) {
-    assert(spiNumber > 0);
-    if (spiNumber == 1) {
+    if (spiNumber == 0) {
         NVIC_DisableIRQ(SPI1_IRQn);
     } else {
         std::terminate();

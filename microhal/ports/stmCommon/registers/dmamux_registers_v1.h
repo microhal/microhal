@@ -543,20 +543,8 @@ struct DMAMUX {
         friend class VolatileRegister<DMAMUX_HWCFGR2, AccessType::ReadWrite>;
     };
 
-    VolatileRegister<CxCR, AccessType::ReadWrite>
-        dmamux_c0cr; /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0x0 */
-    VolatileRegister<CxCR, AccessType::ReadWrite>
-        dmamux_c1cr; /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0x4 */
-    VolatileRegister<CxCR, AccessType::ReadWrite>
-        dmamux_c2cr; /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0x8 */
-    VolatileRegister<CxCR, AccessType::ReadWrite>
-        dmamux_c3cr; /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0xC */
-    VolatileRegister<CxCR, AccessType::ReadWrite>
-        dmamux_c4cr; /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0x10 */
-    VolatileRegister<CxCR, AccessType::ReadWrite>
-        dmamux_c5cr; /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0x14 */
-    VolatileRegister<CxCR, AccessType::ReadWrite>
-        dmamux_c6cr;        /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0x18 */
+    std::array<VolatileRegister<CxCR, AccessType::ReadWrite>, 7>
+        cxcr;               /*!< DMAMux - DMA request line multiplexer channel x control register	Address offset: 0x0 */
     uint32_t reserved0[57]; /*!< Reserved register	Address offset: 0x1c */
     VolatileRegister<DMAMUX_CSR, AccessType::ReadWrite>
         dmamux_csr; /*!< DMAMUX request line multiplexer interrupt channel status register	Address offset: 0x80 */

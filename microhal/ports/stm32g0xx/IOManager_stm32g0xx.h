@@ -49,7 +49,7 @@ class IOManager {
     IOManager() = delete;
 
     template <int adcNumber, int channel, stm32g0xx::IOPin pin>
-    static void routeADC(stm32g0xx::GPIO::PullType pullUpOrDown = stm32g0xx::GPIO::NoPull) {
+    static void routeADC(stm32g0xx::GPIO::PullType pullUpOrDown = stm32g0xx::GPIO::PullType::NoPull) {
         static_assert(adcNumber > 0, "ADC numbering starts from 1.");
         static_assert(adcNumber == 1, "STM32G0xx has only 1 ADC");
         static_assert(channel != 12 && channel != 13 && channel != 14,
@@ -77,7 +77,8 @@ class IOManager {
     }
 
     template <int i2cNumber, I2cPinType i2cPinType, stm32g0xx::IOPin pin>
-    static void routeI2C(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::NoPull, stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OpenDrain) {
+    static void routeI2C(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::PullType::NoPull,
+                         stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OutputType::OpenDrain) {
         static_assert(i2cNumber != 0, "I2C numbers starts from 1.");
         static_assert(i2cNumber <= 6, "STM32G0XX family have up to 6 I2Cs.");
         auto af = stm32g0xx::GPIO::AlternateFunction::AF0;
@@ -119,7 +120,8 @@ class IOManager {
     }
 
     template <int spiNumber, SpiPinType spiType, IOPin pin>
-    static void routeSPI(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::NoPull, stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::PushPull) {
+    static void routeSPI(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::PullType::NoPull,
+                         stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OutputType::PushPull) {
         static_assert(spiNumber != 0, "SPI port numbers starts from 1.");
         static_assert(spiNumber <= 2, "STM32G0xx has only 2 SPI.");
 
@@ -173,8 +175,23 @@ class IOManager {
         }
     }
 
+    template <int mcoNumber, stm32g0xx::IOPin pin>
+    static void routeMCO(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::PullType::NoPull,
+                         stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OutputType::PushPull) {
+        static_assert(mcoNumber != 0, "MCO numbers starts from 1.");
+        static_assert(mcoNumber <= 2, "STM32G0 family have up to 2 MCO pins.");
+
+        if constexpr (mcoNumber == 1) {
+            static_assert(pin == IOPin{IOPin::PortA, 8} || pin == IOPin{IOPin::PortA, 9}, "MCO1 can be connected only to: PortA.8 and PortA.9");
+        }
+
+        stm32g0xx::GPIO gpio(pin);
+        gpio.setAlternateFunction(stm32g0xx::GPIO::AlternateFunction::AF0, pull, type);
+    }
+
     template <int serial, SerialPinType serialType, stm32g0xx::IOPin pin>
-    static void routeSerial(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::NoPull, stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::PushPull) {
+    static void routeSerial(stm32g0xx::GPIO::PullType pull = stm32g0xx::GPIO::PullType::NoPull,
+                            stm32g0xx::GPIO::OutputType type = stm32g0xx::GPIO::OutputType::PushPull) {
         static_assert(serial != 0, "Serial port numbers starts from 1.");
         static_assert(serial <= 4, "STM32G0 family have up to 4 SerialPorts.");
         auto af = stm32g0xx::GPIO::AlternateFunction::AF1;

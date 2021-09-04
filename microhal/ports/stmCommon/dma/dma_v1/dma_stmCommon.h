@@ -37,6 +37,8 @@
 #include "../../stmCommonDefines.h"
 #include "ports/stmCommon/clockManager/dmaClock.h"
 
+#define _MICROHAL_DMA_HAS_CHANNELS
+
 #ifndef _MICROHAL_ACTIVE_PORT_NAMESPACE
 #error _MICROHAL_ACTIVE_PORT_NAMESPACE have to be defined.
 #endif
@@ -60,12 +62,18 @@ class Channel {
 
     enum class TransmisionDirection : uint32_t { PerToMem = 0x00, MemToPer = 0b10000, MemToMem = 1 << 14 };
 
-    enum class Interrupt : uint32_t { TransferComplete = 1 << 1, HalfTransferComplete = 1 << 2, TransferError = 1 << 3 };
+    enum class Interrupt : uint32_t { GlobalInterrupt = 1 << 0, TransferComplete = 1 << 1, HalfTransferComplete = 1 << 2, TransferError = 1 << 3 };
 
     void init(MemoryDataSize memSize, PeripheralDataSize peripheralSize, MemoryIncrementMode memoryInc, PeripheralIncrementMode peripheralInc,
               TransmisionDirection direction);
 
     void deinit() { channel.ccr.volatileStore(0); }
+
+    void setMemoryIncrement(MemoryIncrementMode memoryInc) {
+        auto ccr = channel.ccr.volatileLoad();
+        ccr.MINC = static_cast<uint32_t>(memoryInc);
+        channel.ccr.volatileStore(ccr);
+    }
 
     void enableCircularMode() {
         auto ccr = channel.ccr.volatileLoad();
@@ -106,6 +114,7 @@ class Channel {
         ccr.EN.set();
         channel.ccr.volatileStore(ccr);
     }
+    bool isEnabled() { return channel.ccr.volatileLoad().EN.get(); }
     void disable() {
         auto ccr = channel.ccr.volatileLoad();
         ccr.EN.clear();
@@ -121,8 +130,21 @@ class DMA {
 
  public:
     Channel channel[7];
+    Channel::Interrupt getInterruptFlag(const Channel &channel) const {
+        const auto channelNumber = calculateChannelNumber(channel);
+        return getInterruptFlag(channelNumber);
+    }
+    Channel::Interrupt getInterruptFlag(uint32_t channelNumber) const {
+        const uint32_t interrupts = dma.isr.volatileLoad();
+        return static_cast<Channel::Interrupt>((interrupts >> (4 * channelNumber)) & 0b1111);
+    }
+    uint32_t getIsr() const noexcept { return dma.isr.volatileLoad(); }
     void clearInterruptFlag(const Channel &channel, Channel::Interrupt interrupt) {
         const auto channelNumber = calculateChannelNumber(channel);
+        dma.ifcr.volatileStore((0x0F & static_cast<uint32_t>(interrupt)) << (channelNumber * 4));
+    }
+
+    void clearInterruptFlag(uint_fast8_t channelNumber, Channel::Interrupt interrupt) {
         dma.ifcr.volatileStore((0x0F & static_cast<uint32_t>(interrupt)) << (channelNumber * 4));
     }
 

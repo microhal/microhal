@@ -30,7 +30,7 @@
 
 #include "SPIDevice/SPIDevice.h"
 #include "microhal.h"
-#include "os/microhal_semaphore.h"
+#include "microhal_semaphore.h"
 #include "utils/result.h"
 #include "utils/types.h"
 
