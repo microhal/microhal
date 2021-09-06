@@ -84,14 +84,14 @@ class GenericDataBus : public DataBus {
     }
 
     void write8(uint8_t data) {
-        data0 = (data & (1 << 0));
-        data1 = (data & (1 << 1));
-        data2 = (data & (1 << 2));
-        data3 = (data & (1 << 3));
-        data4 = (data & (1 << 4));
-        data5 = (data & (1 << 5));
-        data6 = (data & (1 << 6));
-        data7 = (data & (1 << 7));
+        data0.set((data & (1 << 0)));
+        data1.set((data & (1 << 1)));
+        data2.set((data & (1 << 2)));
+        data3.set((data & (1 << 3)));
+        data4.set((data & (1 << 4)));
+        data5.set((data & (1 << 5)));
+        data6.set((data & (1 << 6)));
+        data7.set((data & (1 << 7)));
         writeStrobe();
     }
 
@@ -99,14 +99,14 @@ class GenericDataBus : public DataBus {
         rd.reset();
         std::this_thread::sleep_for(std::chrono::milliseconds{1});
 
-        uint8_t data = data0 ? 1 << 0 : 0;
-        data |= data1 ? 1 << 1 : 0;
-        data |= data2 ? 1 << 2 : 0;
-        data |= data3 ? 1 << 3 : 0;
-        data |= data4 ? 1 << 4 : 0;
-        data |= data5 ? 1 << 5 : 0;
-        data |= data6 ? 1 << 6 : 0;
-        data |= data7 ? 1 << 7 : 0;
+        uint8_t data = *data0.get() == GPIO::State::High ? 1 << 0 : 0;
+        data |= *data1.get() == GPIO::State::High ? 1 << 1 : 0;
+        data |= *data2.get() == GPIO::State::High ? 1 << 2 : 0;
+        data |= *data3.get() == GPIO::State::High ? 1 << 3 : 0;
+        data |= *data4.get() == GPIO::State::High ? 1 << 4 : 0;
+        data |= *data5.get() == GPIO::State::High ? 1 << 5 : 0;
+        data |= *data6.get() == GPIO::State::High ? 1 << 6 : 0;
+        data |= *data7.get() == GPIO::State::High ? 1 << 7 : 0;
         rd.set();
         return data;
     }

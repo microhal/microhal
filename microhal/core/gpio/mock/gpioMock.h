@@ -19,28 +19,28 @@ class GPIO : public microhal::GPIO {
     virtual ~GPIO();
 
     /** Set pin to high state */
-    int set() noexcept final {
-        state = true;
-        return 1;
+    Error set() noexcept final {
+        state = State::High;
+        return Error::None;
     }
     /** Set pin to low state */
-    int reset() noexcept final {
-        state = false;
-        return 1;
+    Error reset() noexcept final {
+        state = State::Low;
+        return Error::None;
     }
 
-    int get() const noexcept final { return state; }
+    PinStateReturnType get() const noexcept final { return state; }
 
-    int getOutputState() const noexcept { return state; }
+    PinStateReturnType getOutputState() const noexcept { return state; }
 
  private:
-    bool state = 0;
+    State state = State::Low;
     Direction direction = Direction::Input;
     OutputType outputType = OutputType::PushPull;
     PullType pullType = PullType::NoPull;
 
-    bool configure(Direction, OutputType, PullType) final;
-    bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const final;
+    Error configure(Direction, OutputType, PullType) final;
+    // bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const final;
 };
 
 }  // namespace mock

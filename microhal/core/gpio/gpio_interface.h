@@ -31,6 +31,7 @@
 /* ************************************************************************************************
  * INCLUDES
  */
+#include <utils/microhal_expected.h>
 #include <cstdint>
 
 namespace microhal {
@@ -39,14 +40,16 @@ namespace microhal {
  */
 class GPIO {
  public:
-    enum class Direction {
+    enum class State : uint_fast8_t { Low = 0, High = 1 };
+
+    enum class Direction : uint_fast8_t {
         Input = 0,  //!< Configure as input
         Output = 1  //!< Configure as output
     };
     /**
      * Possible pin output types
      */
-    enum class OutputType {
+    enum class OutputType : uint_fast8_t {
         PushPull = 0,      //!< Push pull output
         OpenDrain = 1,     //!< Open drain output
         OpenCollector = 2  //!< Open collector output
@@ -54,11 +57,15 @@ class GPIO {
     /**
      * Possible pull type
      */
-    enum class PullType {
+    enum class PullType : uint_fast8_t {
         NoPull = 0,   //!< No pull up or down resistors enabled
         PullUp = 1,   //!< Pull up resistor active
         PullDown = 2  //!< Pull down resistor active
     };
+
+    enum class Error : int_fast8_t { None = 0, GPIONotOutput = -1, GPIONotInput = -2, UnsupportedOutputType = -3 };
+
+    using PinStateReturnType = Expected<State, UnexpectedNegativeValue<Error>>;
 
     // disable copying
     GPIO() = default;
@@ -69,139 +76,97 @@ class GPIO {
 
     /** Set pin to high state
      * @return Operation state
-     * @return Negative value if an error occurred.
-     * @retval 1 on success
+     * @retval Error::None on success
+     * @retval Error code if an error occurred.
      */
-    virtual int set() noexcept = 0;
+    virtual Error set() noexcept = 0;
+
+    /** Set pin to high state
+     * @return Operation state
+     * @retval Error::None on success
+     * @retval Error code if an error occurred.
+     */
+    Error set(bool state) noexcept {
+        if (state)
+            return set();
+        else
+            return reset();
+    }
+
+    /** Set pin to high state
+     * @return Operation state
+     * @retval Error::None on success
+     * @retval Error code if an error occurred.
+     */
+    Error set(State state) noexcept {
+        if (state == State::Low)
+            return reset();
+        else
+            return set();
+    }
     /** Set pin to low state
      * @return Operation state
-     * @return Negative value if an error occurred.
-     * @retval 1 on success
+     * @retval Error::None on success
+     * @retval Error code if an error occurred.
      */
-    virtual int reset() noexcept = 0;
+    virtual Error reset() noexcept = 0;
     /** Set pin to opposite state
      * @return Operation state
-     * @return Negative value if an error occurred.
-     * @retval 1 on success
+     * @retval Error::None on success
+     * @retval Error code if an error occurred.
      */
-    int toggle() noexcept {
+    Error toggle() noexcept {
         const auto state = get();
-        if (state < 0) return state;  // error occurred
-        return (state == 0) ? set() : reset();
+        if (state) return (state.value() == State::Low) ? set() : reset();
+        return state.error();  // error occurred
     }
     /**
      * @brief Get actual pin state
-     * @return Current pin state
-     * @return Negative value if an error occurred.
-     * @retval > 0 if pin is in high state
-     * @retval 0 if pin is in low state
+     * @return Current pin state or error, if has_value() method of return type is true then function result contain value and can be accessed by
+     * calling value() method.
+     *
+     * example:
+     *
+     * // check if gpioState contain value or error
+     * if (const auto gpioState = gpio.get();)
+     * {
+     *		// gpioState contain gpio state, you can check current state by calling value() method
+     *		gpioState.value(); // access pin state
+     * } else {
+     * 		// an error occurred during checking of GPIO state. You can check error type by calling error() method. Possible errors are specyfied
+     *      // in Error enum
+     *      Error errorCode = gpioState.error(); // access error code
+     * }
      */
-    virtual int get() const noexcept = 0;
+    virtual PinStateReturnType get() const noexcept = 0;
     /**
      * @brief Get output state, this can be used with @ref get method to check if pin is shorted to ground or power lines.
-     * @return Programmed pin state, set by @ref set or @ref reset methods
-     * @return Negative value if an error occurred.
-     * @retval > 0 if pin should be in high state
-     * @retval 0 if pin should be in low state
+     * @return Programmed pin state or error, set by @ref set or @ref reset methods
+     * 		   Check get() method documentation to understand return values.
      */
-    virtual int getOutputState() const noexcept = 0;
-    /**
-     * @brief Check if pin is set as high
-     *
-     * @retval 1 - if pin is high
-     * @retval 0 - if pin is low
-     * @retval < 0 - if an error occurred
-     */
-    int isSet() const noexcept { return get(); }
-    /**
-     * @brief Check if pin is set as low
-     *
-     * @retval 1 - if pin is low
-     * @retval 0 - if pin is high
-     * @retval < 0 - if an error occurred
-     */
-    int isReset() const noexcept {
-        const auto state = get();
-        if (state < 0) return state;
-        if (state > 0) return 0;
-        return 1;
-    }
-    /**
-     * @brief Check if pin is configured as output
-     *
-     * @retval true - if pin is configured as Output
-     * @retval false - if pin is configured as Input
-     */
-    bool isInput() const { return getDirection() == Direction::Input; }
-    /**
-     * @brief Check if pin is configured as input
-     *
-     * @retval true - if pin is configured as Input
-     * @retval false - if pin is configured as Output
-     */
-    bool isOutput() const { return getDirection() == Direction::Output; }
+    virtual PinStateReturnType getOutputState() const noexcept = 0;
 
-    bool configureAsInput(PullType pullUpOrDown) { return configure(Direction::Input, OutputType::PushPull, pullUpOrDown); }
-    bool configureAsOutput(OutputType outputType, PullType pullUpOrDown) { return configure(Direction::Output, outputType, pullUpOrDown); }
+    Error configureAsInput(PullType pullUpOrDown) { return configure(Direction::Input, OutputType::PushPull, pullUpOrDown); }
+    Error configureAsOutput(OutputType outputType, PullType pullUpOrDown) { return configure(Direction::Output, outputType, pullUpOrDown); }
     /**
      * @brief Check current pin direction
      *
      * @return pin Direction
      */
-    Direction getDirection() const;
+    virtual Expected<Direction, UnexpectedNegativeValue<Error>> getDirection() const noexcept = 0;
     /**
      * @brief Returns pin output configuration, if pin is configured as input return value will be invalid.
      *
      */
-    OutputType getOutputType() const;
+    virtual Expected<OutputType, UnexpectedNegativeValue<Error>> getOutputType() const noexcept = 0;
     /**
      * @brief Returns pin pull configuration
      *
      */
-    PullType getPullType() const;
-    /**
-     * @brief Returns state of pin
-     *
-     * @retval true - if pin is high
-     * @retval false - if pin is low
-     */
-    operator bool() { return get(); }
-    /**
-     * @brief Sets pin state to state
-     *
-     * @param state - value that is to be set on pin
-     */
-    GPIO &operator=(bool state) {
-        state ? set() : reset();
-        return *this;
-    }
-
-    /**
-     * @brief Returns negated state of pin
-     *
-     * @retval true - if pin is low
-     * @retval false - if pin is high
-     */
-    bool operator!() { return isReset(); }
-    /**
-     * @brief Compares state of pins
-     * @param state
-     * @retval true - if pins are equal
-     * @retval false - if pin are not equal
-     */
-    bool operator==(bool state) { return get() == state; }
-    /**
-     * @brief Compares state of pins
-     *
-     * @param state
-     * @retval true - if pins not are equal
-     * @retval false - if pin are equal
-     */
-    bool operator!=(bool state) { return get() != state; }
+    virtual Expected<PullType, UnexpectedNegativeValue<Error>> getPullType() const noexcept = 0;
 
  private:
-    virtual bool configure(Direction, OutputType, PullType) = 0;
-    virtual bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const = 0;
+    virtual Error configure(Direction, OutputType, PullType) = 0;
 };
 
 }  // namespace microhal

@@ -60,17 +60,6 @@ class GPIO : public microhal::GPIO {
     } Speed;
 
  private:
-    /**
-     *
-     */
-    typedef struct __attribute__((packed)) {
-        uint8_t mode;
-        uint8_t type;
-        uint8_t pull;
-        Speed speed;
-    } PinConfiguration;
-    static_assert(sizeof(PinConfiguration) == 4, "");
-
     enum class AlternateFunction : uint8_t {
         AF0 = 0,
         AF1 = 1,
@@ -108,53 +97,49 @@ class GPIO : public microhal::GPIO {
         pinInitialize(static_cast<uint8_t>(dir), type, pull, speed);
     }
 
-    int set() noexcept final {
+    Error set() noexcept final {
         port.setMask(1 << pinNo);
-        return 1;
+        return Error::None;
     }
-    int reset() noexcept final {
+    Error reset() noexcept final {
         port.resetMask(1 << pinNo);
-        return 1;
+        return Error::None;
     }
     /** This function read pin state*/
-    int get() const noexcept final {
+    PinStateReturnType get() const noexcept final {
         uint16_t io = port.get();
-        return io & (1 << pinNo);
+        return static_cast<State>((io >> pinNo) & 0b1);
     }
 
-    int getOutputState() const noexcept final {
+    PinStateReturnType getOutputState() const noexcept final {
         uint16_t odr = port.getOdr();
-        return odr & (1 << pinNo);
+        return static_cast<State>((odr >> pinNo) & 0b1);
     }
 
-    bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
-        pinInitialize(static_cast<uint8_t>(dir), type, pull, MediumSpeed);
-        return true;
-    }
+    Expected<Direction, UnexpectedNegativeValue<Error>> getDirection() const noexcept final;
+    Expected<OutputType, UnexpectedNegativeValue<Error>> getOutputType() const noexcept final;
+    Expected<PullType, UnexpectedNegativeValue<Error>> getPullType() const noexcept final;
 
-    bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const final;
+    /**
+     * This function set pin direction.
+     *
+     * @param direction - pin direction
+     */
+    void setOutputType(OutputType outputType);
+
     /**
      * This function set pin pull type
      *
      * @param pullType
      */
-    void setPullType(PullType pullType) {
-        auto pupdr = port.getPullConfig();
-        pupdr &= ~(0b11 << (pinNo * 2));                          // clear old configuration
-        pupdr |= static_cast<uint16_t>(pullType) << (pinNo * 2);  // set new configuration
-        port.setPullConfig(pupdr);
-    }
+    void setPullType(PullType pullType);
+
     //----------------------------- not portable functions
     /** This function set pin speed
      *
      * @param speed - pin speed
      */
-    void setSpeed(Speed speed) {
-        auto ospeedr = port.getSpeed();
-        ospeedr &= ~(0b11 << (pinNo * 2));  // clear old configuration
-        ospeedr |= speed << (pinNo * 2);    // set new configuration
-        port.setSpeed(speed);
-    }
+    void setSpeed(Speed speed);
 
  protected:
     GPIOPort port;
@@ -162,23 +147,9 @@ class GPIO : public microhal::GPIO {
 
     void pinInitialize(uint8_t mode, OutputType outputType, PullType pull, Speed speed);
 
-    /**
-     * This function set pin direction.
-     *
-     * @param direction - pin direction
-     */
-    void setOutputType(OutputType outputType) {
-        uint16_t dir = port.getOutputType();
-        dir &= ~(1 << pinNo);                               // clear old configuration
-        dir |= static_cast<uint16_t>(outputType) << pinNo;  // set new configuration
-        port.setOutputType(dir);
-    }
-
-    Direction getDirection() const {
-        uint32_t mode = port.getMode();
-        mode >>= (2 * pinNo);
-        mode &= 0b11;
-        return static_cast<Direction>(mode);
+    Error configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final {
+        pinInitialize(static_cast<uint8_t>(dir), type, pull, MediumSpeed);
+        return Error::None;
     }
 
     /**

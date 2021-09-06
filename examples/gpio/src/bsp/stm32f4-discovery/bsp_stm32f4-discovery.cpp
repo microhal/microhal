@@ -8,7 +8,7 @@
  * created on: 16-04-2014
  * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2018, Pawel Okas
+ * @copyright Copyright (c) 2014-2021, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -60,6 +60,8 @@ void hardwareConfig(void) {
 
     SysTick_Config(168000000 / 1000);
 }
+
+extern "C" void preInit() {}
 
 uint64_t SysTick_time = 0;
 

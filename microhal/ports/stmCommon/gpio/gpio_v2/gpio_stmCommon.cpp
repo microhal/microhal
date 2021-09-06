@@ -42,7 +42,7 @@ bool GPIO::setSpeed(Speed speed) {
     return false;
 }
 
-bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) {
+GPIO::Error GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) {
     port.enableClock();
 
     if (dir == Direction::Input) {
@@ -64,35 +64,45 @@ bool GPIO::configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType t
                 cnf = 0b0000 | MediumSpeed;
                 break;
             default:
-                return false;
+                return Error::UnsupportedOutputType;
         }
         port.configurePin(pinNo, cnf);
     }
-    return true;
+    return Error::None;
 }
 
-bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
+Expected<GPIO::Direction, UnexpectedNegativeValue<GPIO::Error>> GPIO::getDirection() const noexcept {
     const auto config = port.getPinConfiguration(pinNo);
     if (config & 0b11) {
-        dir = Direction::Output;
+        return Direction::Output;
+    }
+    return Direction::Input;
+}
+Expected<GPIO::OutputType, UnexpectedNegativeValue<GPIO::Error>> GPIO::getOutputType() const noexcept {
+    const auto config = port.getPinConfiguration(pinNo);
+    if (config & 0b11) {
         if (config & 0b0100)
-            otype = OutputType::OpenDrain;
+            return OutputType::OpenDrain;
         else {
-            otype = OutputType::PushPull;
-        }
-    } else {
-        dir = Direction::Input;
-        if ((config & 0b1100) == 0b1000) {
-            if (port.getOdr() & pinMask) {
-                pull = PullType::PullUp;
-            } else {
-                pull = PullType::PullDown;
-            }
-        } else {
-            pull = PullType::NoPull;
+            return OutputType::PushPull;
         }
     }
-    return true;
+    return Error::GPIONotOutput;
+}
+Expected<GPIO::PullType, UnexpectedNegativeValue<GPIO::Error>> GPIO::getPullType() const noexcept {
+    const auto config = port.getPinConfiguration(pinNo);
+    if (!(config & 0b11)) {
+        if ((config & 0b1100) == 0b1000) {
+            if (port.getOdr() & pinMask) {
+                return PullType::PullUp;
+            } else {
+                return PullType::PullDown;
+            }
+        } else {
+            return PullType::NoPull;
+        }
+    }
+    return Error::GPIONotInput;
 }
 
 void GPIO::setAlternateFunctionOutput(PullType pull, OutputType type, Speed speed) {

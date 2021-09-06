@@ -56,11 +56,46 @@ void GPIO::pinInitialize(uint8_t mode, OutputType outputType, PullType pull, Spe
     setSpeed(speed);
 }
 
-bool GPIO::getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const {
-    otype = getOutputType();
-    dir = getDirection();
-    pull = static_cast<PullType>((port.getPullConfig() >> (2 * pinNo)) & 0b11);
-    return true;
+Expected<GPIO::Direction, UnexpectedNegativeValue<GPIO::Error>> GPIO::getDirection() const noexcept {
+    uint32_t mode = port.getMode();
+    mode >>= (2 * pinNo);
+    mode &= 0b11;
+    return static_cast<Direction>(mode);
+}
+
+Expected<GPIO::OutputType, UnexpectedNegativeValue<GPIO::Error>> GPIO::getOutputType() const noexcept {
+    if (*getDirection() == Direction::Output) {
+        const uint16_t outputType = port.getOutputType();
+        return static_cast<OutputType>((outputType >> pinNo) & 0b1);
+    }
+    return Error::GPIONotOutput;
+}
+
+Expected<GPIO::PullType, UnexpectedNegativeValue<GPIO::Error>> GPIO::getPullType() const noexcept {
+    return static_cast<PullType>((port.getPullConfig() >> (2 * pinNo)) & 0b11);
+}
+
+void GPIO::setOutputType(OutputType outputType) {
+    uint16_t dir = port.getOutputType();
+    dir &= ~(1 << pinNo);                               // clear old configuration
+    dir |= static_cast<uint16_t>(outputType) << pinNo;  // set new configuration
+    port.setOutputType(dir);
+}
+
+void GPIO::setPullType(PullType pullType) {
+    auto pupdr = port.getPullConfig();
+    pupdr &= ~(0b11 << (pinNo * 2));                          // clear old configuration
+    pupdr |= static_cast<uint16_t>(pullType) << (pinNo * 2);  // set new configuration
+    port.setPullConfig(pupdr);
+}
+
+//----------------------------- not portable functions
+
+void GPIO::setSpeed(Speed speed) {
+    auto ospeedr = port.getSpeed();
+    ospeedr &= ~(0b11 << (pinNo * 2));  // clear old configuration
+    ospeedr |= speed << (pinNo * 2);    // set new configuration
+    port.setSpeed(speed);
 }
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE

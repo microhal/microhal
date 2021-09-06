@@ -56,6 +56,8 @@ microhal::GPIO& button = detail::button;
 
 }  // namespace bsp
 
+extern "C" void preInit() {}
+
 void hardwareConfig(void) {
     // Core::pll_start(8000000, 168000000);
     stm32f4xx::Core::fpu_enable();

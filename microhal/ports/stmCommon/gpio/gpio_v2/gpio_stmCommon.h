@@ -80,37 +80,42 @@ class GPIO : public microhal::GPIO {
 
     constexpr virtual ~GPIO() = default;
 
-    int set() noexcept final {
+    Error set() noexcept final {
         port.setMask(pinMask);
-        return 1;
+        return Error::None;
     }
-    int reset() noexcept final {
+    Error reset() noexcept final {
         port.resetMask(pinMask);
-        return 1;
+        return Error::None;
     }
     /** This function read pin state*/
-    int get() const noexcept final {
+    PinStateReturnType get() const noexcept final {
         const uint16_t io = port.get();
-        return io & pinMask;
+        return static_cast<State>((io >> pinNo) & 0b1);
     }
 
-    int getOutputState() const noexcept final {
+    PinStateReturnType getOutputState() const noexcept final {
         uint16_t io = port.getOdr();
-        return io & pinMask;
+        return static_cast<State>((io >> pinNo) & 0b1);
     }
 
-    bool configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final;
+    Expected<Direction, UnexpectedNegativeValue<Error>> getDirection() const noexcept final;
+    Expected<OutputType, UnexpectedNegativeValue<Error>> getOutputType() const noexcept final;
+    Expected<PullType, UnexpectedNegativeValue<Error>> getPullType() const noexcept final;
+
+    //----------------------------- not portable functions
     /** This function set pin speed
      *
      * @param speed - pin speed
      */
     bool setSpeed(Speed speed);
-    bool getConfiguration(Direction &dir, OutputType &otype, PullType &pull) const final;
 
  protected:
     GPIOPort port;
     uint16_t pinMask;
     uint8_t pinNo;
+
+    Error configure(microhal::GPIO::Direction dir, microhal::GPIO::OutputType type, microhal::GPIO::PullType pull) final;
 
     /**
      *
