@@ -161,6 +161,20 @@ bool LIN::init(uint32_t baudRate, uint32_t interruptPriority) {
     return false;
 }
 
+void LIN::deinit() {
+    using namespace std::chrono_literals;
+
+    disable();
+    status = Error::None;
+    txDone.wait(0ms);
+    rxDone.wait(0ms);
+    mode = WaitForBreak;
+    rxBufferIter = 0;
+    waitForBytes = -1;
+    txPtr = nullptr;
+    txEndPtr = nullptr;
+}
+
 void LIN::enableInterrupt(uint32_t priority) {
 #ifdef MICROHAL_RTOS_FreeRTOS
     assert(priority >= configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
@@ -213,7 +227,10 @@ LIN::Error LIN::write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::mill
 #endif
     }
 
-    if (!txDone.wait(timeout)) return Error::Timeout;
+    if (!txDone.wait(timeout)) {
+        mode = WaitForBreak;
+        return Error::Timeout;
+    }
     return status;
 }
 

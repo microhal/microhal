@@ -30,6 +30,7 @@
 
 #include <utils/bitfield.h>
 #include <utils/packed.h>
+#include <span>
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
 #include "diagnostic/diagnostic.h"
 #endif
@@ -78,6 +79,8 @@ struct Frame {
     uint8_t id() const { return header.id(); }
     uint_fast8_t size() const { return dataLen + 3; /* dataLen + sizeof(Header) + sizeof(checksum) */ }
 
+    std::span<const uint8_t> payload() const { return std::span<const uint8_t>(data, dataLen); }
+
     bool isUnconditionalFrame() const { return id() <= 59; }
     bool isDiagnosticFrame() const { return id() == 60 || id() == 61; }
     bool isReserved() const { return id() == 62 || id() == 63; }
@@ -96,6 +99,17 @@ struct Frame {
     uint8_t calculateChecksum() const;
     uint8_t calculateClasicChecksum() const;
     uint8_t calculateEnhancedChecksum() const;
+
+    bool operator!=(const Frame &rhs) const {
+        if (header.id() != rhs.header.id()) return true;
+        if (dataLen != rhs.dataLen) return true;
+        for (uint_fast8_t i = 0; i < dataLen; i++) {
+            if (data[i] != rhs.data[i]) return true;
+        }
+        return false;
+    }
+
+    bool operator==(const Frame &rhs) const { return !this->operator!=(rhs); }
 };
 
 }  // namespace lin

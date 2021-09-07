@@ -55,6 +55,7 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 extern "C" {
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
+void USART6_IRQHandler(void);
 }
 
 class LIN final : public lin::LIN {
@@ -65,6 +66,7 @@ class LIN final : public lin::LIN {
     virtual ~LIN();
 
     bool init(uint32_t baudRate, uint32_t interruptPriority);
+    void deinit();
 
     void enable();
     bool isEnabled() const { return usart.cr1.volatileLoad().UE; }
@@ -79,11 +81,14 @@ class LIN final : public lin::LIN {
 #if MICROHAL_USE_LIN2 == 1
     static LIN *lin2;
 #endif
+#if MICROHAL_USE_LIN6 == 1
+    static LIN *lin6;
+#endif
     registers::USART &usart;
     Error status = Error::None;
     microhal::os::Semaphore txDone;
     microhal::os::Semaphore rxDone;
-    uint8_t mode = 0;
+    uint8_t mode = WaitForBreak;
     uint8_t rxBuffer[11];
     int_fast8_t rxBufferIter = 0;
     int_fast8_t waitForBytes = -1;
@@ -102,6 +107,7 @@ class LIN final : public lin::LIN {
 
     friend void USART1_IRQHandler(void);
     friend void USART2_IRQHandler(void);
+    friend void USART6_IRQHandler(void);
 };
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
