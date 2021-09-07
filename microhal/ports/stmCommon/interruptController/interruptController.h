@@ -33,7 +33,7 @@
 #define _MICROHAL_INTERRUPT_CONTROLLER_I2C_EV_ER_COMBINED 1
 
 namespace microhal {
-namespace stm32g0xx {
+namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
 
 /**
  *
@@ -72,7 +72,7 @@ void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);
 void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority);
 void disableUSARTInterrupt(uint8_t usartNumber);
 
-}  // namespace stm32g0xx
+}  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
 #endif /* _MICROHAL_PORTS_STM32G0XX_INTERRUPTCONTROLLER_H_ */
