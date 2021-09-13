@@ -41,7 +41,19 @@ namespace lin {
 
 class LIN {
  public:
-    enum class Error { None, Timeout, BusConflictDetected, BreakDetected, IncorrectSync, IncorrectHeaderParity, IncorrectChecksum, InputError };
+    enum class Error {
+        None,
+        Timeout,
+        BusConflictDetected,
+        BreakDetected,
+        IncorrectSync,
+        IncorrectHeaderParity,
+        IncorrectChecksum,
+        InputError,
+        // ------- errors returned by transport layer
+        Busy
+
+    };
 
     virtual ~LIN() = default;
 

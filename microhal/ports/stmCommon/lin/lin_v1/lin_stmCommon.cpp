@@ -133,7 +133,7 @@ LIN::~LIN() {
 
 bool LIN::init(uint32_t baudRate, uint32_t interruptPriority) {
     // set baudrate
-    usart.brr.volatileStore(ClockManager::USARTFrequency(2) / baudRate);
+    usart.brr.volatileStore(ClockManager::USARTFrequency(usart::number(&usart)) / baudRate);
     auto cr1 = usart.cr1.volatileLoad();
     if (!cr1.UE.get()) {
         // no parity
@@ -215,6 +215,7 @@ void LIN::sendBreak() {
 LIN::Error LIN::write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::milliseconds timeout) {
     txPtr = data.data();
     txEndPtr = txPtr + data.length_bytes() - 1;
+    waitForBytes = -1;
     if (sendBreak) {
         mode = TransmitterWaitForBreak;
         this->sendBreak();
