@@ -25,15 +25,24 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_PORTS_STM32G0XX_INTERRUPTCONTROLLER_H_
-#define _MICROHAL_PORTS_STM32G0XX_INTERRUPTCONTROLLER_H_
+#ifndef _MICROHAL_PORTS_STMCOMMON_INTERRUPTCONTROLLER_H_
+#define _MICROHAL_PORTS_STMCOMMON_INTERRUPTCONTROLLER_H_
 
+#include <ports/stmCommon/stmCommonDefines.h>
 #include <cstdint>
 
 #define _MICROHAL_INTERRUPT_CONTROLLER_I2C_EV_ER_COMBINED 1
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
+
+void enableCanTxInterrupt(uint8_t number, uint32_t priority);
+void enableCanRx0Interrupt(uint8_t number, uint32_t priority);
+void enableCanRx1Interrupt(uint8_t number, uint32_t priority);
+
+void disableCanTxInterrupt(uint8_t number);
+void disableCanRx0Interrupt(uint8_t number);
+void disableCanRx1Interrupt(uint8_t number);
 
 /**
  *
@@ -68,11 +77,11 @@ void enableSPIInterrupt(uint_fast8_t spiNumber, uint32_t priority);
  */
 void disableSPIInterrupt(uint_fast8_t spiNumber);
 
-void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority);
-void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority);
-void disableUSARTInterrupt(uint8_t usartNumber);
+void enableUSARTInterrupt(uint_fast8_t usartNumber, uint32_t priority);
+void setUSARTInterruptPriority(uint_fast8_t usartNumber, uint32_t priority);
+void disableUSARTInterrupt(uint_fast8_t usartNumber);
 
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif /* _MICROHAL_PORTS_STM32G0XX_INTERRUPTCONTROLLER_H_ */
+#endif /* _MICROHAL_PORTS_STMCOMMON_INTERRUPTCONTROLLER_H_ */
