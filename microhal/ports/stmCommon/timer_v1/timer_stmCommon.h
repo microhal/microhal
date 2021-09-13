@@ -192,6 +192,18 @@ class Timer {
         timer.dier.volatileStore(dier);
     }
 
+    void disableInterrupts(Interrupt interrupt) {
+        auto dier = timer.dier.volatileLoad();
+        dier &= ~static_cast<uint32_t>(interrupt);
+        timer.dier.volatileStore(dier);
+    }
+
+    void clearInterruptsFlag(Interrupt interrupt) {
+        auto sr = timer.sr.volatileLoad();
+        sr &= ~static_cast<uint32_t>(interrupt);
+        timer.sr.volatileStore(sr);
+    }
+
     void setMode(Mode mode) {
         auto cr1 = timer.cr1.volatileLoad();
         cr1.CMS = static_cast<uint32_t>(mode);
