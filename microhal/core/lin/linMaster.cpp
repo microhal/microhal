@@ -28,6 +28,8 @@
 #include <lin/linMaster.h>
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
 #include "diagnostic/diagnostic.h"
+
+using namespace microhal::diagnostic;
 #endif
 
 namespace microhal {

@@ -29,6 +29,7 @@
 #define SRC_THIRD_PARTY_MICROHAL_CORE_LIN_LINCOMMON_H_
 
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
+#include "diagnostic/diagnostic.h"
 #endif
 
 #ifdef MICROHAL_LIN_USE_OSTREAM
