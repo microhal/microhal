@@ -25,63 +25,57 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_LIN_H_
-#define _MICROHAL_LIN_H_
+#ifndef SRC_THIRD_PARTY_MICROHAL_CORE_LIN_LINCOMMON_H_
+#define SRC_THIRD_PARTY_MICROHAL_CORE_LIN_LINCOMMON_H_
 
-#include <utils/result.h>
-#include <chrono>
-#include <gsl/span>
-#include "linFrame.h"
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
-#include "diagnostic/diagnostic.h"
+#endif
+
+#ifdef MICROHAL_LIN_USE_OSTREAM
+#include <array>
+#include <ostream>
+#include <string_view>
 #endif
 
 namespace microhal {
 namespace lin {
+namespace detail {
 
-class LIN {
- public:
-    enum class Error {
-        None,
-        Timeout,
-        BusConflictDetected,
-        BreakDetected,
-        IncorrectSync,
-        IncorrectHeaderParity,
-        IncorrectChecksum,
-        InputError,
-        // ------- errors returned by transport layer
-        Busy
-
-    };
-
-    virtual ~LIN() = default;
-
-    microhal::Result<Header, Error, Error::None> readHeader(std::chrono::milliseconds timeout);
-    microhal::Result<Frame *, Error, Error::None> readFrame(Frame &frame, std::chrono::milliseconds timeout);
-    microhal::Result<Frame *, Error, Error::None> request(Frame &frame, std::chrono::milliseconds timeout);
-
-    Error sendResponse(Frame &frame, std::chrono::milliseconds timeout);
-    Error sendFrame(Frame &frame, std::chrono::milliseconds timeout);
-
- protected:
-    virtual Error readHeader_to(Header &header, std::chrono::milliseconds timeout) = 0;
-    virtual Error read_to(uint8_t *data, uint_fast8_t length, std::chrono::milliseconds timeout) = 0;
-    virtual Error write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::milliseconds timeout) = 0;
-    virtual Error request_impl(lin::Frame &frame, std::chrono::milliseconds timeout) = 0;
+enum class Error : uint8_t {
+    None,
+    Timeout,
+    BusConflictDetected,
+    BreakDetected,
+    IncorrectSync,
+    IncorrectHeaderParity,
+    IncorrectChecksum,
+    InputError,
+    // ------- errors returned by transport layer
+    Busy,
+    BufferOverflow,
 };
 
+}
 }  // namespace lin
 }  // namespace microhal
 
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
 template <microhal::diagnostic::LogLevel level, bool B>
-inline microhal::diagnostic::LogLevelChannel<level, B> &operator<<(microhal::diagnostic::LogLevelChannel<level, B> &logChannel,
-                                                                   const microhal::lin::LIN::Error error) {
+inline microhal::diagnostic::LogLevelChannel<level, B>& operator<<(microhal::diagnostic::LogLevelChannel<level, B>& logChannel,
+                                                                   const microhal::lin::detail::Error error) {
     constexpr const std::array<std::string_view, 8> str = {
         "None", "Timeout", "BusConflictDetected", "BreakDetected", "IncorrectSync", "IncorrectHeaderParity", "IncorrectChecksum", "InputError"};
     return logChannel << str[static_cast<int>(error)];
 }
 #endif
 
-#endif /* SRC_THIRD_PARTY_MICROHAL_CORE_LIN_LININTERFACE_H_ */
+#ifdef MICROHAL_LIN_USE_OSTREAM
+inline std::ostream& operator<<(std::ostream& os, const microhal::lin::detail::Error error) {
+    constexpr const std::array<std::string_view, 8> str = {
+        "None", "Timeout", "BusConflictDetected", "BreakDetected", "IncorrectSync", "IncorrectHeaderParity", "IncorrectChecksum", "InputError"};
+    os << str[static_cast<uint32_t>(error)];
+    return os;
+}
+#endif
+
+#endif /* SRC_THIRD_PARTY_MICROHAL_CORE_LIN_LINCOMMON_H_ */

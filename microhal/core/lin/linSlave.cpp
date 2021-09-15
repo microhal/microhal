@@ -25,16 +25,15 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "lin.h"
-
+#include <lin/linSlave.h>
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
-using namespace microhal::diagnostic;
+#include "diagnostic/diagnostic.h"
 #endif
 
 namespace microhal {
 namespace lin {
 
-Result<Header, LIN::Error, LIN::Error::None> LIN::readHeader(std::chrono::milliseconds timeout) {
+Result<Header, LINSlave::Error, LINSlave::Error::None> LINSlave::readHeader(std::chrono::milliseconds timeout) {
     Header header;
     Error status = readHeader_to(header, timeout);
     if (status == Error::None) {
@@ -47,7 +46,7 @@ Result<Header, LIN::Error, LIN::Error::None> LIN::readHeader(std::chrono::millis
     return status;
 }
 
-microhal::Result<Frame *, LIN::Error, LIN::Error::None> LIN::readFrame(Frame &frame, std::chrono::milliseconds timeout) {
+microhal::Result<Frame *, LINSlave::Error, LINSlave::Error::None> LINSlave::readFrame(Frame &frame, std::chrono::milliseconds timeout) {
     Error status = read_to((uint8_t *)&frame.header, frame.size(), timeout);
     if (status == Error::None) {
         if (frame.header.sync != 0x55) return Error::IncorrectSync;
@@ -63,33 +62,13 @@ microhal::Result<Frame *, LIN::Error, LIN::Error::None> LIN::readFrame(Frame &fr
     return status;
 }
 
-microhal::Result<Frame *, LIN::Error, LIN::Error::None> LIN::request(Frame &frame, std::chrono::milliseconds timeout) {
-    Error status = request_impl(frame, timeout);
-    if (status == Error::None) {
-        if (frame.isChecksumValid()) {
-            return &frame;
-        }
-        return Error::IncorrectChecksum;
-    }
-    return status;
-}
-
-LIN::Error LIN::sendResponse(Frame &frame, std::chrono::milliseconds timeout) {
+LINSlave::Error LINSlave::sendResponse(Frame &frame, std::chrono::milliseconds timeout) {
     frame.updateChecksum();
 #ifdef MICROHAL_LIN_USE_DIAGNOSTIC
     diagChannel << lock << MICROHAL_DEBUG << "Sending LIN response: " << toHex(frame.data, frame.dataLen + 1) << unlock;
 #endif
-    return write({frame.data, frame.dataLen + 1}, false, timeout);
+    return write({frame.data, frame.dataLen + 1}, timeout);
 }
 
-LIN::Error LIN::sendFrame(Frame &frame, std::chrono::milliseconds timeout) {
-    frame.header.protectedIdentifier.calculateParity();
-    frame.updateChecksum();
-#ifdef MICROHAL_LIN_USE_DIAGNOSTIC
-    diagChannel << lock << MICROHAL_DEBUG << "Sending LIN frame: " << frame << unlock;
-#endif
-    return write({(uint8_t *)&frame, frame.size()}, true, timeout);
-}
-
-}  // namespace lin
-}  // namespace microhal
+} /* namespace lin */
+} /* namespace microhal */

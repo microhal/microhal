@@ -25,8 +25,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_LIN_LIN_V1_LIN_STMCOMMON_H_
-#define SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_LIN_LIN_V1_LIN_STMCOMMON_H_
+#ifndef _MICROHAL_PORTS_STMCOMMON_LIN_V1_LINMASTER_STMCOMMON_H_
+#define _MICROHAL_PORTS_STMCOMMON_LIN_V1_LINMASTER_STMCOMMON_H_
 /* ************************************************************************************************
  * 1.) Check if this driver should be used on selected MCU.
  * 2.) Check if this driver is enabled in microhal port configuration file
@@ -38,16 +38,15 @@
  * INCLUDES
  */
 #include <cstdint>
-#include "../../clockManager/usartClock.h"
-#include "../../stmCommonDefines.h"
-#include "gsl/span"
-#include "lin/lin.h"
+#include "../../stmCommonDefines.h"  // required for _MICROHAL_ACTIVE_PORT_NAMESPACE and _MICROHAL_INCLUDE_PORT_CONFIG
+#include "lin/linMaster.h"
 #include "microhal_semaphore.h"
+#include _MICROHAL_INCLUDE_PORT_CONFIG
 #if defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
 #include "../../registers/usartRegisters_v2.h"
 #else
 #include "../../registers/usartRegisters_v1.h"
-#endif
+#endif  // defined(MCU_TYPE_STM32F3XX) || defined(MCU_TYPE_STM32F0XX) || defined(MCU_TYPE_STM32G0XX)
 
 namespace microhal {
 namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
@@ -58,12 +57,19 @@ void USART2_IRQHandler(void);
 void USART6_IRQHandler(void);
 }
 
-class LIN final : public lin::LIN {
-    enum Mode { WaitForBreak, TransmitterWaitForBreak, Transmitter, Receiver };
+class LINMaster final : public lin::LINMaster {
+    enum Mode { Idle = 0b000, WaitForBreak = 0b100, Transmitter = 0b001, Receiver = 0b010 };
 
  public:
-    LIN(registers::USART &usart);
-    virtual ~LIN();
+#if MICROHAL_USE_LIN1 == 2
+    static LINMaster lin1;
+#endif
+#if MICROHAL_USE_LIN2 == 2
+    static LINMaster lin2;
+#endif
+#if MICROHAL_USE_LIN6 == 2
+    static LINMaster lin6;
+#endif
 
     bool init(uint32_t baudRate, uint32_t interruptPriority);
     void deinit();
@@ -72,33 +78,24 @@ class LIN final : public lin::LIN {
     bool isEnabled() const { return usart.cr1.volatileLoad().UE; }
     void disable();
 
-    Error waitForBreak(std::chrono::milliseconds timeout);
-
  private:
-#if MICROHAL_USE_LIN1 == 1
-    static LIN *lin1;
-#endif
-#if MICROHAL_USE_LIN2 == 1
-    static LIN *lin2;
-#endif
-#if MICROHAL_USE_LIN6 == 1
-    static LIN *lin6;
-#endif
     registers::USART &usart;
+    os::Semaphore semaphore{};
     Error status = Error::None;
-    microhal::os::Semaphore txDone;
-    microhal::os::Semaphore rxDone;
-    uint8_t mode = WaitForBreak;
-    uint8_t rxBuffer[11];
-    int_fast8_t rxBufferIter = 0;
-    int_fast8_t waitForBytes = -1;
+    uint8_t mode = Idle;
+    uint8_t rxBuffer[12];
+    uint8_t rxBufferIter = 0;
+    uint8_t waitForBytes = -1;
     uint8_t *txPtr = nullptr;
     uint8_t *txEndPtr = nullptr;
 
+    LINMaster(registers::USART &usart) : usart(usart) {}
+    LINMaster(const LINMaster &) = delete;
+    LINMaster(LINMaster &&) = delete;
+    LINMaster &operator=(const LINMaster &) = delete;
+
     void sendBreak();
-    Error write(gsl::span<uint8_t> data, bool sendBreak, std::chrono::milliseconds timeout) final;
-    Error readHeader_to(lin::Header &header, std::chrono::milliseconds timeout) final;
-    Error read_to(uint8_t *data, uint_fast8_t length, std::chrono::milliseconds timeout) final;
+    Error write(std::span<uint8_t> data, std::chrono::milliseconds timeout) final;
     Error request_impl(lin::Frame &frame, std::chrono::milliseconds timeout) final;
 
     void enableInterrupt(uint32_t priority);
@@ -113,5 +110,5 @@ class LIN final : public lin::LIN {
 }  // namespace _MICROHAL_ACTIVE_PORT_NAMESPACE
 }  // namespace microhal
 
-#endif
-#endif /* SRC_THIRD_PARTY_MICROHAL_PORTS_STMCOMMON_LIN_LIN_V1_LIN_STMCOMMON_H_ */
+#endif  // _MICROHAL_PORT_STM_SERIAL_PORT_DRIVER_VERSION == 1
+#endif  // _MICROHAL_PORTS_STMCOMMON_LIN_V1_LINMASTER_STMCOMMON_H_
