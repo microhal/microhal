@@ -17,13 +17,13 @@ using namespace diagnostic;
 
 I2C::Error I2C::read(DeviceAddress deviceAddress, uint8_t *data, size_t dataLength, uint8_t *dataB, size_t dataBLength) noexcept {
     if (::ioctl(file, I2C_SLAVE, deviceAddress >> 1) < 0) return Error::Unknown;
-    uint8_t *buffer = new uint8_t[dataLength + dataBLength];
-    auto readStatus = ::read(file, buffer, dataLength + dataBLength);
+    auto buffer = std::make_unique<uint8_t[]>(dataLength + dataBLength);
+    auto readStatus = ::read(file, buffer.get(), dataLength + dataBLength);
     if (readStatus >= 0) {
         // we know that writeStatus is positive so it is safe to cast it into unsigned data
         if (static_cast<size_t>(readStatus) == dataLength + dataBLength) {
-            std::copy_n(buffer, dataLength, data);
-            std::copy_n(buffer + dataLength, dataBLength, dataB);
+            std::copy_n(buffer.get(), dataLength, data);
+            std::copy_n(buffer.get() + dataLength, dataBLength, dataB);
             return Error::None;
         }
     } else {
