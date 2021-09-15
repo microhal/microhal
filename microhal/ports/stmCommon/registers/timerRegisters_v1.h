@@ -6,7 +6,21 @@
 #include "registersBaseAddressDefinitions.h"
 
 // Supported MCU: STM32F407, STM32F429, STM32F469, STM32F411, STM32F413, STM32F412, STM32F401, STM32F427, STM32F405, STM32F446, STM32F410, STM32F217,
-// STM32F215, STM32F107, STM32F103, STM32F0x2, STM32F0x8, STM32F0x1, STM32F0x0, STM32F102, STM32F107, STM32F101, STM32F100
+//                STM32F215, STM32F107, STM32F103, STM32F0x2, STM32F0x8, STM32F0x1, STM32F0x0, STM32F102, STM32F107, STM32F101, STM32F100
+
+// Supported MCU variant 2: STM32G070, STM32G071, STM32G081
+
+#if defined(MCU_TYPE_STM32G0XX)
+#define _MICROHAL_REGISTERS_TIMER_VARIANT 2
+#endif
+
+#if _MICROHAL_REGISTERS_TIMER_VARIANT == 2
+#define _MICROHAL_REGISTERS_TIMER_HAS_UIF
+#define _MICROHAL_REGISTERS_TIMER_HAS_OIS5
+#define _MICROHAL_REGISTERS_TIMER_HAS_OIS6
+#define _MICROHAL_REGISTERS_TIMER_HAS_MMS2
+#endif
+
 namespace microhal {
 namespace registers {
 /**
@@ -24,6 +38,9 @@ struct TIM {
             microhal::Bitfield<uint32_t, 5, 2> CMS;  /*!< Center-aligned mode selection */
             microhal::Bitfield<uint32_t, 7, 1> ARPE; /*!< Auto-reload preload enable */
             microhal::Bitfield<uint32_t, 8, 2> CKD;  /*!< Clock division */
+#ifdef _MICROHAL_REGISTERS_TIMER_HAS_UIF
+            microhal::Bitfield<uint32_t, 11, 1> UIFREMAP; /*!< UIF status bit remapping */
+#endif
         };
 
         operator uint32_t() const { return raw; }
@@ -81,6 +98,15 @@ struct TIM {
             microhal::Bitfield<uint32_t, 12, 1> OIS3;  /*!< Output Idle state 3 */
             microhal::Bitfield<uint32_t, 13, 1> OIS3N; /*!< Output Idle state 3 */
             microhal::Bitfield<uint32_t, 14, 1> OIS4;  /*!< Output Idle state 4 */
+#ifdef _MICROHAL_REGISTERS_TIMER_HAS_OIS5
+            microhal::Bitfield<uint32_t, 16, 1> OIS5; /*!< Output Idle state 5 (OC5 output) */
+#endif
+#ifdef _MICROHAL_REGISTERS_TIMER_HAS_OIS6
+            microhal::Bitfield<uint32_t, 18, 1> OIS6; /*!< Output Idle state 6 (OC6 output) */
+#endif
+#ifdef _MICROHAL_REGISTERS_TIMER_HAS_MMS2
+            microhal::Bitfield<uint32_t, 20, 4> MMS2; /*!< Master mode selection 2 */
+#endif
         };
 
         operator uint32_t() const { return raw; }
