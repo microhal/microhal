@@ -87,22 +87,24 @@ class Button {
         Button *active = first;
 
         while (active != nullptr) {
-            // shift samples
-            active->debouncer <<= 1;
-            // if button pressed add 1 to last position;
-            if (active->gpio.get()) {
-                active->debouncer |= 0x01;
-            }
-            if (active->debouncer == active->activeState) active->setFlag(Flag::Pressed);
-            if (active->debouncer == uint8_t(~active->activeState)) active->clearFlag(Flag::Pressed);
-            if (active->isPressed()) {
-                if (active->getFlag(Flag::SignalEmited) == false) {
-                    active->setFlag(Flag::SignalEmited);
-
-                    active->onPressed.emit();
+            if (const auto state = active->gpio.get()) {
+                // shift samples
+                active->debouncer <<= 1;
+                // if button pressed add 1 to last position;
+                if (state.value() == GPIO::State::High) {
+                    active->debouncer |= 0x01;
                 }
-            } else {
-                active->clearFlag(Flag::SignalEmited);
+                if (active->debouncer == active->activeState) active->setFlag(Flag::Pressed);
+                if (active->debouncer == uint8_t(~active->activeState)) active->clearFlag(Flag::Pressed);
+                if (active->isPressed()) {
+                    if (active->getFlag(Flag::SignalEmited) == false) {
+                        active->setFlag(Flag::SignalEmited);
+
+                        active->onPressed.emit();
+                    }
+                } else {
+                    active->clearFlag(Flag::SignalEmited);
+                }
             }
             active = active->next;
         }
