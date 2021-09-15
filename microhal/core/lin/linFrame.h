@@ -38,6 +38,13 @@
 namespace microhal {
 namespace lin {
 
+struct FrameInfo {
+    uint8_t isRequest : 1;
+    uint8_t isEnhancedChacksum : 1;
+    uint8_t isInUse : 1;
+    uint8_t length : 4;
+};
+
 struct Header {
     uint8_t sync = 0x55;
     union {

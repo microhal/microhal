@@ -32,24 +32,27 @@
 namespace microhal {
 namespace lin {
 
-extern const std::bitset<64> requestFlags;
-extern const std::bitset<64> enhancedChecksumFlags;
-extern std::array<uint8_t, 64> linFramesDataLengths;
+static_assert(sizeof(FrameInfo) == 1);
+
+constexpr auto linFrameInit() {
+    std::array<FrameInfo, 64> framesInfo{};
+    framesInfo[60] = lin::FrameInfo{.isRequest = 0, .isEnhancedChacksum = 0, .isInUse = 0, .length = 8};
+    framesInfo[61] = lin::FrameInfo{.isRequest = 1, .isEnhancedChacksum = 0, .isInUse = 0, .length = 8};
+    return framesInfo;
+}
+
+std::array<FrameInfo, 64> linFramesInfo = linFrameInit();
 
 bool Frame::isRequest(const Header &header) {
-    if (header.id() == 60) return false;
-    if (header.id() == 61) return true;
-    return requestFlags[header.id()];
+    return linFramesInfo[header.id()].isRequest;
 }
 
 bool Frame::isEnhancedChecksum(const Header &header) {
-    if (header.id() == 60 || header.id() == 61) return false;
-    return enhancedChecksumFlags[header.id()];
+    return linFramesInfo[header.id()].isEnhancedChacksum;
 }
 
 uint_fast8_t Frame::dataLength(const Header &header) {
-    if (header.id() == 60 || header.id() == 61) return 8;
-    return linFramesDataLengths[header.id()];
+    return linFramesInfo[header.id()].length;
 }
 
 bool Frame::isChecksumValid() const {
