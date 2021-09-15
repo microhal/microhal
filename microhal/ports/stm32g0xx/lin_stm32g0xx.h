@@ -30,6 +30,7 @@
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
-#include "ports/stmCommon/lin/lin_v1/lin_stmCommon.h"
+#include "ports/stmCommon/lin/lin_v1/linMaster_stmCommon.h"
+#include "ports/stmCommon/lin/lin_v1/linSlave_stmCommon.h"
 
 #endif  // _MICROHAL_LIN_STM32G0XX_H_
