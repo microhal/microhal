@@ -43,6 +43,14 @@ constexpr auto linFrameInit() {
 
 std::array<FrameInfo, 64> linFramesInfo = linFrameInit();
 
+bool Frame::configureFrame(uint8_t id, const FrameInfo &info) {
+    if (id < linFramesInfo.size()) {
+        linFramesInfo[id] = info;
+        return true;
+    }
+    return false;
+}
+
 bool Frame::isRequest(const Header &header) {
     return linFramesInfo[header.id()].isRequest;
 }

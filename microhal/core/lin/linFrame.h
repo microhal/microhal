@@ -77,6 +77,7 @@ struct Frame {
     uint8_t data[9];  // data + checksum
     uint8_t dataLen = 8;
 
+    static bool configureFrame(uint8_t id, const FrameInfo &info);
     static bool isRequest(const Frame &frame) { return isRequest(frame.header); }
     static bool isRequest(const Header &header);
     static uint_fast8_t dataLength(const Header &header);
