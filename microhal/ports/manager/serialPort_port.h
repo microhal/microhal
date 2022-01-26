@@ -47,7 +47,7 @@
 #elif defined(VENDOR_TEXAS_INSTRUMENTS)
 #include "TexasInstruments/serialPort_ti.h"
 #elif defined(LINUX_PORT)
-#include "ports/linux/General/serialPort_linux.h"
+#include "ports/linux/generic/serialPort_linux.h"
 #elif defined(WINDOWS_PORT)
 #include "ports/windows/General/serialPort_windows.h"
 #else

@@ -48,7 +48,7 @@
 #elif defined(VENDOR_TEXAS_INSTRUMENTS)
 
 #elif defined(LINUX_PORT)
-    #include "ports/linux/General/spi_linux.h"
+    #include "ports/linux/generic/spi_linux.h"
 #elif defined(WINDOWS_PORT)
     // #include "windows/spi_windows.h"
 #else
