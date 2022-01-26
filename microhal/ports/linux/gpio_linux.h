@@ -62,16 +62,16 @@ class GPIO : public microhal::GPIO {
     /** This function set pin to high state.
      *
      */
-    int set() noexcept final;
+    Error set() noexcept final;
     /** This function set pin to low state.
      *
      */
-    int reset() noexcept final;
+    Error reset() noexcept final;
     /** This function read pin state
      *
      * @return
      */
-    int get() const noexcept final;
+    PinStateReturnType get() const noexcept final;
     /** This function set pin direction.
      *
      * @param port - port name
@@ -90,11 +90,11 @@ class GPIO : public microhal::GPIO {
  protected:
     const IOPin pin;
 
-    bool configure(Direction direction, OutputType outputType, PullType pullType) final {
+    Error configure(Direction direction, OutputType outputType, PullType pullType) final {
         setDirection(direction);
         (void)outputType;
         setPullType(pullType);
-        return true;
+        return Error::None;
     }
 };
 

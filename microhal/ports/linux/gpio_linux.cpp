@@ -43,7 +43,7 @@ GPIO::~GPIO() {
     }
 }
 
-int GPIO::set() noexcept {
+GPIO::Error GPIO::set() noexcept {
     char buf[100];
     sprintf(buf, "/sys/class/gpio/gpio%" PRIuFAST16 "/value", pin.pin);
     auto fd = ::open(buf, O_WRONLY);
@@ -56,10 +56,10 @@ int GPIO::set() noexcept {
                                           << microhal::diagnostic::unlock;
         std::terminate();
     }
-    return 1;
+    return Error::None;
 }
 
-int GPIO::reset() noexcept {
+GPIO::Error GPIO::reset() noexcept {
     char buf[100];
     sprintf(buf, "/sys/class/gpio/gpio%" PRIuFAST16 "/value", pin.pin);
     auto fd = open(buf, O_WRONLY);
@@ -72,10 +72,10 @@ int GPIO::reset() noexcept {
                                           << microhal::diagnostic::unlock;
         std::terminate();
     }
-    return 1;
+    return Error::None;
 }
 
-int GPIO::get() const noexcept {
+GPIO::PinStateReturnType GPIO::get() const noexcept {
     char buf[100];
     sprintf(buf, "/sys/class/gpio/gpio%" PRIuFAST16 "/value", pin.pin);
 
@@ -83,7 +83,7 @@ int GPIO::get() const noexcept {
     if (fd > 0) {
         char value;
         read(fd, &value, 1);
-        bool pinState = (value == '0') ? 0 : 1;
+        const State pinState = (value == '0') ? State::Low : State::High;
 
         close(fd);
         microhal::diagnostic::diagChannel << microhal::diagnostic::lock << MICROHAL_EMERGENCY << "Pin value " << value
