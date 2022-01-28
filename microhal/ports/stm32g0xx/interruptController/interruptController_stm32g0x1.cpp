@@ -246,7 +246,7 @@ void disableSPIInterrupt(uint_fast8_t spiNumber) {
     }
 }
 
-void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
+void enableUSARTInterrupt(uint_fast8_t usartNumber, uint32_t priority) {
     assert(usartNumber > 0);
     assert(usartNumber <= 6);
 
@@ -264,7 +264,7 @@ void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
     }
 }
 
-void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority) {
+void setUSARTInterruptPriority(uint_fast8_t usartNumber, uint32_t priority) {
     assert(usartNumber > 0);
     assert(usartNumber <= 6);
 
@@ -277,7 +277,7 @@ void setUSARTInterruptPriority(uint8_t usartNumber, uint32_t priority) {
     }
 }
 
-void disableUSARTInterrupt(uint8_t usartNumber) {
+void disableUSARTInterrupt(uint_fast8_t usartNumber) {
     assert(usartNumber > 0);
     assert(usartNumber <= 6);
 
