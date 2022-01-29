@@ -1,20 +1,20 @@
 /**
+ * @file
  * @license    BSD 3-Clause
- * @copyright  microHAL
  * @version    $Id$
- * @brief      serial port example main file
+ * @brief      board support package for nucleo-g071rb board
  *
  * @authors    Pawel Okas
- * created on: 20-01-2014
+ * created on: 02-02-2021
  *
- * @copyright Copyright (c) 2020 - 2022, Pawel Okas
+ * @copyright Copyright (c) 2021 - 2022, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  *     1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- *     2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
- *        documentation and/or other materials provided with the distribution.
+ * 	   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+ * 	      documentation and/or other materials provided with the distribution.
  *     3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
  *        software without specific prior written permission.
  *
@@ -30,36 +30,23 @@
 #include "microhal.h"
 
 using namespace microhal;
+using namespace stm32g0xx;
 
-void configureSerialPort(SerialPort &serial) {
-    serial.setBaudRate(SerialPort::Baud115200);
-    serial.setDataBits(SerialPort::Data8);
-    serial.setStopBits(SerialPort::OneStop);
-    serial.setParity(SerialPort::NoParity);
-    serial.open(SerialPort::ReadWrite);
+namespace bsp {
+
+void init() {
+    IOManager::routeSerial<2, Txd, IOPin{IOPin::PortA, 2}>();
+    IOManager::routeSerial<2, Rxd, IOPin{IOPin::PortA, 3}>();
 }
 
-int main(void) {
-    bsp::init();
-    configureSerialPort(bsp::debugSerial);
+}  // namespace bsp
 
-    bsp::debugSerial.write("\n\r----------------------------- SerialPort DEMO -----------------------------\n\r");
+void hardwareConfig(void) {
+    // SysTick_Config(8000000 / 1000);
+}
 
-    char buffer[100];
-    while (1) {
-        auto availableBytes = bsp::debugSerial.availableBytes();
+uint64_t SysTick_time = 0;
 
-        // if some data available
-        if (availableBytes != 0) {
-            // prevent buffer overflow
-            if (availableBytes > sizeof(buffer)) {
-                availableBytes = sizeof(buffer);
-            }
-            bsp::debugSerial.read(buffer, availableBytes);
-            // make echo
-            bsp::debugSerial.write(buffer, availableBytes);
-        }
-    }
-
-    return 0;
+extern "C" void SysTick_Handler(void) {
+    SysTick_time++;
 }
