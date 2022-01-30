@@ -7,9 +7,8 @@
  *
  * @authors    Pawel Okas
  * created on: 18-11-2016
- * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2016, Paweł Okas
+ * @copyright Copyright (c) 2016-2022, Paweł Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,7 +33,7 @@
 #include "microhal.h"
 
 namespace bsp {
-static microhal::SerialPort &serialPortA = microhal::stm32f4xx::SerialPort::Serial2;
+static microhal::SerialPort &debugSerial = microhal::stm32f4xx::SerialPort::Serial2;
 
 void init();
 

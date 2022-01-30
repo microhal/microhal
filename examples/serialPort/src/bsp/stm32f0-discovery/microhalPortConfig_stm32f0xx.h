@@ -43,9 +43,10 @@ static constexpr uint32_t externalLSEFrequency = 32768;
 //***********************************************************************************************//
 //                                    Serial Port configurations                                 //
 //***********************************************************************************************//
-#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT 1  // available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
-                                               //						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
-                                               //						 MICROHAL_USE_SERIAL_PORTx_DMA
+#define MICROHAL_USE_SERIAL_PORT1_INTERRUPT \
+    1  // available settings are MICROHAL_USE_SERIAL_PORTx_POLLING
+       //						 MICROHAL_USE_SERIAL_PORTx_INTERRUPT
+       //						 MICROHAL_USE_SERIAL_PORTx_DMA
 #define MICROHAL_SERIAL_PORT1_TX_BUFFER_SIZE 1024
 #define MICROHAL_SERIAL_PORT1_RX_BUFFER_SIZE 128
 

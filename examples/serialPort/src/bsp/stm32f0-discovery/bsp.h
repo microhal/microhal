@@ -33,7 +33,7 @@
 #include "microhal.h"
 
 namespace bsp {
-static microhal::SerialPort &serialPortA = microhal::stm32f0xx::SerialPort::Serial1;
+static microhal::SerialPort &debugSerial = microhal::stm32f0xx::SerialPort::Serial1;
 
 void init();
 }  // namespace bsp

@@ -37,7 +37,7 @@ extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t 
     (void)r;     // suppress warning
     (void)file;  // suppress warning
 
-    return bsp::serialPortA.write((const char *)buf, nbyte);
+    return bsp::debugSerial.write((const char *)buf, nbyte);
 }
 
 void hardwareConfig(void) {
@@ -47,10 +47,11 @@ void hardwareConfig(void) {
     SysTick_Config(168000000 / 1000);
 }
 
+extern "C" void preInit(void) {}
+
 namespace bsp {
 void init() {
-    IOManager::routeSerial<3, Txd, {stm32f4xx::IOPin::PortD, 8}>();
-    IOManager::routeSerial<3, Rxd, {stm32f4xx::IOPin::PortD, 9}>();
+    IOManager::route_SerialPort<Peripheral::SerialPort3, IOPin{stm32f4xx::IOPin::PortD, 9}, IOPin{stm32f4xx::IOPin::PortD, 8}>();
 }
 }  // namespace bsp
 

@@ -6,9 +6,8 @@
  *
  * @authors    Pawel Okas
  * created on: 16-04-2014
- * last modification: <DD-MM-YYYY>
  *
- * @copyright Copyright (c) 2014-2018, Pawel Okas
+ * @copyright Copyright (c) 2014-2022, Pawel Okas
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,10 +31,16 @@
 using namespace microhal;
 using namespace stm32f0xx;
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return bsp::debugSerial.write((const char *)buf, nbyte);
+}
+
 namespace bsp {
 void init() {
-    IOManager::routeSerial<1, Txd, stm32f0xx::IOPin::PortA, 9>();
-    IOManager::routeSerial<1, Rxd, stm32f0xx::IOPin::PortA, 10>();
+    IOManager::route_SerialPort<Peripheral::SerialPort1, IOPin{IOPin::PortA, 10}, IOPin{IOPin::PortA, 9}>();
 }
 }  // namespace bsp
 

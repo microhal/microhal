@@ -38,8 +38,10 @@ extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t 
     (void)r;     // suppress warning
     (void)file;  // suppress warning
 
-    return bsp::serialPortA.write((const char *)buf, nbyte);
+    return bsp::debugSerial.write((const char *)buf, nbyte);
 }
+
+extern "C" void preInit(void) {}
 
 void hardwareConfig(void) {
     Core::fpu_enable();
@@ -49,8 +51,7 @@ void hardwareConfig(void) {
 
 namespace bsp {
 void init() {
-    IOManager::routeSerial<2, Txd, {stm32f4xx::IOPin::PortA, 2}>();
-    IOManager::routeSerial<2, Rxd, {stm32f4xx::IOPin::PortA, 3}>();
+    IOManager::route_SerialPort<Peripheral::SerialPort2, IOPin{stm32f4xx::IOPin::PortA, 3}, IOPin{stm32f4xx::IOPin::PortA, 2}>();
 }
 }  // namespace bsp
 

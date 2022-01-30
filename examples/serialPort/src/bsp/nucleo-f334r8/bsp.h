@@ -32,9 +32,9 @@
 
 #include "microhal.h"
 namespace bsp {
-static microhal::SerialPort &serialPortA = microhal::stm32f3xx::SerialPort::Serial2;
+static microhal::SerialPort &debugSerial = microhal::stm32f3xx::SerialPort::Serial2;
 
 void init();
-}  // namesapce bsp
+}  // namespace bsp
 
 #endif  // STM32F3DISCOVERY_H_

@@ -32,11 +32,17 @@
 using namespace microhal;
 using namespace stm32g0xx;
 
+extern "C" ssize_t _write_r(struct _reent *r, int file, const void *buf, size_t nbyte) {
+    (void)r;     // suppress warning
+    (void)file;  // suppress warning
+
+    return bsp::debugSerial.write((const char *)buf, nbyte);
+}
+
 namespace bsp {
 
 void init() {
-    IOManager::routeSerial<2, Txd, IOPin{IOPin::PortA, 2}>();
-    IOManager::routeSerial<2, Rxd, IOPin{IOPin::PortA, 3}>();
+    IOManager::route_SerialPort<Peripheral::SerialPort2, IOPin{IOPin::PortA, 3}, IOPin{IOPin::PortA, 2}>();
 }
 
 }  // namespace bsp
