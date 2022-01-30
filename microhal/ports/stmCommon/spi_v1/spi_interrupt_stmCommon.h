@@ -46,15 +46,12 @@ namespace _MICROHAL_ACTIVE_PORT_NAMESPACE {
  */
 class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
  public:
-    template <int number, IOPin miso, IOPin mosi, IOPin sck>
+    template <Peripheral peripheral, IOPin miso, IOPin mosi, IOPin sck>
     static SPI_interrupt &create(GPIO::OutputType mosiType = GPIO::OutputType::PushPull, GPIO::OutputType sckType = GPIO::OutputType::PushPull) {
-        IOManager::routeSPI<number, MISO, miso>();
-        IOManager::routeSPI<number, MOSI, mosi>(GPIO::PullType::NoPull, mosiType);
-        IOManager::routeSPI<number, SCK, sck>(GPIO::PullType::NoPull, sckType);
-        static_assert(IOManager::spiPinAssert(number, miso, mosi, sck), "Incorrect Pin configuration");
+        IOManager::route_SPI<peripheral, miso, mosi, sck>();
 
-        if constexpr (number == 1) {
-            static_assert(MICROHAL_USE_SPI1_INTERRUPT == 1 && number == 1,
+        if constexpr (peripheral == Peripheral::SPI1) {
+            static_assert(MICROHAL_USE_SPI1_INTERRUPT == 1 && peripheral == Peripheral::SPI1,
                           "You have to define 'MICROHAL_USE_SPI1_INTERRUPT 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI1_INTERRUPT == 1
             static SPI_interrupt _spi1(*microhal::registers::spi1, miso);
@@ -62,8 +59,8 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             return *spi1;
 #endif
         }
-        if constexpr (number == 2) {
-            static_assert(MICROHAL_USE_SPI2_INTERRUPT == 1 && number == 2,
+        if constexpr (peripheral == Peripheral::SPI2) {
+            static_assert(MICROHAL_USE_SPI2_INTERRUPT == 1 && peripheral == Peripheral::SPI2,
                           "You have to define 'MICROHAL_USE_SPI2_INTERRUPT 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI2_INTERRUPT == 1
             static SPI_interrupt _spi2(*microhal::registers::spi2, miso);
@@ -71,8 +68,9 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             return *spi2;
 #endif
         }
-        if constexpr (number == 3) {
-            static_assert(MICROHAL_USE_SPI3_INTERRUPT == 1 && number == 3,
+#ifdef _MICROHAL_SPI3_BASE_ADDRESS
+        if constexpr (peripheral == Peripheral::SPI3) {
+            static_assert(MICROHAL_USE_SPI3_INTERRUPT == 1 && peripheral == Peripheral::SPI3,
                           "You have to define 'MICROHAL_USE_SPI3_INTERRUPT 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI3_INTERRUPT == 1
             static SPI_interrupt _spi3(*microhal::registers::spi3, miso);
@@ -80,8 +78,10 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             return *spi3;
 #endif
         }
-        if constexpr (number == 4) {
-            static_assert(MICROHAL_USE_SPI4_INTERRUPT == 1 && number == 4,
+#endif
+#ifdef _MICROHAL_SPI4_BASE_ADDRESS
+        if constexpr (peripheral == Peripheral::SPI4) {
+            static_assert(MICROHAL_USE_SPI4_INTERRUPT == 1 && peripheral == Peripheral::SPI4,
                           "You have to define 'MICROHAL_USE_SPI4_INTERRUPT 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI4_INTERRUPT == 1
             static SPI_interrupt _spi4(*microhal::registers::spi4, miso);
@@ -89,8 +89,10 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             return *spi4;
 #endif
         }
-        if constexpr (number == 5) {
-            static_assert(MICROHAL_USE_SPI5_INTERRUPT == 1 && number == 5,
+#endif
+#ifdef _MICROHAL_SPI5_BASE_ADDRESS
+        if constexpr (peripheral == Peripheral::SPI5) {
+            static_assert(MICROHAL_USE_SPI5_INTERRUPT == 1 && peripheral == Peripheral::SPI5,
                           "You have to define 'MICROHAL_USE_SPI5_INTERRUPT 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI5_INTERRUPT == 1
             static SPI_interrupt _spi5(*microhal::registers::spi5, miso);
@@ -98,8 +100,10 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             return *spi5;
 #endif
         }
-        if constexpr (number == 6) {
-            static_assert(MICROHAL_USE_SPI6_INTERRUPT == 1 && number == 6,
+#endif
+#ifdef _MICROHAL_SPI6_BASE_ADDRESS
+        if constexpr (peripheral == Peripheral::SPI6) {
+            static_assert(MICROHAL_USE_SPI6_INTERRUPT == 1 && peripheral == Peripheral::SPI6,
                           "You have to define 'MICROHAL_USE_SPI3_INTERRUPT 1' in microhalPortConfig_xxx.h file.");
 #if MICROHAL_USE_SPI6_INTERRUPT == 1
             static SPI_interrupt _spi6(*microhal::registers::spi6, miso);
@@ -107,6 +111,7 @@ class SPI_interrupt : public _MICROHAL_ACTIVE_PORT_NAMESPACE::SPI {
             return *spi6;
 #endif
         }
+#endif
     }
 
     //---------------------------------------- functions ----------------------------------------//
