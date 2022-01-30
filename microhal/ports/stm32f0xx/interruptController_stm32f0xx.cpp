@@ -25,7 +25,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "interruptController.h"
+#include "ports/stmCommon/interruptController/interruptController.h"
 
 #include <array>
 #include <cassert>
@@ -37,7 +37,7 @@ namespace stm32f0xx {
 
 static constexpr std::array<IRQn_Type, 2> usartIrq = {USART1_IRQn, USART2_IRQn};
 
-void enableUSARTInterrupt(uint8_t usartNumber, uint32_t priority) {
+void enableUSARTInterrupt(uint_fast8_t usartNumber, uint32_t priority) {
     assert(usartNumber > 0);
     assert(usartNumber <= 2);
 
