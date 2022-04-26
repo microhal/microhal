@@ -32,7 +32,9 @@
  * INCLUDES
  */
 #include <utils/microhal_expected.h>
+#include <array>
 #include <cstdint>
+#include <string_view>
 
 namespace microhal {
 /* ************************************************************************************************
@@ -63,7 +65,14 @@ class GPIO {
         PullDown = 2  //!< Pull down resistor active
     };
 
-    enum class Error : int_fast8_t { None = 0, GPIONotOutput = -1, GPIONotInput = -2, UnsupportedOutputType = -3 };
+    enum class Error : int_fast8_t {
+        None = 0,
+        GPIONotOutput = -1,
+        GPIONotInput = -2,
+        UnsupportedOutputType = -3,
+        LinuxGPIOUnconfigured = -4,
+        Unsupported = -5
+    };
 
     using PinStateReturnType = Expected<State, UnexpectedNegativeValue<Error>>;
 
@@ -104,12 +113,14 @@ class GPIO {
         else
             return set();
     }
+
     /** Set pin to low state
      * @return Operation state
      * @retval Error::None on success
      * @retval Error code if an error occurred.
      */
     virtual Error reset() noexcept = 0;
+
     /** Set pin to opposite state
      * @return Operation state
      * @retval Error::None on success
@@ -120,6 +131,7 @@ class GPIO {
         if (state) return (state.value() == State::Low) ? set() : reset();
         return state.error();  // error occurred
     }
+
     /**
      * @brief Get actual pin state
      * @return Current pin state or error, if has_value() method of return type is true then function result contain value and can be accessed by
@@ -139,6 +151,7 @@ class GPIO {
      * }
      */
     virtual PinStateReturnType get() const noexcept = 0;
+
     /**
      * @brief Get output state, this can be used with @ref get method to check if pin is shorted to ground or power lines.
      * @return Programmed pin state or error, set by @ref set or @ref reset methods
@@ -168,6 +181,33 @@ class GPIO {
  private:
     virtual Error configure(Direction, OutputType, PullType) = 0;
 };
+
+constexpr const std::string_view to_string(GPIO::Error error) {
+    constexpr const std::array<std::string_view, 6> str = {
+        "None", "GPIONotOutput", "GPIONotInput", "UnsupportedOutputType", "LinuxGPIOUnconfigured", "Unsupported"};
+    const uint16_t error_int = static_cast<uint16_t>(error) * -1;
+    return str[error_int];
+}
+
+constexpr const std::string_view to_string(GPIO::Direction direction) {
+    constexpr const std::array<std::string_view, 2> str = {"Input", "Output"};
+    const unsigned int direction_int = static_cast<int>(direction);
+    if (direction_int < 2) {
+        return str[direction_int];
+    }
+
+    return std::string_view{"Unknown direction, probably memory error."};
+}
+
+constexpr const std::string_view to_string(GPIO::State state) {
+    constexpr const std::array<std::string_view, 2> str = {"Low", "High"};
+    const unsigned int state_int = static_cast<int>(state);
+    if (state_int < 1) {
+        return str[state_int];
+    }
+
+    return std::string_view{"Unknown state, probably memory error."};
+}
 
 }  // namespace microhal
 

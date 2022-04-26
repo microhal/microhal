@@ -34,6 +34,7 @@
  */
 
 #include <cstdint>
+#include <filesystem>
 
 #include "IOPin.h"
 #include "gpio/gpio_interface.h"
@@ -47,6 +48,13 @@ namespace linux {
 class GPIO : public microhal::GPIO {
  public:
     //--------------------------------------- constructors --------------------------------------//
+    GPIO() = default;
+    GPIO(const GPIO &) = delete;
+    GPIO(GPIO &&b)
+        : pin(b.pin),
+          output_state_requested(b.output_state_requested),
+          value_file_path(std::move(b.value_file_path)),
+          direction_file_path(std::move(b.direction_file_path)) {}
     /**
      * @brief Constructor of GPIO class
      *
@@ -58,7 +66,11 @@ class GPIO : public microhal::GPIO {
      */
     GPIO(IOPin pin, Direction dir, PullType pull = PullType::NoPull, OutputType type = OutputType::PushPull);
     ~GPIO() override;
+
+    void operator=(const GPIO &) = delete;
+    void operator=(GPIO &&) = delete;
     //------------------------------------ static functions -------------------------------------//
+    using microhal::GPIO::set;
     /** This function set pin to high state.
      *
      */
@@ -72,6 +84,8 @@ class GPIO : public microhal::GPIO {
      * @return
      */
     PinStateReturnType get() const noexcept final;
+
+    PinStateReturnType getOutputState() const noexcept final;
     /** This function set pin direction.
      *
      * @param port - port name
@@ -79,6 +93,13 @@ class GPIO : public microhal::GPIO {
      * @param direction - pin direction
      */
     void setDirection(Direction direction);
+
+    Expected<Direction, UnexpectedNegativeValue<Error>> getDirection() const noexcept final;
+
+    Expected<OutputType, UnexpectedNegativeValue<Error>> getOutputType() const noexcept final;
+
+    Expected<PullType, UnexpectedNegativeValue<Error>> getPullType() const noexcept final;
+
     /** This function set pin pull type
      *
      * @param port
@@ -88,7 +109,10 @@ class GPIO : public microhal::GPIO {
     void setPullType(PullType pullType) {}
 
  protected:
-    const IOPin pin;
+    IOPin pin{};
+    State output_state_requested{};
+    std::filesystem::path value_file_path;
+    std::filesystem::path direction_file_path;
 
     Error configure(Direction direction, OutputType outputType, PullType pullType) final {
         setDirection(direction);
@@ -96,6 +120,8 @@ class GPIO : public microhal::GPIO {
         setPullType(pullType);
         return Error::None;
     }
+
+    void init_file_path();
 };
 
 }  // namespace linux
