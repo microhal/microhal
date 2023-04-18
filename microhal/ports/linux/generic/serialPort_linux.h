@@ -130,7 +130,7 @@ class SerialPort : public microhal::SerialPort {
     //------------------------------------------- variables -----------------------------------------//
     struct termios tio {};
     int tty_fd = 0;
-    const char *portName{};
+    std::string portName;
 };
 
 }  // namespace linux

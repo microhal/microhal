@@ -54,7 +54,9 @@ class GPIO : public microhal::GPIO {
         : pin(b.pin),
           output_state_requested(b.output_state_requested),
           value_file_path(std::move(b.value_file_path)),
-          direction_file_path(std::move(b.direction_file_path)) {}
+          direction_file_path(std::move(b.direction_file_path)) {
+        b.pin.pin = -1;
+    }
     /**
      * @brief Constructor of GPIO class
      *

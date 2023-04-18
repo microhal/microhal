@@ -44,7 +44,7 @@ int SerialPort::open(OpenMode mode) noexcept {
     }
 
     if (isOpen() == false) {
-        tty_fd = ::open(portName, openParam);
+        tty_fd = ::open(portName.c_str(), openParam);
         if (tty_fd > 0 && isatty(tty_fd)) {
             if (tcgetattr(tty_fd, &tio) == 0) {
                 tio.c_cflag &= ~CRTSCTS;        // Disable RTS/CTS hardware flow control

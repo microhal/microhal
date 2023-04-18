@@ -131,9 +131,10 @@ class SPI : public microhal::SPI {
         return speed;
     }
 
-    uint32_t speed() const final { return busSpeed; }
+    [[nodiscard]] uint32_t speed() const final { return busSpeed; }
+    [[nodiscard]] uint32_t maxCLKFrequency() const final { return 1; }
 
-    SPI::Error write(const void *data, const size_t len, bool last) final {
+    SPI::Error write(const void *data, size_t len, bool last) final {
         if (len > sizeof(tmpBuf)) std::terminate();
         return writeRead(tmpBuf, data, len);
     }

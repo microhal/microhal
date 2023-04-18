@@ -7,7 +7,7 @@
 
 #include "consoleIODevice_linux.h"
 #include <fcntl.h>
-#include <ncurses.h>
+//#include <ncurses.h>
 #include <stdio.h>
 #include <cstdio>
 #include <ios>
@@ -18,12 +18,12 @@ namespace linux {
 console_IODevice consoleIODev;
 
 console_IODevice::console_IODevice() {
-    initscr(); /* Start curses mode 		*/
+    // initscr(); /* Start curses mode 		*/
 }
 
 console_IODevice::~console_IODevice() {
     stopReadingThread();
-    endwin(); /* End curses mode		  */
+    //  endwin(); /* End curses mode		  */
 }
 
 int console_IODevice::open(OpenMode mode) noexcept {
@@ -131,10 +131,10 @@ ssize_t console_IODevice::read(char *buffer, size_t length) noexcept {
 ssize_t console_IODevice::write(const char *data, size_t length) noexcept {
     size_t bytesWritten = 0;
     if (mode == OpenMode::ReadWrite || mode == OpenMode::WriteOnly) {
-        if (waddnstr(stdscr, data, length) != ERR) {
-            bytesWritten = length;
-            refresh();
-        }
+        // if (waddnstr(stdscr, data, length) != ERR) {
+        bytesWritten = fwrite(data, 1, length, stdout);
+        //   refresh();
+        // }
     }
     return bytesWritten;
 }
@@ -150,46 +150,46 @@ void console_IODevice::stopReadingThread(void) {
 void console_IODevice::procThread() {
     auto stoken = readingThread.get_stop_token();
 
-    raw();                /* Line buffering disabled	*/
-    keypad(stdscr, TRUE); /* We get F1, F2 etc..		*/
-    noecho();             /* Don't echo() while we do getch */
-    timeout(-1);
+    // raw();                /* Line buffering disabled	*/
+    // keypad(stdscr, TRUE); /* We get F1, F2 etc..		*/
+    // noecho();             /* Don't echo() while we do getch */
+    // timeout(-1);
 
     while (!stoken.stop_requested()) {
-        auto c = getch();
-        if (c != ERR) {
-            std::lock_guard<std::mutex> g(inputBufferMutex);
-            switch (c) {
-                case KEY_LEFT:
-                    inputBuffer.append(0xe0);
-                    inputBuffer.append(0x4b);
-                    break;
-                case KEY_RIGHT:
-                    inputBuffer.append(0xe0);
-                    inputBuffer.append(0x4d);
-                    break;
-                case KEY_UP:
-                    inputBuffer.append(0xe0);
-                    inputBuffer.append(0x48);
-                    break;
-                case KEY_DOWN:
-                    inputBuffer.append(0xe0);
-                    inputBuffer.append(0x50);
-                    break;
-                case KEY_ENTER:
-                    inputBuffer.append('\n');
-                    break;
-                case KEY_BACKSPACE:
-                    inputBuffer.append('\b');
-                    break;
-                case 3:
-                    std::terminate();
-                    break;
-                default:
-                    inputBuffer.append(c);
-                    break;
-            }
-        }
+        auto c = getc(stdin);
+        // if (c != ERR) {
+        std::lock_guard<std::mutex> g(inputBufferMutex);
+        //            switch (c) {
+        //                case KEY_LEFT:
+        //                    inputBuffer.append(0xe0);
+        //                    inputBuffer.append(0x4b);
+        //                    break;
+        //                case KEY_RIGHT:
+        //                    inputBuffer.append(0xe0);
+        //                    inputBuffer.append(0x4d);
+        //                    break;
+        //                case KEY_UP:
+        //                    inputBuffer.append(0xe0);
+        //                    inputBuffer.append(0x48);
+        //                    break;
+        //                case KEY_DOWN:
+        //                    inputBuffer.append(0xe0);
+        //                    inputBuffer.append(0x50);
+        //                    break;
+        //                case KEY_ENTER:
+        //                    inputBuffer.append('\n');
+        //                    break;
+        //                case KEY_BACKSPACE:
+        //                    inputBuffer.append('\b');
+        //                    break;
+        //                case 3:
+        //                    std::terminate();
+        //                    break;
+        //                default:
+        inputBuffer.append(c);
+        // break;
+        // }
+        //}
     }
 }
 

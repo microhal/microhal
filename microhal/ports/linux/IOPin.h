@@ -15,20 +15,16 @@ namespace linux {
 
 struct IOPin {
     /**
-     * This enum contain port list.
-     */
-    typedef enum { PortA } Port;
-    /**
      *
      */
-    typedef uint_fast16_t Pin;
+    typedef int_fast16_t Pin;
     /**
      *
      */
 
-    Port port;
     Pin pin;
-    constexpr IOPin(const Port port, const Pin pin) : port(port), pin(pin) {}
+    constexpr IOPin(const Pin pin) : pin(pin) {}
+    constexpr IOPin() : pin(-1) {}
 };
 }  // namespace linux
 }  // namespace microhal
