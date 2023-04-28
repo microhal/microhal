@@ -19,9 +19,6 @@
 [submodule "microhal/microhal-os"]
 	path = microhal/microhal-os
 	url = https://github.com/microHAL/microhal-os.git
-[submodule "components/hostComm"]
-	path = components/hostComm
-	url = https://github.com/microHAL/hostComm.git
 [submodule "third-party/cpputest"]
 	path = third-party/cpputest
 	url = https://github.com/cpputest/cpputest.git
