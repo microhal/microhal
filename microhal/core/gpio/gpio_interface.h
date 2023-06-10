@@ -182,6 +182,10 @@ class GPIO {
     virtual Error configure(Direction, OutputType, PullType) = 0;
 };
 
+constexpr GPIO::State operator!(GPIO::State state) {
+    return static_cast<GPIO::State>(!static_cast<uint_fast8_t>(state));
+}
+
 constexpr const std::string_view to_string(GPIO::Error error) {
     constexpr const std::array<std::string_view, 6> str = {
         "None", "GPIONotOutput", "GPIONotInput", "UnsupportedOutputType", "LinuxGPIOUnconfigured", "Unsupported"};
