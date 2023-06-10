@@ -40,6 +40,8 @@
 
 #include "buffers/cyclicBuffer.h"
 
+#undef linux
+
 namespace microhal {
 namespace linux {
 

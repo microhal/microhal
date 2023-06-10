@@ -10,6 +10,8 @@
 
 #include <cstdint>
 
+#undef linux
+
 namespace microhal {
 namespace linux {
 
