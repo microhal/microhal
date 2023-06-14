@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_SPI_LINUX_H_
-#define _MICROHAL_SPI_LINUX_H_
+#ifndef MICROHAL_SPI_LINUX_H_
+#define MICROHAL_SPI_LINUX_H_
 /* **************************************************************************************************************************************************
  * INCLUDES
  */
@@ -44,18 +44,21 @@
 #include <cstring>
 #include <exception>
 #include <type_traits>
+#include <string>
 
 #include "interfaces/spi_interface.h"
 
-namespace microhal {
-namespace linux {
+#undef linux
+
+namespace microhal::linux {
 
 /* **************************************************************************************************************************************************
  * CLASS
  */
 class SPI : public microhal::SPI {
  public:
-    SPI(const char *name) { std::copy_n(name, std::strlen(name), deviceName); }
+    SPI() = default;
+    SPI(const std::string& name) : deviceName(name) {}
 
     bool setMode(Mode mode) final {
         auto modeToNum = [](Mode mode) {
@@ -102,7 +105,7 @@ class SPI : public microhal::SPI {
     bool isEnabled() { return enabled; }
 
     void enable() final {
-        fd = open(deviceName, O_RDWR);
+        fd = open(deviceName.c_str(), O_RDWR);
         if (fd < 0) std::terminate();
         enabled = true;
 
@@ -166,10 +169,10 @@ class SPI : public microhal::SPI {
         return error;
     }
 
-    const char *device() const { return deviceName; }
+    const std::string &device() const { return deviceName; }
 
  private:
-    char deviceName[50];
+    std::string deviceName;
     int fd = 0;
     Mode mode = Mode::Mode0;
     uint32_t busSpeed = 100000;
@@ -177,7 +180,6 @@ class SPI : public microhal::SPI {
     uint8_t tmpBuf[256];
 };
 
-}  // namespace linux
-}  // namespace microhal
+}  // namespace microhal::linux
 
-#endif  // _MICROHAL_SPI_LINUX_H_
+#endif  // MICROHAL_SPI_LINUX_H_
