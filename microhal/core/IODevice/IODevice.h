@@ -27,8 +27,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _MICROHAL_IODEVICE_H_
-#define _MICROHAL_IODEVICE_H_
+#ifndef MICROHAL_IODEVICE_H_
+#define MICROHAL_IODEVICE_H_
 /* ************************************************************************************************
  * INCLUDES
  */
@@ -62,12 +62,12 @@ class IODevice {
         ReadWrite = ReadOnly | WriteOnly,  // The device is open for reading and writing.
     } OpenMode;
 
-    std::recursive_timed_mutex mutex;
+    std::recursive_timed_mutex mutex = {};
 
 #if defined(__MICROHAL_MUTEX_CONSTEXPR_CTOR)
     constexpr IODevice() : mutex() {}
 #else
-    IODevice() : mutex() {}
+    IODevice() = default;
 #endif
 
     virtual ~IODevice() = default;
@@ -85,7 +85,7 @@ class IODevice {
      *
      * @return
      */
-    virtual int isOpen() const noexcept = 0;
+    [[nodiscard]] virtual int isOpen() const noexcept = 0;
     /**
      *
      * @param[out] buffer
@@ -96,7 +96,7 @@ class IODevice {
     /**
      *
      */
-    virtual ssize_t availableBytes() const noexcept = 0;
+    [[nodiscard]] virtual ssize_t availableBytes() const noexcept = 0;
     /**
      *
      * @return
@@ -134,4 +134,4 @@ class IODevice {
 
 }  // namespace microhal
 
-#endif  // _MICROHAL_IODEVICE_H_
+#endif  // MICROHAL_IODEVICE_H_
